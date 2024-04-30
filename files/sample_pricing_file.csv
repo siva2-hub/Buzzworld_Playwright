@@ -1,0 +1,1 @@
+Supplier(7),VendorStockCode(30),VendorDescription(30),UnitOfMeasure(3),ListPrice,POPrice,DiscountCode,MinimumPOQuantity,ProductClass(4)

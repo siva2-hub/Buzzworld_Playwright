@@ -1,0 +1,49 @@
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+----------------------------------------------------------------------------------------------------------
+
+getting Error while creating job  Error: [31mTimed out 16000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+Locator: getByRole('heading', { name: 'Job Information' })
+Expected: visible
+Received: hidden
+Call log:
+  [2m- expect.toBeVisible with timeout 16000ms[22m
+[2m  - waiting for getByRole('heading', { name: 'Job Information' })[22m
+
+
+[32m  1 passed[39m[2m (1.2m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+used job id is  86742
+
+
+parts purchase created with id  000315
+[32m  1 passed[39m[2m (1.4m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+----------------------------------------------------------------------------------------------------------
+
+Error: [31mTimed out 16000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+Locator: locator('//*[text() = 46012504001]')
+Expected: visible
+Received: hidden
+Call log:
+  [2m- expect.toBeVisible with timeout 16000ms[22m
+[2m  - waiting for locator('//*[text() = 46012504001]')[22m
+
+
+order created with id  234004
+
+
+job selection checkbox is checked  true
+job created with id  86749
+
+[32m  1 passed[39m[2m (3.1m)[22m
+
