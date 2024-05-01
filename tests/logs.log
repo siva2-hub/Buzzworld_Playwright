@@ -1,49 +1,96 @@
 
 [2mRunning [22m1[2m test using [22m1[2m worker[22m
 
-----------------------------------------------------------------------------------------------------------
+-------------------------------------------------- 1/5/2024, 10:39:16 am --------------------------------------------------------
 
-getting Error while creating job  Error: [31mTimed out 16000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
-
-Locator: getByRole('heading', { name: 'Job Information' })
-Expected: visible
-Received: hidden
-Call log:
-  [2m- expect.toBeVisible with timeout 16000ms[22m
-[2m  - waiting for getByRole('heading', { name: 'Job Information' })[22m
+repair is created with id  314815
 
 
-[32m  1 passed[39m[2m (1.2m)[22m
+repair url is  https://www.staging-buzzworld.iidm.com/repair-request/87c63210-9741-4e5d-87f8-a2608de31853
+quote is created with id  2024050100003
 
 
-[2mRunning [22m1[2m test using [22m1[2m worker[22m
-
-used job id is  86742
-
-
-parts purchase created with id  000315
-[32m  1 passed[39m[2m (1.4m)[22m
-
-
-[2mRunning [22m1[2m test using [22m1[2m worker[22m
-
-----------------------------------------------------------------------------------------------------------
-
-Error: [31mTimed out 16000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
-
-Locator: locator('//*[text() = 46012504001]')
-Expected: visible
-Received: hidden
-Call log:
-  [2m- expect.toBeVisible with timeout 16000ms[22m
-[2m  - waiting for locator('//*[text() = 46012504001]')[22m
-
-
-order created with id  234004
+quote url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/9e97b325-e657-450e-bf0a-b14bb6eaa5cf
+order created with id  234008
 
 
 job selection checkbox is checked  true
-job created with id  86749
+job created with id  86753
 
-[32m  1 passed[39m[2m (3.1m)[22m
+-------------------------------------------------- 1/5/2024, 10:39:16 am --------------------------------------------------------
+
+used job id is  86753
+
+
+parts purchase created with id  000318
+[32m  1 passed[39m[2m (4.1m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- 1/5/2024, 10:45:33 am --------------------------------------------------------
+
+used job id is  86753
+
+
+parts purchase created with id  000319
+[32m  1 passed[39m[2m (1.6m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- 1/5/2024, 10:47:50 am --------------------------------------------------------
+
+Logout is displayed, login working
+
+login id displayed logout is working
+
+getting this  Invalid Email or Password  invalid email with valid password
+
+getting this  Invalid Email or Password  valid email with invalid password
+
+getting this  Invalid Email or Password  Invalid email with invalid password
+
+getting this  Please Enter Valid Email Address  in valid email format and empty password
+
+getting this  Please Enter Password  in valid email format and empty password
+
+getting this  Please Enter Email Id  empty email format and empty password
+
+getting this  Please Enter Password  empty email format and empty password
+
+[32m  1 passed[39m[2m (1.3m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- 1/5/2024, 10:58:08 am --------------------------------------------------------
+
+Logout is displayed, login working
+
+login id displayed logout is working
+
+getting this  Invalid Email or Password  invalid email with valid password
+
+
+getting this  Invalid Email or Password  valid email with invalid password
+getting this  Invalid Email or Password  Invalid email with invalid password
+
+getting this  Please Enter Valid Email Address  in valid email format and empty password
+
+getting this  Please Enter Password  in valid email format and empty password
+
+getting this  Please Enter Email Id  empty email format and empty password
+
+
+getting this  Please Enter Password  empty email format and empty password
+getting this  We cannot find an active account linked to the email address that you entered. Please check the email address or contact your system administrator.  while verifying reset password with un registered mail
+
+getting this  Please Enter Valid Email Address  while verifying reset password with invalid mail
+
+getting this  Please Enter Email Id  while verifying reset password with empty mail
+
+displayed msg  Please Enter Email Id  while verifying reset password with valid registered mail
+
+[32m  1 passed[39m[2m (1.3m)[22m
 

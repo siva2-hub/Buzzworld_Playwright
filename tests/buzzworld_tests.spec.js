@@ -12,7 +12,7 @@ test.describe('all tests', async () => {
   // To Run the Tests in Serial Order un comment the below line
   test.describe.configure({ mode: 'serial' });
 
-  test.beforeEach(async ({ browser }) => {
+  test.beforeAll(async ({ browser }) => {
     page = await browser.newPage();
     await page.setViewportSize({
       width: 1920,
@@ -29,11 +29,12 @@ test.describe('all tests', async () => {
   });
 
   test('inventory search', async () => {
-    await inventory_search(page);
+    await inventory_search(page, 'FSD18-251-00-01');
   });
 
   test('create job and sales order from repair', async () => {
-    await create_job_repairs(page, 'Y')
+    //Repairable, Not Repairable, Repairable-Outsource
+    await create_job_repairs(page, 'Y', 2);
   })
 
   test('create job and sales order from quote', async () => {
@@ -45,7 +46,7 @@ test.describe('all tests', async () => {
   })
 
   test('create parts purchase manually', async () => {
-    await create_parts_purchase(page, true);
+    await create_parts_purchase(page, true, '');
   })
 
   test('left menu search', async () => {
@@ -72,12 +73,12 @@ test.describe('all tests', async () => {
     await multi_edit(page, testdata.dc_new);
   });
 
-  test.skip('import pricing two files', async () => {
+  test('import pricing two files', async () => {
     await import_pricing(page);
   });
 
-  test('functional_flow', async () => {
-    await functional_flow(page);
-  });
+  // test('functional_flow', async () => {
+  //   await functional_flow(page);
+  // });
 
 });

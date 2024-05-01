@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const { test, expect, page, chromium } = require('@playwright/test');
 const exp = require('constants');
+const { timeout } = require('../playwright.config');
 const currentDate = new Date().toDateString();
 let date = currentDate.split(" ")[2];
 let vendor = testdata.vendor;
@@ -209,6 +210,7 @@ async function request_payterms(page) {
 }
 async function login(page) {
     console.log('--------------------------------------------------', currentDateTime, '--------------------------------------------------------');
+    //positive scenario
     await page.locator('//*[@class = "user_image"]').click();
     await page.waitForTimeout(1700);
     let is_check = false;
@@ -221,6 +223,7 @@ async function login(page) {
     //veryfying logout is displayed or not
     if (is_check) {
         await page.getByRole('menuitem', { name: 'Logout' }).click();
+        //valid email with valid password
         await page.getByPlaceholder('Enter Email ID').fill('defaultuser@enterpi.com');
         await page.getByPlaceholder('Enter Password').fill('Enter@4321');
         await page.getByRole('button', { name: 'Sign In', exact: true }).click();
@@ -232,6 +235,86 @@ async function login(page) {
     console.log(await page.getByRole('menuitem', { name: 'Logout' }).textContent(), 'is displayed, login working')
     await page.locator('//*[@class = "user_image"]').click();
     await page.waitForTimeout(1200);
+    //verify logout
+    await page.locator('//*[@class = "user_image"]').click();
+    await page.getByRole('menuitem', { name: 'Logout' }).click();
+    //nagative scenarios
+    //invalid email with valid password
+    await page.getByPlaceholder('Enter Email ID').fill('123defaultuser@enterpi.com');
+    console.log('login id displayed logout is working');
+    await page.getByPlaceholder('Enter Password').fill('Enter@4321');
+    await page.getByRole('button', { name: 'Sign In', exact: true }).click();
+    let text = 'Invalid Email or Password';
+    await expect(page.locator("//*[text() = '" + text + "']")).toBeVisible();
+    console.log('getting this ', text, ' invalid email with valid password')
+    //valid email with invalid password
+    await page.getByPlaceholder('Enter Email ID').fill('defaultuser@enterpi.com');
+    await page.getByPlaceholder('Enter Password').fill('123Enter@4321');
+    await page.getByRole('button', { name: 'Sign In', exact: true }).click();
+    text = 'Invalid Email or Password';
+    await expect(page.locator("//*[text() = '" + text + "']")).toBeVisible();
+    console.log('getting this ', text, ' valid email with invalid password')
+    //invalid email with invalid password
+    await page.getByPlaceholder('Enter Email ID').fill('123defaultuser@enterpi.com');
+    await page.getByPlaceholder('Enter Password').fill('123Enter@4321');
+    await page.getByRole('button', { name: 'Sign In', exact: true }).click();
+    text = 'Invalid Email or Password';
+    await expect(page.locator("//*[text() = '" + text + "']")).toBeVisible();
+    console.log('getting this ', text, ' Invalid email with invalid password')
+    //in valid email format and empty password
+    await page.getByPlaceholder('Enter Email ID').fill('123defaultuser.com');
+    await page.getByPlaceholder('Enter Password').fill('');
+    await page.getByRole('button', { name: 'Sign In', exact: true }).click();
+    text = 'Please Enter Valid Email Address';
+    await expect(page.locator("//*[text() = '" + text + "']")).toBeVisible();
+    console.log('getting this ', text, ' in valid email format and empty password')
+    text = 'Please Enter Password';
+    await expect(page.locator("//*[text() = '" + text + "']")).toBeVisible();
+    console.log('getting this ', text, ' in valid email format and empty password')
+    //empty email format and empty password
+    await page.getByPlaceholder('Enter Email ID').fill('');
+    await page.getByPlaceholder('Enter Password').fill('');
+    await page.getByRole('button', { name: 'Sign In', exact: true }).click();
+    text = 'Please Enter Email Id';
+    await expect(page.locator("//*[text() = '" + text + "']")).toBeVisible();
+    console.log('getting this ', text, ' empty email format and empty password')
+    text = 'Please Enter Password';
+    await expect(page.locator("//*[text() = '" + text + "']")).toBeVisible();
+    console.log('getting this ', text, ' empty email format and empty password')
+    //reset or forgott password page
+    await page.locator("//*[text() = 'Forgot Password?']").click();
+    await expect(page.locator("//*[text() = 'Reset Password']")).toBeVisible();
+    //verify reset password with un registered mail
+    await page.locator("//*[@placeholder = 'Enter Email ID']").fill('sivadara17@gmail.com');
+    await page.locator("//*[text() = 'Reset Password']").click();
+    text = 'We cannot find an active account linked to the email address that you entered. Please check the email address or contact your system administrator.';
+    await expect(page.locator("//*[text() = '" + text + "']")).toBeVisible();
+    await page.waitForTimeout(1500);
+    console.log('getting this ', text,' while verifying reset password with un registered mail');
+    //verify reset password with invalid mail
+    await page.locator("//*[@placeholder = 'Enter Email ID']").fill('defaultuser.com');
+    await page.locator("//*[text() = 'Reset Password']").click();
+    text = 'Please Enter Valid Email Address';
+    await expect(page.locator("//*[text() = '" + text + "']")).toBeVisible();
+    await page.waitForTimeout(1500);
+    console.log('getting this ', text,' while verifying reset password with invalid mail');
+    //verify reset password with empty mail
+    text = 'Please Enter Email Id';
+    await page.locator("//*[@placeholder = 'Enter Email ID']").fill('');
+    await page.locator("//*[text() = 'Reset Password']").click();
+    await expect(page.locator("//*[text() = '" + text + "']")).toBeVisible();
+    await page.waitForTimeout(1500);
+    console.log('getting this ', text,' while verifying reset password with empty mail');
+    //verify reset password with valid registered mail
+    await page.locator("//*[@placeholder = 'Enter Email ID']").fill('defaultuser@enterpi.com');
+    await page.locator("//*[text() = 'Reset Password']").click();
+    await expect(page.locator("//*[text() = 'Please check your email']")).toBeVisible();
+    text = 'An email with password reset instructions has been sent to your email address.';
+    await expect(page.locator("//*[text() = '" + text + "']")).toBeVisible();
+    await page.locator("(//*[text() = 'keyboard_backspace'])[2]").click();
+    await expect(page.getByPlaceholder('Enter Email ID')).toBeVisible();
+    console.log('displayed msg ', text,' while verifying reset password with valid registered mail');
+    await page.waitForTimeout(2000);
 }
 async function login_buzz(page, stage_url) {
     await page.goto(stage_url);
@@ -437,20 +520,13 @@ async function add_dc(page) {
         await page.waitForTimeout(2500)
         await expect(page.getByLabel('open')).toBeVisible();
         await page.getByLabel('open').click();
-        // await page.getByText('Default', { exact: true }).click();
-        // if (await page.url().includes('staging')) {
-        //     await page.getByText('Default').click();
-        // } else {
-
         await page.keyboard.insertText('Default');
         await page.waitForTimeout(2000);
         await page.keyboard.press('Enter');
-        // }
         await page.getByText('Add').click();
         await expect(page.getByPlaceholder('Our Price')).toBeVisible();
         await page.getByPlaceholder('Discount Code', { exact: true }).fill(testdata.dc_new);
         await page.getByText('MM/DD/YYYY').first().click();
-        // await page.getByText(date, { exact: true }).click();
         await page.keyboard.press('ArrowDown');
         await page.keyboard.press('ArrowUp');
         await page.keyboard.press('Enter');
@@ -626,13 +702,14 @@ async function spinner(page) {
     await page.waitForTimeout(1200)
     await expect(await page.locator("//*[@style = 'animation-delay: 0ms;']")).toBeHidden();
 }
-async function create_job_repairs(page, is_create_job) {
+async function create_job_repairs(page, is_create_job, repair_type) {
     console.log('--------------------------------------------------', currentDateTime, '--------------------------------------------------------');
-    let acc_num = 'ZUMMO00', cont_name = 'Austin Zummo', stock_code = '2026012504';
+    let acc_num = 'FLORI01', cont_name = 'Christian Medina', stock_code = 'FSD18-251-00-01';
     let tech = 'Michael Strothers';
-    // await page.goto('https://www.staging-buzzworld.iidm.com/repair-request/14a8572a-f174-4445-9da4-5b4cb700b15c');
+    // await page.goto('https://www.staging-buzzworld.iidm.com/orders-detail-view/2b809722-feed-4e1f-abd1-67a25c3862dc');
     await page.getByText('Repairs').first().click();
     await expect(page.locator('(//*[contains(@src, "vendor_logo")])[1]')).toBeVisible();
+    await page.waitForTimeout(2000);
     await page.getByText('Create RMA').click();
     await expect(page.locator('#root')).toContainText('Search By Company Name');
     await page.getByText('Search By Company Name').click();
@@ -684,17 +761,23 @@ async function create_job_repairs(page, is_create_job) {
     await page.getByRole('button', { name: 'Assign' }).click();
     await expect(page.locator('#repair-items')).toContainText('Evaluate Item');
     await page.getByText('Evaluate Item').click();
+    //select repair type
+    await page.locator("(//*[@class = 'radio'])[" + repair_type + "]").click();
+    if (repair_type == 1) {
+        await page.getByPlaceholder('Estimated Repair Hrs').fill('2');
+        await page.getByPlaceholder('Estimated Parts Cost').fill('123.53');
+        await page.getByPlaceholder('Technician Suggested Price').fill('568.56');
+    } else if (repair_type == 2) {
+
+    } else {
+        await page.getByPlaceholder('Technician Suggested Price').fill('568.56');
+    }
+    await page.waitForTimeout(1500);
     await page.getByText('Select').click();
     for (let index = 0; index < 3; index++) {
         await page.keyboard.press('Space');
         await page.keyboard.press('ArrowDown');
     }
-    await page.getByPlaceholder('Estimated Repair Hrs').fill('2');
-
-    await page.getByPlaceholder('Estimated Parts Cost').fill('123.53');
-
-    await page.getByPlaceholder('Technician Suggested Price').fill('568.56');
-    await page.waitForTimeout(1500);
     await page.getByRole('button', { name: 'Update Evaluation' }).hover();
     await page.getByRole('button', { name: 'Update Evaluation' }).click();
     await page.locator('#repair-items label').click();
@@ -705,10 +788,10 @@ async function create_job_repairs(page, is_create_job) {
     let quote = await page.locator('(//*[@class = "id-num"])[1]').textContent();
     let quote_id = quote.replace("#", "");
     console.log('quote is created with id ', quote_id);
-    console.log('quote url is ', await page.url());
+    let quote_url = await page.url();
+    console.log('quote url is ', quote_url);
     await page.getByRole('button', { name: 'Approve' }).click();
     await page.getByRole('button', { name: 'Approve' }).nth(1).click();
-
     await expect(page.locator('#root')).toContainText('Submit for Customer Approval');
     await page.locator('//*[@id="root"]/div/div[3]/div[1]/div[1]/div/div[2]/div[1]/div[3]/div/button').click();
     await expect(page.getByRole('menuitem')).toContainText('Delivered to Customer');
@@ -717,7 +800,6 @@ async function create_job_repairs(page, is_create_job) {
     await page.getByRole('button', { name: 'Won' }).click();
     await expect(page.locator('#root')).toContainText('Are you sure you want to mark it as approve ?');
     await page.getByRole('button', { name: 'Proceed' }).first().click();
-
     await expect(page.locator('#root')).toContainText('Create Sales Order');
     await page.getByText('Create Sales Order').click();
     await expect(page.getByPlaceholder('Enter PO Number')).toBeVisible();
@@ -767,6 +849,14 @@ async function create_job_repairs(page, is_create_job) {
     }
     is_checked = await page.locator('label').filter({ hasText: 'Create Job' }).isChecked();
     await page.getByRole('button', { name: 'Create', exact: true }).click();
+    try {
+        //update warehouse if needed
+        await expect(page.locator("//*[contains(text(),  'not stocked in warehouse')]")).toBeVisible({ timeout: 6000 });
+        await warehouse_update(page, stock_code);
+        await page.getByRole('button', { name: 'Create', exact: true }).click();
+    } catch (error) {
+
+    }
     await expect(page.getByRole('heading', { name: 'Sales Order Information' })).toBeVisible();
     let soid = await page.locator('(//*[@class = "id-num"])[1]').textContent();
     let order_id = soid.replace("#", "");
@@ -778,11 +868,10 @@ async function create_job_repairs(page, is_create_job) {
         await job_id.click();
         await expect(page.getByRole('heading', { name: 'Job Information' })).toBeVisible();
         //create parts purchase from repair.
-        await create_parts_purchase(page, false);
+        await create_parts_purchase(page, false, repair_id);
     } else {
         console.log("job selection checkbox is checked ", is_checked);
     }
-
 }
 async function create_job_quotes(page, is_create_job) {
     console.log('--------------------------------------------------', currentDateTime, '--------------------------------------------------------');
@@ -966,11 +1055,10 @@ async function add_new_part(page, stock_code) {
     await page.getByPlaceholder('Description').fill('manually added');
     await page.getByRole('button', { name: 'Add New Part' }).click();
 }
-async function create_parts_purchase(page, is_manually) {
+async function create_parts_purchase(page, is_manually, repair_id) {
     console.log('--------------------------------------------------', currentDateTime, '--------------------------------------------------------');
     try {
         let job_id = testdata.job_id; let tech = testdata.tech; let urgency = testdata.urgency;
-        await expect(page.locator('(//*[contains(@src, "vendor_logo")])[1]')).toBeVisible();
         // await page.goto('https://www.staging-buzzworld.iidm.com/jobs/5bac8fae-41b4-42c5-9344-99e94d13325a');
         if (is_manually) {
             await page.getByText('Parts Purchase').click();
@@ -982,7 +1070,7 @@ async function create_parts_purchase(page, is_manually) {
             await page.getByText('Select Urgency').click();
             await page.getByLabel('Requestor information').getByText(urgency, { exact: true }).click();
         } else {
-            await page.locator('(//*[@role = "presentation"])[5]').click();
+            await page.locator("//*[text() = '"+repair_id+"']").click();
             await expect(page.locator("//*[contains(@src, 'partspurchase')]")).toBeVisible();
             job_id = await page.locator("(//*[contains(@class, 'm-0 item-value')])[6]").textContent();
             await page.locator("//*[contains(@src, 'partspurchase')]").click();
@@ -1075,10 +1163,22 @@ async function create_job_manually(page) {
 
 }
 async function import_pricing(page) {
-    await login_buzz(page, stage_url)
-
+    console.log('--------------------------------------------------', currentDateTime, '--------------------------------------------------------');
+    await expect(page.getByRole('button', { name: 'Pricing' })).toBeVisible();
     await page.getByRole('button', { name: 'Pricing' }).click();
     await page.getByRole('menuitem', { name: 'Pricing', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Pricing' })).toBeVisible();
+    await page.getByPlaceholder('Search', { exact: true }).fill(testdata.vendor);
+    await expect(page.getByText(testdata.vendor)).toBeVisible();
+    await page.waitForTimeout(2500)
+    await expect(page.getByLabel('open')).toBeVisible();
+    await page.getByLabel('open').click();
+    await page.keyboard.insertText('Default');
+    await page.waitForTimeout(2000);
+    await page.keyboard.press('Enter');
+    await expect(page.locator("(//*[contains(@src, 'editicon')])[1]")).toBeVisible();
+    let product_count = await page.locator("//*[@ref = 'lbRecordCount']").textContent();
+    console.log('before import ', testdata.vendor, ' products count is ', product_count);
     await page.getByText('Import').click();
     await page.getByLabel('Append to Existing List').first().check();
     await page.getByLabel('Append to Existing List').nth(1).check();
@@ -1086,9 +1186,9 @@ async function import_pricing(page) {
     await page.getByLabel('Vendor').fill('WEIN001');
     await page.locator('#react-select-3-option-1').getByText('WEIN001').click();
     //discount code file
-    await page.locator("(//*[@type = 'file'])[1]").setInputFiles('files/sample_discount_code_file.csv');
+    // await page.locator("(//*[@type = 'file'])[1]").setInputFiles('files/sample_discount_code_file.csv');
     //pricing file
-    await page.locator("(//*[@type = 'file'])[2]").setInputFiles('files/sample_pricing_file.csv');
+    await page.locator("(//*[@type = 'file'])[2]").setInputFiles('files/WEINTEK PriceList-Import-2023_Aug_31_2023.csv');
     await page.getByRole('button', { name: 'Import' }).click();
     let status = false
     try {
@@ -1099,22 +1199,21 @@ async function import_pricing(page) {
     }
     if (status) {
         console.log("Summary text is visible.!")
-        await page.pause()
         await page.getByText('MM/DD/YYYY').first().click();
-        await page.locator('#react-select-5-input').press('ArrowRight');
-        await page.locator('#react-select-5-input').press('ArrowLeft');
-        await page.locator('#react-select-5-input').press('Enter');
-        // await page.getByText('MM/DD/YYYY').click();
-        // for (let index = 0; index < 15; index++) {
-        //   await page.locator('#react-select-6-input').press('ArrowDown');
-        // }
-        // await page.locator('#react-select-6-input').press('Enter');
-        await page.getByRole('button', { name: 'Proceed' }).click();
+        await page.keyboard.press('ArrowDown');
+        await page.keyboard.press('ArrowUp');
+        await page.keyboard.press('Enter');
+        let start_date = await page.locator("(//*[contains(@class, 'singleValue')])[2]").textContent();
+        await page.getByText('MM/DD/YYYY').click();
+        let e_date = await end_date(start_date);
+        await page.keyboard.insertText(e_date);
+        await page.keyboard.press('Enter');
+        // await page.getByRole('button', { name: 'Proceed' }).click();
     } else {
-        console.log("Summary text is not visible.!")
+        console.log("Summary text is not visible.!");
+        await page.screenshot({ path: 'files/pricing_import.png', fullPage: true });
         // await page.getByRole('heading', { name: 'Error in pricing file' }).click();
-        // await page.pause()
-        // await page.getByTitle('close').getByRole('img').click();
+        await page.getByTitle('close').getByRole('img').click();
     }
 }
 async function functional_flow(page) {
@@ -1126,9 +1225,9 @@ async function functional_flow(page) {
     // await admin4(page);
     await quotesRepairs(page)
 }
-async function inventory_search(page){
+async function inventory_search(page, stock_code) {
     await expect(page.locator('(//*[@class = "ag-react-container"])[1]')).toBeVisible();
-    let stock_code = '12340-255F'
+    let warehouse;
     await page.getByText('Inventory').click();
     await expect(page.locator("//*[contains(@src, 'search_stock')]")).toBeVisible();
     await page.getByText('Search by Stock Code').click();
@@ -1136,12 +1235,15 @@ async function inventory_search(page){
     await spinner(page);
     let drop_count = await page.locator("//*[contains(@id, 'react-select-2-option')]").count();
     for (let index = 1; index <= drop_count; index++) {
-      if (await page.locator("(//*[contains(@id, 'react-select-2-option')])["+drop_count+"]").textContent()==stock_code) {
-        await page.locator("(//*[contains(@id, 'react-select-2-option')])["+drop_count+"]").click();
-        break;
-      } else {
-        
-      }
+        let exp_sc = await page.locator("(//*[contains(@id, 'react-select-2-option')])[" + drop_count + "]").textContent();
+        console.log(exp_sc, ' ', stock_code);
+        await page.pause();
+        if (exp_sc == stock_code) {
+            await page.locator("(//*[contains(@id, 'react-select-2-option')])[" + drop_count + "]").click();
+            break;
+        } else {
+
+        }
     }
     await page.getByText(stock_code, { exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Stock Code Information' })).toBeVisible();
@@ -1149,9 +1251,21 @@ async function inventory_search(page){
     let count = await page.locator('//*[contains(@title, "warehouse")]').count();
     console.log('warehouse is ');
     for (let index = 1; index <= count; index++) {
-      let warehouse = await page.locator('(//*[contains(@title, "warehouse")])['+count+']').textContent();
-      console.log('            ',warehouse);
+        warehouse = await page.locator('(//*[contains(@title, "warehouse")])[' + count + ']').textContent();
+        console.log('            ', warehouse);
     }
+    return warehouse;
+}
+async function warehouse_update(page, stock_code) {
+
+    await page.waitForTimeout(1600);
+    await page.locator("(//*[contains(@src,  'themecolorEdit')])[2]").click();
+    await page.locator("(//*[contains(@aria-label,  'open')])[3]").click();
+    await page.keyboard.insertText('01');
+    await page.keyboard.press('Enter');
+    await page.locator("(//*[contains(@class,  'tick-icon')])[3]").click();
+    await page.waitForTimeout(1200);
+
 }
 function redirectConsoleToFile(filePath) {
     const originalConsoleLog = console.log;

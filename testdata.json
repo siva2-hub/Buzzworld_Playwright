@@ -23,12 +23,12 @@
         "pwd":       "Enter@4321"
     },
 
-    "vendor":         "EURO001",
+    "vendor":         "WEIN001",
     "stock_code_new": "Test#001",
     "dc_new":         "TestDC#001",
     "PO":             "0.06",
     "order_id":       "233989",
-    "job_id":         "86742",
+    "job_id":         "86753",
     "tech":           "Michael Strothers",
     "urgency":        "Emergency Breakdown",
 
