@@ -1219,10 +1219,10 @@ async function import_pricing(page) {
 async function functional_flow(page) {
     await expect(page.locator('(//*[contains(@src, "vendor_logo")])[1]')).toBeVisible();
     await page.getByText('Admin').click();
-    // await admin1(page);
-    // await admin2(page);
-    // await admin3(page);
-    // await admin4(page);
+    await admin1(page);
+    await admin2(page);
+    await admin3(page);
+    await admin4(page);
     await quotesRepairs(page)
 }
 async function inventory_search(page, stock_code) {
