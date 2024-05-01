@@ -21,7 +21,7 @@ test.describe('all tests', async () => {
       // height: 551
     });
     await login_buzz(page, stage_url);
-    // console.log("beforeAll test is executed");
+
   });
 
   test('login', async () => {
