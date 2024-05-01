@@ -271,7 +271,7 @@ async function login(page) {
     text = 'Please Enter Password';
     await expect(page.locator("//*[text() = '" + text + "']")).toBeVisible();
     console.log('getting this ', text, ' in valid email format and empty password')
-    //empty email format and empty password
+    //empty email and empty password
     await page.getByPlaceholder('Enter Email ID').fill('');
     await page.getByPlaceholder('Enter Password').fill('');
     await page.getByRole('button', { name: 'Sign In', exact: true }).click();
@@ -290,21 +290,21 @@ async function login(page) {
     text = 'We cannot find an active account linked to the email address that you entered. Please check the email address or contact your system administrator.';
     await expect(page.locator("//*[text() = '" + text + "']")).toBeVisible();
     await page.waitForTimeout(1500);
-    console.log('getting this ', text,' while verifying reset password with un registered mail');
+    console.log('getting this ', text, ' while verifying reset password with un registered mail');
     //verify reset password with invalid mail
     await page.locator("//*[@placeholder = 'Enter Email ID']").fill('defaultuser.com');
     await page.locator("//*[text() = 'Reset Password']").click();
     text = 'Please Enter Valid Email Address';
     await expect(page.locator("//*[text() = '" + text + "']")).toBeVisible();
     await page.waitForTimeout(1500);
-    console.log('getting this ', text,' while verifying reset password with invalid mail');
+    console.log('getting this ', text, ' while verifying reset password with invalid mail');
     //verify reset password with empty mail
     text = 'Please Enter Email Id';
     await page.locator("//*[@placeholder = 'Enter Email ID']").fill('');
     await page.locator("//*[text() = 'Reset Password']").click();
     await expect(page.locator("//*[text() = '" + text + "']")).toBeVisible();
     await page.waitForTimeout(1500);
-    console.log('getting this ', text,' while verifying reset password with empty mail');
+    console.log('getting this ', text, ' while verifying reset password with empty mail');
     //verify reset password with valid registered mail
     await page.locator("//*[@placeholder = 'Enter Email ID']").fill('defaultuser@enterpi.com');
     await page.locator("//*[text() = 'Reset Password']").click();
@@ -313,7 +313,7 @@ async function login(page) {
     await expect(page.locator("//*[text() = '" + text + "']")).toBeVisible();
     await page.locator("(//*[text() = 'keyboard_backspace'])[2]").click();
     await expect(page.getByPlaceholder('Enter Email ID')).toBeVisible();
-    console.log('displayed msg ', text,' while verifying reset password with valid registered mail');
+    console.log('displayed msg ', text, ' while verifying reset password with valid registered mail');
     await page.waitForTimeout(2000);
 }
 async function login_buzz(page, stage_url) {
@@ -1077,7 +1077,7 @@ async function create_parts_purchase(page, is_manually, repair_id) {
             await page.getByText('Select Urgency').click();
             await page.getByLabel('Requestor information').getByText(urgency, { exact: true }).click();
         } else {
-            await page.locator("//*[text() = '"+repair_id+"']").click();
+            await page.locator("//*[text() = '" + repair_id + "']").click();
             await expect(page.locator("//*[contains(@src, 'partspurchase')]")).toBeVisible();
             job_id = await page.locator("(//*[contains(@class, 'm-0 item-value')])[6]").textContent();
             await page.locator("//*[contains(@src, 'partspurchase')]").click();
@@ -1169,59 +1169,79 @@ async function create_job_manually(page) {
     }
 
 }
-async function import_pricing(page) {
+async function import_pricing(page, import_to) {
     console.log('--------------------------------------------------', currentDateTime, '--------------------------------------------------------');
-    await expect(page.getByRole('button', { name: 'Pricing' })).toBeVisible();
-    await page.getByRole('button', { name: 'Pricing' }).click();
-    await page.getByRole('menuitem', { name: 'Pricing', exact: true }).click();
-    await expect(page.getByRole('heading', { name: 'Pricing' })).toBeVisible();
-    await page.getByPlaceholder('Search', { exact: true }).fill(testdata.vendor);
-    await expect(page.getByText(testdata.vendor)).toBeVisible();
-    await page.waitForTimeout(2500)
-    await expect(page.getByLabel('open')).toBeVisible();
-    await page.getByLabel('open').click();
-    await page.keyboard.insertText('Default');
-    await page.waitForTimeout(2000);
-    await page.keyboard.press('Enter');
-    await expect(page.locator("(//*[contains(@src, 'editicon')])[1]")).toBeVisible();
-    let product_count = await page.locator("//*[@ref = 'lbRecordCount']").textContent();
-    console.log('before import ', testdata.vendor, ' products count is ', product_count);
-    await page.getByText('Import').click();
-    await page.getByLabel('Append to Existing List').first().check();
-    await page.getByLabel('Append to Existing List').nth(1).check();
-    await page.getByText('Search').click();
-    await page.getByLabel('Vendor').fill('WEIN001');
-    await page.locator('#react-select-3-option-1').getByText('WEIN001').click();
-    //discount code file
-    // await page.locator("(//*[@type = 'file'])[1]").setInputFiles('files/sample_discount_code_file.csv');
-    //pricing file
-    await page.locator("(//*[@type = 'file'])[2]").setInputFiles('files/WEINTEK PriceList-Import-2023_Aug_31_2023.csv');
-    await page.getByRole('button', { name: 'Import' }).click();
-    let status = false
     try {
-        await expect(await page.locator("//*[text() = 'Summary']")).toBeVisible()
-        status = true
+        await expect(page.getByRole('button', { name: 'Pricing' })).toBeVisible();
+        await page.getByRole('button', { name: 'Pricing' }).click();
+        await page.getByRole('menuitem', { name: 'Pricing', exact: true }).click();
+        await expect(page.getByRole('heading', { name: 'Pricing' })).toBeVisible();
+        await page.getByPlaceholder('Search', { exact: true }).fill(testdata.vendor);
+        await expect(page.getByText(testdata.vendor)).toBeVisible();
+        await page.waitForTimeout(2500)
+        await expect(page.getByLabel('open')).toBeVisible();
+        await page.getByLabel('open').click();
+        await page.keyboard.insertText('Default');
+        await page.waitForTimeout(2000);
+        await page.keyboard.press('Enter');
+        await page.waitForTimeout(4000);
+        await expect(page.locator("(//*[contains(@src, 'editicon')])[1]")).toBeVisible();
+        let product_count = await page.locator("//*[@ref = 'lbRecordCount']").textContent();
+        console.log('before import ', testdata.vendor, ' products count is ', product_count);
+        await page.getByText('Import').click();
+        await page.getByText('Search').click();
+        await page.getByLabel('Vendor').fill('WEIN001');
+        await page.locator('#react-select-3-option-1').getByText('WEIN001').click();
+        if (import_to == 'pricing') {
+            await page.locator("(//*[text() = 'Append to Existing List'])[2]").click();
+            //pricing file
+            await page.locator("(//*[@type = 'file'])[2]").setInputFiles('files/WEINTEK PriceList-Import-2023_Aug_31_2023.csv');
+            await page.getByRole('button', { name: 'Import' }).click();
+        } else if (import_to == 'discount code') {
+            await page.locator("(//*[text() = 'Append to Existing List'])[1]").click();
+            //discount code file
+            await page.locator("(//*[@type = 'file'])[1]").setInputFiles('files/sample_discount_code_file.csv');
+            await page.getByRole('button', { name: 'Import' }).click();
+        } else if (import_to == 'both') {
+            await page.locator("(//*[text() = 'Append to Existing List'])[1]").click();
+            await page.locator("(//*[text() = 'Append to Existing List'])[2]").click();
+            //discount code file
+            await page.locator("(//*[@type = 'file'])[1]").setInputFiles('files/sample_discount_code_file.csv');
+            //pricing file
+            await page.locator("(//*[@type = 'file'])[2]").setInputFiles('files/WEINTEK PriceList-Import-2023_Aug_31_2023.csv');
+            await page.getByRole('button', { name: 'Import' }).click();
+        }
+        let status = false
+        try {
+            await expect(await page.locator("//*[text() = 'Summary']")).toBeVisible()
+            status = true
+        } catch (error) {
+            console.log("Summary text is not visible.!")
+        }
+        if (status) {
+            console.log("Summary text is visible.!")
+            await page.getByText('MM/DD/YYYY').first().click();
+            await page.keyboard.press('ArrowDown');
+            await page.keyboard.press('ArrowUp');
+            await page.keyboard.press('Enter');
+            let start_date = await page.locator("(//*[contains(@class, 'singleValue')])[2]").textContent();
+            await page.getByText('MM/DD/YYYY').click();
+            let e_date = await end_date(start_date);
+            await page.keyboard.insertText(e_date);
+            await page.keyboard.press('Enter');
+            // await page.getByRole('button', { name: 'Proceed' }).click();
+        } else {
+            console.log("Summary text is not visible.!");
+            await page.screenshot({ path: 'files/pricing_import.png', fullPage: true });
+            // await page.getByRole('heading', { name: 'Error in pricing file' }).click();
+            await page.getByTitle('close').getByRole('img').click();
+        }
     } catch (error) {
-        console.log("Summary text is not visible.!")
-    }
-    if (status) {
-        console.log("Summary text is visible.!")
-        await page.getByText('MM/DD/YYYY').first().click();
-        await page.keyboard.press('ArrowDown');
-        await page.keyboard.press('ArrowUp');
-        await page.keyboard.press('Enter');
-        let start_date = await page.locator("(//*[contains(@class, 'singleValue')])[2]").textContent();
-        await page.getByText('MM/DD/YYYY').click();
-        let e_date = await end_date(start_date);
-        await page.keyboard.insertText(e_date);
-        await page.keyboard.press('Enter');
-        // await page.getByRole('button', { name: 'Proceed' }).click();
-    } else {
-        console.log("Summary text is not visible.!");
-        await page.screenshot({ path: 'files/pricing_import.png', fullPage: true });
-        // await page.getByRole('heading', { name: 'Error in pricing file' }).click();
+        console.log("getting error while importing ", import_to, ' file(s)', error);
+        await page.screenshot({ path: 'files/' + import_to + '_import.png', fullPage: true });
         await page.getByTitle('close').getByRole('img').click();
     }
+    console.log('imported file(s) is ', import_to);
 }
 async function functional_flow(page) {
     await expect(page.locator('(//*[contains(@src, "vendor_logo")])[1]')).toBeVisible();

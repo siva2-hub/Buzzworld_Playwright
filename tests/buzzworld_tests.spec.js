@@ -74,11 +74,11 @@ test.describe('all tests', async () => {
   });
 
   test('import pricing two files', async () => {
-    await import_pricing(page);
+    await import_pricing(page, 'discount code');
   });
 
-  // test('functional_flow', async () => {
-  //   await functional_flow(page);
-  // });
+  test('functional_flow', async () => {
+    await functional_flow(page);
+  });
 
 });
