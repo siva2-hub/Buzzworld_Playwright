@@ -742,6 +742,7 @@ async function create_job_repairs(page, is_create_job, repair_type) {
         await page.locator('g > rect').click();
         await page.getByRole('button', { name: 'Add Selected 1 Parts' }).click();
     }
+    //Assign Location
     await expect(page.locator('#repair-items')).toContainText('Assign Location');
     await page.getByText('Assign Location').click();
     if (res) {
@@ -753,12 +754,14 @@ async function create_job_repairs(page, is_create_job, repair_type) {
     await page.getByPlaceholder('Storage Location').fill('SL001');
     await page.getByPlaceholder('Type here').fill('Test Internal Item Notes');
     await page.getByRole('button', { name: 'Update Location' }).click();
+    //Assign Technician
     await expect(page.locator('#repair-items')).toContainText('Assign Technician');
     await page.getByText('Assign Technician').click();
     await page.getByText('Select').click();
     await page.keyboard.insertText(tech);
     await page.getByText(tech, { exact: true }).nth(1).click();
     await page.getByRole('button', { name: 'Assign' }).click();
+    //Item Evaluation
     await expect(page.locator('#repair-items')).toContainText('Evaluate Item');
     await page.getByText('Evaluate Item').click();
     //select repair type
@@ -780,6 +783,7 @@ async function create_job_repairs(page, is_create_job, repair_type) {
     }
     await page.getByRole('button', { name: 'Update Evaluation' }).hover();
     await page.getByRole('button', { name: 'Update Evaluation' }).click();
+    //Add Items to Quote
     await page.locator('#repair-items label').click();
     await page.getByRole('button', { name: 'Add items to quote' }).click();
     await expect(page.locator('#root')).toContainText('Are you sure you want to add these item(s) to quote ?');
@@ -790,16 +794,19 @@ async function create_job_repairs(page, is_create_job, repair_type) {
     console.log('quote is created with id ', quote_id);
     let quote_url = await page.url();
     console.log('quote url is ', quote_url);
+    //Approve the Quote
     await page.getByRole('button', { name: 'Approve' }).click();
     await page.getByRole('button', { name: 'Approve' }).nth(1).click();
     await expect(page.locator('#root')).toContainText('Submit for Customer Approval');
     await page.locator('//*[@id="root"]/div/div[3]/div[1]/div[1]/div/div[2]/div[1]/div[3]/div/button').click();
     await expect(page.getByRole('menuitem')).toContainText('Delivered to Customer');
     await page.getByRole('menuitem', { name: 'Delivered to Customer' }).click();
+    //Won the Quote
     await expect(page.locator('#root')).toContainText('Won');
     await page.getByRole('button', { name: 'Won' }).click();
     await expect(page.locator('#root')).toContainText('Are you sure you want to mark it as approve ?');
     await page.getByRole('button', { name: 'Proceed' }).first().click();
+    //Create Sales Order
     await expect(page.locator('#root')).toContainText('Create Sales Order');
     await page.getByText('Create Sales Order').click();
     await expect(page.getByPlaceholder('Enter PO Number')).toBeVisible();
