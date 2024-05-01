@@ -33,7 +33,7 @@ test.describe('all tests', async () => {
   });
 
   test('create job and sales order from repair', async () => {
-    //Repairable, Not Repairable, Repairable-Outsource
+    //Repairable = 1, Not Repairable = 2, Repairable-Outsource = 3
     await create_job_repairs(page, 'Y', 2);
   })
 
