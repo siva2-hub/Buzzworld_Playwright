@@ -1,9 +1,10 @@
 const { test, expect, page, chromium } = require('@playwright/test');
+
 import { start } from 'repl';
 import { timeout } from '../playwright.config';
-import { add_dc, add_sc, admin1, admin2, admin3, admin4, create_job_manually, create_job_quotes, create_job_repairs, create_parts_purchase, dcAddUpdate, functional_flow, import_pricing, inventory_search, leftMenuSearch, login, login_buzz, logout, multi_edit, productAddUpdate, quotesRepairs, spinner, update_dc, update_sc } from './helper'
-const testdata = JSON.parse(JSON.stringify(require("../testdata.json")))
+import { add_dc, add_sc, admin1, admin2, admin3, admin4, create_job_manually, create_job_quotes, create_job_repairs, create_parts_purchase, dcAddUpdate, filters_pricing, functional_flow, import_pricing, inventory_search, leftMenuSearch, login, login_buzz, logout, multi_edit, productAddUpdate, quotesRepairs, setScreenSize, spinner, update_dc, update_sc } from './helper';
 
+const testdata = JSON.parse(JSON.stringify(require("../testdata.json")));
 const stage_url = testdata.urls.buzz_stage_url;
 
 test.describe('all tests', async () => {
@@ -14,14 +15,8 @@ test.describe('all tests', async () => {
 
   test.beforeAll(async ({ browser }) => {
     page = await browser.newPage();
-    await page.setViewportSize({
-      width: 1920,
-      height: 910
-      // width: 1280,
-      // height: 551
-    });
+    await setScreenSize(page);
     await login_buzz(page, stage_url);
-
   });
 
   test('login', async () => {
@@ -29,12 +24,12 @@ test.describe('all tests', async () => {
   });
 
   test('inventory search', async () => {
-    await inventory_search(page, 'FSD18-251-00-01');
+    await inventory_search(page, 'FSD18-251-00-01', stage_url);
   });
 
   test('create job and sales order from repair', async () => {
     //Repairable = 1, Not Repairable = 2, Repairable-Outsource = 3
-    await create_job_repairs(page, 'Y', 2);
+    await create_job_repairs(page, 'Y', 1);
   })
 
   test('create job and sales order from quote', async () => {
@@ -73,12 +68,47 @@ test.describe('all tests', async () => {
     await multi_edit(page, testdata.dc_new);
   });
 
+  test('verify filters in pricing', async () => {
+    await filters_pricing(page);
+  });
   test('import pricing two files', async () => {
-    await import_pricing(page, 'discount code');
+    await import_pricing(page, 'pricing');
   });
 
-  test('functional_flow', async () => {
+  test.skip('functional_flow', async () => {
     await functional_flow(page);
   });
 
+  // test('', async () => {
+  //   await page.goto('https://www.staging-buzzworld.iidm.com/jobs');
+  //   await expect(page.locator('(//*[contains(@src, "vendor_logo")])[1]')).toBeVisible();
+  //   let cs = await page.locator("(//*[contains(@src, 'vendor_logo')])").count();
+  //   for (let index = 1; index <= array.length; index++) {
+  //     let order_d = await page.locator('//*[@id="myGrid"]/div/div/div[2]/div[2]/div[3]/div[2]/div/div/div[' + cs + ']/div[1]').textContext();
+  //     await page.locator("(//*[contains(@src, 'vendor_logo')])[" + cs + "]").click();
+  //     await expect(page.getByRole('heading', { name: 'Job Information' })).toBeVisible();
+  //     let related_text = await page.locator('(//*[contains(@class, "border-bottom")])').textContext();
+  //     if (related_text == 'Unable to relate to quotes, repairs, orders or partpurchase') {
+  //       //*[@id="myGrid"]/div/div/div[2]/div[2]/div[3]/div[2]/div/div/div[1]/div[1]
+  //       //*[@id="myGrid"]/div/div/div[2]/div[2]/div[3]/div[2]/div/div/div[2]/div[1]
+  //       await page.goto('https://www.staging-buzzworld.iidm.com/jobs');
+  //       try {
+  //         await expect(page.locator('(//*[contains(@text(), ' + order_d + ')])[1]')).toBeVisible({ timeout: 6000 });
+  //         await page.locator('(//*[contains(@text(), ' + order_d + ')])[1]').click();
+  //         await expect(page.getByRole('heading', { name: 'Sales Order Information' })).toBeVisible();
+  //         let related_text = await page.locator('(//*[contains(@class, "border-bottom")])').textContext();
+  //         if (related_text == 'Unable to relate to quotes, repairs , jobs or partpurchase') {
+  //           console.log('order id ', order_d);
+            
+  //         } else {
+
+  //         }
+  //       } catch (error) {
+
+  //       }
+  //     } else {
+
+  //     }
+  //   }
+  // });
 });

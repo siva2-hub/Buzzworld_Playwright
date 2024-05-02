@@ -1,4 +1,5 @@
 const testdata = JSON.parse(JSON.stringify(require('../testdata.json')));
+
 const fs = require('fs');
 const path = require('path');
 const { test, expect, page, chromium } = require('@playwright/test');
@@ -493,10 +494,6 @@ async function leftMenuSearch(page) {
         await page.getByPlaceholder('Search', { exact: true }).fill(vendor);
         await expect(page.getByText(vendor)).toBeVisible();
         await page.locator('.react-select__value-container').click();
-        // if (await page.url().includes('staging')) {
-        //     await page.getByText('Default').click();
-        // } else {
-
         await page.keyboard.insertText('Default');
         await page.waitForTimeout(2000);
         await page.keyboard.press('Enter');
@@ -517,7 +514,9 @@ async function add_dc(page) {
         await page.getByRole('button', { name: 'Pricing' }).click();
         await page.getByRole('menuitem', { name: 'Discount Codes' }).click();
         await expect(page.getByRole('heading', { name: 'Discount Codes' })).toBeVisible();
-        await page.waitForTimeout(2500)
+        await page.getByPlaceholder('Search', { exact: true }).fill(testdata.vendor);
+        await expect(page.getByText(testdata.vendor)).toBeVisible();
+        await page.waitForTimeout(2500);
         await expect(page.getByLabel('open')).toBeVisible();
         await page.getByLabel('open').click();
         await page.keyboard.insertText('Default');
@@ -560,6 +559,18 @@ async function add_dc(page) {
 async function update_dc(page) {
     console.log('--------------------------------------------------', currentDateTime, '--------------------------------------------------------');
     try {
+        await expect(page.getByRole('button', { name: 'Pricing' })).toBeVisible();
+        await page.getByRole('button', { name: 'Pricing' }).click();
+        await page.getByRole('menuitem', { name: 'Discount Codes' }).click();
+        await expect(page.getByRole('heading', { name: 'Discount Codes' })).toBeVisible();
+        await page.getByPlaceholder('Search', { exact: true }).fill(testdata.vendor);
+        await expect(page.getByText(testdata.vendor)).toBeVisible();
+        await page.waitForTimeout(2500);
+        await expect(page.getByLabel('open')).toBeVisible();
+        await page.getByLabel('open').click();
+        await page.keyboard.insertText('Default');
+        await page.waitForTimeout(2000);
+        await page.keyboard.press('Enter');
         await page.getByPlaceholder('Search By Discount Code').fill(testdata.dc_new);
         await page.waitForTimeout(2300)
         await expect(page.locator('(//*[text()= "' + testdata.dc_new + '"])[1]')).toBeVisible();
@@ -639,21 +650,16 @@ async function multi_edit(page, dc) {
 async function add_sc(page, dc) {
     console.log('--------------------------------------------------', currentDateTime, '--------------------------------------------------------');
     try {
+
         await page.getByRole('button', { name: 'Pricing' }).click();
         await page.getByRole('menuitem', { name: 'Pricing', exact: true }).click();
         await page.getByPlaceholder('Search', { exact: true }).fill(vendor);
         await expect(page.getByText(vendor)).toBeVisible();
         await expect(page.getByLabel('open')).toBeVisible();
         await page.getByLabel('open').click();
-        // await page.getByText('Default').click();
-        // if (await page.url().includes('staging')) {
-        //     await page.getByText('Default').click();
-        // } else {
-
         await page.keyboard.insertText('Default');
         await page.waitForTimeout(2000);
         await page.keyboard.press('Enter');
-        // }
         await page.getByText('Add').click();
         await page.getByPlaceholder('Enter Stock Code').fill(testdata.stock_code_new);
         await page.locator("(//*[text() = 'Select'])[1]").click();
@@ -680,6 +686,15 @@ async function add_sc(page, dc) {
 async function update_sc(page) {
     console.log('--------------------------------------------------', currentDateTime, '--------------------------------------------------------');
     try {
+        await page.getByRole('button', { name: 'Pricing' }).click();
+        await page.getByRole('menuitem', { name: 'Pricing', exact: true }).click();
+        await page.getByPlaceholder('Search', { exact: true }).fill(vendor);
+        await expect(page.getByText(vendor)).toBeVisible();
+        await expect(page.getByLabel('open')).toBeVisible();
+        await page.getByLabel('open').click();
+        await page.keyboard.insertText('Default');
+        await page.waitForTimeout(2000);
+        await page.keyboard.press('Enter');
         await page.getByPlaceholder('Stock Code / Description').fill(testdata.stock_code_new);
         await expect(page.getByRole('grid')).toContainText(testdata.stock_code_new);
         await page.waitForTimeout(2400);
@@ -697,6 +712,31 @@ async function update_sc(page) {
         await page.getByTitle('close').getByRole('img').click();
     }
 }
+async function filters_pricing(page) {
+    console.log('--------------------------------------------------', currentDateTime, '--------------------------------------------------------');
+    await page.waitForTimeout(2000);
+    await page.getByRole('button', { name: 'Pricing' }).click();
+    await page.getByRole('menuitem', { name: 'Pricing', exact: true }).click();
+    await page.getByPlaceholder('Search', { exact: true }).fill(testdata.vendor);
+    await expect(page.getByText(testdata.vendor)).toBeVisible();
+    await expect(page.getByLabel('open')).toBeVisible();
+    await page.getByLabel('open').click();
+    await page.keyboard.insertText('Default');
+    await page.waitForTimeout(2000);
+    await page.keyboard.press('Enter');
+    await expect(page.getByText('Filters')).toBeVisible();
+    await page.getByText('Filters').click();
+    await expect(page.getByText('Discount Codes')).toBeVisible();
+    await page.getByLabel('open').nth(1).click();
+    await page.keyboard.insertText(testdata.dc_new);
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(2000);
+    await page.getByRole('button', { name: 'Apply' }).click();
+    await expect(page.locator("//*[text() = '" + testdata.dc_new + "']")).toBeVisible();
+    await page.waitForTimeout(1500);
+    console.log('filter is applied for ', testdata.dc_new);
+}
+
 async function spinner(page) {
     await expect(await page.locator("//*[@style = 'animation-delay: 0ms;']")).toBeVisible();
     await page.waitForTimeout(1200)
@@ -704,7 +744,7 @@ async function spinner(page) {
 }
 async function create_job_repairs(page, is_create_job, repair_type) {
     console.log('--------------------------------------------------', currentDateTime, '--------------------------------------------------------');
-    let acc_num = 'FLORI01', cont_name = 'Christian Medina', stock_code = 'FSD18-251-00-01';
+    let acc_num = 'NEWPR02', cont_name = 'Romeo Murillo', stock_code = 'CIMR-AU4A0165FAA';
     let tech = 'Michael Strothers';
     // await page.goto('https://www.staging-buzzworld.iidm.com/orders-detail-view/2b809722-feed-4e1f-abd1-67a25c3862dc');
     await page.getByText('Repairs').first().click();
@@ -1134,7 +1174,7 @@ async function create_job_manually(page) {
     console.log('--------------------------------------------------', currentDateTime, '--------------------------------------------------------');
     try {
         await page.waitForTimeout(2000)
-        await expect(page.locator('(//*[contains(@src, "vendor_logo")])[1]')).toBeVisible();
+        // await expect(page.locator('(//*[contains(@src, "vendor_logo")])[1]')).toBeVisible();
         await page.getByText('Jobs').click();
         // await page.goto('https://www.staging-buzzworld.iidm.com/jobs/9b0970e6-b539-44d5-a118-ebde9631d1a5');
         await expect(page.locator('(//*[contains(@src, "vendor_logo")])[1]')).toBeVisible();
@@ -1172,12 +1212,14 @@ async function create_job_manually(page) {
 async function import_pricing(page, import_to) {
     console.log('--------------------------------------------------', currentDateTime, '--------------------------------------------------------');
     try {
+        let ven_code = 'WEIN001';
+        let vendor = 'WEINTEK USA INC';
         await expect(page.getByRole('button', { name: 'Pricing' })).toBeVisible();
         await page.getByRole('button', { name: 'Pricing' }).click();
         await page.getByRole('menuitem', { name: 'Pricing', exact: true }).click();
         await expect(page.getByRole('heading', { name: 'Pricing' })).toBeVisible();
-        await page.getByPlaceholder('Search', { exact: true }).fill(testdata.vendor);
-        await expect(page.getByText(testdata.vendor)).toBeVisible();
+        await page.getByPlaceholder('Search', { exact: true }).fill(ven_code);
+        await expect(page.getByText(ven_code)).toBeVisible();
         await page.waitForTimeout(2500)
         await expect(page.getByLabel('open')).toBeVisible();
         await page.getByLabel('open').click();
@@ -1185,13 +1227,34 @@ async function import_pricing(page, import_to) {
         await page.waitForTimeout(2000);
         await page.keyboard.press('Enter');
         await page.waitForTimeout(4000);
+        try {
+            await expect(page.locator("//*[text() = 'Clear']")).toBeVisible({ timeout: 10000 });
+            await page.locator("//*[text() = 'Clear']").click();
+            await spinner(page);
+        } catch (error) {
+
+        }
         await expect(page.locator("(//*[contains(@src, 'editicon')])[1]")).toBeVisible();
         let product_count = await page.locator("//*[@ref = 'lbRecordCount']").textContent();
-        console.log('before import ', testdata.vendor, ' products count is ', product_count);
+        console.log('before import ', ven_code, ' products count is ', product_count);
         await page.getByText('Import').click();
         await page.getByText('Search').click();
-        await page.getByLabel('Vendor').fill('WEIN001');
-        await page.locator('#react-select-3-option-1').getByText('WEIN001').click();
+        await page.getByLabel('Vendor').fill(vendor);
+        await expect(page.locator("//*[contains(@class, 'css-4mp3pp-menu')]")).toBeVisible();
+        await page.waitForTimeout(2000);
+        let drop_count = await page.locator("//*[contains(@class, 'css-4mp3pp-menu')]");
+        let dcount = await drop_count.locator('div').count();
+        console.log('count of div tags are ', dcount);
+        for (let index = 1; index <= dcount; index++) {
+            let exp_sc = await drop_count.locator('div').nth(index).textContent();
+            if (exp_sc == vendor + ven_code) {
+                console.log(exp_sc);
+                await drop_count.locator('div').nth(index).click();
+                break;
+            } else {
+                console.log(exp_sc);
+            }
+        }
         if (import_to == 'pricing') {
             await page.locator("(//*[text() = 'Append to Existing List'])[2]").click();
             //pricing file
@@ -1252,24 +1315,31 @@ async function functional_flow(page) {
     await admin4(page);
     await quotesRepairs(page)
 }
-async function inventory_search(page, stock_code) {
-    await expect(page.locator('(//*[@class = "ag-react-container"])[1]')).toBeVisible();
+async function inventory_search(page, stock_code, stage_url) {
+    console.log('--------------------------------------------------', currentDateTime, '--------------------------------------------------------');
+    await login_buzz(page, stage_url);
     let warehouse;
+    try {
+        await expect(page.locator('(//*[contains(@src, "vendor_logo")])[1]')).toBeVisible();
+    } catch (error) {
+
+    }
     await page.getByText('Inventory').click();
     await expect(page.locator("//*[contains(@src, 'search_stock')]")).toBeVisible();
     await page.getByText('Search by Stock Code').click();
     await page.locator('#async-select-example').fill(stock_code);
     await spinner(page);
-    let drop_count = await page.locator("//*[contains(@id, 'react-select-2-option')]").count();
-    for (let index = 1; index <= drop_count; index++) {
-        let exp_sc = await page.locator("(//*[contains(@id, 'react-select-2-option')])[" + drop_count + "]").textContent();
-        console.log(exp_sc, ' ', stock_code);
-        await page.pause();
+    let drop_count = await page.locator("//*[contains(@class, 'css-4mp3pp-menu')]");
+    let dcount = await drop_count.locator('div').count();
+    console.log('count of div tags are ', dcount);
+    for (let index = 1; index <= dcount; index++) {
+        let exp_sc = await drop_count.locator('div').nth(index).textContent();
         if (exp_sc == stock_code) {
-            await page.locator("(//*[contains(@id, 'react-select-2-option')])[" + drop_count + "]").click();
+            console.log(exp_sc);
+            await drop_count.locator('div').nth(index).click();
             break;
         } else {
-
+            console.log(exp_sc);
         }
     }
     await page.getByText(stock_code, { exact: true }).click();
@@ -1309,6 +1379,12 @@ async function end_date(startDate) {
     let end_date = text.substring(0, len - 1) + next_year;
     return end_date;
 }
+async function setScreenSize(page) {
+    await page.setViewportSize({
+        width: 1920,
+        height: 910
+    });
+}
 module.exports = {
     checkout_page,
     order_summary_page,
@@ -1336,5 +1412,7 @@ module.exports = {
     create_parts_purchase,
     import_pricing,
     functional_flow,
-    inventory_search
+    inventory_search,
+    filters_pricing,
+    setScreenSize
 };
