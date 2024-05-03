@@ -1379,10 +1379,10 @@ async function end_date(startDate) {
     let end_date = text.substring(0, len - 1) + next_year;
     return end_date;
 }
-async function setScreenSize(page) {
+async function setScreenSize(page, w, h) {
     await page.setViewportSize({
-        width: 1920,
-        height: 910
+        width: w,
+        height: h
     });
 }
 module.exports = {

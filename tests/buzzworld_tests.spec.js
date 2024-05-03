@@ -12,10 +12,11 @@ test.describe('all tests', async () => {
   test.setTimeout(520000)
   // To Run the Tests in Serial Order un comment the below line
   test.describe.configure({ mode: 'serial' });
-
+  // let w = 1920, h=910 ;
+  let w = 1280, h=551 ;
   test.beforeAll(async ({ browser }) => {
     page = await browser.newPage();
-    await setScreenSize(page);
+    await setScreenSize(page, w, h);
     await login_buzz(page, stage_url);
   });
 
