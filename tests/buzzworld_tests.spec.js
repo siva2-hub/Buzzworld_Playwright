@@ -2,18 +2,22 @@ const { test, expect, page, chromium } = require('@playwright/test');
 
 import { start } from 'repl';
 import { timeout } from '../playwright.config';
-import { add_dc, add_sc, admin1, admin2, admin3, admin4, create_job_manually, create_job_quotes, create_job_repairs, create_parts_purchase, dcAddUpdate, filters_pricing, functional_flow, import_pricing, inventory_search, leftMenuSearch, login, login_buzz, logout, multi_edit, productAddUpdate, quotesRepairs, setScreenSize, spinner, update_dc, update_sc } from './helper';
+import { add_dc, add_sc, admin1, admin2, admin3, admin4, api_data, create_job_manually, create_job_quotes, create_job_repairs, create_parts_purchase, dcAddUpdate, fetchData, fetch_jobs_Data, fetch_jobs_Detail, fetch_jobs_list, fetch_orders_Data, fetch_orders_Detail, fetch_order_list, fetch_pp_status, filters_pricing, functional_flow, import_pricing, inventory_search, leftMenuSearch, login, login_buzz, logout, multi_edit, parts_purchase_left_menu_filter, productAddUpdate, quotesRepairs, setScreenSize, spinner, sync_jobs, update_dc, update_sc, pos_report } from './helper';
 
 const testdata = JSON.parse(JSON.stringify(require("../testdata.json")));
 const stage_url = testdata.urls.buzz_stage_url;
+test.skip('sync jobs', async ({ page }) => {
+  test.setTimeout(990000000);
+  await sync_jobs(page);
 
+});
 test.describe('all tests', async () => {
   let page, dc, stock_code;
-  test.setTimeout(520000)
   // To Run the Tests in Serial Order un comment the below line
   test.describe.configure({ mode: 'serial' });
-  // let w = 1920, h=910 ;
-  let w = 1280, h=551 ;
+  // let w = 1920, h = 910;
+  let w = 1280, h = 551;
+
   test.beforeAll(async ({ browser }) => {
     page = await browser.newPage();
     await setScreenSize(page, w, h);
@@ -72,44 +76,21 @@ test.describe('all tests', async () => {
   test('verify filters in pricing', async () => {
     await filters_pricing(page);
   });
+
+  test('verify filters in parts purchase', async () => {
+    await parts_purchase_left_menu_filter(page);
+  });
+  test('pos reports list', async () => {
+    await pos_report(page);
+  });
   test('import pricing two files', async () => {
+    //if i pass 'pricing' as second param, pricing file will be imported with append
+    //if i pass 'discount code' as second param, discount code file will be imported with append
+    //if i pass 'both' as second param, pricing and discount code files will be imported with append
     await import_pricing(page, 'pricing');
   });
 
-  test.skip('functional_flow', async () => {
+  test('functional_flow', async () => {
     await functional_flow(page);
   });
-
-  // test('', async () => {
-  //   await page.goto('https://www.staging-buzzworld.iidm.com/jobs');
-  //   await expect(page.locator('(//*[contains(@src, "vendor_logo")])[1]')).toBeVisible();
-  //   let cs = await page.locator("(//*[contains(@src, 'vendor_logo')])").count();
-  //   for (let index = 1; index <= array.length; index++) {
-  //     let order_d = await page.locator('//*[@id="myGrid"]/div/div/div[2]/div[2]/div[3]/div[2]/div/div/div[' + cs + ']/div[1]').textContext();
-  //     await page.locator("(//*[contains(@src, 'vendor_logo')])[" + cs + "]").click();
-  //     await expect(page.getByRole('heading', { name: 'Job Information' })).toBeVisible();
-  //     let related_text = await page.locator('(//*[contains(@class, "border-bottom")])').textContext();
-  //     if (related_text == 'Unable to relate to quotes, repairs, orders or partpurchase') {
-  //       //*[@id="myGrid"]/div/div/div[2]/div[2]/div[3]/div[2]/div/div/div[1]/div[1]
-  //       //*[@id="myGrid"]/div/div/div[2]/div[2]/div[3]/div[2]/div/div/div[2]/div[1]
-  //       await page.goto('https://www.staging-buzzworld.iidm.com/jobs');
-  //       try {
-  //         await expect(page.locator('(//*[contains(@text(), ' + order_d + ')])[1]')).toBeVisible({ timeout: 6000 });
-  //         await page.locator('(//*[contains(@text(), ' + order_d + ')])[1]').click();
-  //         await expect(page.getByRole('heading', { name: 'Sales Order Information' })).toBeVisible();
-  //         let related_text = await page.locator('(//*[contains(@class, "border-bottom")])').textContext();
-  //         if (related_text == 'Unable to relate to quotes, repairs , jobs or partpurchase') {
-  //           console.log('order id ', order_d);
-            
-  //         } else {
-
-  //         }
-  //       } catch (error) {
-
-  //       }
-  //     } else {
-
-  //     }
-  //   }
-  // });
 });

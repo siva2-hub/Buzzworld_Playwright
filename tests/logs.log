@@ -1,96 +1,53 @@
 
 [2mRunning [22m1[2m test using [22m1[2m worker[22m
 
--------------------------------------------------- 1/5/2024, 10:39:16 am --------------------------------------------------------
+-------------------------------------------------- 10/5/2024, 12:21:41 pm --------------------------------------------------------
 
-repair is created with id  314815
-
-
-repair url is  https://www.staging-buzzworld.iidm.com/repair-request/87c63210-9741-4e5d-87f8-a2608de31853
-quote is created with id  2024050100003
+ABB grid data length is  1039
 
 
-quote url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/9e97b325-e657-450e-bf0a-b14bb6eaa5cf
-order created with id  234008
+ABB POS report list is displayed
+Omron grid data length is  1463
+
+Omron POS report list is displayed
+
+Omron STI grid data length is  333
 
 
-job selection checkbox is checked  true
-job created with id  86753
-
--------------------------------------------------- 1/5/2024, 10:39:16 am --------------------------------------------------------
-
-used job id is  86753
+Omron STI POS report list is displayed
+Parker grid data length is  1265
 
 
-parts purchase created with id  000318
-[32m  1 passed[39m[2m (4.1m)[22m
+Parker POS report list is displayed
+Rethink Robotics grid data length is  38
+
+Schmersal grid data length is  1368
 
 
-[2mRunning [22m1[2m test using [22m1[2m worker[22m
-
--------------------------------------------------- 1/5/2024, 10:45:33 am --------------------------------------------------------
-
-used job id is  86753
+Schmersal POS report list is displayed
+SMC grid data length is  2151
 
 
-parts purchase created with id  000319
-[32m  1 passed[39m[2m (1.6m)[22m
+SMC POS report list is displayed
+Wago grid data length is  1239
 
 
-[2mRunning [22m1[2m test using [22m1[2m worker[22m
-
--------------------------------------------------- 1/5/2024, 10:47:50 am --------------------------------------------------------
-
-Logout is displayed, login working
-
-login id displayed logout is working
-
-getting this  Invalid Email or Password  invalid email with valid password
-
-getting this  Invalid Email or Password  valid email with invalid password
-
-getting this  Invalid Email or Password  Invalid email with invalid password
-
-getting this  Please Enter Valid Email Address  in valid email format and empty password
-
-getting this  Please Enter Password  in valid email format and empty password
-
-getting this  Please Enter Email Id  empty email format and empty password
-
-getting this  Please Enter Password  empty email format and empty password
-
-[32m  1 passed[39m[2m (1.3m)[22m
+Wago POS report list is displayed
+Yaskawa Motion grid data length is  1356
+Yaskawa Motion POS report list is displayed
 
 
-[2mRunning [22m1[2m test using [22m1[2m worker[22m
-
--------------------------------------------------- 1/5/2024, 10:58:08 am --------------------------------------------------------
-
-Logout is displayed, login working
-
-login id displayed logout is working
-
-getting this  Invalid Email or Password  invalid email with valid password
+Yaskawa VFD grid data length is  996
 
 
-getting this  Invalid Email or Password  valid email with invalid password
-getting this  Invalid Email or Password  Invalid email with invalid password
+Yaskawa VFD POS report list is displayed
+Omron SFSAC grid data length is  133
 
-getting this  Please Enter Valid Email Address  in valid email format and empty password
+Omron SFSAC POS report list is displayed
 
-getting this  Please Enter Password  in valid email format and empty password
+ABB SFSAC grid data length is  1082
+ABB SFSAC POS report list is displayed
 
-getting this  Please Enter Email Id  empty email format and empty password
 
-
-getting this  Please Enter Password  empty email format and empty password
-getting this  We cannot find an active account linked to the email address that you entered. Please check the email address or contact your system administrator.  while verifying reset password with un registered mail
-
-getting this  Please Enter Valid Email Address  while verifying reset password with invalid mail
-
-getting this  Please Enter Email Id  while verifying reset password with empty mail
-
-displayed msg  Please Enter Email Id  while verifying reset password with valid registered mail
-
-[32m  1 passed[39m[2m (1.3m)[22m
+[32m  1 passed[39m[2m (4.2m)[22m
 

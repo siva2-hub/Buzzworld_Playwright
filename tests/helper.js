@@ -1,14 +1,15 @@
 const testdata = JSON.parse(JSON.stringify(require('../testdata.json')));
-
+const ExcelJS = require('exceljs');
 const fs = require('fs');
 const path = require('path');
 const { test, expect, page, chromium } = require('@playwright/test');
 const exp = require('constants');
 const { timeout } = require('../playwright.config');
+const { AsyncLocalStorage } = require('async_hooks');
 const currentDate = new Date().toDateString();
 let date = currentDate.split(" ")[2];
 let vendor = testdata.vendor;
-
+let apiKey = testdata.api_key;
 const currentDateTime = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
 
 // const month = parseInt(text.substring(3, 4));
@@ -326,7 +327,8 @@ async function login_buzz(page, stage_url) {
         await page.getByRole('button', { name: 'Sign In', exact: true }).click();
     } else {
     }
-    await page.waitForTimeout(1200);
+    await expect(page.locator('(//*[contains(@src, "vendor_logo")])[1]')).toBeVisible({timeout:30000});
+    await page.waitForTimeout(1600);
 }
 async function logout(page) {
     await page.locator('//*[@class = "user_image"]').click();
@@ -923,7 +925,7 @@ async function create_job_repairs(page, is_create_job, repair_type) {
 async function create_job_quotes(page, is_create_job) {
     console.log('--------------------------------------------------', currentDateTime, '--------------------------------------------------------');
     let acc_num = 'SKYCA00', cont_name = 'Tim Demers', stock_code = '46012504001';
-    // await page.goto('https://www.staging-buzzworld.iidm.com/system_quotes/df2e1b91-098b-48c9-8fab-ecebc8d3d6bb');
+    // await page.goto('https://www.staging-buzzworld.iidm.com/system_quotes/ad836721-35f6-4659-9bb9-eac304ca7c63');
     await page.getByText('Quotes', { exact: true }).first().click();
     await expect(page.locator('(//*[contains(@src, "vendor_logo")])[1]')).toBeVisible();
     await page.locator('div').filter({ hasText: /^Create Quote$/ }).nth(1).click();
@@ -1077,13 +1079,21 @@ async function create_job_quotes(page, is_create_job) {
     }
     is_checked = await page.locator('label').filter({ hasText: 'Create Job' }).isChecked();
     await page.getByRole('button', { name: 'Create', exact: true }).click();
+    try {
+        //update warehouse if needed
+        await expect(page.locator("//*[contains(text(),  'not stocked in warehouse')]")).toBeVisible({ timeout: 6000 });
+        await warehouse_update(page, stock_code);
+        await page.getByRole('button', { name: 'Create', exact: true }).click();
+    } catch (error) {
+
+    }
     await expect(page.getByRole('heading', { name: 'Sales Order Information' })).toBeVisible();
     let soid = await page.locator('(//*[@class = "id-num"])[1]').textContent();
     let order_id = soid.replace("#", "");
     console.log('order created with id ', order_id);
     if (is_create_job == 'Y') {
         console.log("job selection checkbox is checked ", is_checked);
-        let job_id = await page.locator('(//*[@role = "presentation"])[6]');
+        let job_id = await page.locator('(//*[@role = "presentation"])[5]');
         console.log('job created with id ', await job_id.textContent());
         await job_id.click();
         await expect(page.getByRole('heading', { name: 'Job Information' })).toBeVisible();
@@ -1353,16 +1363,310 @@ async function inventory_search(page, stock_code, stage_url) {
     }
     return warehouse;
 }
-async function warehouse_update(page, stock_code) {
+async function parts_purchase_left_menu_filter(page) {
+    console.log('--------------------------------------------------', currentDateTime, '--------------------------------------------------------');
+    await page.getByText('Parts Purchase').click();
+    await page.waitForTimeout(2000);
+    await page.getByText('Parts Purchase').first().click();
+    let stats = ['Requested', 'Ordered', 'Partially Received', 'Received and Completed', 'Cancelled'];
+    for (let index = 0; index < 5; index++) {
+        await expect(page.locator("(//*[contains(@src, 'new_avatar')])[1]")).toBeVisible();
+        await page.locator('(//*[text() = "' + stats[index] + '"])').first().click();
+        try {
+            await expect(page.locator("(//*[contains(@src, 'new_avatar')])[1]")).toBeVisible();
+        } catch (error) {
+            console.log('getting error while loading data');
+            await page.screenshot({ path: 'files/pp_' + stats[index] + '_list.png', fullPage: true });
+        }
+        await page.waitForTimeout(1000);
+        let status_count = await page.locator('(//*[text() = "' + stats[index] + '"])').count();
+        await page.waitForTimeout(1000);
+        let page_count = await page.locator("//*[contains(@id, 'last-row')]").textContent();
+        console.log('page count is ', page_count);
+        console.log('statuses count is ', status_count);
+        if (page_count <= status_count) {
+            console.log('left menu parts ' + stats[index] + ' filter working.');
+        } else {
+            console.log('left menu parts filter not working..!');
+        }
+        await expect(page.locator("(//*[contains(@src, 'new_avatar')])[1]")).toBeVisible();
+        try {
+            await expect(page.locator("(//*[text() = 'Clear'])[1]")).toBeVisible({timeout:3000});
+            await page.locator("(//*[text() = 'Clear'])[1]").click();
+        } catch (error) {}
+        await expect(page.locator("(//*[contains(@src, 'new_avatar')])[1]")).toBeVisible();
+        await page.getByText('Filters').click();
+        //select technician
+        await page.getByText('Select').first().click();
+        await page.keyboard.insertText('Michael Strothers');
+        await page.keyboard.press('Enter');
+        await page.keyboard.press('Escape');
+        //select priority
+        await page.getByText('Select').nth(2).click();
+        await page.keyboard.insertText('Warranty Repair');
+        await page.keyboard.press('Enter');
+        await page.getByRole('button', { name: 'Apply' }).click();
+        try {
+            await expect(page.locator("(//*[contains(@src, 'new_avatar')])[1]")).toBeVisible();
+            try {
+                await expect(page.locator("(//*[text() = 'Michael Strothers'])[1]")).toBeVisible();
+                await expect(page.locator("(//*[text() = 'Warranty Repair'])[1]")).toBeVisible();
+                console.log('top applied filter is working');
+                try {
+                    await expect(page.locator("(//*[text() = 'Clear'])[1]")).toBeVisible({timeout:3000});
+                    await page.locator("(//*[text() = 'Clear'])[1]").click();
+                } catch (error) {}
+            } catch (error) {
+                console.log('top applied filter is not working..!');
+                await page.getByText('Filters').click();
+                await page.screenshot({ path: 'files/pp_' + stats[index] + '_list.png', fullPage: true });
+                await page.getByTitle('close').getByRole('img').click();
+                try {
+                    await expect(page.locator("(//*[text() = 'Clear'])[1]")).toBeVisible({timeout:3000});
+                    await page.locator("(//*[text() = 'Clear'])[1]").click();
+                } catch (error) {}
+            }
+        } catch (error) {
+            console.log('error : '+error);
+        }
+    }
+}
+async function pos_report(page) {
+    console.log('--------------------------------------------------', currentDateTime, '--------------------------------------------------------');
+    let vendor_name = [
+        'ABB', 'Omron', 'Omron STI', 'Parker', 'Rethink Robotics', 'Schmersal', 'SMC', 'Wago', 'Yaskawa Motion', 'Yaskawa VFD', 'Omron SFSAC', 'ABB SFSAC'
+      ];
+      await page.waitForTimeout(600);
+      await page.locator("(//*[text() = 'Reports'])[1]").click();
+      await page.locator("(//*[text() = 'Point of Sales'])[1]").click();
+      await expect(page.locator("(//*[text() = 'Please Select Filters'])[1]")).toBeVisible();
+      for (let index = 0; index < vendor_name.length; index++) {
+        //selecting month
+        await page.locator("(//*[contains(@class, 'react-select__indicator')])[1]").click();
+        await page.keyboard.insertText('2');
+        await page.keyboard.press('Enter');
+        //selecting year
+        await page.locator("(//*[contains(@class, 'react-select__indicator')])[3]").click();
+        await page.keyboard.insertText('2024');
+        await page.keyboard.press('Enter');
+        //selecting vendor
+        await page.locator("(//*[contains(@class, 'react-select__indicator')])[5]").click();
+        await page.keyboard.insertText(vendor_name[index]);
+        await page.keyboard.press('Enter');
+        await page.locator("(//*[text() = 'Apply'])[1]").click();
+        await spinner(page);
+        if (vendor_name[index]=='SMC') {
+            await page.waitForTimeout(7000);
+        } else {
+            await page.waitForTimeout(5000);
+        }
+        let grid_text = await page.locator("//*[@class = 'ag-center-cols-viewport']").textContent();
+        console.log(vendor_name[index] +' grid data length is ', grid_text.length);
+        if (grid_text.length>38) {
+          console.log(vendor_name[index] + ' POS report list is displayed');
+        } else {
+          await page.screenshot({ path: 'files/' + vendor_name[index] + '_POS_report.png', fullPage: true });
+        }
+      }
+}
+async function sync_jobs(page) {
+    console.log('--------------------------------------------------', currentDateTime, '--------------------------------------------------------');
+    let row = 1;
+    for (let list = 1; list <= 109; list++) {
+        const response_job_list = await fetch_jobs_list(page, list);
+        const job_res_count = response_job_list.result.data.list.length;
+        console.log('page -----: ', list);
+        // console.log('totals jobs count is ', job_res_count);
+        let col0, col1, col2, col3, col4, col5, col6;
+        for (let index = 0; index < job_res_count; index++) {
+            console.log('row ', row);
+            const job_id = response_job_list.result.data.list[index].id;
+            const job_num = response_job_list.result.data.list[index].job_id;
+            const order_num = response_job_list.result.data.list[index].sales_order;
+            let st_code = response_job_list.result.data.list[index].stock_code;
+            const cust_name = response_job_list.result.data.list[index].customer_name;
+            const cust_code = response_job_list.result.data.list[index].customer;
+            // console.log('stock code ', st_code);
+            if (order_num == '') {
+                col1 = job_num;
+                col2 = 'order not found for ' + job_num + ' in jobs list';
+                col3 = st_code;
+                col4 = cust_code + ' - ' + cust_name;
+                // console.log(col1);
+                col5 = '';
+                col6 = '';
+            } else {
+                const job_result = await fetch_jobs_Detail(page, job_id);
+                const rel_job_data = job_result.result.data;
+                const status_code = job_result.result.status_code;
+                // console.log('rel data in job is ', rel_job_data);
+                if (rel_job_data == '') {
+                    col1 = job_num;
+                    col2 = 'job is ready to sync';
+                    col3 = st_code;
+                    col4 = cust_code + ' - ' + cust_name;
+                    // col1 = job_num + ' this job is ready to sync and, stock code is ' + st_code + ' customer is ' + cust_code + ' - ' + cust_name;
+                    // console.log(col1);
+                    const order_list = await fetch_order_list(page, order_num);
+                    // console.log('order list is ', order_list.result.data.list[0].sales_order);
+                    if (order_list.result.data.total_count == 0) {
+                        col5 = order_num;
+                        col6 = 'order not found for ' + job_num + ' in order list';
+                        // col2 = 'order not found for ' + job_num + ' in order list';
+                        // console.log(col2);
+                    } else {
+                        if (order_num == order_list.result.data.list[0].sales_order) {
 
+                            const order_id = order_list.result.data.list[0].id;
+                            const order_res = await fetch_orders_Detail(page, order_id);
+                            const rel_order_data = order_res.result.data;
+                            const status_code_ord = order_res.result.status_code;
+                            // console.log('rel data in orders is ', rel_order_data);
+                            if (rel_order_data == '') {
+                                col5 = order_num;
+                                col6 = 'order is ready to sync';
+                                // col2 = order_num + ' this order is ready to sync and, stock code is ' + st_code;
+                                // console.log(col2);
+                            } else {
+                                col5 = order_num;
+                                col6 = 'order is already synced';
+                                // col2 = order_num + ' this order is already synced and,stock code is ' + st_code;
+                                // console.log(col2);
+                            }
+                        } else {
+                            col5 = order_num;
+                            col6 = 'order not found for ' + job_num + ' in order list';
+                            // col2 = 'order not found for ' + job_num + ' in order list';
+                            // console.log(col2);
+                        }
+                    }
+                } else {
+                    col1 = job_num;
+                    col2 = 'job is already synced';
+                    col3 = st_code;
+                    col4 = cust_code + ' - ' + cust_name;
+                    col5 = order_num;
+                    col6 = '';
+                    // col1 = job_num + ' this job is already synced and, stock code is ' + st_code;
+                    // console.log(col1);
+                }
+            }
+            // console.log('col1 ', col1);
+            // console.log('col2 ', col2);
+            col0 = row;
+            const data = [
+                [col0, col1, col2, col3, col4, col5, col6]
+            ];
+            await write_data_into_excel(data);
+            if (index >= 250) {
+                index = 0;
+            } else {
+
+            }
+            row = row + 1;
+        }
+        // await page.pause();
+    }
+    await page.close();
+}
+async function fetch_jobs_list(page, page_num) {
+    const apiUrl = 'https://staging-buzzworld-api.iidm.com//v1/getSysproJobs?page=' + page_num + '&perPage=250&sort=asc&sort_key=job_id&grid_name=Jobs';
+    // Make a GET request to the API endpoint
+    const response = await page.evaluate(async (url) => {
+        const fetchData = await fetch(url, {
+            headers: {
+                'Authorization': `Bearer ${'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiODY5N2I4NTFjZTBjYTE5MDc5NzM1NGY5MmM3MDBmOTk3N2YxM2E3MGQ0ODRjMWNhYWU1ZGY5NjJkNThiMjY0NzNkZTNmY2RiZGE1YWJlNmMiLCJpYXQiOjE3MTUxNjU2MjkuMzY4MzUzLCJuYmYiOjE3MTUxNjU2MjkuMzY4MzU3LCJleHAiOjE3MTY0NjE2MjkuMzUyNzM2LCJzdWIiOiI2NzE0YTkyNC03YmZhLTQ5NjktODUzOC1iZjg0MTk1YjU0MWEiLCJzY29wZXMiOltdfQ.ZUvw0p-uc3XBghUPXKIiwfJ3bEgix8YXINm-ln5xlcW-JvClzl99W1qf-UWlGl3vS4znHlLJ_MAx_WTKyPTUUUxD5JoJe_C9cARfu-sgiv-b7h8E8WWAZfooguaQBH5_FCTOCnhLQJ_G4_5PUdDrR2yPSwTNecZsoC9mXK19CtINMZKO3NlzJ8KFZNKK6dBNgGvnDownm90M2XFJk8pr3J-0oq1rvGtRvn8fcYmDAoLuvJJgH39vdbaqF8zi9645mTUPifenCXtn2bD-GVpEFwV6lHo3mqEtxlDLsntzebVlY-M5JAwdBqPcboOwsAQBKDuHGHkJVP60ci5RllcyDa7wPWIFmG56zllPwhlrc_rWS4EBlfK_DAx8PQ0j4PuAkUbyWmuojwpldv84Sgpz5-41aKJR84Fy_GqPVrl4r-OmXL-zLETahASTQBDG1V9o9UJ5Ne-FbHVgIfrat7M-WcodBbdJ9z5yfVDyJnKVP5IHwit_J0O6w5ssvdMnr1nOIl36pvfNcUZ0LQb2MZ09HA1KBQpoUQgfglku0owd8wAWhI_8sS2m0fYsELy5Wstay0fxsbuODW2hz8A20f-zoutuSBrnDgFI7JO8fky1HAHmlqlgyvcQ_BkvO9YKRfwaDjUozDdwQTsnMNhT565GMdeTbzxaTkGNy74qFgXpR-Q'}` // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
+            }
+        });
+        return fetchData.json();
+    }, apiUrl);
+    // Output the API response
+    return response;
+}
+async function fetch_jobs_Detail(page, job_id) {
+    const apiUrl = 'https://staging-buzzworld-api.iidm.com/v1/RelatedData?job_id=' + job_id;
+    // Make a GET request to the API endpoint
+    const response = await page.evaluate(async (url) => {
+        const fetchData = await fetch(url, {
+            headers: {
+                'Authorization': `Bearer ${'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiODY5N2I4NTFjZTBjYTE5MDc5NzM1NGY5MmM3MDBmOTk3N2YxM2E3MGQ0ODRjMWNhYWU1ZGY5NjJkNThiMjY0NzNkZTNmY2RiZGE1YWJlNmMiLCJpYXQiOjE3MTUxNjU2MjkuMzY4MzUzLCJuYmYiOjE3MTUxNjU2MjkuMzY4MzU3LCJleHAiOjE3MTY0NjE2MjkuMzUyNzM2LCJzdWIiOiI2NzE0YTkyNC03YmZhLTQ5NjktODUzOC1iZjg0MTk1YjU0MWEiLCJzY29wZXMiOltdfQ.ZUvw0p-uc3XBghUPXKIiwfJ3bEgix8YXINm-ln5xlcW-JvClzl99W1qf-UWlGl3vS4znHlLJ_MAx_WTKyPTUUUxD5JoJe_C9cARfu-sgiv-b7h8E8WWAZfooguaQBH5_FCTOCnhLQJ_G4_5PUdDrR2yPSwTNecZsoC9mXK19CtINMZKO3NlzJ8KFZNKK6dBNgGvnDownm90M2XFJk8pr3J-0oq1rvGtRvn8fcYmDAoLuvJJgH39vdbaqF8zi9645mTUPifenCXtn2bD-GVpEFwV6lHo3mqEtxlDLsntzebVlY-M5JAwdBqPcboOwsAQBKDuHGHkJVP60ci5RllcyDa7wPWIFmG56zllPwhlrc_rWS4EBlfK_DAx8PQ0j4PuAkUbyWmuojwpldv84Sgpz5-41aKJR84Fy_GqPVrl4r-OmXL-zLETahASTQBDG1V9o9UJ5Ne-FbHVgIfrat7M-WcodBbdJ9z5yfVDyJnKVP5IHwit_J0O6w5ssvdMnr1nOIl36pvfNcUZ0LQb2MZ09HA1KBQpoUQgfglku0owd8wAWhI_8sS2m0fYsELy5Wstay0fxsbuODW2hz8A20f-zoutuSBrnDgFI7JO8fky1HAHmlqlgyvcQ_BkvO9YKRfwaDjUozDdwQTsnMNhT565GMdeTbzxaTkGNy74qFgXpR-Q'}` // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
+            }
+        });
+        return fetchData.json();
+    }, apiUrl);
+    // Output the API response
+    return response;
+
+}
+async function fetch_order_list(page, order_num) {
+    const apiUrl = 'https://staging-buzzworld-api.iidm.com//v1/getSalesOrder?page=1&perPage=25&sort=desc&sort_key=sales_order&grid_name=Orders&search=' + order_num;
+    // Make a GET request to the API endpoint
+    const response = await page.evaluate(async (url) => {
+        const fetchData = await fetch(url, {
+            headers: {
+                'Authorization': `Bearer ${'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiODY5N2I4NTFjZTBjYTE5MDc5NzM1NGY5MmM3MDBmOTk3N2YxM2E3MGQ0ODRjMWNhYWU1ZGY5NjJkNThiMjY0NzNkZTNmY2RiZGE1YWJlNmMiLCJpYXQiOjE3MTUxNjU2MjkuMzY4MzUzLCJuYmYiOjE3MTUxNjU2MjkuMzY4MzU3LCJleHAiOjE3MTY0NjE2MjkuMzUyNzM2LCJzdWIiOiI2NzE0YTkyNC03YmZhLTQ5NjktODUzOC1iZjg0MTk1YjU0MWEiLCJzY29wZXMiOltdfQ.ZUvw0p-uc3XBghUPXKIiwfJ3bEgix8YXINm-ln5xlcW-JvClzl99W1qf-UWlGl3vS4znHlLJ_MAx_WTKyPTUUUxD5JoJe_C9cARfu-sgiv-b7h8E8WWAZfooguaQBH5_FCTOCnhLQJ_G4_5PUdDrR2yPSwTNecZsoC9mXK19CtINMZKO3NlzJ8KFZNKK6dBNgGvnDownm90M2XFJk8pr3J-0oq1rvGtRvn8fcYmDAoLuvJJgH39vdbaqF8zi9645mTUPifenCXtn2bD-GVpEFwV6lHo3mqEtxlDLsntzebVlY-M5JAwdBqPcboOwsAQBKDuHGHkJVP60ci5RllcyDa7wPWIFmG56zllPwhlrc_rWS4EBlfK_DAx8PQ0j4PuAkUbyWmuojwpldv84Sgpz5-41aKJR84Fy_GqPVrl4r-OmXL-zLETahASTQBDG1V9o9UJ5Ne-FbHVgIfrat7M-WcodBbdJ9z5yfVDyJnKVP5IHwit_J0O6w5ssvdMnr1nOIl36pvfNcUZ0LQb2MZ09HA1KBQpoUQgfglku0owd8wAWhI_8sS2m0fYsELy5Wstay0fxsbuODW2hz8A20f-zoutuSBrnDgFI7JO8fky1HAHmlqlgyvcQ_BkvO9YKRfwaDjUozDdwQTsnMNhT565GMdeTbzxaTkGNy74qFgXpR-Q'}` // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
+            }
+        });
+        return fetchData.json();
+    }, apiUrl);
+    // Output the API response
+    return response;
+}
+async function fetch_orders_Detail(page, order_id) {
+    const apiUrl = 'https://staging-buzzworld-api.iidm.com/v1/RelatedData?sales_order_id=' + order_id;
+    // Make a GET request to the API endpoint
+    const response = await page.evaluate(async (url) => {
+        const fetchData = await fetch(url, {
+            headers: {
+                'Authorization': `Bearer ${'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiODY5N2I4NTFjZTBjYTE5MDc5NzM1NGY5MmM3MDBmOTk3N2YxM2E3MGQ0ODRjMWNhYWU1ZGY5NjJkNThiMjY0NzNkZTNmY2RiZGE1YWJlNmMiLCJpYXQiOjE3MTUxNjU2MjkuMzY4MzUzLCJuYmYiOjE3MTUxNjU2MjkuMzY4MzU3LCJleHAiOjE3MTY0NjE2MjkuMzUyNzM2LCJzdWIiOiI2NzE0YTkyNC03YmZhLTQ5NjktODUzOC1iZjg0MTk1YjU0MWEiLCJzY29wZXMiOltdfQ.ZUvw0p-uc3XBghUPXKIiwfJ3bEgix8YXINm-ln5xlcW-JvClzl99W1qf-UWlGl3vS4znHlLJ_MAx_WTKyPTUUUxD5JoJe_C9cARfu-sgiv-b7h8E8WWAZfooguaQBH5_FCTOCnhLQJ_G4_5PUdDrR2yPSwTNecZsoC9mXK19CtINMZKO3NlzJ8KFZNKK6dBNgGvnDownm90M2XFJk8pr3J-0oq1rvGtRvn8fcYmDAoLuvJJgH39vdbaqF8zi9645mTUPifenCXtn2bD-GVpEFwV6lHo3mqEtxlDLsntzebVlY-M5JAwdBqPcboOwsAQBKDuHGHkJVP60ci5RllcyDa7wPWIFmG56zllPwhlrc_rWS4EBlfK_DAx8PQ0j4PuAkUbyWmuojwpldv84Sgpz5-41aKJR84Fy_GqPVrl4r-OmXL-zLETahASTQBDG1V9o9UJ5Ne-FbHVgIfrat7M-WcodBbdJ9z5yfVDyJnKVP5IHwit_J0O6w5ssvdMnr1nOIl36pvfNcUZ0LQb2MZ09HA1KBQpoUQgfglku0owd8wAWhI_8sS2m0fYsELy5Wstay0fxsbuODW2hz8A20f-zoutuSBrnDgFI7JO8fky1HAHmlqlgyvcQ_BkvO9YKRfwaDjUozDdwQTsnMNhT565GMdeTbzxaTkGNy74qFgXpR-Q'}` // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
+            }
+        });
+        return fetchData.json();
+    }, apiUrl);
+    // Output the API response
+    return response;
+}
+async function fetch_pp_status(page, status) {
+    const apiUrl = 'https://staging-buzzworld-api.iidm.com/v1/getPartPurchase?page=1&perPage=25&sort=&sort_key=&grid_name=Repairs&serverFilterOptions=[object%20Object]&selectedCustomFilters=[object%20Object]&part_purchase_type=' + status;
+    // Make a GET request to the API endpoint
+    const response = await page.evaluate(async (url) => {
+        const fetchData = await fetch(url, {
+            headers: {
+                'Authorization': `Bearer ${'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiOTc4NzU2OGU2OTE1OWMxZTE3ZTcxY2QzZTA0NTI4ZDg0OWNmODFiOGYyMDI4M2VhZTI1M2VlMWY2NTkyMmUxZTZiODMwODExZmQ2YjM4ZDMiLCJpYXQiOjE3MTUyMzg1ODkuOTA2OTM4LCJuYmYiOjE3MTUyMzg1ODkuOTA2OTQzLCJleHAiOjE3MTY1MzQ1ODkuODk1MzQ5LCJzdWIiOiI2NzE0YTkyNC03YmZhLTQ5NjktODUzOC1iZjg0MTk1YjU0MWEiLCJzY29wZXMiOltdfQ.L7sVDK-Jc89TKjkSuFWLKP0ka_kXNBGba-ittCenBF-6PB0GnruN9hj3dIxCC6j4RTcYZ40_NkfNfaxqOQyFP9lmuUg_2vky26D6cAo4Ognp7RlDyBeHoUjJdxu0pAWJFJUDTehRCAdnPjMy_3EfWyEPhqq_6IML_RlP-X2W5rg4PZyXbO-8_VbQkj8srH9Xy54qTpjmZTtCY54k5LANjxdmheiTAuGWv9dju4_sZWlbVzfblTfgKeZKHnnQjJxvz0snAG22rrne_hB4wuIOGlLCRVzPsl3zj2oQ6VcZXS2qQ0vXHLRKqIXSZzHk7wJv3zkqteDmyuUjNfbantnAE5VMvtWk893r3bt5VEa0cEXNoLtTirT9UnxDY_n7zWuziEDneFnUqTiWN57wRItZRpSECgsS5B3ZOhkEfB3x4RvKhFkajjhWf-Cv_uNU1FogrxmdSW6BhV_kJsLWy5khEiW4A_hfoHIBlCSDZZNUNW-wiB3Q9AZW2C7SpHq1AmVytozp-uL8CST6FfgN6xpfOhpfFgEWtw199I7SwyK1g4EXYbSH5z4Zxpuh_gixaanNS5Ch-5cTSGn-o-FlarBQsrReFkGzNNJRW0YDBP7NUTfaJNJ9xaKnToe2IoMeMb_EbssRxbBQfDgfFvilVURrA6TqDUYCHYOLJKMV01XkA60'}` // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
+            }
+        });
+        return fetchData.json();
+    }, apiUrl);
+    // Output the API response
+    return response;
+}
+async function write_data_into_excel(data) {
+    // Create a new workbook
+    // const workbook = new ExcelJS.Workbook();
+    // Add a worksheet
+    // const worksheet = workbook.addWorksheet('logs');
+    // Add headers
+    // worksheet.addRow(['Column 1', 'Column 2', 'Column 3']);
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.readFile('logs.xlsx');
+    // Get the first worksheet
+    const worksheet = workbook.getWorksheet('logs');
+    // Add data
+    data.forEach(row => {
+        worksheet.addRow(row);
+    });
+    // Write the workbook to a file
+    await workbook.xlsx.writeFile('logs.xlsx');
+}
+async function warehouse_update(page, stock_code) {
     await page.waitForTimeout(1600);
     await page.locator("(//*[contains(@src,  'themecolorEdit')])[2]").click();
     await page.locator("(//*[contains(@aria-label,  'open')])[3]").click();
-    await page.keyboard.insertText('01');
+    await page.keyboard.insertText('90');
+    await page.waitForTimeout(1300);
     await page.keyboard.press('Enter');
     await page.locator("(//*[contains(@class,  'tick-icon')])[3]").click();
     await page.waitForTimeout(1200);
-
 }
 function redirectConsoleToFile(filePath) {
     const originalConsoleLog = console.log;
@@ -1414,5 +1718,13 @@ module.exports = {
     functional_flow,
     inventory_search,
     filters_pricing,
-    setScreenSize
+    setScreenSize,
+    sync_jobs,
+    fetch_jobs_list,
+    fetch_jobs_Detail,
+    fetch_order_list,
+    fetch_orders_Detail,
+    fetch_pp_status,
+    parts_purchase_left_menu_filter,
+    pos_report
 };
