@@ -36,5 +36,16 @@
         "0": "Branches", "1": "Account Types","2": "Classifications","3": "Contact Types","4": "Industries",
         "5": "PO Min Qty","6": "Product Category","7": "Product Class","8": "QC Forms","9": "","10": "","11": "","12": "",
         "13": "","14": "","15": "","16": "","17": "","18": ""
+    },
+    "parts":{
+        "part_name": "331EABL",
+        "unit_cost": "33.12",
+        "list_price": "33.31",
+        "part_descr": "BACO 24V BLU LED SCREW TERM W/",
+        "prod_class": "BA05",
+        "prod_category": "Made in",
+        "supplier": "BACO001 - BACO CONTROLS INC",
+        "stock_OUM": "EA",
+        "warehouse": "10"
     }
 }

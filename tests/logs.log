@@ -1,53 +1,89 @@
 
-[2mRunning [22m1[2m test using [22m1[2m worker[22m
+Running 1 test using 1 worker
 
--------------------------------------------------- 10/5/2024, 12:21:41 pm --------------------------------------------------------
+-------------------------------------------------- 24/5/2024, 11:00:20 pm --------------------------------------------------------
 
-ABB grid data length is  1039
-
-
-ABB POS report list is displayed
-Omron grid data length is  1463
-
-Omron POS report list is displayed
-
-Omron STI grid data length is  333
+Bulk Import Failed Importing parts are exit in syspro
 
 
-Omron STI POS report list is displayed
-Parker grid data length is  1265
+
+rows count is  3
+parts from excel is 46012504001
+div count 2
+
+ data is 46012504001
+
+46012504001 is in the Inventory
 
 
-Parker POS report list is displayed
-Rethink Robotics grid data length is  38
+parts from excel is +CIMR-AU4A0165FAA123
+div count 2
 
-Schmersal grid data length is  1368
+ data is +CIMR-AU4A0165FAA123
 
-
-Schmersal POS report list is displayed
-SMC grid data length is  2151
++CIMR-AU4A0165FAA123 is in the Inventory
 
 
-SMC POS report list is displayed
-Wago grid data length is  1239
+parts from excel is 12343-000
+div count 2
+
+ data is 12343-000
+
+12343-000 is in the Inventory
+
+  1) [Google Chrome] › buzzworld_tests.spec.js:89:3 › all tests › parts import ─────────────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+    Locator: locator('//*[text() = \'File Uploaded\']')
+    Expected: visible
+    Received: hidden
+    Call log:
+      [2m- expect.toBeVisible with timeout 16000ms[22m
+    [2m  - waiting for locator('//*[text() = \'File Uploaded\']')[22m
 
 
-Wago POS report list is displayed
-Yaskawa Motion grid data length is  1356
-Yaskawa Motion POS report list is displayed
+       at helper.js:1838
+
+      1836 |             console.log(error);
+      1837 |         }
+    > 1838 |         await expect(page.locator("//*[text() = 'File Uploaded']")).toBeVisible();
+           |                                                                     ^
+      1839 |         try {
+      1840 |             await page.getByRole('button', { name: 'Proceed' }).click();
+      1841 |             if (test_data[index] == 'positive') {
+
+        at parts_import (E:\Playwright_Automation\tests\helper.js:1838:69)
+        at E:\Playwright_Automation\tests\buzzworld_tests.spec.js:90:5
 
 
-Yaskawa VFD grid data length is  996
+  1 failed
+    [Google Chrome] › buzzworld_tests.spec.js:89:3 › all tests › parts import ──────────────────────
 
-
-Yaskawa VFD POS report list is displayed
-Omron SFSAC grid data length is  133
-
-Omron SFSAC POS report list is displayed
-
-ABB SFSAC grid data length is  1082
-ABB SFSAC POS report list is displayed
-
-
-[32m  1 passed[39m[2m (4.2m)[22m
-
+  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.
+Listing tests:
+  [Google Chrome] › buzzworld_tests.spec.js:9:6 › sync jobs
+  [Google Chrome] › buzzworld_tests.spec.js:28:8 › all tests › login
+  [Google Chrome] › buzzworld_tests.spec.js:32:8 › all tests › inventory search
+  [Google Chrome] › buzzworld_tests.spec.js:36:3 › all tests › create job and sales order from repair
+  [Google Chrome] › buzzworld_tests.spec.js:41:3 › all tests › create job and sales order from quote
+  [Google Chrome] › buzzworld_tests.spec.js:45:8 › all tests › create job manually
+  [Google Chrome] › buzzworld_tests.spec.js:49:8 › all tests › create parts purchase manually
+  [Google Chrome] › buzzworld_tests.spec.js:53:8 › all tests › left menu search
+  [Google Chrome] › buzzworld_tests.spec.js:57:8 › all tests › Add Discount Code
+  [Google Chrome] › buzzworld_tests.spec.js:61:8 › all tests › Update Discount Code
+  [Google Chrome] › buzzworld_tests.spec.js:65:8 › all tests › Add products
+  [Google Chrome] › buzzworld_tests.spec.js:69:8 › all tests › Update products
+  [Google Chrome] › buzzworld_tests.spec.js:73:8 › all tests › multi edit dc
+  [Google Chrome] › buzzworld_tests.spec.js:77:8 › all tests › verify filters in pricing
+  [Google Chrome] › buzzworld_tests.spec.js:81:8 › all tests › verify filters in parts purchase
+  [Google Chrome] › buzzworld_tests.spec.js:85:8 › all tests › pos reports list
+  [Google Chrome] › buzzworld_tests.spec.js:89:3 › all tests › parts import
+  [Google Chrome] › buzzworld_tests.spec.js:93:3 › all tests › first add parts
+  [Google Chrome] › buzzworld_tests.spec.js:97:3 › all tests › second add parts with duplicates
+  [Google Chrome] › buzzworld_tests.spec.js:101:3 › all tests › third add parts with all are empty
+  [Google Chrome] › buzzworld_tests.spec.js:105:3 › all tests › verify past repair pricing icons
+  [Google Chrome] › buzzworld_tests.spec.js:109:3 › all tests › edit PO partially received
+  [Google Chrome] › buzzworld_tests.spec.js:113:8 › all tests › import pricing two files
+  [Google Chrome] › buzzworld_tests.spec.js:120:8 › all tests › functional_flow
+Total: 24 tests in 1 file
