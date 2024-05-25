@@ -33,7 +33,7 @@ module.exports = defineConfig({
   use: {
     launchOptions:{
       slowMo: 800,
-      headless: false,
+      headless: true,
     },
     video: 'on',
     videoQuality: 90,
