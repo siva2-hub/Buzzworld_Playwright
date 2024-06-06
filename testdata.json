@@ -23,19 +23,30 @@
         "pwd":       "Enter@4321"
     },
 
-    "vendor":         "WEIN001",
+    "vendor":         "WIEG001",
     "stock_code_new": "Test#001",
-    "dc_new":         "TestDC#001",
+    "dc_new":         "TestDC#003",
     "PO":             "0.06",
-    "order_id":       "233989",
-    "job_id":         "86753",
+    "order_id":       "234051",
+    "job_id":         "86768",
     "tech":           "Michael Strothers",
     "urgency":        "Emergency Breakdown",
 
     "admin":{
         "0": "Branches", "1": "Account Types","2": "Classifications","3": "Contact Types","4": "Industries",
-        "5": "PO Min Qty","6": "Product Category","7": "Product Class","8": "QC Forms","9": "","10": "","11": "","12": "",
-        "13": "","14": "","15": "","16": "","17": "","18": ""
-    }
+        "5": "PO Min Qty","6": "Product Category","7": "Product Class","8": "QC Forms","9": "Quote Approval","10": "Quote Types","11": "Regions","12": "Sales Potential",
+        "13": "Terms Conditions","14": "","15": "","16": "","17": "","18": "", "19": "", "20": ""
+    },
     
+    "parts":{
+        "part_name": "331EABL1",
+        "unit_cost": "33.12",
+        "list_price": "33.31",
+        "part_descr": "BACO 24V BLU LED SCREW TERM W/",
+        "prod_class": "BA05",
+        "prod_category": "Made in",
+        "supplier": "BACO001 - BACO CONTROLS INC",
+        "stock_OUM": "EA",
+        "warehouse": "10"
+    }
 }

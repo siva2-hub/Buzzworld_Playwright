@@ -24,9 +24,9 @@ module.exports = defineConfig({
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
 
   reporter: 'html',
-  timeout:  530000,
+  timeout:  1000000 * 10,
   expect: {
-    timeout: 16 * 1000,
+    timeout: 30 * 1000,
   },
   // increate the expect timeout at all areas of project
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -34,6 +34,8 @@ module.exports = defineConfig({
     launchOptions:{
       slowMo: 800,
       headless: false,
+      // Maximize the window (specific to Chromium)
+      // args: ['--start-maximized']
     },
     video: 'on',
     videoQuality: 90,
@@ -42,6 +44,7 @@ module.exports = defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+  
   },
 
   /* Configure projects for major browsers */

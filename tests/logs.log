@@ -1,96 +1,835 @@
 
 [2mRunning [22m1[2m test using [22m1[2m worker[22m
 
--------------------------------------------------- 1/5/2024, 10:39:16 am --------------------------------------------------------
+-------------------------------------------------- [31m5/6/2024, 6:17:27 pm[0m --------------------------------------------------------
 
-repair is created with id  314815
-
-
-repair url is  https://www.staging-buzzworld.iidm.com/repair-request/87c63210-9741-4e5d-87f8-a2608de31853
-quote is created with id  2024050100003
+[32mABB POS report list is displayed[0m
 
 
-quote url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/9e97b325-e657-450e-bf0a-b14bb6eaa5cf
-order created with id  234008
+[32mABB POS reports Count is 298[0m
+[32mOmron POS report list is displayed[0m
+
+
+[32mOmron POS reports Count is 270[0m
+[32mOmron STI POS report list is displayed[0m
+
+
+[32mOmron STI POS reports Count is 3[0m
+[32mParker POS report list is displayed[0m
+
+
+[32mParker POS reports Count is 29[0m
+[31mRethink Robotics POS report list is Empty at selected dates.[0m
+
+[32mSchmersal POS report list is displayed[0m
+
+
+[32mSchmersal POS reports Count is 17[0m
+[32mSMC POS report list is displayed[0m
+
+
+[32mSMC POS reports Count is 866[0m
+[32mWago POS report list is displayed[0m
+
+
+[32mWago POS reports Count is 3,016[0m
+[32mYaskawa Motion POS report list is displayed[0m
+
+
+[32mYaskawa Motion POS reports Count is 54[0m
+[32mYaskawa VFD POS report list is displayed[0m
+
+
+[32mYaskawa VFD POS reports Count is 136[0m
+[31mOmron SFSAC POS report list is Empty at selected dates.[0m
+
+[32mABB SFSAC POS report list is displayed[0m
+
+
+[32mABB SFSAC POS reports Count is 9[0m
+
+[31m  1) [Google Chrome] › buzzworld_tests.spec.js:108:3 › all tests › POS Reports Lists [2m───────────────[22m[39m
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mundefined[39m
+
+    [90m   at [39mhelper.js:2995
+
+    [0m [90m 2993 |[39m [36masync[39m [36mfunction[39m returnResult(page[33m,[39m testName[33m,[39m results) {[0m
+    [0m [90m 2994 |[39m     [36mtry[39m {[0m
+    [0m[31m[1m>[22m[39m[90m 2995 |[39m         expect(results)[33m.[39mtoBe([36mtrue[39m)[33m;[39m[0m
+    [0m [90m      |[39m                         [31m[1m^[22m[39m[0m
+    [0m [90m 2996 |[39m         console[33m.[39mlog([33mANSI_GREEN[39m [33m+[39m testName [33m+[39m [32m' Test Passed!'[39m [33m+[39m [33mANSI_RESET[39m)[33m;[39m[0m
+    [0m [90m 2997 |[39m     } [36mcatch[39m (error) {[0m
+    [0m [90m 2998 |[39m         console[33m.[39merror([33mANSI_RED[39m [33m+[39m testName [33m+[39m [32m' Test Failed:'[39m [33m+[39m [33mANSI_RESET[39m[33m,[39m error)[33m;[39m[0m
+
+    [2m    at returnResult (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:2995:25)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/buzzworld_tests.spec.js:111:23[22m
+
+
+[31m  1 failed[39m
+[31m    [Google Chrome] › buzzworld_tests.spec.js:108:3 › all tests › POS Reports Lists [2m────────────────[22m[39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+[31m  1) [Google Chrome] › buzzworld_tests.spec.js:108:3 › all tests › POS Reports Lists [2m───────────────[22m[39m
+
+    [31mTest was interrupted.[39m
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+    Locator: locator('xpath=(//*[contains(@src, "vendor_logo")])[1]')
+    Expected: visible
+    Received: hidden
+    Call log:
+      [2m- expect.toBeVisible with timeout 30000ms[22m
+    [2m  - waiting for locator('xpath=(//*[contains(@src, "vendor_logo")])[1]')[22m
+
+
+    [90m   at [39mhelper.js:342
+
+    [0m [90m 340 |[39m     } [36melse[39m {[0m
+    [0m [90m 341 |[39m     }[0m
+    [0m[31m[1m>[22m[39m[90m 342 |[39m     [36mawait[39m expect(page[33m.[39mlocator([32m'(//*[contains(@src, "vendor_logo")])[1]'[39m))[33m.[39mtoBeVisible({ timeout[33m:[39m [35m30000[39m })[33m;[39m[0m
+    [0m [90m     |[39m                                                                           [31m[1m^[22m[39m[0m
+    [0m [90m 343 |[39m     [36mawait[39m page[33m.[39mwaitForTimeout([35m1600[39m)[33m;[39m[0m
+    [0m [90m 344 |[39m }[0m
+    [0m [90m 345 |[39m [36masync[39m [36mfunction[39m logout(page) {[0m
+
+    [2m    at login_buzz (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:342:75)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/buzzworld_tests.spec.js:25:5[22m
+
+
+[33m  1 interrupted[39m
+[33m    [Google Chrome] › buzzworld_tests.spec.js:108:3 › all tests › POS Reports Lists [2m────────────────[22m[39m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m5/6/2024, 6:25:20 pm[0m --------------------------------------------------------
+
+[32mABB POS report list is displayed[0m
+
+
+[32mABB POS reports Count is 298[0m
+
+[32mOmron POS report list is displayed[0m
+
+[32mOmron POS reports Count is 270[0m
+[32mOmron STI POS report list is displayed[0m
+
+
+[32mOmron STI POS reports Count is 3[0m
+
+[32mParker POS report list is displayed[0m
+
+
+[32mParker POS reports Count is 29[0m
+[32mPOS Reports Lists Test Passed![0m
+[32m  1 passed[39m[2m (1.5m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m5/6/2024, 6:37:39 pm[0m --------------------------------------------------------
+
+
+[31m  1) [Google Chrome] › buzzworld_tests.spec.js:28:3 › all tests › Login [2m────────────────────────────[22m[39m
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+    [90m   at [39mhelper.js:3015
+
+    [0m [90m 3013 |[39m [36masync[39m [36mfunction[39m returnResult(page[33m,[39m testName[33m,[39m results) {[0m
+    [0m [90m 3014 |[39m     [36mtry[39m {[0m
+    [0m[31m[1m>[22m[39m[90m 3015 |[39m         expect(results)[33m.[39mtoBe([36mtrue[39m)[33m;[39m[0m
+    [0m [90m      |[39m                         [31m[1m^[22m[39m[0m
+    [0m [90m 3016 |[39m         console[33m.[39mlog([33mANSI_GREEN[39m [33m+[39m testName [33m+[39m [32m' Test Passed!'[39m [33m+[39m [33mANSI_RESET[39m)[33m;[39m[0m
+    [0m [90m 3017 |[39m     } [36mcatch[39m (error) {[0m
+    [0m [90m 3018 |[39m         console[33m.[39merror([33mANSI_RED[39m [33m+[39m testName [33m+[39m [32m' Test Failed:'[39m [33m+[39m [33mANSI_RESET[39m[33m,[39m error)[33m;[39m[0m
+
+    [2m    at returnResult (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:3015:25)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/buzzworld_tests.spec.js:31:23[22m
+
+
+[31m  1 failed[39m
+[31m    [Google Chrome] › buzzworld_tests.spec.js:28:3 › all tests › Login [2m─────────────────────────────[22m[39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m5/6/2024, 6:44:46 pm[0m --------------------------------------------------------
+
+count of div tags are  2
+
+FSD18-251-00-01
+
+
+[32m  1 passed[39m[2m (1.2m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m5/6/2024, 6:47:59 pm[0m --------------------------------------------------------
+
+count of div tags are  0
+
+[31m  1) [Google Chrome] › buzzworld_tests.spec.js:46:3 › all tests › Inventory Search [2m─────────────────[22m[39m
+
+    [31mTest was interrupted.[39m
+
+
+[33m  1 interrupted[39m
+[33m    [Google Chrome] › buzzworld_tests.spec.js:46:3 › all tests › Inventory Search [2m──────────────────[22m[39m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m5/6/2024, 6:55:50 pm[0m --------------------------------------------------------
+
+ data is FSD18-251-00-01
+
+
+
+[32m  1 passed[39m[2m (1.3m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m6/6/2024, 11:22:36 am[0m --------------------------------------------------------
+
+getting error while adding discount code  Error: [31mTimed out 5000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeHidden[2m()[22m
+
+Locator: getByRole('button', { name: 'Add Discount Code' })
+Expected: hidden
+Received: visible
+Call log:
+  [2m- expect.toBeHidden with timeout 5000ms[22m
+[2m  - waiting for getByRole('button', { name: 'Add Discount Code' })[22m
+[2m  -   locator resolved to <button tabindex="0" type="button" class="css-92z9to css…>…</button>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <button tabindex="0" type="button" class="css-92z9to css…>…</button>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <button tabindex="0" type="button" class="css-92z9to css…>…</button>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <button tabindex="0" type="button" class="css-92z9to css…>…</button>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <button tabindex="0" type="button" class="css-92z9to css…>…</button>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <button tabindex="0" type="button" class="css-92z9to css…>…</button>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <button tabindex="0" type="button" class="css-92z9to css…>…</button>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <button tabindex="0" type="button" class="css-92z9to css…>…</button>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <button tabindex="0" type="button" class="css-92z9to css…>…</button>[22m
+[2m  -   unexpected value "visible"[22m
+
+
+
+[32m  1 passed[39m[2m (1.3m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m6/6/2024, 11:25:59 am[0m --------------------------------------------------------
+
+added discount code is  TestDC#002
+
+
+-------------------------------------------------- [31m6/6/2024, 11:25:59 am[0m --------------------------------------------------------
+getting error while adding discount code  Error: locator.click: Error: strict mode violation: getByText('Add') resolved to 2 elements:
+    1) <div class="text-container-header">Added Succesfully</div> aka getByText('Added Succesfully')
+    2) <span class="button-icon-text">Add</span> aka getByText('Add', { exact: true })
+
+Call log:
+  [2m- waiting for getByText('Add')[22m
+
+
+[31m  1) [Google Chrome] › buzzworld_tests.spec.js:91:3 › all tests › Add Discount Code with Validations [39m
+
+    Error: locator.click: Target page, context or browser has been closed
+    Call log:
+      [2m- waiting for getByTitle('close').getByRole('img')[22m
+
+
+    [90m   at [39mhelper.js:1045
+
+    [0m [90m 1043 |[39m         console[33m.[39mlog([32m'getting error while adding discount code '[39m[33m,[39m error)[33m;[39m[0m
+    [0m [90m 1044 |[39m         [36mawait[39m page[33m.[39mscreenshot({ path[33m:[39m [32m'files/add_dc_error.png'[39m[33m,[39m fullPage[33m:[39m [36mtrue[39m })[33m;[39m[0m
+    [0m[31m[1m>[22m[39m[90m 1045 |[39m         [36mawait[39m page[33m.[39mgetByTitle([32m'close'[39m)[33m.[39mgetByRole([32m'img'[39m)[33m.[39mclick()[33m;[39m[0m
+    [0m [90m      |[39m                                                         [31m[1m^[22m[39m[0m
+    [0m [90m 1046 |[39m         [36mawait[39m page[33m.[39mwaitForTimeout([35m1800[39m)[33m;[39m[0m
+    [0m [90m 1047 |[39m         res [33m=[39m [36mfalse[39m[33m;[39m[0m
+    [0m [90m 1048 |[39m     }[0m
+
+    [2m    at add_dc (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:1045:57)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/buzzworld_tests.spec.js:94:17[22m
+
+
+[31m  1 failed[39m
+[31m    [Google Chrome] › buzzworld_tests.spec.js:91:3 › all tests › Add Discount Code with Validations [39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m6/6/2024, 11:34:19 am[0m --------------------------------------------------------
+
+getting error while adding discount code  Error: locator.click: Target page, context or browser has been closed
+
+[31m  1) [Google Chrome] › buzzworld_tests.spec.js:91:3 › all tests › Add Discount Code with Validations [39m
+
+    Error: page.screenshot: Target page, context or browser has been closed
+
+    [90m   at [39mhelper.js:1045
+
+    [0m [90m 1043 |[39m     } [36mcatch[39m (error) {[0m
+    [0m [90m 1044 |[39m         console[33m.[39mlog([32m'getting error while adding discount code '[39m[33m,[39m error)[33m;[39m[0m
+    [0m[31m[1m>[22m[39m[90m 1045 |[39m         [36mawait[39m page[33m.[39mscreenshot({ path[33m:[39m [32m'files/add_dc_error.png'[39m[33m,[39m fullPage[33m:[39m [36mtrue[39m })[33m;[39m[0m
+    [0m [90m      |[39m                    [31m[1m^[22m[39m[0m
+    [0m [90m 1046 |[39m         [36mawait[39m page[33m.[39mgetByTitle([32m'close'[39m)[33m.[39mgetByRole([32m'img'[39m)[33m.[39mclick()[33m;[39m[0m
+    [0m [90m 1047 |[39m         [36mawait[39m page[33m.[39mwaitForTimeout([35m1800[39m)[33m;[39m[0m
+    [0m [90m 1048 |[39m         res [33m=[39m [36mfalse[39m[33m;[39m[0m
+
+    [2m    at add_dc (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:1045:20)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/buzzworld_tests.spec.js:92:15[22m
+
+
+[31m  1 failed[39m
+[31m    [Google Chrome] › buzzworld_tests.spec.js:91:3 › all tests › Add Discount Code with Validations [39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m6/6/2024, 11:36:44 am[0m --------------------------------------------------------
+
+getting error while adding discount code  Error: [31mTimed out 5000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeHidden[2m()[22m
+
+Locator: getByRole('button', { name: 'Add Discount Code' })
+Expected: hidden
+Received: visible
+Call log:
+  [2m- expect.toBeHidden with timeout 5000ms[22m
+[2m  - waiting for getByRole('button', { name: 'Add Discount Code' })[22m
+[2m  -   locator resolved to <button tabindex="0" type="button" class="css-92z9to css…>…</button>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <button tabindex="0" type="button" class="css-92z9to css…>…</button>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <button tabindex="0" type="button" class="css-92z9to css…>…</button>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <button tabindex="0" type="button" class="css-92z9to css…>…</button>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <button tabindex="0" type="button" class="css-92z9to css…>…</button>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <button tabindex="0" type="button" class="css-92z9to css…>…</button>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <button tabindex="0" type="button" class="css-92z9to css…>…</button>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <button tabindex="0" type="button" class="css-92z9to css…>…</button>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <button tabindex="0" type="button" class="css-92z9to css…>…</button>[22m
+[2m  -   unexpected value "visible"[22m
+
+
+
+[32m  1 passed[39m[2m (1.2m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m6/6/2024, 11:38:16 am[0m --------------------------------------------------------
+
+added discount code is  TestDC#003
+
+
+-------------------------------------------------- [31m6/6/2024, 11:38:16 am[0m --------------------------------------------------------
+Displaying valiadtion for duplicate discount codes
+
+Error: locator.click: Error: strict mode violation: getByText('Add') resolved to 2 elements:
+    1) <div class="text-container-header">Added Succesfully</div> aka getByText('Added Succesfully')
+    2) <span class="button-icon-text">Add</span> aka getByText('Add', { exact: true })
+
+Call log:
+  [2m- waiting for getByText('Add')[22m
+
+
+
+[32m  1 passed[39m[2m (1.7m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m6/6/2024, 11:49:38 am[0m --------------------------------------------------------
+
+added discount code is  TestDC#003
+
+
+-------------------------------------------------- [31m6/6/2024, 11:49:38 am[0m --------------------------------------------------------
+Displaying valiadtion for duplicate discount codes
+
+Displaying validation for all fields are empty
+
+Displaying validation for In valid Multiplier values
+
+[32mAdd Discount Code with Validations Test Passed![0m
+
+[32m  1 passed[39m[2m (2.3m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+
+-------------------------------------------------- [31m6/6/2024, 12:11:45 pm[0m --------------------------------------------------------
+getting error while updating discount code  Error: locator.press: Test ended.
+Call log:
+  [2m- waiting for getByRole('button', { name: 'Update Discount Code' })[22m
+
+
+[33m  1 skipped[39m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+[31m  1) [Google Chrome] › buzzworld_tests.spec.js:106:3 › all tests › Update Discount Codes with Validations [39m
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+    Locator: locator('xpath=(//*[contains(@src, "vendor_logo")])[1]')
+    Expected: visible
+    Received: hidden
+    Call log:
+      [2m- expect.toBeVisible with timeout 30000ms[22m
+    [2m  - waiting for locator('xpath=(//*[contains(@src, "vendor_logo")])[1]')[22m
+
+
+    [90m   at [39mhelper.js:342
+
+    [0m [90m 340 |[39m     } [36melse[39m {[0m
+    [0m [90m 341 |[39m     }[0m
+    [0m[31m[1m>[22m[39m[90m 342 |[39m     [36mawait[39m expect(page[33m.[39mlocator([32m'(//*[contains(@src, "vendor_logo")])[1]'[39m))[33m.[39mtoBeVisible({ timeout[33m:[39m [35m30000[39m })[33m;[39m[0m
+    [0m [90m     |[39m                                                                           [31m[1m^[22m[39m[0m
+    [0m [90m 343 |[39m     [36mawait[39m page[33m.[39mwaitForTimeout([35m1600[39m)[33m;[39m[0m
+    [0m [90m 344 |[39m }[0m
+    [0m [90m 345 |[39m [36masync[39m [36mfunction[39m logout(page) {[0m
+
+    [2m    at login_buzz (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:342:75)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/buzzworld_tests.spec.js:25:5[22m
+
+
+[31m  1 failed[39m
+[31m    [Google Chrome] › buzzworld_tests.spec.js:106:3 › all tests › Update Discount Codes with Validations [39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m6/6/2024, 12:23:14 pm[0m --------------------------------------------------------
+
+Displaying Validations for All Fields are Empty...
+
+-------------------------------------------------- [31m6/6/2024, 12:23:14 pm[0m --------------------------------------------------------
+
+
+[32m  1 passed[39m[2m (5.0m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m6/6/2024, 12:32:39 pm[0m --------------------------------------------------------
+
+PO value is  0.2
+
+getting error while updating discount code  Error: locator.press: Target page, context or browser has been closed
+
+[31m  1) [Google Chrome] › buzzworld_tests.spec.js:106:3 › all tests › Update Discount Codes with Validations [39m
+
+    Error: page.screenshot: Target page, context or browser has been closed
+
+    [90m   at [39mhelper.js:1169
+
+    [0m [90m 1167 |[39m     } [36mcatch[39m (error) {[0m
+    [0m [90m 1168 |[39m         console[33m.[39mlog([32m'getting error while updating discount code '[39m[33m,[39m error)[33m;[39m[0m
+    [0m[31m[1m>[22m[39m[90m 1169 |[39m         [36mawait[39m page[33m.[39mscreenshot({ path[33m:[39m [32m'files/update_dc_error.png'[39m[33m,[39m fullPage[33m:[39m [36mtrue[39m })[33m;[39m[0m
+    [0m [90m      |[39m                    [31m[1m^[22m[39m[0m
+    [0m [90m 1170 |[39m         [36mawait[39m page[33m.[39mgetByTitle([32m'close'[39m)[33m.[39mgetByRole([32m'img'[39m)[33m.[39mclick()[33m;[39m[0m
+    [0m [90m 1171 |[39m         [36mawait[39m page[33m.[39mwaitForTimeout([35m1800[39m)[33m;[39m[0m
+    [0m [90m 1172 |[39m         res [33m=[39m [36mfalse[39m[33m;[39m[0m
+
+    [2m    at update_dc (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:1169:20)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/buzzworld_tests.spec.js:107:15[22m
+
+
+[31m  1 failed[39m
+[31m    [Google Chrome] › buzzworld_tests.spec.js:106:3 › all tests › Update Discount Codes with Validations [39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m6/6/2024, 12:36:28 pm[0m --------------------------------------------------------
+
+getting error while updating discount code  Error: locator.fill: value: expected string, got number
+
+
+[32m  1 passed[39m[2m (56.0s)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m6/6/2024, 12:39:54 pm[0m --------------------------------------------------------
+
+getting error while updating discount code  ReferenceError: string is not defined
+
+
+[32m  1 passed[39m[2m (55.8s)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m6/6/2024, 12:41:47 pm[0m --------------------------------------------------------
+
+getting error while updating discount code  ReferenceError: string is not defined
+
+
+[32m  1 passed[39m[2m (55.2s)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m6/6/2024, 12:46:06 pm[0m --------------------------------------------------------
+
+getting error while updating discount code  Error: locator.press: Target page, context or browser has been closed
+
+[31m  1) [Google Chrome] › buzzworld_tests.spec.js:106:3 › all tests › Update Discount Codes with Validations [39m
+
+    Error: page.screenshot: Target page, context or browser has been closed
+
+    [90m   at [39mhelper.js:1170
+
+    [0m [90m 1168 |[39m     } [36mcatch[39m (error) {[0m
+    [0m [90m 1169 |[39m         console[33m.[39mlog([32m'getting error while updating discount code '[39m[33m,[39m error)[33m;[39m[0m
+    [0m[31m[1m>[22m[39m[90m 1170 |[39m         [36mawait[39m page[33m.[39mscreenshot({ path[33m:[39m [32m'files/update_dc_error.png'[39m[33m,[39m fullPage[33m:[39m [36mtrue[39m })[33m;[39m[0m
+    [0m [90m      |[39m                    [31m[1m^[22m[39m[0m
+    [0m [90m 1171 |[39m         [36mawait[39m page[33m.[39mgetByTitle([32m'close'[39m)[33m.[39mgetByRole([32m'img'[39m)[33m.[39mclick()[33m;[39m[0m
+    [0m [90m 1172 |[39m         [36mawait[39m page[33m.[39mwaitForTimeout([35m1800[39m)[33m;[39m[0m
+    [0m [90m 1173 |[39m         res [33m=[39m [36mfalse[39m[33m;[39m[0m
+
+    [2m    at update_dc (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:1170:20)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/buzzworld_tests.spec.js:107:15[22m
+
+
+[31m  1 failed[39m
+[31m    [Google Chrome] › buzzworld_tests.spec.js:106:3 › all tests › Update Discount Codes with Validations [39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m6/6/2024, 12:50:37 pm[0m --------------------------------------------------------
+
+getting error while updating discount code  Error: [31mTimed out 30000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+Locator: locator('xpath=(//*[text()= "0.29000000000000004"])[1]')
+Expected: visible
+Received: hidden
+Call log:
+  [2m- expect.toBeVisible with timeout 30000ms[22m
+[2m  - waiting for locator('xpath=(//*[text()= "0.29000000000000004"])[1]')[22m
+
+
+[31m  1) [Google Chrome] › buzzworld_tests.spec.js:106:3 › all tests › Update Discount Code with Validations [39m
+
+    Error: locator.click: Target page, context or browser has been closed
+    Call log:
+      [2m- waiting for getByTitle('close').getByRole('img')[22m
+
+
+    [90m   at [39mhelper.js:1170
+
+    [0m [90m 1168 |[39m         console[33m.[39mlog([32m'getting error while updating discount code '[39m[33m,[39m error)[33m;[39m[0m
+    [0m [90m 1169 |[39m         [36mawait[39m page[33m.[39mscreenshot({ path[33m:[39m [32m'files/update_dc_error.png'[39m[33m,[39m fullPage[33m:[39m [36mtrue[39m })[33m;[39m[0m
+    [0m[31m[1m>[22m[39m[90m 1170 |[39m         [36mawait[39m page[33m.[39mgetByTitle([32m'close'[39m)[33m.[39mgetByRole([32m'img'[39m)[33m.[39mclick()[33m;[39m[0m
+    [0m [90m      |[39m                                                         [31m[1m^[22m[39m[0m
+    [0m [90m 1171 |[39m         [36mawait[39m page[33m.[39mwaitForTimeout([35m1800[39m)[33m;[39m[0m
+    [0m [90m 1172 |[39m         res [33m=[39m [36mfalse[39m[33m;[39m[0m
+    [0m [90m 1173 |[39m     }[0m
+
+    [2m    at update_dc (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:1170:57)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/buzzworld_tests.spec.js:107:15[22m
+
+
+[31m  1 failed[39m
+[31m    [Google Chrome] › buzzworld_tests.spec.js:106:3 › all tests › Update Discount Code with Validations [39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m6/6/2024, 12:53:23 pm[0m --------------------------------------------------------
+
+getting error while updating discount code  Error: [31mTimed out 30000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+Locator: locator('xpath=(//*[text()= "0.29000000000000004"])[1]')
+Expected: visible
+Received: hidden
+Call log:
+  [2m- expect.toBeVisible with timeout 30000ms[22m
+[2m  - waiting for locator('xpath=(//*[text()= "0.29000000000000004"])[1]')[22m
+
+
+[31m  1) [Google Chrome] › buzzworld_tests.spec.js:106:3 › all tests › Update Discount Code with Validations [39m
+
+    Error: locator.click: Target page, context or browser has been closed
+    Call log:
+      [2m- waiting for getByTitle('close').getByRole('img')[22m
+
+
+    [90m   at [39mhelper.js:1170
+
+    [0m [90m 1168 |[39m         console[33m.[39mlog([32m'getting error while updating discount code '[39m[33m,[39m error)[33m;[39m[0m
+    [0m [90m 1169 |[39m         [36mawait[39m page[33m.[39mscreenshot({ path[33m:[39m [32m'files/update_dc_error.png'[39m[33m,[39m fullPage[33m:[39m [36mtrue[39m })[33m;[39m[0m
+    [0m[31m[1m>[22m[39m[90m 1170 |[39m         [36mawait[39m page[33m.[39mgetByTitle([32m'close'[39m)[33m.[39mgetByRole([32m'img'[39m)[33m.[39mclick()[33m;[39m[0m
+    [0m [90m      |[39m                                                         [31m[1m^[22m[39m[0m
+    [0m [90m 1171 |[39m         [36mawait[39m page[33m.[39mwaitForTimeout([35m1800[39m)[33m;[39m[0m
+    [0m [90m 1172 |[39m         res [33m=[39m [36mfalse[39m[33m;[39m[0m
+    [0m [90m 1173 |[39m     }[0m
+
+    [2m    at update_dc (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:1170:57)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/buzzworld_tests.spec.js:107:15[22m
+
+
+[31m  1 failed[39m
+[31m    [Google Chrome] › buzzworld_tests.spec.js:106:3 › all tests › Update Discount Code with Validations [39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+[31m  1) [Google Chrome] › buzzworld_tests.spec.js:106:3 › all tests › Update Discount Code with Validations [39m
+
+    Error: locator.fill: Target page, context or browser has been closed
+    Call log:
+      [2m- waiting for getByLabel('Email')[22m
+
+
+    [90m   at [39mhelper.js:337
+
+    [0m [90m 335 |[39m     [36mawait[39m page[33m.[39mwaitForTimeout([35m1300[39m)[33m;[39m[0m
+    [0m [90m 336 |[39m     [36mif[39m ([36mawait[39m page[33m.[39murl()[33m.[39mincludes([32m'sso'[39m)) {[0m
+    [0m[31m[1m>[22m[39m[90m 337 |[39m         [36mawait[39m page[33m.[39mgetByLabel([32m'Email'[39m)[33m.[39mfill([32m'defaultuser@enterpi.com'[39m)[33m;[39m[0m
+    [0m [90m     |[39m                                        [31m[1m^[22m[39m[0m
+    [0m [90m 338 |[39m         [36mawait[39m page[33m.[39mgetByPlaceholder([32m'Enter Password'[39m)[33m.[39mfill([32m'Enter@4321'[39m)[33m;[39m[0m
+    [0m [90m 339 |[39m         [36mawait[39m page[33m.[39mgetByRole([32m'button'[39m[33m,[39m { name[33m:[39m [32m'Sign In'[39m[33m,[39m exact[33m:[39m [36mtrue[39m })[33m.[39mclick()[33m;[39m[0m
+    [0m [90m 340 |[39m     } [36melse[39m {[0m
+
+    [2m    at login_buzz (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:337:40)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/buzzworld_tests.spec.js:25:5[22m
+
+
+[31m  1 failed[39m
+[31m    [Google Chrome] › buzzworld_tests.spec.js:106:3 › all tests › Update Discount Code with Validations [39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+[31m  1) [Google Chrome] › buzzworld_tests.spec.js:106:3 › all tests › Update Discount Code with Validations [39m
+
+    Error: locator.fill: Target page, context or browser has been closed
+    Call log:
+      [2m- waiting for getByLabel('Email')[22m
+
+
+    [90m   at [39mhelper.js:337
+
+    [0m [90m 335 |[39m     [36mawait[39m page[33m.[39mwaitForTimeout([35m1300[39m)[33m;[39m[0m
+    [0m [90m 336 |[39m     [36mif[39m ([36mawait[39m page[33m.[39murl()[33m.[39mincludes([32m'sso'[39m)) {[0m
+    [0m[31m[1m>[22m[39m[90m 337 |[39m         [36mawait[39m page[33m.[39mgetByLabel([32m'Email'[39m)[33m.[39mfill([32m'defaultuser@enterpi.com'[39m)[33m;[39m[0m
+    [0m [90m     |[39m                                        [31m[1m^[22m[39m[0m
+    [0m [90m 338 |[39m         [36mawait[39m page[33m.[39mgetByPlaceholder([32m'Enter Password'[39m)[33m.[39mfill([32m'Enter@4321'[39m)[33m;[39m[0m
+    [0m [90m 339 |[39m         [36mawait[39m page[33m.[39mgetByRole([32m'button'[39m[33m,[39m { name[33m:[39m [32m'Sign In'[39m[33m,[39m exact[33m:[39m [36mtrue[39m })[33m.[39mclick()[33m;[39m[0m
+    [0m [90m 340 |[39m     } [36melse[39m {[0m
+
+    [2m    at login_buzz (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:337:40)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/buzzworld_tests.spec.js:25:5[22m
+
+
+[31m  1 failed[39m
+[31m    [Google Chrome] › buzzworld_tests.spec.js:106:3 › all tests › Update Discount Code with Validations [39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m6/6/2024, 2:35:12 pm[0m --------------------------------------------------------
+
+updated discount code is  TestDC#003
+
+
+-------------------------------------------------- [31m6/6/2024, 2:35:12 pm[0m --------------------------------------------------------
+Displaying Validations for All Fields are Empty...
+
+-------------------------------------------------- [31m6/6/2024, 2:35:12 pm[0m --------------------------------------------------------
+
+Displaying Validations for In Valid Multiplier Values...
+
+[32mUpdate Discount Code with Validations Test Passed![0m
+
+[32m  1 passed[39m[2m (1.8m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m6/6/2024, 2:46:47 pm[0m --------------------------------------------------------
+
+repair is created with id  314879
+
+
+repair url is  https://www.staging-buzzworld.iidm.com/repair-request/dbf1a6cd-b8ca-4372-ad2f-28383fd0db39
+quote is created with id  2024060600001
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/00c97ae9-bcda-4ef1-984d-e6efae257075
+order created with id  234270
 
 
 job selection checkbox is checked  true
-job created with id  86753
 
--------------------------------------------------- 1/5/2024, 10:39:16 am --------------------------------------------------------
+job created with id  86806
+-------------------------------------------------- [31m6/6/2024, 2:46:47 pm[0m --------------------------------------------------------
 
-used job id is  86753
+used job id is  86806
 
 
-parts purchase created with id  000318
-[32m  1 passed[39m[2m (4.1m)[22m
+parts purchase created with id  000343
+
+Job status is Confirmed time entry icon is displayed
+Add time entry not working Error: [31mTimed out 30000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeHidden[2m()[22m
+
+Locator: locator('//*[text() = "Employee Name"]')
+Expected: hidden
+Received: visible
+Call log:
+  [2m- expect.toBeHidden with timeout 30000ms[22m
+[2m  - waiting for locator('//*[text() = "Employee Name"]')[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+[2m  -   locator resolved to <label class="css-1nfc0n5">Employee Name</label>[22m
+[2m  -   unexpected value "visible"[22m
+
+
+
+314879- 1 is In Progress
+314879- 1 is Assign to QC
+
+314879- 1 is Pending Invoice
+
+314879- 1 is completed
+
+
+[32mCreate Job and Sales Order From Repair Quotes Test Passed![0m
+[32m  1 passed[39m[2m (5.8m)[22m
 
 
 [2mRunning [22m1[2m test using [22m1[2m worker[22m
 
--------------------------------------------------- 1/5/2024, 10:45:33 am --------------------------------------------------------
+-------------------------------------------------- [31m6/6/2024, 2:57:04 pm[0m --------------------------------------------------------
 
-used job id is  86753
-
-
-parts purchase created with id  000319
-[32m  1 passed[39m[2m (1.6m)[22m
+quote is created with id  2024060600002
 
 
-[2mRunning [22m1[2m test using [22m1[2m worker[22m
+quote url is  https://www.staging-buzzworld.iidm.com/system_quotes/39ea9d54-16c9-47d3-9d48-9ff83dc651d5
+Error: [31mTimed out 2300ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
 
--------------------------------------------------- 1/5/2024, 10:47:50 am --------------------------------------------------------
-
-Logout is displayed, login working
-
-login id displayed logout is working
-
-getting this  Invalid Email or Password  invalid email with valid password
-
-getting this  Invalid Email or Password  valid email with invalid password
-
-getting this  Invalid Email or Password  Invalid email with invalid password
-
-getting this  Please Enter Valid Email Address  in valid email format and empty password
-
-getting this  Please Enter Password  in valid email format and empty password
-
-getting this  Please Enter Email Id  empty email format and empty password
-
-getting this  Please Enter Password  empty email format and empty password
-
-[32m  1 passed[39m[2m (1.3m)[22m
+Locator: locator('xpath=(//*[text() = \'Items Not Available\'])[1]')
+Expected: visible
+Received: hidden
+Call log:
+  [2m- expect.toBeVisible with timeout 2300ms[22m
+[2m  - waiting for locator('xpath=(//*[text() = \'Items Not Available\'])[1]')[22m
 
 
-[2mRunning [22m1[2m test using [22m1[2m worker[22m
-
--------------------------------------------------- 1/5/2024, 10:58:08 am --------------------------------------------------------
-
-Logout is displayed, login working
-
-login id displayed logout is working
-
-getting this  Invalid Email or Password  invalid email with valid password
+order created with id  234271
 
 
-getting this  Invalid Email or Password  valid email with invalid password
-getting this  Invalid Email or Password  Invalid email with invalid password
+job selection checkbox is checked  true
+job created with id  86807
 
-getting this  Please Enter Valid Email Address  in valid email format and empty password
+[32mSystem Quote Creation with Sales Order and Job Test Passed![0m
 
-getting this  Please Enter Password  in valid email format and empty password
-
-getting this  Please Enter Email Id  empty email format and empty password
-
-
-getting this  Please Enter Password  empty email format and empty password
-getting this  We cannot find an active account linked to the email address that you entered. Please check the email address or contact your system administrator.  while verifying reset password with un registered mail
-
-getting this  Please Enter Valid Email Address  while verifying reset password with invalid mail
-
-getting this  Please Enter Email Id  while verifying reset password with empty mail
-
-displayed msg  Please Enter Email Id  while verifying reset password with valid registered mail
-
-[32m  1 passed[39m[2m (1.3m)[22m
+[32m  1 passed[39m[2m (2.6m)[22m
 
