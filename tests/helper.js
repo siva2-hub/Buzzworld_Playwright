@@ -1562,7 +1562,7 @@ async function rep_complete(page, rep_id, job_sta, tech, job_num, work_hours) {
     await page.keyboard.press('Enter');
     await page.getByTitle('Save Changes').click();
     await expect(page.locator("//*[text() = 'Items Information']")).toBeVisible();
-    await page.locator("//*[text() = 'Submit']")
+    await page.locator("//*[text() = 'Submit']").click();
     //updating pp status to Received and Completed
     await page.locator('(//*[@class = "pi-label-edit-icon"])[1]').click();
     await page.locator('(//*[text() = "Requested"])[2]').click();
