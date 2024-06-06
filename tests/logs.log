@@ -1,96 +1,91 @@
 
-[2mRunning [22m1[2m test using [22m1[2m worker[22m
+Running 1 test using 1 worker
 
--------------------------------------------------- 1/5/2024, 10:39:16 am --------------------------------------------------------
+-------------------------------------------------- 24/5/2024, 11:00:20 pm --------------------------------------------------------
 
-repair is created with id  314815
-
-
-repair url is  https://www.staging-buzzworld.iidm.com/repair-request/87c63210-9741-4e5d-87f8-a2608de31853
-quote is created with id  2024050100003
+Bulk Import Failed Importing parts are exit in syspro
 
 
-quote url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/9e97b325-e657-450e-bf0a-b14bb6eaa5cf
-order created with id  234008
+
+rows count is  3
+parts from excel is 46012504001
+div count 2
+
+[32mOmron POS reports Count is 270[0m
+[32mOmron STI POS report list is displayed[0m
+ data is 46012504001
+
+46012504001 is in the Inventory
 
 
-job selection checkbox is checked  true
-job created with id  86753
+parts from excel is +CIMR-AU4A0165FAA123
+div count 2
 
--------------------------------------------------- 1/5/2024, 10:39:16 am --------------------------------------------------------
+ data is +CIMR-AU4A0165FAA123
 
-used job id is  86753
-
-
-parts purchase created with id  000318
-[32m  1 passed[39m[2m (4.1m)[22m
++CIMR-AU4A0165FAA123 is in the Inventory
 
 
-[2mRunning [22m1[2m test using [22m1[2m worker[22m
+parts from excel is 12343-000
+div count 2
 
--------------------------------------------------- 1/5/2024, 10:45:33 am --------------------------------------------------------
+ data is 12343-000
 
-used job id is  86753
+12343-000 is in the Inventory
 
+  1) [Google Chrome] › buzzworld_tests.spec.js:89:3 › all tests › parts import ─────────────────────
 
-parts purchase created with id  000319
-[32m  1 passed[39m[2m (1.6m)[22m
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
 
-
-[2mRunning [22m1[2m test using [22m1[2m worker[22m
-
--------------------------------------------------- 1/5/2024, 10:47:50 am --------------------------------------------------------
-
-Logout is displayed, login working
-
-login id displayed logout is working
-
-getting this  Invalid Email or Password  invalid email with valid password
-
-getting this  Invalid Email or Password  valid email with invalid password
-
-getting this  Invalid Email or Password  Invalid email with invalid password
-
-getting this  Please Enter Valid Email Address  in valid email format and empty password
-
-getting this  Please Enter Password  in valid email format and empty password
-
-getting this  Please Enter Email Id  empty email format and empty password
-
-getting this  Please Enter Password  empty email format and empty password
-
-[32m  1 passed[39m[2m (1.3m)[22m
+    Locator: locator('//*[text() = \'File Uploaded\']')
+    Expected: visible
+    Received: hidden
+    Call log:
+      [2m- expect.toBeVisible with timeout 16000ms[22m
+    [2m  - waiting for locator('//*[text() = \'File Uploaded\']')[22m
 
 
-[2mRunning [22m1[2m test using [22m1[2m worker[22m
+       at helper.js:1838
 
--------------------------------------------------- 1/5/2024, 10:58:08 am --------------------------------------------------------
+      1836 |             console.log(error);
+      1837 |         }
+    > 1838 |         await expect(page.locator("//*[text() = 'File Uploaded']")).toBeVisible();
+           |                                                                     ^
+      1839 |         try {
+      1840 |             await page.getByRole('button', { name: 'Proceed' }).click();
+      1841 |             if (test_data[index] == 'positive') {
 
-Logout is displayed, login working
-
-login id displayed logout is working
-
-getting this  Invalid Email or Password  invalid email with valid password
-
-
-getting this  Invalid Email or Password  valid email with invalid password
-getting this  Invalid Email or Password  Invalid email with invalid password
-
-getting this  Please Enter Valid Email Address  in valid email format and empty password
-
-getting this  Please Enter Password  in valid email format and empty password
-
-getting this  Please Enter Email Id  empty email format and empty password
+        at parts_import (E:\Playwright_Automation\tests\helper.js:1838:69)
+        at E:\Playwright_Automation\tests\buzzworld_tests.spec.js:90:5
 
 
-getting this  Please Enter Password  empty email format and empty password
-getting this  We cannot find an active account linked to the email address that you entered. Please check the email address or contact your system administrator.  while verifying reset password with un registered mail
+  1 failed
+    [Google Chrome] › buzzworld_tests.spec.js:89:3 › all tests › parts import ──────────────────────
 
-getting this  Please Enter Valid Email Address  while verifying reset password with invalid mail
-
-getting this  Please Enter Email Id  while verifying reset password with empty mail
-
-displayed msg  Please Enter Email Id  while verifying reset password with valid registered mail
-
-[32m  1 passed[39m[2m (1.3m)[22m
-
+  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.
+Listing tests:
+  [Google Chrome] › buzzworld_tests.spec.js:9:6 › sync jobs
+  [Google Chrome] › buzzworld_tests.spec.js:28:8 › all tests › login
+  [Google Chrome] › buzzworld_tests.spec.js:32:8 › all tests › inventory search
+  [Google Chrome] › buzzworld_tests.spec.js:36:3 › all tests › create job and sales order from repair
+  [Google Chrome] › buzzworld_tests.spec.js:41:3 › all tests › create job and sales order from quote
+  [Google Chrome] › buzzworld_tests.spec.js:45:8 › all tests › create job manually
+  [Google Chrome] › buzzworld_tests.spec.js:49:8 › all tests › create parts purchase manually
+  [Google Chrome] › buzzworld_tests.spec.js:53:8 › all tests › left menu search
+  [Google Chrome] › buzzworld_tests.spec.js:57:8 › all tests › Add Discount Code
+  [Google Chrome] › buzzworld_tests.spec.js:61:8 › all tests › Update Discount Code
+  [Google Chrome] › buzzworld_tests.spec.js:65:8 › all tests › Add products
+  [Google Chrome] › buzzworld_tests.spec.js:69:8 › all tests › Update products
+  [Google Chrome] › buzzworld_tests.spec.js:73:8 › all tests › multi edit dc
+  [Google Chrome] › buzzworld_tests.spec.js:77:8 › all tests › verify filters in pricing
+  [Google Chrome] › buzzworld_tests.spec.js:81:8 › all tests › verify filters in parts purchase
+  [Google Chrome] › buzzworld_tests.spec.js:85:8 › all tests › pos reports list
+  [Google Chrome] › buzzworld_tests.spec.js:89:3 › all tests › parts import
+  [Google Chrome] › buzzworld_tests.spec.js:93:3 › all tests › first add parts
+  [Google Chrome] › buzzworld_tests.spec.js:97:3 › all tests › second add parts with duplicates
+  [Google Chrome] › buzzworld_tests.spec.js:101:3 › all tests › third add parts with all are empty
+  [Google Chrome] › buzzworld_tests.spec.js:105:3 › all tests › verify past repair pricing icons
+  [Google Chrome] › buzzworld_tests.spec.js:109:3 › all tests › edit PO partially received
+  [Google Chrome] › buzzworld_tests.spec.js:113:8 › all tests › import pricing two files
+  [Google Chrome] › buzzworld_tests.spec.js:120:8 › all tests › functional_flow
+Total: 24 tests in 1 file
