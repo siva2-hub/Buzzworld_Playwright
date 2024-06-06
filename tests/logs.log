@@ -89,3 +89,63 @@ Listing tests:
   [Google Chrome] › buzzworld_tests.spec.js:113:8 › all tests › import pricing two files
   [Google Chrome] › buzzworld_tests.spec.js:120:8 › all tests › functional_flow
 Total: 24 tests in 1 file
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m6/6/2024, 6:18:58 pm[0m --------------------------------------------------------
+
+repair is created with id  314880
+
+
+repair url is  https://www.staging-buzzworld.iidm.com/repair-request/e1a0e262-0b97-42a0-bc96-b3543f7c135c
+quote is created with id  2024060600003
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/a77f559e-b23a-4a72-a36c-2cb98fae860d
+order created with id  234272
+
+
+job selection checkbox is checked  true
+job created with id  86808
+
+-------------------------------------------------- [31m6/6/2024, 6:18:58 pm[0m --------------------------------------------------------
+
+used job id is  86808
+
+
+parts purchase created with id  000344
+Job status is Confirmed time entry icon is displayed
+
+Add time entry working
+
+
+
+Before Add time entry Total hours in job is (00hr 00m)
+After Add time entry Total hours in job is (12hr 17m)
+314880- 1 is In Progress
+
+314880- 1 is Assign to QC
+
+314880- 1 is Pending Invoice
+
+314880- 1 is completed
+
+[31m  1) [Google Chrome] › buzzworld_tests.spec.js:52:3 › all tests › Create Job and Sales Order From Repair Quotes [39m
+
+    ReferenceError: returnResult is not defined
+
+    [0m [90m 54 |[39m     results [33m=[39m [36mawait[39m create_job_repairs(page[33m,[39m [32m'Y'[39m[33m,[39m [35m1[39m)[33m;[39m[0m
+    [0m [90m 55 |[39m     [36mlet[39m testName [33m=[39m testInfo[33m.[39mtitle[33m;[39m[0m
+    [0m[31m[1m>[22m[39m[90m 56 |[39m     [36mawait[39m returnResult(page[33m,[39m testName[33m,[39m results)[33m;[39m[0m
+    [0m [90m    |[39m     [31m[1m^[22m[39m[0m
+    [0m [90m 57 |[39m   })[0m
+    [0m [90m 58 |[39m[0m
+    [0m [90m 59 |[39m   test([32m'System Quote Creation with Sales Order and Job'[39m[33m,[39m [36masync[39m ({ }[33m,[39m testInfo) [33m=>[39m {[0m
+
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/buzzworld_tests.spec.js:56:5[22m
+
+
+[31m  1 failed[39m
+[31m    [Google Chrome] › buzzworld_tests.spec.js:52:3 › all tests › Create Job and Sales Order From Repair Quotes [39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
