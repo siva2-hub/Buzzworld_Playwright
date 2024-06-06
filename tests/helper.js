@@ -1550,22 +1550,23 @@ async function create_job_repairs(page, is_create_job, repair_type) {
 async function rep_complete(page, rep_id, job_sta, tech, job_num, work_hours) {
     //updating pp status to Ordered
     await page.locator('(//*[@class = "pi-label-edit-icon"])[1]').click();
-    await page.locator('(//*[text() = "Requested"])[2]').click();
+    await page.getByLabel('Open').click();
     await page.keyboard.insertText('Ordered');
     await page.keyboard.press('Enter');
     await page.getByTitle('Save Changes').click();
-    await expect(page.locator("(//*[text() = 'Ordered'])[2]")).toBeVisible();
+    await expect(page.locator("(//*[text() = 'Ordered'])[1]")).toBeVisible();
     //updating pp status to Received
     await page.locator('(//*[@class = "pi-label-edit-icon"])[1]').click();
-    await page.locator('(//*[text() = "Partially Received"])[1]').click();
+    await page.getByLabel('Open').click();
     await page.keyboard.insertText('Partially Received');
     await page.keyboard.press('Enter');
     await page.getByTitle('Save Changes').click();
     await expect(page.locator("//*[text() = 'Items Information']")).toBeVisible();
     await page.locator("//*[text() = 'Submit']").click();
+    await expect(page.locator("//*[text() = 'Received']")).toBeVisible();
     //updating pp status to Received and Completed
     await page.locator('(//*[@class = "pi-label-edit-icon"])[1]').click();
-    await page.locator('(//*[text() = "Requested"])[2]').click();
+    await page.getByLabel('Open').click();
     await page.keyboard.insertText('Received and Completed');
     await page.keyboard.press('Enter');
     await page.getByTitle('Save Changes').click();
