@@ -149,3 +149,49 @@ After Add time entry Total hours in job is (12hr 17m)
 [31m    [Google Chrome] › buzzworld_tests.spec.js:52:3 › all tests › Create Job and Sales Order From Repair Quotes [39m
 
 [36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m6/6/2024, 6:43:59 pm[0m --------------------------------------------------------
+
+ data is FSD18-251-00-01
+
+FSD18-251-00-01 is in the Inventory
+
+warehouse is 
+
+
+             01
+
+[32mInventory Search Test Passed![0m
+[32m  1 passed[39m[2m (47.5s)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m6/6/2024, 7:04:54 pm[0m --------------------------------------------------------
+
+repair is created with id  314881
+
+
+repair url is  https://www.staging-buzzworld.iidm.com/repair-request/ed09c3d3-37ef-439d-a9f1-ee0c31b4fac1
+quote is created with id  2024060600004
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/8c2ac296-d062-4339-8673-0c3becbbd6ef
+order created with id  234273
+
+
+job selection checkbox is checked  true
+job created with id  86809
+
+-------------------------------------------------- [31m6/6/2024, 7:04:54 pm[0m --------------------------------------------------------
+
+used job id is  86809
+
+
+parts purchase created with id  000346
+
+
+[32m  1 passed[39m[2m (3.4m)[22m
+
