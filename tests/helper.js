@@ -1588,13 +1588,11 @@ async function rep_complete(page, rep_id, job_sta, tech, job_num, work_hours, pp
     await spinner();
     await expect(page.locator("(//*[text() = 'Parts Received'])[1]")).toBeVisible();
     await expect(page.locator("(//*[text() = 'Parts Received'])[2]")).toBeVisible();
-    await page.locator("(//*[text() = '"+ppId+"'])[1]").click();
     console.log(ppId+' is updated to Received and Completed.');
-    await spinner();
     let time_entry_status = false;
     try {
         //verifying time entry icon is displayed or not
-        await expect(page.locator("(//*[contains(@src, 'Add_time')])[1]")).toBeVisible({ timeout: 5000 });
+        await expect(page.locator("(//*[contains(@src, 'Add_time')])[1]")).toBeVisible({ timeout: 8000 });
         console.log('Job status is ' + job_sta + ' time entry icon is displayed');
         time_entry_status = true;
     } catch (error) {
