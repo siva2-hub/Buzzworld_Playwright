@@ -1533,9 +1533,9 @@ async function create_job_repairs(page, is_create_job, repair_type) {
             let job_status = await page.locator("(//*[contains(@class, 'description')])[3]").textContent();
             let work_hours = await page.locator('//*[@id="root"]/div/div[4]/div/div[2]/div[3]/div/div[1]/h3/span').textContent();
             //create parts purchase from repair.
-            await create_parts_purchase(page, false, repair_id);
+            let ppId = await create_parts_purchase(page, false, repair_id);
             //update parts purchase status to received and completed
-            await rep_complete(page, repair_id, job_status, tech, job_num, work_hours);
+            await rep_complete(page, repair_id, job_status, tech, job_num, work_hours, ppId[1]);
         } else {
             console.log("job selection checkbox is checked ", is_checked);
         }
@@ -1545,16 +1545,22 @@ async function create_job_repairs(page, is_create_job, repair_type) {
         console.error(error);
     }
     return testResult;
-    // await rep_complete(page, '314844', 'Confirmed', tech, '86769');
 }
-async function rep_complete(page, rep_id, job_sta, tech, job_num, work_hours) {
+async function rep_complete(page, rep_id, job_sta, tech, job_num, work_hours, ppId) {
     //updating pp status to Ordered
     await page.locator('(//*[@class = "pi-label-edit-icon"])[1]').click();
     await page.getByLabel('Open').click();
     await page.keyboard.insertText('Ordered');
     await page.keyboard.press('Enter');
     await page.getByTitle('Save Changes').click();
-    await expect(page.locator("(//*[text() = 'Ordered'])[1]")).toBeVisible();
+    await expect(page.locator("(//*[text() = 'Ordered'])[2]")).toBeVisible();
+    await page.locator("(//*[text() = '"+rep_id+"'])[1]").click();
+    await spinner();
+    await expect(page.locator("(//*[text() = 'Parts Ordered'])[1]")).toBeVisible();
+    await expect(page.locator("(//*[text() = 'Parts Ordered'])[2]")).toBeVisible();
+    await page.locator("(//*[text() = '"+ppId+"'])[1]").click();
+    console.log(ppId+' is updated to Ordered');
+    await spinner();
     //updating pp status to Received
     await page.locator('(//*[@class = "pi-label-edit-icon"])[1]').click();
     await page.getByLabel('Open').click();
@@ -1564,6 +1570,13 @@ async function rep_complete(page, rep_id, job_sta, tech, job_num, work_hours) {
     await expect(page.locator("//*[text() = 'Items Information']")).toBeVisible();
     await page.locator("//*[text() = 'Submit']").click();
     await expect(page.locator("//*[text() = 'Received']")).toBeVisible();
+    await page.locator("(//*[text() = '"+rep_id+"'])[1]").click();
+    await spinner();
+    await expect(page.locator("(//*[text() = 'Parts Received'])[1]")).toBeVisible();
+    await expect(page.locator("(//*[text() = 'Parts Received'])[2]")).toBeVisible();
+    await page.locator("(//*[text() = '"+ppId+"'])[1]").click();
+    console.log(ppId+' is updated to Partially Received');
+    await spinner();
     //updating pp status to Received and Completed
     await page.locator('(//*[@class = "pi-label-edit-icon"])[1]').click();
     await page.getByLabel('Open').click();
@@ -1571,9 +1584,13 @@ async function rep_complete(page, rep_id, job_sta, tech, job_num, work_hours) {
     await page.keyboard.press('Enter');
     await page.getByTitle('Save Changes').click();
     await expect(page.locator("(//*[text() = 'Received and Completed'])[2]")).toBeVisible();
-    await page.waitForTimeout(1500);
-    await page.getByText(rep_id).click();
-    await expect(page.locator('#repair-items')).toContainText('Parts Received');
+    await page.locator("(//*[text() = '"+rep_id+"'])[1]").click();
+    await spinner();
+    await expect(page.locator("(//*[text() = 'Parts Received'])[1]")).toBeVisible();
+    await expect(page.locator("(//*[text() = 'Parts Received'])[2]")).toBeVisible();
+    await page.locator("(//*[text() = '"+ppId+"'])[1]").click();
+    console.log(ppId+' is updated to Received and Completed.');
+    await spinner();
     let time_entry_status = false;
     try {
         //verifying time entry icon is displayed or not
@@ -1911,7 +1928,7 @@ async function add_new_part(page, stock_code) {
 }
 async function create_parts_purchase(page, is_manually, repair_id) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
-    let results;
+    let results; let pp_id
     try {
         let job_id = testdata.job_id; let tech = testdata.tech; let urgency = testdata.urgency;
         // await page.goto('https://www.staging-buzzworld.iidm.com/jobs/5bac8fae-41b4-42c5-9344-99e94d13325a');
@@ -1967,7 +1984,7 @@ async function create_parts_purchase(page, is_manually, repair_id) {
         await page.getByRole('button', { name: 'Create', exact: true }).click();
         await expect(page.getByRole('heading', { name: 'Purchase Order Information' })).toBeVisible();
         let pp = await page.locator('(//*[@class = "id-num"])[1]').textContent();
-        let pp_id = pp.replace("#", "");
+        pp_id = pp.replace("#", "");
         console.log('used job id is ', job_id);
         console.log('parts purchase created with id ', pp_id);
         await page.waitForTimeout(2000);
@@ -1978,7 +1995,7 @@ async function create_parts_purchase(page, is_manually, repair_id) {
         await page.getByTitle('close').getByRole('img').click();
         results = false;
     }
-    return results;
+    return [results, pp_id];
 }
 async function create_job_manually(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
