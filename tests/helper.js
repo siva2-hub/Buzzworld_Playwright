@@ -1984,8 +1984,7 @@ async function create_job_manually(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let testResult;
     try {
-        await page.waitForTimeout(2000)
-        // await expect(page.locator('(//*[contains(@src, "vendor_logo")])[1]')).toBeVisible();
+        await page.waitForTimeout(2100)
         await page.getByText('Jobs').click();
         // await page.goto('https://www.staging-buzzworld.iidm.com/jobs/9b0970e6-b539-44d5-a118-ebde9631d1a5');
         await expect(page.locator('(//*[contains(@src, "vendor_logo")])[1]')).toBeVisible();
