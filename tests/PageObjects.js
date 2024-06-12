@@ -1,6 +1,6 @@
-const {  expect } = require('@playwright/test');
+const { expect } = require('@playwright/test');
 
-export default class  AllPages{
+export default class AllPages {
     constructor(page) {
         this.page = page;
     }
@@ -8,7 +8,8 @@ export default class  AllPages{
     get userNameInput() { return this.page.getByLabel('Email'); }
     get passwordInput() { return this.page.getByPlaceholder('Enter Password'); }
     get signInButton() { return this.page.getByRole('button', { name: 'Sign In', exact: true }); }
-    get profileIconListView(){return this.page.locator('(//*[contains(@src, "vendor_logo")])[1]')};
+    get profileIconListView() { return this.page.locator('(//*[contains(@src, "vendor_logo")])[1]'); }
+    get resetPasswordBtn() { return this.page.locator("//*[text() = 'Reset Password']"); }
 
     async login(url) {
         await this.page.goto(url);
