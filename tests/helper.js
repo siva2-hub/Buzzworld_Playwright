@@ -8,14 +8,17 @@ const { timeout } = require('../playwright.config');
 const { AsyncLocalStorage } = require('async_hooks');
 const xlsx = require('xlsx');
 const { url } = require('inspector');
+const { default: AllPages } = require('./PageObjects');
 const currentDate = new Date().toDateString();
 let date = currentDate.split(" ")[2];
 let vendor = testdata.vendor;
 let apiKey = testdata.api_key;
+let allPages;
 const currentDateTime = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
 const ANSI_RESET = "\x1b[0m";
 const ANSI_RED = "\x1b[31m";
 const ANSI_GREEN = "\x1b[32m";
+const ANSI_ORANGE = "\x1b[38;2;255;165;0m";
 
 // const month = parseInt(text.substring(3, 4));
 // Outputs "Mon Aug 31 2020"
@@ -233,9 +236,9 @@ async function login(page) {
         if (is_check) {
             await page.getByRole('menuitem', { name: 'Logout' }).click();
             //valid email with valid password
-            await page.getByPlaceholder('Enter Email ID').fill('defaultuser@enterpi.com');
-            await page.getByPlaceholder('Enter Password').fill('Enter@4321');
-            await page.getByRole('button', { name: 'Sign In', exact: true }).click();
+            await allPages.userNameInput.fill('defaultuser@enterpi.com');
+            await allPages.passwordInput.fill('Enter@4321');
+            await allPages.signInButton.click();
         } else {
 
         }
@@ -249,31 +252,31 @@ async function login(page) {
         await page.getByRole('menuitem', { name: 'Logout' }).click();
         //nagative scenarios
         //invalid email with valid password
-        await page.getByPlaceholder('Enter Email ID').fill('123defaultuser@enterpi.com');
-        console.log('login id displayed logout is working');
-        await page.getByPlaceholder('Enter Password').fill('Enter@4321');
-        await page.getByRole('button', { name: 'Sign In', exact: true }).click();
+        await allPages.userNameInput.fill('123defaultuser@enterpi.com');
+        console.log('login is displayed logout is working');
+        await allPages.passwordInput.fill('Enter@4321');
+        await allPages.signInButton.click();
         let text = 'Invalid Email or Password';
         await expect(page.locator("//*[text() = '" + text + "']")).toBeVisible();
         console.log('getting this ', text, ' invalid email with valid password')
         //valid email with invalid password
-        await page.getByPlaceholder('Enter Email ID').fill('defaultuser@enterpi.com');
-        await page.getByPlaceholder('Enter Password').fill('123Enter@4321');
-        await page.getByRole('button', { name: 'Sign In', exact: true }).click();
+        await allPages.userNameInput.fill('defaultuser@enterpi.com');
+        await allPages.passwordInput.fill('123Enter@4321');
+        await allPages.signInButton.click();
         text = 'Invalid Email or Password';
         await expect(page.locator("//*[text() = '" + text + "']")).toBeVisible();
         console.log('getting this ', text, ' valid email with invalid password')
         //invalid email with invalid password
-        await page.getByPlaceholder('Enter Email ID').fill('123defaultuser@enterpi.com');
-        await page.getByPlaceholder('Enter Password').fill('123Enter@4321');
-        await page.getByRole('button', { name: 'Sign In', exact: true }).click();
+        await allPages.userNameInput.fill('123defaultuser@enterpi.com');
+        await allPages.passwordInput.fill('123Enter@4321');
+        await allPages.signInButton.click();
         text = 'Invalid Email or Password';
         await expect(page.locator("//*[text() = '" + text + "']")).toBeVisible();
         console.log('getting this ', text, ' Invalid email with invalid password')
         //in valid email and empty password
-        await page.getByPlaceholder('Enter Email ID').fill('123defaultuser.com');
-        await page.getByPlaceholder('Enter Password').fill('');
-        await page.getByRole('button', { name: 'Sign In', exact: true }).click();
+        await allPages.userNameInput.fill('123defaultuser.com');
+        await allPages.passwordInput.fill('');
+        await allPages.signInButton.click();
         text = 'Please Enter Valid Email Address';
         await expect(page.locator("//*[text() = '" + text + "']")).toBeVisible();
         console.log('getting this ', text, ' in valid email format and empty password')
@@ -281,9 +284,9 @@ async function login(page) {
         await expect(page.locator("//*[text() = '" + text + "']")).toBeVisible();
         console.log('getting this ', text, ' in valid email format and empty password')
         //empty email and empty password
-        await page.getByPlaceholder('Enter Email ID').fill('');
-        await page.getByPlaceholder('Enter Password').fill('');
-        await page.getByRole('button', { name: 'Sign In', exact: true }).click();
+        await allPages.userNameInput.fill('');
+        await allPages.passwordInput.fill('');
+        await allPages.signInButton.click();
         text = 'Please Enter Email Id';
         await expect(page.locator("//*[text() = '" + text + "']")).toBeVisible();
         console.log('getting this ', text, ' empty email format and empty password')
@@ -327,19 +330,22 @@ async function login(page) {
         testResult = true;
     } catch (error) {
         testResult = false;
+        console.log(error);
     }
     return testResult;
 }
+
 async function login_buzz(page, stage_url) {
+    allPages = new AllPages(page);
     await page.goto(stage_url);
     await page.waitForTimeout(1300);
     if (await page.url().includes('sso')) {
-        await page.getByLabel('Email').fill('defaultuser@enterpi.com');
-        await page.getByPlaceholder('Enter Password').fill('Enter@4321');
-        await page.getByRole('button', { name: 'Sign In', exact: true }).click();
+        await allPages.userNameInput.fill('defaultuser@enterpi.com');
+        await allPages.passwordInput.fill('Enter@4321');
+        await allPages.signInButton.click();
     } else {
     }
-    await expect(page.locator('(//*[contains(@src, "vendor_logo")])[1]')).toBeVisible({ timeout: 30000 });
+    await expect(allPages.profileIconListView).toBeVisible({ timeout: 50000 });
     await page.waitForTimeout(1600);
 }
 async function logout(page) {
@@ -892,14 +898,14 @@ async function quotesRepairs(page) {
         let list_status = false;
         //verify list view
         try {
-            await expect(page.locator('(//*[contains(@src, "vendor_logo")])[1]')).toBeVisible();
+            await expect(allPages.profileIconListView).toBeVisible();
             list_status = true;
         } catch (error) {
             list_status = false;
         }
         if (list_status) {
             await page.waitForTimeout(1100);
-            await page.locator('(//*[contains(@src, "vendor_logo")])[1]').click();
+            await allPages.profileIconListView.click();
             console.log('list view is displayed for ', tabList[index])
             //verify detailed view
             try {
@@ -928,14 +934,14 @@ async function quotesRepairs(page) {
         await page.locator('#root').getByText(tabList[index]).click();
         //verify list view
         try {
-            await expect(page.locator('(//*[contains(@src, "vendor_logo")])[1]')).toBeVisible();
+            await expect(allPages.profileIconListView).toBeVisible();
             list_status = true;
         } catch (error) {
             list_status = false;
         }
         if (list_status) {
             await page.waitForTimeout(1100);
-            await page.locator('(//*[contains(@src, "vendor_logo")])[1]').click();
+            await allPages.profileIconListView.click();
             console.log('list view is displayed for ', tabList[index])
             //verify detailed view
             try {
@@ -1340,7 +1346,7 @@ async function create_job_repairs(page, is_create_job, repair_type) {
     let testResult;
     try {
         await page.getByText('Repairs').first().click();
-        await expect(page.locator('(//*[contains(@src, "vendor_logo")])[1]')).toBeVisible();
+        await expect(allPages.profileIconListView).toBeVisible();
         await page.waitForTimeout(2000);
         await page.getByText('Create RMA').click();
         await expect(page.locator('#root')).toContainText('Search By Company Name');
@@ -1554,12 +1560,12 @@ async function rep_complete(page, rep_id, job_sta, tech, job_num, work_hours, pp
     await page.keyboard.press('Enter');
     await page.getByTitle('Save Changes').click();
     await expect(page.locator("(//*[text() = 'Ordered'])[2]")).toBeVisible();
-    await page.locator("(//*[text() = '"+rep_id+"'])[1]").click();
+    await page.locator("(//*[text() = '" + rep_id + "'])[1]").click();
     await spinner();
     await expect(page.locator("(//*[text() = 'Parts Ordered'])[1]")).toBeVisible();
     await expect(page.locator("(//*[text() = 'Parts Ordered'])[2]")).toBeVisible();
-    await page.locator("(//*[text() = '"+ppId+"'])[1]").click();
-    console.log(ppId+' is updated to Ordered');
+    await page.locator("(//*[text() = '" + ppId + "'])[1]").click();
+    console.log(ppId + ' is updated to Ordered');
     await spinner();
     //updating pp status to Received
     await page.locator('(//*[@class = "pi-label-edit-icon"])[1]').click();
@@ -1570,12 +1576,12 @@ async function rep_complete(page, rep_id, job_sta, tech, job_num, work_hours, pp
     await expect(page.locator("//*[text() = 'Items Information']")).toBeVisible();
     await page.locator("//*[text() = 'Submit']").click();
     await expect(page.locator("//*[text() = 'Received']")).toBeVisible();
-    await page.locator("(//*[text() = '"+rep_id+"'])[1]").click();
+    await page.locator("(//*[text() = '" + rep_id + "'])[1]").click();
     await spinner();
     await expect(page.locator("(//*[text() = 'Parts Received'])[1]")).toBeVisible();
     await expect(page.locator("(//*[text() = 'Parts Received'])[2]")).toBeVisible();
-    await page.locator("(//*[text() = '"+ppId+"'])[1]").click();
-    console.log(ppId+' is updated to Partially Received');
+    await page.locator("(//*[text() = '" + ppId + "'])[1]").click();
+    console.log(ppId + ' is updated to Partially Received');
     await spinner();
     //updating pp status to Received and Completed
     await page.locator('(//*[@class = "pi-label-edit-icon"])[1]').click();
@@ -1584,11 +1590,11 @@ async function rep_complete(page, rep_id, job_sta, tech, job_num, work_hours, pp
     await page.keyboard.press('Enter');
     await page.getByTitle('Save Changes').click();
     await expect(page.locator("(//*[text() = 'Received and Completed'])[2]")).toBeVisible();
-    await page.locator("(//*[text() = '"+rep_id+"'])[1]").click();
+    await page.locator("(//*[text() = '" + rep_id + "'])[1]").click();
     await spinner();
     await expect(page.locator("(//*[text() = 'Parts Received'])[1]")).toBeVisible();
     await expect(page.locator("(//*[text() = 'Parts Received'])[2]")).toBeVisible();
-    console.log(ppId+' is updated to Received and Completed.');
+    console.log(ppId + ' is updated to Received and Completed.');
     let time_entry_status = false;
     try {
         //verifying time entry icon is displayed or not
@@ -1689,7 +1695,7 @@ async function create_job_quotes(page, is_create_job, quoteType) {
     let testResult;
     try {
         await page.getByText('Quotes', { exact: true }).first().click();
-        await expect(page.locator('(//*[contains(@src, "vendor_logo")])[1]')).toBeVisible();
+        await expect(allPages.profileIconListView).toBeVisible();
         await page.locator('div').filter({ hasText: /^Create Quote$/ }).nth(1).click();
         await expect(page.getByText('Search By Account ID or')).toBeVisible();
         await page.locator('div').filter({ hasText: /^Company Name\*Search By Account ID or Company Name$/ }).getByLabel('open').click();
@@ -2002,7 +2008,7 @@ async function create_job_manually(page) {
         await page.waitForTimeout(2100)
         await page.getByText('Jobs').click();
         // await page.goto('https://www.staging-buzzworld.iidm.com/jobs/9b0970e6-b539-44d5-a118-ebde9631d1a5');
-        await expect(page.locator('(//*[contains(@src, "vendor_logo")])[1]')).toBeVisible();
+        await expect(allPages.profileIconListView).toBeVisible();
         await page.getByText('Create Job').click();
         await expect(page.getByPlaceholder('Enter Job Description')).toBeVisible();
         await page.getByLabel('open').first().click();
@@ -2134,7 +2140,7 @@ async function import_pricing(page, import_to) {
     console.log('imported file(s) is ', import_to);
 }
 async function functional_flow(page) {
-    await expect(page.locator('(//*[contains(@src, "vendor_logo")])[1]')).toBeVisible();
+    await expect(allPages.profileIconListView).toBeVisible();
     await page.getByText('Admin').click();
     await admin1(page);
     await admin2(page);
@@ -2146,7 +2152,7 @@ async function inventory_search(page, stock_code, stage_url) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     // await login_buzz(page, stage_url);
     // try {
-    //     await expect(page.locator('(//*[contains(@src, "vendor_logo")])[1]')).toBeVisible();
+    //     await expect(allPages.profileIconListView).toBeVisible();
     // } catch (error) {
 
     // }
@@ -2955,6 +2961,225 @@ async function verifyTwoExcelData(page) {
     // Write the workbook to a file
     await workbook.xlsx.writeFile('test_pricing.xlsx');
 }
+async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPrice, discountType, discountValue, testCount, qurl, fp) {
+    console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
+    let vendor = testdata.vendor, testResults, quoteURL;
+    await page.getByRole('button', { name: 'Pricing expand' }).click();
+    await page.getByRole('menuitem', { name: 'Non Standard Pricing' }).click();
+    await page.getByRole('button', { name: 'Configure' }).click();
+    await page.locator('div').filter({ hasText: /^Company Name\*Search$/ }).getByLabel('open').click();
+    await page.keyboard.insertText(customer);
+    await page.locator("(//*[text() = '" + customer + "'])[2]").click();
+    await page.getByPlaceholder('MM/DD/YYYY-MM/DD/YYYY').click();
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowUp');
+    await page.keyboard.press('Enter');
+    let sDate = await page.getByPlaceholder('MM/DD/YYYY-MM/DD/YYYY').getAttribute('value');
+    let startDate = sDate.replace(" - ", "");
+    let eDate = startDate.substring(3, 5);
+    for (let index = 0; index < 12; index++) {
+        await page.getByLabel('Next Month').click();
+    }
+    await page.locator("(//*[text() = '" + eDate + "'])[1]").click();
+    await page.getByPlaceholder('Enter Client Quote Number').fill('TEST123434');
+    await page.locator('div').filter({ hasText: /^Supplier\*Search$/ }).getByLabel('open').click();
+    await page.keyboard.insertText(vendor);
+    await page.locator("(//*[text() = '" + vendor + "'])[2]").click();
+    await page.locator("(//*[text() = 'Select '])[1]").click();
+    await page.keyboard.insertText('Specific Item');
+    await page.keyboard.press('Enter');
+    await page.locator('div').filter({ hasText: /^ItemsSearch$/ }).getByLabel('open').click();
+    await page.keyboard.insertText(item);
+    await page.locator("(//*[text() = '" + item + "'])[2]").click();
+    await page.locator('[id="pricing_rules\\.0\\.buy_side_discount"]').fill(purchaseDiscount);
+    await page.getByPlaceholder('Enter Buy Price').fill(buyPrice);
+    await page.locator('div').filter({ hasText: /^Select%$/ }).getByLabel('open').click();
+    await page.getByText(discountType, { exact: true }).click();
+    await page.locator('[id="pricing_rules\\.0\\.type_value"]').fill(discountValue);
+    await page.locator('//*[@id = "pricing_rules.0.fixed_value"]').fill(fp);
+    await page.getByRole('button', { name: 'Preview Items' }).click();
+    await expect(page.locator("//*[text() = 'more']")).toBeHidden();
+    let icp = await page.locator("//*[@style = 'left: 891px; width: 120px;']").textContent();
+    let listIIDMCost = icp.replace(",", "").replace("$", "");
+    let lBP = await page.locator("//*[@style = 'left: 751px; width: 140px;']").textContent();
+    let listBuyPrice = lBP.replace(",", "").replace("$", "");
+    let lp = await page.locator("//*[@style = 'left: 611px; width: 140px;']").textContent();
+    let listPrice = lp.replace(",", "").replace("$", "");
+    let lSP = await page.locator("//*[@style = 'left: 1718px; width: 117px;']").textContent();
+    let listSellPrice = lSP.replace(",", "").replace("$", "");
+    let buyPriceInListViewCalc; let sellPriceInListViewCalc;
+    console.log(ANSI_ORANGE, 'Pricing Rule Applied Item is ', item, ANSI_RESET);
+    console.log('buy price ', listBuyPrice);
+    console.log('sell price ', listSellPrice);
+    console.log('list price ', listPrice);
+    console.log('IIDM Cost ', listIIDMCost);
+    if (buyPrice == '' && purchaseDiscount != '') {
+        buyPriceInListViewCalc = (parseFloat(listPrice)) - ((parseFloat(listPrice)) * parseInt(purchaseDiscount) / 100).toFixed("2");
+        console.log('buy price is ', buyPriceInListViewCalc, ' is calculated from purchase discount on list price.');
+
+    } else {
+        buyPriceInListViewCalc = buyPrice;
+        console.log('buy price is ', buyPriceInListViewCalc, ' is directly given as buy price.');
+        if (listBuyPrice == NaN) {
+            buyPriceInListViewCalc = NaN;
+        }
+    }
+    if (buyPriceInListViewCalc == listBuyPrice) {
+        console.log('calculated buy price ', buyPriceInListViewCalc);
+        console.log('buyprice calculation passed, at preview items page');
+        if (discountType === 'Markup') {
+            if (buyPrice == '' && purchaseDiscount == '') {
+                sellPriceInListViewCalc = ((parseFloat(listIIDMCost)) + ((parseFloat(listIIDMCost)) * parseInt(discountValue) / 100)).toFixed("2");;
+            } else {
+                sellPriceInListViewCalc = ((buyPriceInListViewCalc + (buyPriceInListViewCalc * parseInt(discountValue) / 100))).toFixed("2");
+                buyPrice = buyPriceInListViewCalc;
+            }
+        } else {
+            sellPriceInListViewCalc = ((parseFloat(listPrice)) - ((parseFloat(listPrice)) * parseInt(discountValue) / 100)).toFixed("2");
+        }
+        if (sellPriceInListViewCalc == listSellPrice) {
+            console.log('calculated sell price ', sellPriceInListViewCalc);
+            console.log('sell price calculation passed, at preview items page and type is ', discountType);
+            await page.locator('div').filter({ hasText: /^Apply Rule$/ }).getByRole('button').click();
+            await page.getByRole('tab', { name: 'Items' }).click();
+            await expect(page.getByRole('gridcell', { name: 'loading', exact: true }).getByRole('img')).toBeVisible();
+            let bpil = await page.locator("//*[@style = 'left: 720px; width: 140px;']").textContent();
+            let buyPriceItemList = bpil.replace("$", "").replace(",", "");
+            let spil = await page.locator("//*[@style = 'left: 1580px; width: 100px;']").textContent();
+            let sellPriceItemList = spil.replace("$", "").replace(",", "");
+            if (buyPriceItemList == buyPriceInListViewCalc && sellPriceItemList == sellPriceInListViewCalc) {
+                console.log('sell price and buy price calculation passed, at items list page');
+                await page.getByRole('tab', { name: 'SPA Logs' }).click();
+                await page.getByTitle(item).click();
+                await expect(page.locator("(//*[text() = 'more'])[2]")).toBeHidden();
+                let lBP = await page.locator("//*[@style = 'left: 751px; width: 140px;']").textContent();
+                let cardBuyPrice = lBP.replace(",", "").replace("$", "");
+                let clp = await page.locator("//*[@style = 'left: 611px; width: 140px;']").textContent();
+                let cardListPrice = clp.replace("$", "").replace(",", "");
+                spil = await page.locator("//*[@style = 'left: 1718px; width: 117px;']").textContent();
+                let cardSellPrice = spil.replace("$", "").replace(",", "");
+                if (buyPriceItemList == cardBuyPrice && sellPriceItemList == cardSellPrice && cardListPrice == listPrice) {
+                    console.log('sell price, buy price and list price calculation passed, at spa logs card view');
+                    testResults = true;
+                } else {
+                    console.log('sell price, buy price and list price calculation Failed, at spa logs card view');
+                    testResults = false;
+                }
+            } else {
+                console.log('sell price and buy price calculation failed, at items list page');
+                testResults = false;
+            }
+        } else {
+            console.log('calculated sell price ', sellPriceInListViewCalc);
+            console.log('sell price calculation failed, at preview items page and type is ', discountType);
+            testResults = false;
+        }
+    } else {
+        console.log('calculated buy price ', buyPriceInListViewCalc);
+        console.log('buyprice calculation failed, at preview items page');
+        testResults = false;
+    }
+    await page.goBack();
+    if (testResults) {
+        //Create quote for these items
+        quoteURL = await addSPAItemsToQuote(page, customer, 'Parts Quote', item, testCount, qurl, fp, sellPriceInListViewCalc, purchaseDiscount, buyPrice, listIIDMCost);
+        console.log('status at quotes is ', quoteURL[1]);
+        if (quoteURL[1]) {
+            testResults = true;
+        } else {
+            testResults = false;
+        }
+    } else {
+
+    }
+    return [testResults, quoteURL[0]];
+}
+
+async function addSPAItemsToQuote(page, customer, quoteType, items, testCount, qurl, fixedSalesPrice, sellPrice, purchaseDiscount, buyPrice, listIIDMCost) {
+    let quoteURL, testResults;
+    try {
+        await page.getByText('Quotes', { exact: true }).first().click();
+        await expect(allPages.profileIconListView).toBeVisible();
+        if (testCount == 1) {
+            await page.locator('div').filter({ hasText: /^Create Quote$/ }).nth(1).click();
+            await expect(page.getByText('Search By Account ID or')).toBeVisible();
+            await page.locator('div').filter({ hasText: /^Company Name\*Search By Account ID or Company Name$/ }).getByLabel('open').click();
+            await page.getByLabel('Company Name*').fill(customer);
+            await expect(page.getByText(customer, { exact: true }).nth(1)).toBeVisible();
+            await page.getByText(customer, { exact: true }).nth(1).click();
+            await page.getByText('Quote Type').nth(1).click();
+            await page.getByText(quoteType, { exact: true }).click();
+            await page.getByPlaceholder('Enter Project Name').fill('for testing spa Items');
+            await page.locator('div').filter({ hasText: /^Create Quote$/ }).nth(4).click();
+            await page.getByRole('button', { name: 'Create Quote' }).click();
+            await expect(page.locator('#repair-items')).toContainText('Quote item(s) Not Available');
+            let quote = await page.locator('(//*[@class = "id-num"])[1]').textContent();
+            let quote_id = quote.replace("#", "");
+            quoteURL = await page.url();
+            console.log('quote is created with id ', quote_id);
+            console.log('quote url is ', quoteURL);
+        } else {
+            quoteURL = qurl;
+            await page.goto(quoteURL);
+        }
+        await page.getByText('Add Items').click();
+        await page.getByPlaceholder('Search By Part Number').fill(items);
+        await page.locator('(//*[@id="tab-0-tab"]/div[1]/div[2]/div/div[1]/div)[1]').click();
+        await page.getByRole('button', { name: 'Add Selected 1 Items' }).click();
+        await spinner(page);
+        let qp = await page.locator('//*[@id="repair-items"]/div[2]/div[1]/div[' + testCount + ']/div/div[2]/div[3]/div[1]/h4').textContent();
+        let quotePrice = qp.replace(",", "").replace("$", "");
+        let ic = await page.locator('//*[@id="repair-items"]/div[2]/div[1]/div[' + testCount + ']/div/div[2]/div[3]/div[3]/h4').textContent();
+        let iidmCost = ic.replace(",", "").replace("$", "");
+        if (fixedSalesPrice == '') {
+            if (quotePrice == sellPrice) {
+                console.log('Quote price is ', quotePrice);
+                console.log('sell price is ', sellPrice);
+                console.log('displaying sell price as quote price in quote detailed view, is passed.');
+                if (purchaseDiscount == '' && buyPrice == '') {
+                    if (iidmCost.includes(listIIDMCost)) {
+                        console.log('iidm cost in quotes is ', iidmCost);
+                        console.log('iidm cost in SPA is ', listIIDMCost);
+                        console.log('displaying SPA iidm cost as a IIDM cost in quote detailed view, is passed.');
+                    } else {
+                        console.log('iidm cost in quotes is ', iidmCost);
+                        console.log('iidm cost in SPA is ', listIIDMCost);
+                        console.log('displaying SPA iidm cost as a IIDM cost in quote detailed view, is failed.');
+                    }
+                } else {
+                    if (iidmCost.includes(buyPrice)) {
+                        console.log('iidm cost in quotes is ', iidmCost);
+                        console.log('buy price is ', buyPrice);
+                        console.log('displaying buy price as a IIDM cost in quote detailed view, is passed.');
+                    } else {
+                        console.log('iidm cost in quotes is ', iidmCost);
+                        console.log('buy price is ', buyPrice);
+                        console.log('displaying buy price as a IIDM cost in quote detailed view, is failed.');
+                    }
+                }
+            } else {
+                console.log('Quote price is ', quotePrice);
+                console.log('sell price is ', sellPrice);
+                console.log('displaying sell price as quote price in quote detailed view, is failed');
+            }
+        } else {
+            if (quotePrice == fixedSalesPrice) {
+                console.log('Quote price is ', quotePrice);
+                console.log('fixed sales price is ', fixedSalesPrice);
+                console.log('displaying fixed sales price as a quote price in quote detailed view, is passed.');
+            } else {
+                console.log('Quote price is ', quotePrice);
+                console.log('fixed sales price is ', fixedSalesPrice);
+                console.log('displaying fixed sales price as a quote price in quote detailed view, is failed');
+            }
+        }
+        testResults = true;
+    } catch (error) {
+        testResults = false;
+    }
+    return [quoteURL, testResults];
+}
 
 async function addFunctionInAdminTabs(page) {
     await page.getByText('Admin').click();
@@ -3161,7 +3386,6 @@ async function returnResult(page, testName, results) {
         // throw error;
     }
 }
-
 module.exports = {
     checkout_page,
     order_summary_page,
@@ -3210,5 +3434,7 @@ module.exports = {
     verifyTwoExcelData,
     addDiscountCodeValidations,
     addFunctionInAdminTabs,
-    returnResult
+    returnResult,
+    nonSPAPrice,
+    addSPAItemsToQuote
 };
