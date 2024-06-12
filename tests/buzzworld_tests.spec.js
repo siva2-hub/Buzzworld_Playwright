@@ -1,15 +1,17 @@
 const { test, expect, page, chromium } = require('@playwright/test');
 const ExcelJS = require('exceljs');
+
 import { start } from 'repl';
 import { timeout } from '../playwright.config';
-import { add_dc, add_sc, admin1, admin2, admin3, admin4, api_data, create_job_manually, create_job_quotes, create_job_repairs, create_parts_purchase, dcAddUpdate, fetchData, fetch_jobs_Data, fetch_jobs_Detail, fetch_jobs_list, fetch_orders_Data, fetch_orders_Detail, fetch_order_list, fetch_pp_status, filters_pricing, functional_flow, import_pricing, inventory_search, leftMenuSearch, login, login_buzz, logout, multi_edit, parts_purchase_left_menu_filter, productAddUpdate, quotesRepairs, setScreenSize, spinner, sync_jobs, update_dc, update_sc, pos_report, reports, parts_import, add_parts, past_repair_prices, edit_PO_pp, returnResult, admin_permissions, pricing_permissions, addDiscountCodeValidations, addFunctionInAdminTabs, getProductWriteIntoExecl, verifyTwoExcelData } from './helper';
+import { add_dc, add_sc, admin1, admin2, admin3, admin4, api_data, create_job_manually, create_job_quotes, create_job_repairs, create_parts_purchase, dcAddUpdate, fetchData, fetch_jobs_Data, fetch_jobs_Detail, fetch_jobs_list, fetch_orders_Data, fetch_orders_Detail, fetch_order_list, fetch_pp_status, filters_pricing, functional_flow, import_pricing, inventory_search, leftMenuSearch, login, login_buzz, logout, multi_edit, parts_purchase_left_menu_filter, productAddUpdate, quotesRepairs, setScreenSize, spinner, sync_jobs, update_dc, update_sc, pos_report, reports, parts_import, add_parts, past_repair_prices, edit_PO_pp, returnResult, admin_permissions, pricing_permissions, addDiscountCodeValidations, addFunctionInAdminTabs, getProductWriteIntoExecl, verifyTwoExcelData, nonSPAPrice, addSPAItemsToQuote } from './helper';
+import AllPages from './PageObjects';
 
 const testdata = JSON.parse(JSON.stringify(require("../testdata.json")));
 const stage_url = testdata.urls.buzz_stage_url;
+let allPages;
 test.skip('sync jobs', async ({ page }) => {
   test.setTimeout(990000000);
   await sync_jobs(page);
-
 });
 test.describe('all tests', async () => {
   let page, dc, stock_code, results;
@@ -17,7 +19,7 @@ test.describe('all tests', async () => {
   test.describe.configure({ mode: 'serial' });
   let w = 1920, h = 910;
   // let w = 1280, h = 551;
-
+  
   test.beforeAll(async ({ browser }) => {
     // await reports('First Test', 'Passed');
     page = await browser.newPage();
@@ -127,6 +129,36 @@ test.describe('all tests', async () => {
 
   test.skip('multi edit dc', async () => {
     await multi_edit(page, testdata.dc_new);
+  });
+
+  test('Verifying Buy Price and Sell Price values at Non SPA', async ({ }, testInfo) => {
+    //Buy price value getting from purchase discount on list price
+    let items = ['A081004', 'A151506', 'A151804', 'A121606', 'A121204NK'];
+    let customer = 'FLOWP00';
+    let testName = 'Verifying Buy Price, Sell Price(Type is Markup) and IIDM Cost with buyprice as Purchase Discount';
+    results = await nonSPAPrice(page, customer, items[0], '26', '', 'Markup', '78', 1, '', '');
+    await returnResult(page, testName, results[0]);
+    let quoteURL = results[1];
+
+    //Buy price is given directly as buy price
+    testName = 'Verifying Buy Price, Sell Price(Type is Discount) and IIDM Cost with buyprice as directly given';
+    results = await nonSPAPrice(page, customer, items[1], '26', '256.56', 'Discount', '58', 2, quoteURL, '');
+    await returnResult(page, testName, results[0]);
+
+    //Buy price and purchase discount is given empty and type is Discount
+    testName = 'Verifying Buy Price, Sell Price (Type is Discount) and IIDM Cost with buyprice && Purchase Discount as NaN';
+    results = await nonSPAPrice(page, customer, items[2], '', '', 'Discount', '32', 3, quoteURL, '');
+    await returnResult(page, testName, results[0]);
+
+    //Buy price and purchase discount is given empty and type is Markup
+    testName = 'Verifying Buy Price, Sell Price (Type is Markup) and IIDM Cost with buyprice && Purchase Discount as NaN';
+    results = await nonSPAPrice(page, customer, items[3], '', '', 'Markup', '39', 4, quoteURL, '');
+    await returnResult(page, testName, results[0]);
+
+    //Buy price and purchase discount is given empty and type is Markup
+    testName = 'Verifying Buy Price, Fixed Sales Price and IIDM Cost with buyprice && Purchase Discount as NaN';
+    results = await nonSPAPrice(page, customer, items[4], '', '', 'Markup', '69', 5, quoteURL, '129.26');
+    await returnResult(page, testName, results[0]);
   });
 
   test.skip('verify filters in pricing', async () => {
