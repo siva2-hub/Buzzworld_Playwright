@@ -13,7 +13,7 @@ const currentDate = new Date().toDateString();
 let date = currentDate.split(" ")[2];
 let vendor = testdata.vendor;
 let apiKey = testdata.api_key;
-let allPages;
+let allPages ;
 const currentDateTime = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
 const ANSI_RESET = "\x1b[0m";
 const ANSI_RED = "\x1b[31m";
@@ -218,6 +218,21 @@ async function request_payterms(page) {
     await page.getByRole('button', { name: 'Request' }).click();
     await page.pause();
 }
+
+async function login_buzz(page, stage_url) {
+    allPages = new AllPages(page);
+    await page.goto(stage_url);
+    await page.waitForTimeout(1300);
+    if (await page.url().includes('sso')) {
+        await allPages.userNameInput.fill('defaultuser@enterpi.com');
+        await allPages.passwordInput.fill('Enter@4321');
+        await allPages.signInButton.click();
+    } else {
+    }
+    await expect(allPages.profileIconListView).toBeVisible({ timeout: 50000 });
+    await page.waitForTimeout(1600);
+}
+
 async function login(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     //positive scenario
@@ -295,17 +310,17 @@ async function login(page) {
         console.log('getting this ', text, ' empty email format and empty password')
         //reset or forgott password page
         await page.locator("//*[text() = 'Forgot Password?']").click();
-        await expect(page.locator("//*[text() = 'Reset Password']")).toBeVisible();
+        await expect(allPages.resetPasswordBtn).toBeVisible();
         //verify reset password with un registered mail
         await page.locator("//*[@placeholder = 'Enter Email ID']").fill('sivadara17@gmail.com');
-        await page.locator("//*[text() = 'Reset Password']").click();
+        await allPages.resetPasswordBtn.click();
         text = 'We cannot find an active account linked to the email address that you entered. Please check the email address or contact your system administrator.';
         await expect(page.locator("//*[text() = '" + text + "']")).toBeVisible();
         await page.waitForTimeout(1500);
         console.log('getting this ', text, ' while verifying reset password with un registered mail');
         //verify reset password with invalid mail
         await page.locator("//*[@placeholder = 'Enter Email ID']").fill('defaultuser.com');
-        await page.locator("//*[text() = 'Reset Password']").click();
+        await allPages.resetPasswordBtn.click();
         text = 'Please Enter Valid Email Address';
         await expect(page.locator("//*[text() = '" + text + "']")).toBeVisible();
         await page.waitForTimeout(1500);
@@ -313,13 +328,13 @@ async function login(page) {
         //verify reset password with empty mail
         text = 'Please Enter Email Id';
         await page.locator("//*[@placeholder = 'Enter Email ID']").fill('');
-        await page.locator("//*[text() = 'Reset Password']").click();
+        await allPages.resetPasswordBtn.click();
         await expect(page.locator("//*[text() = '" + text + "']")).toBeVisible();
         await page.waitForTimeout(1500);
         console.log('getting this ', text, ' while verifying reset password with empty mail');
         //verify reset password with valid registered mail
         await page.locator("//*[@placeholder = 'Enter Email ID']").fill('defaultuser@enterpi.com');
-        await page.locator("//*[text() = 'Reset Password']").click();
+        await allPages.resetPasswordBtn.click();
         await expect(page.locator("//*[text() = 'Please check your email']")).toBeVisible();
         text = 'An email with password reset instructions has been sent to your email address.';
         await expect(page.locator("//*[text() = '" + text + "']")).toBeVisible();
@@ -335,19 +350,6 @@ async function login(page) {
     return testResult;
 }
 
-async function login_buzz(page, stage_url) {
-    allPages = new AllPages(page);
-    await page.goto(stage_url);
-    await page.waitForTimeout(1300);
-    if (await page.url().includes('sso')) {
-        await allPages.userNameInput.fill('defaultuser@enterpi.com');
-        await allPages.passwordInput.fill('Enter@4321');
-        await allPages.signInButton.click();
-    } else {
-    }
-    await expect(allPages.profileIconListView).toBeVisible({ timeout: 50000 });
-    await page.waitForTimeout(1600);
-}
 async function logout(page) {
     await page.locator('//*[@class = "user_image"]').click();
     await page.getByRole('menuitem', { name: 'Logout' }).click();
