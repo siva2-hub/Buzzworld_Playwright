@@ -2028,7 +2028,7 @@ async function validationsAtCreateRMAandQuotePages(page) {
         await expect(allPages.customerDropdown).toBeVisible();
         await page.getByRole('button', { name: 'Create Quote' }).click();
         await expect(page.getByText('Please select Company Name')).toBeVisible();
-        await expect(page.getByText('Please select Quote Type1')).toBeVisible();
+        await expect(page.getByText('Please select Quote Type')).toBeVisible();
         await allPages.customerDropdown.fill('766872testhello');
         await expect(page.getByText('Create Account')).toBeVisible();
         await page.getByTitle('close').getByRole('img').click();
