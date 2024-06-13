@@ -13,7 +13,7 @@ const currentDate = new Date().toDateString();
 let date = currentDate.split(" ")[2];
 let vendor = testdata.vendor;
 let apiKey = testdata.api_key;
-let allPages ;
+let allPages;
 const currentDateTime = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
 const ANSI_RESET = "\x1b[0m";
 const ANSI_RED = "\x1b[31m";
@@ -2003,6 +2003,45 @@ async function create_parts_purchase(page, is_manually, repair_id) {
     }
     return [results, pp_id];
 }
+
+async function validationsAtCreateRMAandQuotePages(page) {
+    console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
+    let testResults;
+    try {
+        //RMA Creation page
+        await page.getByText('Repairs').first().click();
+        await page.getByText('Create RMA').click();
+        await expect(allPages.customerDropdown).toBeVisible();
+        await allPages.createButton.click();
+        await expect(page.getByText('Please select Company Name')).toBeVisible();
+        await expect(page.getByText('Please select Contact Name')).toBeVisible();
+        await allPages.customerDropdown.fill('766872testhello');
+        await expect(page.getByText('Create Account')).toBeVisible();
+        await page.locator('div').filter({ hasText: /^Select$/ }).nth(2).click();
+        await page.keyboard.insertText('virat kohli');
+        await expect(page.getByRole('button', { name: 'loading Create Contact' })).toBeVisible();
+        console.log('Validations are Displayed at Create RMA Page');
+        //Quote Creation Page
+        await page.getByTitle('close').getByRole('img').click();
+        await page.getByText('Quotes').click();
+        await page.getByText('Create Quote').click();
+        await expect(allPages.customerDropdown).toBeVisible();
+        await page.getByRole('button', { name: 'Create Quote' }).click();
+        await expect(page.getByText('Please select Company Name')).toBeVisible();
+        await expect(page.getByText('Please select Quote Type1')).toBeVisible();
+        await allPages.customerDropdown.fill('766872testhello');
+        await expect(page.getByText('Create Account')).toBeVisible();
+        await page.getByTitle('close').getByRole('img').click();
+        console.log('Validations are Displayed at Create Quotes Page');
+        testResults = true;
+
+    } catch (error) {
+        testResults = false;
+        console.log(error);
+    }
+    return testResults;
+}
+
 async function create_job_manually(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let testResult;
@@ -2812,6 +2851,7 @@ async function write_data_into_excel(data) {
     // Add data
     data.forEach(row => {
         worksheet.addRow(row);
+        
     });
     // Write the workbook to a file
     await workbook.xlsx.writeFile('logs.xlsx');
@@ -3438,5 +3478,6 @@ module.exports = {
     addFunctionInAdminTabs,
     returnResult,
     nonSPAPrice,
-    addSPAItemsToQuote
+    addSPAItemsToQuote,
+    validationsAtCreateRMAandQuotePages
 };
