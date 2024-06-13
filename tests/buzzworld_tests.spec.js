@@ -3,7 +3,7 @@ const ExcelJS = require('exceljs');
 
 import { start } from 'repl';
 import { timeout } from '../playwright.config';
-import { add_dc, add_sc, admin1, admin2, admin3, admin4, api_data, create_job_manually, create_job_quotes, create_job_repairs, create_parts_purchase, dcAddUpdate, fetchData, fetch_jobs_Data, fetch_jobs_Detail, fetch_jobs_list, fetch_orders_Data, fetch_orders_Detail, fetch_order_list, fetch_pp_status, filters_pricing, functional_flow, import_pricing, inventory_search, leftMenuSearch, login, login_buzz, logout, multi_edit, parts_purchase_left_menu_filter, productAddUpdate, quotesRepairs, setScreenSize, spinner, sync_jobs, update_dc, update_sc, pos_report, reports, parts_import, add_parts, past_repair_prices, edit_PO_pp, returnResult, admin_permissions, pricing_permissions, addDiscountCodeValidations, addFunctionInAdminTabs, getProductWriteIntoExecl, verifyTwoExcelData, nonSPAPrice, addSPAItemsToQuote } from './helper';
+import { add_dc, add_sc, admin1, admin2, admin3, admin4, api_data, create_job_manually, create_job_quotes, create_job_repairs, create_parts_purchase, dcAddUpdate, fetchData, fetch_jobs_Data, fetch_jobs_Detail, fetch_jobs_list, fetch_orders_Data, fetch_orders_Detail, fetch_order_list, fetch_pp_status, filters_pricing, functional_flow, import_pricing, inventory_search, leftMenuSearch, login, login_buzz, logout, multi_edit, parts_purchase_left_menu_filter, productAddUpdate, quotesRepairs, setScreenSize, spinner, sync_jobs, update_dc, update_sc, pos_report, reports, parts_import, add_parts, past_repair_prices, edit_PO_pp, returnResult, admin_permissions, pricing_permissions, addDiscountCodeValidations, addFunctionInAdminTabs, getProductWriteIntoExecl, verifyTwoExcelData, nonSPAPrice, addSPAItemsToQuote, validationsAtCreateRMAandQuotePages, read_excel_data } from './helper';
 import AllPages from './PageObjects';
 
 const testdata = JSON.parse(JSON.stringify(require("../testdata.json")));
@@ -19,7 +19,7 @@ test.describe('all tests', async () => {
   test.describe.configure({ mode: 'serial' });
   let w = 1920, h = 910;
   // let w = 1280, h = 551;
-  
+
   test.beforeAll(async ({ browser }) => {
     // await reports('First Test', 'Passed');
     page = await browser.newPage();
@@ -47,6 +47,12 @@ test.describe('all tests', async () => {
 
   test('Inventory Search', async ({ }, testInfo) => {
     results = await inventory_search(page, 'FSD18-251-00-01', stage_url);
+    let testName = testInfo.title;
+    await returnResult(page, testName, results);
+  });
+
+  test('Verify validations at Create RMA and Quotes Pages', async ({ }, testInfo) => {
+    results = await validationsAtCreateRMAandQuotePages(page);
     let testName = testInfo.title;
     await returnResult(page, testName, results);
   });
@@ -206,7 +212,7 @@ test.describe('all tests', async () => {
     await import_pricing(page, 'pricing');
   });
 
-  test('add functions in admin', async () => {
+  test('add functions validations in admin', async () => {
     await addFunctionInAdminTabs(page);
   });
 

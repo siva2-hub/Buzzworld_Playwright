@@ -10,6 +10,8 @@ export default class AllPages {
     get signInButton() { return this.page.getByRole('button', { name: 'Sign In', exact: true }); }
     get profileIconListView() { return this.page.locator('(//*[contains(@src, "vendor_logo")])[1]'); }
     get resetPasswordBtn() { return this.page.locator("//*[text() = 'Reset Password']"); }
+    get customerDropdown() { return this.page.getByLabel('Company Name*'); }
+    get createButton() { return this.page.getByRole('button', { name: 'Create', exact: true }); }
 
     async login(url) {
         await this.page.goto(url);
