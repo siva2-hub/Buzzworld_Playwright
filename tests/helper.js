@@ -2321,6 +2321,85 @@ async function parts_purchase_left_menu_filter(page) {
         }
     }
 }
+async function addCustomerToSysPro(page) {
+    let getResults;
+    try {
+        await page.getByRole('button', { name: 'Organizations expand' }).click();
+        await page.getByRole('menuitem', { name: 'Organizations' }).click();
+        await spinner(page);
+        await page.locator("//*[@placeholder = 'Name / Company Name / Account Number / Owner']").fill('Chump Change Automation');
+        await spinner(page);
+        await page.locator("(//*[@title = 'Add To SysPro'])[2]").click();
+        await expect(page.getByPlaceholder('Contact')).toBeVisible();
+        await page.getByRole('button', { name: 'Create' }).click();
+        await expect(page.getByText('Please Enter contact')).toBeVisible();
+        await page.getByPlaceholder('Enter Primary Phone').click();
+        await page.getByPlaceholder('Enter Primary Phone').fill('');
+        await expect(page.getByText('Please Enter Primary Phone')).toBeVisible();
+        await expect(page.getByText('Please Enter Alt Phone')).toBeVisible();
+        await expect(page.getByText('Please Enter Fax Phone')).toBeVisible();
+        await expect(page.getByText('Please Enter Email Address')).toBeVisible();
+        await page.getByPlaceholder('Enter Credit Limit').click();
+        await page.getByPlaceholder('Enter Credit Limit').fill('');
+        await expect(page.getByText('Credit Limit required')).toBeVisible();
+        await page.getByPlaceholder('Enter Bill to Address').click();
+        await page.getByPlaceholder('Enter Bill to Address').fill('');
+        await expect(page.getByText('Bill To Address is required')).toBeVisible();
+        await page.getByPlaceholder('Enter Bill to City').fill('');
+        await expect(page.getByText('Bill To City required')).toBeVisible();
+        await expect(page.getByText('Bill To State required')).toBeVisible();
+        await page.locator('#bill_to_zip').getByLabel('clear').click();
+        await expect(page.getByText('Bill To City required')).toBeVisible();
+        await page.getByPlaceholder('Enter Ship to Address').fill('');
+        await page.getByPlaceholder('Enter Ship to Address').click({
+            modifiers: ['Control']
+        });
+        await expect(page.getByText('Ship To Address is required')).toBeVisible();
+        await page.getByRole('button', { name: 'Create' }).click();
+        await page.getByPlaceholder('Enter Ship to City').click();
+        await page.getByPlaceholder('Enter Ship to City').fill('');
+        await expect(page.getByText('Ship To City required')).toBeVisible();
+        await page.getByLabel('clear').click();
+        await expect(page.getByText('Ship to Zip required')).toBeVisible();
+        await page.getByRole('button', { name: 'Create' }).click();
+        await page.getByPlaceholder('Enter Customer Name').click();
+        await page.getByPlaceholder('Enter Customer Name').fill('');
+        await expect(page.getByText('Customer Name is required')).toBeVisible();
+        await page.getByPlaceholder('Enter Alt Phone').click();
+        await page.getByPlaceholder('Enter Alt Phone').fill('45');
+        await page.getByRole('button', { name: 'Create' }).click();
+        await page.getByPlaceholder('Enter Alt Phone').click();
+        await expect(page.getByText('Please Enter Valid Alt Phone')).toBeVisible();
+        await page.getByPlaceholder('Enter Primary Phone').click();
+        await page.getByPlaceholder('Enter Primary Phone').fill('567');
+        await expect(page.getByText('Please Enter Valid Primary')).toBeVisible();
+        await page.getByPlaceholder('Enter Fax Phone').click();
+        await page.getByPlaceholder('Enter Fax Phone').fill('56');
+        await page.getByPlaceholder('Enter Email Address').fill('4535435');
+        await expect(page.getByText('Email Address is not valid')).toBeVisible();
+        await expect(page.getByText('Please Enter Valid Fax Phone')).toBeVisible();
+        await page.getByLabel('Bill to Zip*').fill('45435');
+        await expect(page.getByText('Add Bill to Zip')).toBeVisible();
+        await page.getByText('Add Bill to Zip').click();
+        await page.getByLabel('clear').click();
+        await page.locator('#ship_to_zip').fill('54654');
+        await expect(page.getByText('Add Ship to Zip')).toBeVisible();
+        await page.getByText('Add Ship to Zip').click();
+        await page.getByLabel('clear').click();
+        await page.locator('div').filter({ hasText: /^Dallas$/ }).nth(2).click();
+        await page.getByText('Centrifuge', { exact: true }).click();
+        await page.getByRole('button', { name: 'Create' }).click();
+        await expect(page.getByText('Territory required')).toBeVisible();
+        await expect(page.getByText('Sales Person required')).toBeVisible();
+        await page.getByTitle('close').getByRole('img').click();
+        await page.pause();
+        getResults = true;
+    } catch (error) {
+        getResults = false;
+        console.log(error);
+    }
+    return getResults;
+}
 async function pos_report(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let testResults;
@@ -2851,7 +2930,7 @@ async function write_data_into_excel(data) {
     // Add data
     data.forEach(row => {
         worksheet.addRow(row);
-        
+
     });
     // Write the workbook to a file
     await workbook.xlsx.writeFile('logs.xlsx');
@@ -3138,6 +3217,89 @@ async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPrice, dis
     return [testResults, quoteURL[0]];
 }
 
+async function websitePaddingTesting(browser) {
+    const context = await browser.newContext();
+
+    // Open first tab (page)
+    const page = await context.newPage();
+
+    let w = 1920, h = 910; let getResults;
+    // let w = 1280, h = 551;
+    await page.setViewportSize({
+        width: w,
+        height: h
+    });
+    const page2 = await context.newPage();
+    await page2.setViewportSize({
+        width: w,
+        height: h
+    });
+    try {
+        await page.waitForTimeout(1500);
+        //Tracing started
+        const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.readFile('Website_Padding.xlsx');
+        const worksheet = workbook.getWorksheet('Sheet1');
+        let test_data = await read_excel_data('Website_Padding.xlsx', 0);
+        console.log('Total URLs Count is ', test_data.length);
+        for (let index = 0; index < test_data.length; index++) {
+            //test_priding file Sheet2 Data
+            let pageName = test_data[index]['Page Name'];
+            let pageURL = test_data[index]['URL'];
+            let status = test_data[index]['Results'];
+            await page.goto(pageURL);
+            let warpper = await page.locator("(//*[@class = 'bt_bb_row_wrapper'])");
+            let rowsCountInPage = 'count of rows in ' + pageName + ': ' + await warpper.count();
+            console.log(rowsCountInPage);
+            let data;
+            for (let i = 0; i < await warpper.count(); i++) {
+                let eles = await page.locator("(//*[@class = 'bt_bb_row_wrapper'])[" + (i + 1) + "]");
+                // console.log(await eles.textContent());
+                const styles = await eles.evaluate(element => {
+                    const computedStyle = window.getComputedStyle(element);
+                    return {
+                        width: computedStyle.width,
+                        height: computedStyle.height,
+                        backgroundColor: computedStyle.backgroundColor,
+                    };
+                });
+                // console.log(i + 1, ' wrapper Element styles:', styles);
+                let width = styles['width'];
+                console.log(i + 1, ' row width: ', width);
+                let w = parseFloat(width.replace("px", ""));
+                if (w < 1321) {
+                    // console.log(ANSI_GREEN, 'Padding is Working', ANSI_RESET);
+                    worksheet.getCell(`C` + (index + 2)).value = 'Passed';
+                } else {
+                    // console.log(ANSI_RED, 'Padding is not Working', ANSI_RESET);
+                    worksheet.getCell(`C` + (index + 2)).value = 'Failed';
+                    await workbook.xlsx.writeFile('Website_Padding.xlsx');
+                    break;
+                }
+                data = [rowsCountInPage, i + ' row width: ' + width];
+
+                await page2.goto('https://pagespeed.web.dev/');
+                await page2.fill("//*[@placeholder = 'Enter a web page URL']", pageURL);
+                await page2.click('//*[text() = "Analyze"]');
+                let pm = await page2.textContent('(//*[@href = "#performance"])[2]');
+                console.log(pm);
+                let pd = await page2.textContent('(//*[@href = "#performance"])[4]');
+                console.log(pd);
+                let perfMobile = await pm.replace("Performance", "").replace(" ", ""); let perfDesktop = await pd.replace("Performance", "").replace(" ", "");
+                console.log('performance mobile ', perfMobile, ' performance desktop ', perfDesktop);
+                worksheet.getCell(`D` + (index + 2)).value = data;
+                worksheet.getCell(`E` + (index + 2)).value = 'performance mobile ', perfMobile, ' performance desktop ', perfDesktop;
+                await workbook.xlsx.writeFile('Website_Padding.xlsx');
+                await page2.pause();
+            }
+        }
+        getResults = true;
+    } catch (error) {
+        console.log(error);
+        getResults = false;
+    }
+    return getResults;
+}
 async function addSPAItemsToQuote(page, customer, quoteType, items, testCount, qurl, fixedSalesPrice, sellPrice, purchaseDiscount, buyPrice, listIIDMCost) {
     let quoteURL, testResults;
     try {
@@ -3479,5 +3641,7 @@ module.exports = {
     returnResult,
     nonSPAPrice,
     addSPAItemsToQuote,
-    validationsAtCreateRMAandQuotePages
+    validationsAtCreateRMAandQuotePages,
+    addCustomerToSysPro,
+    websitePaddingTesting
 };
