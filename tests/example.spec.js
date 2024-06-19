@@ -1,7 +1,8 @@
 // import exp from 'constants';
 // import { checkout_page, order_summary_page, guest_checkout_form, guest_add_products, request_payterms, login } from './helper';
 
-// const { test, expect, chromium } = require('@playwright/test');
+const { test, expect, chromium } = require('@playwright/test');
+const { websitePaddingTesting, returnResult } = require('./helper');
 // const testdata = JSON.parse(JSON.stringify(require("../testdata.json")))
 
 // let page, page1, context;
@@ -314,3 +315,8 @@
 //   await page1.getByPlaceholder('Enter PO Number').fill('TestPO1234');
 //   await page1.pause()
 // }
+test('Website Padding Tests', async ({ browser}, testInfo) => {
+    let results = await websitePaddingTesting(browser);
+    let testName = testInfo.title;
+    await returnResult(page, testName, results);
+  });
