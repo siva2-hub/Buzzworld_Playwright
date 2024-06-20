@@ -3234,6 +3234,7 @@ async function websitePaddingTesting(browser) {
         width: w,
         height: h
     });
+    await page.keyboard.press('Control+Tab');
     try {
         await page.waitForTimeout(1500);
         //Tracing started
@@ -3277,19 +3278,37 @@ async function websitePaddingTesting(browser) {
                     break;
                 }
                 data = [rowsCountInPage, i + ' row width: ' + width];
-
+                await page.keyboard.press('Control+Tab');
                 await page2.goto('https://pagespeed.web.dev/');
                 await page2.fill("//*[@placeholder = 'Enter a web page URL']", pageURL);
                 await page2.click('//*[text() = "Analyze"]');
-                let pm = await page2.textContent('(//*[@href = "#performance"])[2]');
-                console.log(pm);
-                let pd = await page2.textContent('(//*[@href = "#performance"])[4]');
-                console.log(pd);
-                let perfMobile = await pm.replace("Performance", "").replace(" ", ""); let perfDesktop = await pd.replace("Performance", "").replace(" ", "");
-                console.log('performance mobile ', perfMobile, ' performance desktop ', perfDesktop);
-                worksheet.getCell(`D` + (index + 2)).value = data;
-                worksheet.getCell(`E` + (index + 2)).value = 'performance mobile ', perfMobile, ' performance desktop ', perfDesktop;
+                let list = ['Performance', 'Accessibility', 'Best Practices', 'SEO'];
+                let cln = ['E', 'F', 'G', 'H'];
+                let rws = ['I', 'J', 'K', 'L'];
+                for (let tabs = 2; tabs <= 4; tabs = tabs + 2) {
+                    console.log('outer loop');
+                    for (let pl = 0; pl < list.length; pl++) {
+                        console.log('inner loop');
+                        let xpath = "(//*[@href='#" + list[pl].toLowerCase().replace(" ", "-") + "'])[" + tabs + "]";
+                        await expect(page2.locator(xpath)).toBeVisible({ timeout: 120000 });
+                        await page2.waitForTimeout(2000);
+                        let mobile = await page2.textContent(xpath);
+                        // console.log(mobile);
+                        let value;
+                        if (list[pl] == 'Performance' || list[pl] == 'Accessibility' || list[pl] == 'Best Practices' || list[pl] == 'SEO') {
+                            value = await mobile.replace(list[pl], "").replace(" ", "");
+                        }
+                        console.log(list[pl], ' is: ', value);
+                        if (tabs==2) { 
+                            worksheet.getCell(cln[pl] + (index + 2)).value = value;
+                        } else {
+                            worksheet.getCell(cln[rws] + (index + 2)).value = value;
+                        }
+                    }
+                    await page2.click('//*[text()="Desktop"]');
+                }
                 await workbook.xlsx.writeFile('Website_Padding.xlsx');
+                await page2.keyboard.press('Control+Tab');
                 await page2.pause();
             }
         }
