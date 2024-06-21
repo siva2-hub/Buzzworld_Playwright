@@ -83,7 +83,7 @@ test.describe('all tests', async () => {
     await returnResult(page, testName, results);
   })
 
-  test.skip('Create Job Manually', async ({ }, testInfo) => {
+  test('Create Job Manually', async ({ }, testInfo) => {
     results = await create_job_manually(page)
     let testName = testInfo.title;
     await returnResult(page, testName, results);

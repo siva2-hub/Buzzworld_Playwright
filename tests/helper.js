@@ -1342,9 +1342,9 @@ async function spinner(page) {
 }
 async function create_job_repairs(page, is_create_job, repair_type) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
-    let acc_num = 'ENGYS00', cont_name = 'Jannice Carrillo', stock_code = 'CIMR-AU4A0165FAA320TS';
+    let acc_num = 'ENGYS00', cont_name = 'Jannice Carrillo', stock_code = '12340-255F';
     let tech = 'Michael Strothers';
-    // await page.goto('https://www.staging-buzzworld.iidm.com/parts-purchase-detail-view/a423c218-998e-41b8-836f-efcb5261bf30');
+    // await page.goto('https://www.staging-buzzworld.iidm.com/repair-request/51d8b2a1-714e-408a-a5d8-6f79a1682b2e');
     let testResult;
     try {
         await page.getByText('Repairs').first().click();
@@ -1367,18 +1367,19 @@ async function create_job_repairs(page, is_create_job, repair_type) {
         console.log('repair url is ', await page.url());
         await page.getByText('Add Items').click();
         await page.getByPlaceholder('Search By Part Number').fill(stock_code);
+        await spinner(page);
         let res = false;
         try {
-            await expect(page.locator('//*[text() = "? Click here to add them"]')).toBeVisible();
+            await expect(page.locator('//*[text() = "? Click here to add them"]')).toBeVisible({ timeout: 2200 });
             res = true;
         } catch (error) {
-            console.log(error)
+            // console.log(error);
             res = false;
         }
         if (res) {
             await add_new_part(page, stock_code);
         } else {
-            await page.locator('g > rect').click();
+            await allPages.checkBox.first().click();
             await page.getByRole('button', { name: 'Add Selected 1 Parts' }).click();
         }
         //Assign Location
@@ -1391,7 +1392,7 @@ async function create_job_repairs(page, is_create_job, repair_type) {
             await page.getByTitle('Save Changes').getByRole('img').click();
         }
         await page.getByPlaceholder('Storage Location').fill('SL001');
-        await page.getByPlaceholder('Type here').fill('Test Internal Item Notes');
+        await page.getByPlaceholder('Type here').fill('Test Internal Item Notes at Assign Location');
         await page.getByRole('button', { name: 'Update Location' }).click();
         //Assign Technician
         await expect(page.locator('#repair-items')).toContainText('Assign Technician');
@@ -1399,6 +1400,7 @@ async function create_job_repairs(page, is_create_job, repair_type) {
         await page.getByText('Select').click();
         await page.keyboard.insertText(tech);
         await page.getByText(tech, { exact: true }).nth(1).click();
+        await page.getByPlaceholder('Type here').fill('Test Internal Item Notes at Assign Technician');
         await page.getByRole('button', { name: 'Assign' }).click();
         //Item Evaluation
         await expect(page.locator('#repair-items')).toContainText('Evaluate Item');
@@ -1420,6 +1422,9 @@ async function create_job_repairs(page, is_create_job, repair_type) {
             await page.keyboard.press('Space');
             await page.keyboard.press('ArrowDown');
         }
+        await page.keyboard.press('Escape');
+        // await page.fill('div:nth-child(4) > .quill > .ql-container', 'Technician Notes to Customer at Item Evaluation');
+        await page.getByPlaceholder('Type here').fill('Test Internal Item Notes at Item Evaluation');
         await page.getByRole('button', { name: 'Update Evaluation' }).hover();
         await page.getByRole('button', { name: 'Update Evaluation' }).click();
         //Add Items to Quote
@@ -1646,6 +1651,7 @@ async function rep_complete(page, rep_id, job_sta, tech, job_num, work_hours, pp
     await page.getByRole('button', { name: 'Accept' }).click();
     await expect(page.locator('#repair-items')).toContainText('In Progress');
     console.log(rep_id + '- 1 is In Progress');
+    //Repair Summary
     await page.locator("//*[contains(@src, 'repair_summary')]").click();
     await page.getByLabel('open').click();
     await page.getByText('Bench tested', { exact: true }).click();
@@ -1655,6 +1661,7 @@ async function rep_complete(page, rep_id, job_sta, tech, job_num, work_hours, pp
     await page.getByPlaceholder('Enter Repair Summary Notes').fill('Test Repair Summary Notes to Customer');
     await page.getByPlaceholder('Type here').fill('Test Internal Item Notes in Repair Summary Page');
     await page.getByRole('button', { name: 'Save' }).click();
+    //Assign to QC
     await expect(page.locator('#repair-items')).toContainText('Assign to QC');
     await page.getByText('Assign to QC').click();
     await expect(page.getByRole('dialog')).toContainText('Assign QC');
@@ -1665,6 +1672,7 @@ async function rep_complete(page, rep_id, job_sta, tech, job_num, work_hours, pp
     await page.getByRole('button', { name: 'Assign' }).click();
     await expect(page.locator('#repair-items')).toContainText('Pending QC');
     console.log(rep_id + '- 1 is Assign to QC');
+    //Updating QC status
     await page.locator('div:nth-child(6) > .action-item').click();
     await expect(page.locator('#root')).toContainText('QC Comments to Customer');
     await page.getByLabel('open').first().click();
@@ -1682,6 +1690,7 @@ async function rep_complete(page, rep_id, job_sta, tech, job_num, work_hours, pp
     await page.getByRole('button', { name: 'Save' }).click();
     await expect(page.locator('#repair-items')).toContainText('Pending Invoice');
     console.log(rep_id + '- 1 is Pending Invoice');
+    //Changing Repair Item status to Completed
     await page.getByRole('button', { name: 'loading Change Status' }).click();
     await page.getByRole('menuitem', { name: 'Completed' }).click();
     await expect(page.locator('#root')).toContainText('Are you sure you want to mark it as Completed ?');
@@ -1691,7 +1700,7 @@ async function rep_complete(page, rep_id, job_sta, tech, job_num, work_hours, pp
 }
 async function create_job_quotes(page, is_create_job, quoteType) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
-    let acc_num = 'FLOWP00', cont_name = 'John Ruesch', stock_code = '12340-255F',
+    let acc_num = 'FLOWP00', cont_name = 'John Ruesch', stock_code = '832-1204',
         quote_type = quoteType;
     // await page.goto('https://www.staging-buzzworld.iidm.com/system_quotes/7c7e3a4e-8bd4-4f9d-b132-0901827a03c3');
     let testResult;
@@ -1733,7 +1742,7 @@ async function create_job_quotes(page, is_create_job, quoteType) {
             await expect(page.locator("(//*[text() = 'Items Not Available'])[1]")).toBeVisible({ timeout: 2300 });
             res = true;
         } catch (error) {
-            console.log(error)
+            // console.log(error);
             res = false;
         }
         if (res) {
@@ -1760,7 +1769,7 @@ async function create_job_quotes(page, is_create_job, quoteType) {
             await page.getByPlaceholder('Description').fill('Manually Added Items');
             await page.getByRole('button', { name: 'Add', exact: true }).click();
         } else {
-            await page.locator('g > rect').click();
+            await allPages.checkBox.first().click();
             await page.getByRole('button', { name: 'Add Selected 1 Items' }).click();
         }
 
@@ -1913,7 +1922,7 @@ async function create_job_quotes(page, is_create_job, quoteType) {
                 }
             }
         } else {
-            console.log("job selection checkbox is checked ", is_checked);
+            console.log("Job selection checkbox status is: ", is_checked);
         }
         testResult = true;
     } catch (error) {
@@ -3299,7 +3308,7 @@ async function websitePaddingTesting(browser) {
                             value = await mobile.replace(list[pl], "").replace(" ", "");
                         }
                         console.log(list[pl], ' is: ', value);
-                        if (tabs==2) { 
+                        if (tabs == 2) {
                             worksheet.getCell(cln[pl] + (index + 2)).value = value;
                         } else {
                             worksheet.getCell(cln[rws] + (index + 2)).value = value;
