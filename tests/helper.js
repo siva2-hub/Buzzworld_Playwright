@@ -1340,10 +1340,10 @@ async function spinner(page) {
         await expect(await page.locator("//*[@style = 'animation-delay: 0ms;']")).toBeHidden();
     } catch (error) { }
 }
-async function create_job_repairs(page, is_create_job, repair_type) {
+async function create_job_repairs(page, is_create_job, repair_type, acc_num, cont_name, stock_code, tech) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
-    let acc_num = 'ENGYS00', cont_name = 'Jannice Carrillo', stock_code = '12340-255F';
-    let tech = 'Michael Strothers';
+    // let acc_num = 'ENGYS00', cont_name = 'Jannice Carrillo', stock_code = 'EW25-104-20';
+    // let tech = 'Michael Strothers';
     // await page.goto('https://www.staging-buzzworld.iidm.com/repair-request/51d8b2a1-714e-408a-a5d8-6f79a1682b2e');
     let testResult;
     try {
@@ -1409,8 +1409,8 @@ async function create_job_repairs(page, is_create_job, repair_type) {
         await page.locator("(//*[@class = 'radio'])[" + repair_type + "]").click();
         if (repair_type == 1) {
             await page.getByPlaceholder('Estimated Repair Hrs').fill('2');
-            await page.getByPlaceholder('Estimated Parts Cost').fill('123.53');
-            await page.getByPlaceholder('Technician Suggested Price').fill('568.56');
+            await page.getByPlaceholder('Estimated Parts Cost').fill('20123.53');
+            await page.getByPlaceholder('Technician Suggested Price').fill('20568.56');
         } else if (repair_type == 2) {
 
         } else {
@@ -1698,9 +1698,9 @@ async function rep_complete(page, rep_id, job_sta, tech, job_num, work_hours, pp
     await expect(page.locator('#repair-items')).toContainText('Completed');
     console.log(rep_id + '- 1 is completed');
 }
-async function create_job_quotes(page, is_create_job, quoteType) {
+async function create_job_quotes(page, is_create_job, quoteType, acc_num, cont_name, stock_code, quote_type) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
-    let acc_num = 'FLOWP00', cont_name = 'John Ruesch', stock_code = '832-1204',
+    // let acc_num = 'TESTC02', cont_name = 'Test CompanyTwo', stock_code = '832-1204',
         quote_type = quoteType;
     // await page.goto('https://www.staging-buzzworld.iidm.com/system_quotes/7c7e3a4e-8bd4-4f9d-b132-0901827a03c3');
     let testResult;
@@ -2051,7 +2051,7 @@ async function validationsAtCreateRMAandQuotePages(page) {
     return testResults;
 }
 
-async function create_job_manually(page) {
+async function create_job_manually(page, orderId) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let testResult;
     try {
@@ -2062,8 +2062,8 @@ async function create_job_manually(page) {
         await page.getByText('Create Job').click();
         await expect(page.getByPlaceholder('Enter Job Description')).toBeVisible();
         await page.getByLabel('open').first().click();
-        await page.getByLabel('Order ID').fill(testdata.order_id);
-        await expect(page.getByText(testdata.order_id, { exact: true }).nth(1)).toBeVisible();
+        await page.getByLabel('Order ID').fill(orderId.toString());
+        await expect(page.getByText(orderId.toString(), { exact: true }).nth(1)).toBeVisible();
         await page.waitForTimeout(1800);
         await page.keyboard.press('Enter');
         await page.getByLabel('open').nth(1).click();
@@ -2080,7 +2080,7 @@ async function create_job_manually(page) {
         await expect(page.getByRole('heading', { name: 'Job Information' })).toBeVisible();
         let job = await page.locator('//*[@class = "id-num"]').textContent();
         let job_id = await job.replace("#", "");
-        console.log('used order id is ', testdata.order_id)
+        console.log('used order id is ', orderId)
         console.log('job created with id ', job_id);
         await page.waitForTimeout(1800);
         testResult = true;
@@ -3253,6 +3253,7 @@ async function websitePaddingTesting(browser) {
         let test_data = await read_excel_data('Website_Padding.xlsx', 0);
         console.log('Total URLs Count is ', test_data.length);
         for (let index = 0; index < test_data.length; index++) {
+            console.log('====================================================== page ',(index+1),'=============================================');
             //test_priding file Sheet2 Data
             let pageName = test_data[index]['Page Name'];
             let pageURL = test_data[index]['URL'];
@@ -3311,16 +3312,15 @@ async function websitePaddingTesting(browser) {
                         if (tabs == 2) {
                             worksheet.getCell(cln[pl] + (index + 2)).value = value;
                         } else {
-                            worksheet.getCell(cln[rws] + (index + 2)).value = value;
+                            worksheet.getCell(rws[pl] + (index + 2)).value = value;
                         }
                     }
                     await page2.click('//*[text()="Desktop"]');
+                    consolel.log('desktop-----------------------');
                 }
-                await workbook.xlsx.writeFile('Website_Padding.xlsx');
-                await page2.keyboard.press('Control+Tab');
-                await page2.pause();
             }
         }
+        await workbook.xlsx.writeFile('Website_Padding.xlsx');
         getResults = true;
     } catch (error) {
         console.log(error);

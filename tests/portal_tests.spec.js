@@ -3,7 +3,7 @@
 
 const { test, expect, chromium } = require('@playwright/test');
 const { websitePaddingTesting, returnResult } = require('./helper');
-// const testdata = JSON.parse(JSON.stringify(require("../testdata.json")))
+const testdata = JSON.parse(JSON.stringify(require("../testdata.json")))
 
 // let page, page1, context;
 // test.describe('Groupped into all tests', ()=>{
@@ -227,6 +227,28 @@ const { websitePaddingTesting, returnResult } = require('./helper');
 //     await expect(page.locator("//*[text() = 'Yes']")).toHaveText('Yes');
 //     await page.locator("//*[text() = 'Yes']").click();
 //   })
+  test('new customer registration', async({page}) =>{
+    await page.goto(testdata.urls.portal_url);
+    await page.getByRole('button', { name: 'Register' }).click();
+    await page.locator('.react-select__input-container').first().click();
+    await page.getByLabel('Company Name*').fill('Test CompanyTwo');
+    await expect(page.locator("//*[contains(text(), 'Add Company Name')]")).toBeVisible();
+    await page.locator("//*[contains(text(), 'Add Company Name')]").click();
+    await page.getByPlaceholder('Enter First Name').fill('Test');
+    await page.getByPlaceholder('Enter Last Name').fill('CompanyTwo');
+    await page.getByPlaceholder('Enter Email ID').fill('test@two.co');
+    await page.getByPlaceholder('Enter Phone Number').fill('(764) 723-64833');
+    await page.getByPlaceholder('Enter Address1').fill('1620 E. State Highway 121');
+    await page.getByPlaceholder('Enter City').fill('Lewisville');
+    await page.locator('div').filter({ hasText: /^Select State$/ }).nth(2).click();
+    await page.keyboard.insertText('Texas');
+    await page.keyboard.press('Enter');
+    await page.locator("//*[text() = 'Search By Postal Code']").click();
+    await page.keyboard.insertText('75001');
+    await page.getByRole('option', { name: '75001' }).first().click();
+    await page.pause();
+    await page.locator("//*[text() = 'Register']").click();
+  })
   
 //   test('quote approve', async({page})=>{
 //   await page.goto('https://www.staging-buzzworld.iidm.com/');
