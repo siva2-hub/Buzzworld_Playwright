@@ -26,6 +26,10 @@ test('Data Driven Tests', async ({ browser }) => {
         let testCase = test_data[index]['Test Name'];
         let isExecution = test_data[index]['Is Execution'];
         let status = test_data[index]['Results'];
+        let data1 = test_data[index]['TestData1'];
+        let data2 = test_data[index]['TestData2'];
+        let data3 = test_data[index]['TestData3'];
+        let data4 = test_data[index]['TestData4'];
         // await write_excel_data('TestCasesSheet.xlsx', 0, test_data);
         if (isExecution == 'Yes') {
             page = await browser.newPage();
@@ -70,25 +74,25 @@ test('Data Driven Tests', async ({ browser }) => {
                 break;
             case 'Create Job and Sales Order From Repair Quotes Yes':
                 //Repairable = 1, Not Repairable = 2, Repairable-Outsource = 3
-                results = await create_job_repairs(page, 'Y', 1);
+                results = await create_job_repairs(page, 'Y', 1, data1, data2, data3, data4);
                 testName = testCase;
                 await returnResult(page, testName, results);
 
                 break;
             case 'System Quote Creation with Sales Order and Job Yes':
                 //create system quote
-                results = await create_job_quotes(page, 'Y', 'System Quote');
+                results = await create_job_quotes(page, 'Y', 'System Quote', data1, data2, data3, data4);
                 testName = testCase;
                 await returnResult(page, testName, results);
                 break;
             case 'Parts Quote Creation with Sales Order Yes':
                 //create parts quote
-                results = await create_job_quotes(page, 'Y', 'Parts Quote');
+                results = await create_job_quotes(page, 'Y', 'Parts Quote', data1, data2, data3, data4);
                 testName = testCase;
                 await returnResult(page, testName, results);
                 break;
             case 'Create Job Manually Yes':
-                results = await create_job_manually(page)
+                results = await create_job_manually(page, data1)
                 testName = testCase;
                 await returnResult(page, testName, results);
                 break;
