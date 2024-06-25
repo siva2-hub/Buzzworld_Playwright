@@ -1701,7 +1701,7 @@ async function rep_complete(page, rep_id, job_sta, tech, job_num, work_hours, pp
 async function create_job_quotes(page, is_create_job, quoteType, acc_num, cont_name, stock_code, quote_type) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     // let acc_num = 'TESTC02', cont_name = 'Test CompanyTwo', stock_code = '832-1204',
-        quote_type = quoteType;
+    quote_type = quoteType;
     // await page.goto('https://www.staging-buzzworld.iidm.com/system_quotes/7c7e3a4e-8bd4-4f9d-b132-0901827a03c3');
     let testResult;
     try {
@@ -2330,50 +2330,47 @@ async function parts_purchase_left_menu_filter(page) {
         }
     }
 }
-async function addCustomerToSysPro(page) {
+async function addCustomerToSysPro(page, serachCompany) {
     let getResults;
     try {
         await page.getByRole('button', { name: 'Organizations expand' }).click();
         await page.getByRole('menuitem', { name: 'Organizations' }).click();
         await spinner(page);
-        await page.locator("//*[@placeholder = 'Name / Company Name / Account Number / Owner']").fill('Chump Change Automation');
+        await page.locator("//*[@placeholder = 'Name / Company Name / Account Number / Owner']").fill(serachCompany);
         await spinner(page);
-        await page.locator("(//*[@title = 'Add To SysPro'])[2]").click();
+        await page.locator("//*[@title = 'Add Customer']").first().click();
         await expect(page.getByPlaceholder('Contact')).toBeVisible();
         await page.getByRole('button', { name: 'Create' }).click();
-        await expect(page.getByText('Please Enter contact')).toBeVisible();
+        await expect(page.getByText('Contact is required')).toBeVisible();
         await page.getByPlaceholder('Enter Primary Phone').click();
         await page.getByPlaceholder('Enter Primary Phone').fill('');
-        await expect(page.getByText('Please Enter Primary Phone')).toBeVisible();
-        await expect(page.getByText('Please Enter Alt Phone')).toBeVisible();
-        await expect(page.getByText('Please Enter Fax Phone')).toBeVisible();
-        await expect(page.getByText('Please Enter Email Address')).toBeVisible();
+        await expect(page.getByText('Primary Phone is required')).toBeVisible();
+        await expect(page.getByText('Alt Phone is required')).toBeVisible();
+        await expect(page.getByText('Fax Phone is required')).toBeVisible();
+        await expect(page.getByText('Email Address is required')).toBeVisible();
         await page.getByPlaceholder('Enter Credit Limit').click();
         await page.getByPlaceholder('Enter Credit Limit').fill('');
         await expect(page.getByText('Credit Limit required')).toBeVisible();
         await page.getByPlaceholder('Enter Bill to Address').click();
         await page.getByPlaceholder('Enter Bill to Address').fill('');
-        await expect(page.getByText('Bill To Address is required')).toBeVisible();
+        await expect(page.getByText('Bill to Address is required')).toBeVisible();
         await page.getByPlaceholder('Enter Bill to City').fill('');
-        await expect(page.getByText('Bill To City required')).toBeVisible();
-        await expect(page.getByText('Bill To State required')).toBeVisible();
-        await page.locator('#bill_to_zip').getByLabel('clear').click();
-        await expect(page.getByText('Bill To City required')).toBeVisible();
+        await expect(page.getByText('Bill to City required')).toBeVisible();
+        await expect(page.getByText('Bill to State required')).toBeVisible();
+
+        await expect(page.getByText('Bill to Zip required')).toBeVisible();
         await page.getByPlaceholder('Enter Ship to Address').fill('');
         await page.getByPlaceholder('Enter Ship to Address').click({
             modifiers: ['Control']
         });
-        await expect(page.getByText('Ship To Address is required')).toBeVisible();
+        await expect(page.getByText('Ship to Address is required')).toBeVisible();
         await page.getByRole('button', { name: 'Create' }).click();
         await page.getByPlaceholder('Enter Ship to City').click();
         await page.getByPlaceholder('Enter Ship to City').fill('');
         await expect(page.getByText('Ship To City required')).toBeVisible();
-        await page.getByLabel('clear').click();
+        await expect(page.getByText('Ship to State required')).toBeVisible();
         await expect(page.getByText('Ship to Zip required')).toBeVisible();
         await page.getByRole('button', { name: 'Create' }).click();
-        await page.getByPlaceholder('Enter Customer Name').click();
-        await page.getByPlaceholder('Enter Customer Name').fill('');
-        await expect(page.getByText('Customer Name is required')).toBeVisible();
         await page.getByPlaceholder('Enter Alt Phone').click();
         await page.getByPlaceholder('Enter Alt Phone').fill('45');
         await page.getByRole('button', { name: 'Create' }).click();
@@ -2385,23 +2382,26 @@ async function addCustomerToSysPro(page) {
         await page.getByPlaceholder('Enter Fax Phone').click();
         await page.getByPlaceholder('Enter Fax Phone').fill('56');
         await page.getByPlaceholder('Enter Email Address').fill('4535435');
-        await expect(page.getByText('Email Address is not valid')).toBeVisible();
+        await expect(page.getByText('Please Enter Valid Email Address')).toBeVisible();
         await expect(page.getByText('Please Enter Valid Fax Phone')).toBeVisible();
         await page.getByLabel('Bill to Zip*').fill('45435');
         await expect(page.getByText('Add Bill to Zip')).toBeVisible();
         await page.getByText('Add Bill to Zip').click();
         await page.getByLabel('clear').click();
-        await page.locator('#ship_to_zip').fill('54654');
+        await page.locator('#ship_to_zip').getByLabel('open').click();
+        await page.keyboard.insertText('54654');
+        // await page.getByLabel('Ship to Zip*').fill('54654');
         await expect(page.getByText('Add Ship to Zip')).toBeVisible();
         await page.getByText('Add Ship to Zip').click();
         await page.getByLabel('clear').click();
-        await page.locator('div').filter({ hasText: /^Dallas$/ }).nth(2).click();
+        await expect(page.getByText('Bill to Zip required')).toBeVisible();
+        await expect(page.getByText('Ship to Zip required')).toBeVisible();
+        await page.locator('div').filter({ hasText: /^Houston$/ }).nth(2).click();
         await page.getByText('Centrifuge', { exact: true }).click();
         await page.getByRole('button', { name: 'Create' }).click();
         await expect(page.getByText('Territory required')).toBeVisible();
         await expect(page.getByText('Sales Person required')).toBeVisible();
         await page.getByTitle('close').getByRole('img').click();
-        await page.pause();
         getResults = true;
     } catch (error) {
         getResults = false;
@@ -2471,55 +2471,63 @@ async function pos_report(page) {
 async function past_repair_prices(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let quote_types = ['Repair Quotes', 'Parts Quotes', 'System Quotes'];
-    await page.getByText('Quotes', { exact: true }).first().click();
-    for (let qt = 0; qt < quote_types.length; qt++) {
-        await spinner(page);
-        await page.getByText(quote_types[qt], { exact: true }).first().click();
-        await spinner(page);
-        try {
-            await expect(page.getByText('Clear')).toBeVisible({ timeout: 1200 });
-            await page.getByText('Clear').click();
-        } catch (error) { }
-        await page.getByText('Filters').click();
-        await page.getByLabel('open').nth(2).click();
-        await page.keyboard.insertText('Open');
-        await page.keyboard.press('Enter');
-        await page.getByRole('button', { name: 'Apply' }).click();
-        await spinner(page);
-        let gt = await page.locator("//*[@style = 'left: 1424px; width: 174px;']").count();
-        for (let index = 1; index <= gt; index++) {
-            let price = await page.locator("(//*[@style = 'left: 1424px; width: 174px;'])[" + index + "]").textContent();
-            if (price == '$0.00') {
+    let getTestResults;
+    try {
+        await page.getByText('Quotes', { exact: true }).first().click();
+        for (let qt = 0; qt < quote_types.length; qt++) {
+            await spinner(page);
+            await page.getByText(quote_types[qt], { exact: true }).first().click();
+            await spinner(page);
+            try {
+                await expect(page.getByText('Clear')).toBeVisible({ timeout: 1200 });
+                await page.getByText('Clear').click();
+            } catch (error) { }
+            await page.getByText('Filters').click();
+            await page.getByLabel('open').nth(2).click();
+            await page.keyboard.insertText('Open');
+            await page.keyboard.press('Enter');
+            await page.getByRole('button', { name: 'Apply' }).click();
+            await spinner(page);
+            let gt = await page.locator("//*[@style = 'left: 1424px; width: 174px;']").count();
+            for (let index = 1; index <= gt; index++) {
+                let price = await page.locator("(//*[@style = 'left: 1424px; width: 174px;'])[" + index + "]").textContent();
+                if (price == '$0.00') {
 
-            } else {
-                await page.locator("(//*[@style = 'left: 1424px; width: 174px;'])[" + index + "]").click();
-                break;
+                } else {
+                    await page.locator("(//*[@style = 'left: 1424px; width: 174px;'])[" + index + "]").click();
+                    break;
+                }
             }
-        }
-        await expect(page.locator("(//*[contains(@src, 'themecolorEdit')][@alt = 'chevron-right'])[1]")).toBeVisible();
-        let itemsCount = await page.locator("//*[contains(@src, 'themecolorEdit')][@alt = 'chevron-right']").count();
-        for (let index = 1; index <= itemsCount; index++) {
-            await page.locator("(//*[contains(@src, 'themecolorEdit')][@alt = 'chevron-right'])[" + index + "]").click();
-            let part_num = await page.locator("(//*[contains(@placeholder, 'Part Number')])[1]").getAttribute('value');
-            await expect(page.locator("//*[contains(@placeholder, 'Quote Price')]")).toBeVisible();
-            if (quote_types[qt] == 'System Quotes') {
-                await page.waitForTimeout(1200);
-                await expect(page.locator("//*[contains(@src, 'email_invoices')]")).toBeHidden({ timeout: 5000 });
-                await spinner(page);
-                console.log('past repair price is not displayed for ' + quote_types[qt] + ' ' + part_num + ' - ' + index);
-                await page.locator("(//*[contains(@title, 'close')])[1]").click();
-            } else {
-                await page.waitForTimeout(1200);
-                await expect(page.locator("//*[contains(@src, 'email_invoices')]")).toBeVisible({ timeout: 5000 });
-                await page.locator("//*[contains(@src, 'email_invoices')]").click();
-                await spinner(page);
-                console.log('past repair price is displayed for ' + quote_types[qt] + ' ' + part_num + ' - ' + index);
-                await page.locator("(//*[contains(@title, 'close')])[2]").click();
-                await page.locator("(//*[contains(@title, 'close')])[1]").click();
+            await expect(page.locator("(//*[contains(@src, 'themecolorEdit')][@alt = 'chevron-right'])[1]")).toBeVisible();
+            let itemsCount = await page.locator("//*[contains(@src, 'themecolorEdit')][@alt = 'chevron-right']").count();
+            for (let index = 1; index <= itemsCount; index++) {
+                await page.locator("(//*[contains(@src, 'themecolorEdit')][@alt = 'chevron-right'])[" + index + "]").click();
+                let part_num = await page.locator("(//*[contains(@placeholder, 'Part Number')])[1]").getAttribute('value');
+                await expect(page.locator("//*[contains(@placeholder, 'Quote Price')]")).toBeVisible();
+                if (quote_types[qt] == 'System Quotes') {
+                    await page.waitForTimeout(1200);
+                    await expect(page.locator("//*[contains(@src, 'email_invoices')]")).toBeHidden({ timeout: 5000 });
+                    await spinner(page);
+                    console.log('past repair price is not displayed for ' + quote_types[qt] + ' ' + part_num + ' - ' + index);
+                    await page.locator("(//*[contains(@title, 'close')])[1]").click();
+                } else {
+                    await page.waitForTimeout(1200);
+                    await expect(page.locator("//*[contains(@src, 'email_invoices')]")).toBeVisible({ timeout: 5000 });
+                    await page.locator("//*[contains(@src, 'email_invoices')]").click();
+                    await spinner(page);
+                    console.log('past repair price is displayed for ' + quote_types[qt] + ' ' + part_num + ' - ' + index);
+                    await page.locator("(//*[contains(@title, 'close')])[2]").click();
+                    await page.locator("(//*[contains(@title, 'close')])[1]").click();
+                }
             }
+            await page.goBack();
         }
-        await page.goBack();
+        getTestResults = true;
+    } catch (error) {
+
+        getTestResults = false;
     }
+    return getTestResults;
 }
 async function edit_PO_pp(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
@@ -2642,217 +2650,230 @@ async function sync_jobs(page) {
 }
 async function parts_import(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
-    let file;
-    let test_data = ['positive', 'duplicate', 'empty', 'invalid_category', 'invalid_OUM', 'invalid_list_unit_prices'];
-    await page.waitForTimeout(600);
-    for (let index = 0; index < test_data.length; index++) {
-        if (test_data[index] == 'positive') {
-            file = 'parts_import.xlsx';
-        } else if (test_data[index] == 'duplicate') {
-            file = 'duplicate_parts.xlsx';
-        } else if (test_data[index] == 'empty') {
-            file = 'empty_parts.xlsx';
-        } else if (test_data[index] == 'invalid_category') {
-            file = 'invalid_category_parts.xlsx';
-        } else if (test_data[index] == 'invalid_OUM') {
-            file = 'invalid_OUM_parts.xlsx';
-        } else if (test_data[index] == 'invalid_list_unit_prices') {
-            file = 'invalid_list_unit_prices.xlsx';
-        }
-        await page.locator("(//*[text() = 'Inventory'])[1]").click();
-        await page.getByText('Import').click();
-        await expect(page.getByRole('heading', { name: 'Parts Import' })).toBeVisible();
-        try {
-            await page.waitForTimeout(1200);
-            await page.locator("//*[@type = 'file']").setInputFiles(file);
-        } catch (error) {
-            console.log(error);
-        }
-        await expect(page.locator("//*[text() = 'File Uploaded']")).toBeVisible();
-        try {
-            await page.getByRole('button', { name: 'Proceed' }).click();
+    let file; let getTestResults;
+    try {
+        let test_data = ['positive', 'duplicate', 'empty', 'invalid_category', 'invalid_OUM', 'invalid_list_unit_prices'];
+        await page.waitForTimeout(600);
+        for (let index = 0; index < test_data.length; index++) {
             if (test_data[index] == 'positive') {
-                try {
-                    await expect(page.locator('#root')).toContainText('The import process will be running in the background. Once complete, a mail will be sent to your registered email');
-                    await page.getByRole('button', { name: 'Okay' }).click();
-                    console.log('Bulk Import Wroking, Imported parts are Added to syspro');
-                } catch (error) {
-                    await page.screenshot({ path: 'files/add_bulk_parts_error.png', fullPage: true });
-                    await page.getByTitle('close').getByRole('img').click();
-                    console.log('Bulk Import Failed Importing parts are exit in syspro');
-                    let excel_data = await read_excel_data('parts_import.xlsx');
-                    // console.log('rows count is ', excel_data.length);
-                    for (let index = 0; index < excel_data.length; index++) {
-                        try {
-                            let part = excel_data[index].Stockcode;
-                            console.log('parts from excel is ' + part);
-                            await page.getByLabel('open').click();
-                            await page.keyboard.insertText(part.toString());
-                            await page.waitForTimeout(4000);
-                            let search_data = await page.locator("//*[contains(@class, 'css-4mp3pp-menu')]");
-                            let div = await search_data.locator("//div");
-                            let div_count = await div.count();
-                            // console.log('div count ' + div_count);
-                            for (let i = 1; i <= div_count; i++) {
-                                let div_data = await div.nth(i).textContent();
-                                console.log(' data is ' + div_data);
-                                if (div_count == 2) {
-                                    await page.keyboard.press('Enter');
-                                    await expect(page.locator("//*[text() = 'Stock Code Information']")).toBeVisible();
-                                    console.log(part + ' is in the Inventory');
-                                    break;
-                                } else {
-                                    if (part == div_data) {
-                                        await div.nth(i).click();
-                                        await page.getByText(part, { exact: true }).click();
+                file = 'parts_import.xlsx';
+            } else if (test_data[index] == 'duplicate') {
+                file = 'duplicate_parts.xlsx';
+            } else if (test_data[index] == 'empty') {
+                file = 'empty_parts.xlsx';
+            } else if (test_data[index] == 'invalid_category') {
+                file = 'invalid_category_parts.xlsx';
+            } else if (test_data[index] == 'invalid_OUM') {
+                file = 'invalid_OUM_parts.xlsx';
+            } else if (test_data[index] == 'invalid_list_unit_prices') {
+                file = 'invalid_list_unit_prices.xlsx';
+            }
+            await page.locator("(//*[text() = 'Inventory'])[1]").click();
+            await page.getByText('Import').click();
+            await expect(page.getByRole('heading', { name: 'Parts Import' })).toBeVisible();
+            try {
+                await page.waitForTimeout(1200);
+                await page.locator("//*[@type = 'file']").setInputFiles(file);
+            } catch (error) {
+                console.log(error);
+            }
+            await expect(page.locator("//*[text() = 'File Uploaded']")).toBeVisible();
+            try {
+                await page.getByRole('button', { name: 'Proceed' }).click();
+                if (test_data[index] == 'positive') {
+                    try {
+                        await expect(page.locator('#root')).toContainText('The import process will be running in the background. Once complete, a mail will be sent to your registered email');
+                        await page.getByRole('button', { name: 'Okay' }).click();
+                        console.log('Bulk Import Wroking, Imported parts are Added to syspro');
+                    } catch (error) {
+                        await page.screenshot({ path: 'files/add_bulk_parts_error.png', fullPage: true });
+                        await page.getByTitle('close').getByRole('img').click();
+                        console.log('Bulk Import Failed Importing parts are exit in syspro');
+                        let excel_data = await read_excel_data('parts_import.xlsx');
+                        // console.log('rows count is ', excel_data.length);
+                        for (let index = 0; index < excel_data.length; index++) {
+                            try {
+                                let part = excel_data[index].Stockcode;
+                                console.log('parts from excel is ' + part);
+                                await page.getByLabel('open').click();
+                                await page.keyboard.insertText(part.toString());
+                                await page.waitForTimeout(4000);
+                                let search_data = await page.locator("//*[contains(@class, 'css-4mp3pp-menu')]");
+                                let div = await search_data.locator("//div");
+                                let div_count = await div.count();
+                                // console.log('div count ' + div_count);
+                                for (let i = 1; i <= div_count; i++) {
+                                    let div_data = await div.nth(i).textContent();
+                                    console.log(' data is ' + div_data);
+                                    if (div_count == 2) {
+                                        await page.keyboard.press('Enter');
                                         await expect(page.locator("//*[text() = 'Stock Code Information']")).toBeVisible();
                                         console.log(part + ' is in the Inventory');
                                         break;
                                     } else {
-                                        console.log(part + ' is not in the Inventory');
+                                        if (part == div_data) {
+                                            await div.nth(i).click();
+                                            await page.getByText(part, { exact: true }).click();
+                                            await expect(page.locator("//*[text() = 'Stock Code Information']")).toBeVisible();
+                                            console.log(part + ' is in the Inventory');
+                                            break;
+                                        } else {
+                                            console.log(part + ' is not in the Inventory');
+                                        }
                                     }
                                 }
+                            } catch (error) {
+                                console.log(error);
                             }
-                        } catch (error) {
-                            console.log(error);
                         }
                     }
+                } else if (test_data[index] == 'duplicate') {
+                    await expect(page.locator("//*[text() = 'Error Log']")).toBeVisible();
+                    await expect(page.locator("//*[text() = 'Following Parts found in the Syspro. 12343-000, 46012504001']")).toBeVisible();
+                    console.log('validation display for ' + test_data[index] + ' parts');
+                    await page.getByTitle('close').getByRole('img').click();
+                } else if (test_data[index] == 'empty') {
+                    await expect(page.locator("//*[text() = 'Error Log']")).toBeVisible();
+                    await expect(page.locator("//*[text() = 'Following Parts found in the Syspro. ']")).toBeVisible();
+                    console.log('validation display for ' + test_data[index] + ' parts');
+                    await page.getByTitle('close').getByRole('img').click();
+                } else if (test_data[index] == 'invalid_category') {
+                    await expect(page.locator("//*[text() = 'Error Log']")).toBeVisible();
+                    await expect(page.locator("//*[contains(text(), 'Following Parts Product Category are invalid. 26012504000, 46012504001, 12343-000')]")).toBeVisible();
+                    console.log('validation display for ' + test_data[index] + ' parts');
+                    await page.getByTitle('close').getByRole('img').click();
+                } else if (test_data[index] == 'invalid_OUM') {
+                    await expect(page.locator("//*[text() = 'Error Log']")).toBeVisible();
+                    await expect(page.locator("//*[contains(text(), 'Following Parts has invalid UOM. 26012504000, 46012504001, 12343-000')]")).toBeVisible();
+                    console.log('validation display for ' + test_data[index] + ' parts');
+                    await page.getByTitle('close').getByRole('img').click();
+                } else {
+                    await expect(page.locator("//*[text() = 'Error Log']")).toBeVisible();
+                    await expect(page.locator("//*[contains(text(), '6 row(s) have invalid cell value for headers')]")).toBeVisible();
+                    await expect(page.locator("//*[contains(text(), 'View-More')]")).toBeVisible();
+                    await expect(page.locator("//*[contains(text(), 'Export')]")).toBeVisible();
+                    console.log('validation display for ' + test_data[index] + ' parts');
+                    await page.getByTitle('close').getByRole('img').click();
                 }
-            } else if (test_data[index] == 'duplicate') {
-                await expect(page.locator("//*[text() = 'Error Log']")).toBeVisible();
-                await expect(page.locator("//*[text() = 'Following Parts found in the Syspro. 12343-000, 46012504001']")).toBeVisible();
-                console.log('validation display for ' + test_data[index] + ' parts');
-                await page.getByTitle('close').getByRole('img').click();
-            } else if (test_data[index] == 'empty') {
-                await expect(page.locator("//*[text() = 'Error Log']")).toBeVisible();
-                await expect(page.locator("//*[text() = 'Following Parts found in the Syspro. ']")).toBeVisible();
-                console.log('validation display for ' + test_data[index] + ' parts');
-                await page.getByTitle('close').getByRole('img').click();
-            } else if (test_data[index] == 'invalid_category') {
-                await expect(page.locator("//*[text() = 'Error Log']")).toBeVisible();
-                await expect(page.locator("//*[contains(text(), 'Following Parts Product Category are invalid. 26012504000, 46012504001, 12343-000')]")).toBeVisible();
-                console.log('validation display for ' + test_data[index] + ' parts');
-                await page.getByTitle('close').getByRole('img').click();
-            } else if (test_data[index] == 'invalid_OUM') {
-                await expect(page.locator("//*[text() = 'Error Log']")).toBeVisible();
-                await expect(page.locator("//*[contains(text(), 'Following Parts has invalid UOM. 26012504000, 46012504001, 12343-000')]")).toBeVisible();
-                console.log('validation display for ' + test_data[index] + ' parts');
-                await page.getByTitle('close').getByRole('img').click();
-            } else {
-                await expect(page.locator("//*[text() = 'Error Log']")).toBeVisible();
-                await expect(page.locator("//*[contains(text(), '6 row(s) have invalid cell value for headers')]")).toBeVisible();
-                await expect(page.locator("//*[contains(text(), 'View-More')]")).toBeVisible();
-                await expect(page.locator("//*[contains(text(), 'Export')]")).toBeVisible();
-                console.log('validation display for ' + test_data[index] + ' parts');
+            } catch (error) {
+                console.log(error);
+                let error_text = await page.locator("//*[contains(@class, 'error-msg')]").textContent();
+                console.log('Bulk Import Failed ' + error_text);
+                await page.screenshot({ path: 'files/add_bulk_parts_error.png', fullPage: true });
                 await page.getByTitle('close').getByRole('img').click();
             }
-        } catch (error) {
-            console.log(error);
-            let error_text = await page.locator("//*[contains(@class, 'error-msg')]").textContent();
-            console.log('Bulk Import Failed ' + error_text);
-            await page.screenshot({ path: 'files/add_bulk_parts_error.png', fullPage: true });
-            await page.getByTitle('close').getByRole('img').click();
         }
+        getTestResults = true;
+    } catch (error) {
+        getTestResults = false;
     }
+    return getTestResults;
 }
 async function add_parts(page, cond2, cond3) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
-    await page.locator("(//*[text() = 'Inventory'])[1]").click();
-    let search_data, part;
-    if (cond2 == 'duplicates' || cond3 == 'empty') {
-        await page.waitForTimeout(600);
-        part = '010-205201';
-        search_data = 'For the searched stock code, inventory is not available ';
-    } else {
-        await page.waitForTimeout(600);
-        part = testdata.parts.part_name;
-        await page.getByLabel('open').click();
-        await page.keyboard.insertText(part);
-        await spinner(page);
-        await page.waitForTimeout(1500);
-        search_data = await page.locator("//*[contains(@class, 'css-4mp3pp-menu')]").textContent();
-    }
-    if (search_data === 'For the searched stock code, inventory is not available ') {
-        if (cond2 === 'duplicates' || cond3 === 'empty') {
-            console.log('this test will run without Search');
+    let getTestResults;
+    try {
+        await page.locator("(//*[text() = 'Inventory'])[1]").click();
+        let search_data, part;
+        if (cond2 == 'duplicates' || cond3 == 'empty') {
+            await page.waitForTimeout(600);
+            part = '010-205201';
+            search_data = 'For the searched stock code, inventory is not available ';
         } else {
-            console.log('Before add part Search result is "' + search_data + '"');
+            await page.waitForTimeout(600);
+            part = testdata.parts.part_name;
+            await page.getByLabel('open').click();
+            await page.keyboard.insertText(part);
+            await spinner(page);
+            await page.waitForTimeout(1500);
+            search_data = await page.locator("//*[contains(@class, 'css-4mp3pp-menu')]").textContent();
         }
-        await page.getByText('Add Stock Code').click();
-        await expect(page.getByPlaceholder('Stock Code')).toBeVisible();
-        if (cond3 == 'empty') {
-
-        } else {
-            await page.getByPlaceholder('Stock Code').fill(part);
-            await page.getByPlaceholder('Enter Unit Cost').fill(testdata.parts.unit_cost);
-            await page.getByPlaceholder('Enter List Price').fill(testdata.parts.list_price);
-            await page.getByPlaceholder('Enter Stock Description').fill(testdata.parts.part_descr);
-            await page.getByLabel('open').nth(1).click();
-            await page.getByText(testdata.parts.prod_class, { exact: true }).click();
-            await page.getByLabel('open').nth(2).click();
-            await page.getByText(testdata.parts.prod_category, { exact: true }).click();
-            await page.getByLabel('open').nth(3).click();
-            await page.keyboard.insertText(testdata.parts.supplier);
-            await page.getByText(testdata.parts.supplier, { exact: true }).nth(1).click();
-            await page.getByPlaceholder('Enter Order UOM').fill(testdata.parts.stock_OUM);
-            await page.getByLabel('open').nth(4).click();
-            await page.keyboard.insertText(testdata.parts.warehouse);
-            await page.keyboard.press('Enter');
-        }
-        await page.getByRole('button', { name: 'Add' }).click();
-        await page.waitForTimeout(1200);
-        try {
-            if (cond2 == 'duplicates') {
-                await expect(page.locator("//*[contains(text(), 'stock code exists')]")).toBeVisible();
-                console.log(part + ' is already added to stocks');
+        if (search_data === 'For the searched stock code, inventory is not available ') {
+            if (cond2 === 'duplicates' || cond3 === 'empty') {
+                console.log('this test will run without Search');
             } else {
-                if (cond3 == 'empty') {
-                    await expect(page.getByText('Stock Code is required')).toBeVisible({ timeout: 3000 });
-                    await expect(page.getByText('Please Enter Unit Cost')).toBeVisible({ timeout: 3000 });
-                    await expect(page.getByText('Please Enter List Price')).toBeVisible({ timeout: 3000 });
-                    await expect(page.getByText('Stock Description is required')).toBeVisible({ timeout: 3000 });
-                    await expect(page.getByText('Please Select Product Class')).toBeVisible({ timeout: 3000 });
-                    await expect(page.getByText('Please Select Category')).toBeVisible({ timeout: 3000 });
-                    await expect(page.getByText('supplier required')).toBeVisible({ timeout: 3000 });
-                    await expect(page.getByText('Order UOM is required')).toBeHidden({ timeout: 3000 });
-                    await expect(page.getByText('Please Select Warehouse')).toBeVisible({ timeout: 3000 });
-                    console.log('display all required fields validation');
-                } else {
-                    await spinner(page);
-                    // await page.getByLabel('open').click();
-                    // await page.keyboard.insertText(part);
-                    // await spinner(page);
-                    // await page.waitForTimeout(1500);
-                    // search_data = await page.locator("//*[contains(@class, 'css-4mp3pp-menu')]").textContent();
-                    let result;
-                    try {
+                console.log('Before add part Search result is "' + search_data + '"');
+            }
+            await page.getByText('Add Stock Code').click();
+            await expect(page.getByPlaceholder('Stock Code')).toBeVisible();
+            if (cond3 == 'empty') {
 
-                        await expect(page.locator("//*[text() = 'Stock Code Information']")).toBeVisible();
-                        result = true;
-                    } catch (error) {
-                        result = false;
-                    }
-                    if (result) {
-                        console.log(part + ' is added to syspro');
+            } else {
+                await page.getByPlaceholder('Stock Code').fill(part);
+                await page.getByPlaceholder('Enter Unit Cost').fill(testdata.parts.unit_cost);
+                await page.getByPlaceholder('Enter List Price').fill(testdata.parts.list_price);
+                await page.getByPlaceholder('Enter Stock Description').fill(testdata.parts.part_descr);
+                await page.getByLabel('open').nth(1).click();
+                await page.getByText(testdata.parts.prod_class, { exact: true }).click();
+                await page.getByLabel('open').nth(2).click();
+                await page.getByText(testdata.parts.prod_category, { exact: true }).click();
+                await page.getByLabel('open').nth(3).click();
+                await page.keyboard.insertText(testdata.parts.supplier);
+                await page.getByText(testdata.parts.supplier, { exact: true }).nth(1).click();
+                await page.getByPlaceholder('Enter Order UOM').fill(testdata.parts.stock_OUM);
+                await page.getByLabel('open').nth(4).click();
+                await page.keyboard.insertText(testdata.parts.warehouse);
+                await page.keyboard.press('Enter');
+            }
+            await page.getByRole('button', { name: 'Add' }).click();
+            await page.waitForTimeout(1200);
+            try {
+                if (cond2 == 'duplicates') {
+                    await expect(page.locator("//*[contains(text(), 'stock code exists')]")).toBeVisible();
+                    console.log(part + ' is already added to stocks');
+                } else {
+                    if (cond3 == 'empty') {
+                        await expect(page.getByText('Stock Code is required')).toBeVisible({ timeout: 3000 });
+                        await expect(page.getByText('Please Enter Unit Cost')).toBeVisible({ timeout: 3000 });
+                        await expect(page.getByText('Please Enter List Price')).toBeVisible({ timeout: 3000 });
+                        await expect(page.getByText('Stock Description is required')).toBeVisible({ timeout: 3000 });
+                        await expect(page.getByText('Please Select Product Class')).toBeVisible({ timeout: 3000 });
+                        await expect(page.getByText('Please Select Category')).toBeVisible({ timeout: 3000 });
+                        await expect(page.getByText('supplier required')).toBeVisible({ timeout: 3000 });
+                        await expect(page.getByText('Order UOM is required')).toBeHidden({ timeout: 3000 });
+                        await expect(page.getByText('Please Select Warehouse')).toBeVisible({ timeout: 3000 });
+                        console.log('display all required fields validation');
                     } else {
-                        console.log(part + ' is not added to syspro');
+                        await spinner(page);
+                        // await page.getByLabel('open').click();
+                        // await page.keyboard.insertText(part);
+                        // await spinner(page);
+                        // await page.waitForTimeout(1500);
+                        // search_data = await page.locator("//*[contains(@class, 'css-4mp3pp-menu')]").textContent();
+                        let result;
+                        try {
+
+                            await expect(page.locator("//*[text() = 'Stock Code Information']")).toBeVisible();
+                            result = true;
+                        } catch (error) {
+                            result = false;
+                        }
+                        if (result) {
+                            console.log(part + ' is added to syspro');
+                        } else {
+                            console.log(part + ' is not added to syspro');
+                        }
                     }
                 }
+            } catch (error) {
+                console.log(error);
+                await page.screenshot({ path: 'files/add_part_error.png', fullPage: true });
+                await page.getByTitle('close').getByRole('img').click();
             }
-        } catch (error) {
-            console.log(error);
-            await page.screenshot({ path: 'files/add_part_error.png', fullPage: true });
-            await page.getByTitle('close').getByRole('img').click();
-        }
-    } else {
-        if (search_data.includes(part)) {
-            console.log('search result is "' + search_data + '"');
-            console.log(part + ' is Exist In Inventory.');
         } else {
+            if (search_data.includes(part)) {
+                console.log('search result is "' + search_data + '"');
+                console.log(part + ' is Exist In Inventory.');
+            } else {
 
+            }
         }
+        await page.reload();
+        getTestResults = true;
+    } catch (error) {
+        getTestResults = false;
     }
-    await page.reload();
+    return getTestResults;
 }
 async function fetch_jobs_list(page, page_num) {
     const apiUrl = 'https://staging-buzzworld-api.iidm.com//v1/getSysproJobs?page=' + page_num + '&perPage=250&sort=asc&sort_key=job_id&grid_name=Jobs';
@@ -3253,7 +3274,7 @@ async function websitePaddingTesting(browser) {
         let test_data = await read_excel_data('Website_Padding.xlsx', 0);
         console.log('Total URLs Count is ', test_data.length);
         for (let index = 0; index < test_data.length; index++) {
-            console.log('====================================================== page ',(index+1),'=============================================');
+            console.log('====================================================== page ', (index + 1), '=============================================');
             //test_priding file Sheet2 Data
             let pageName = test_data[index]['Page Name'];
             let pageURL = test_data[index]['URL'];

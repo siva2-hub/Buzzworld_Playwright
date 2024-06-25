@@ -11,6 +11,8 @@ const testdata = JSON.parse(JSON.stringify(require("../testdata.json")));
 const stage_url = testdata.urls.buzz_stage_url;
 
 test('Data Driven Tests', async ({ browser }) => {
+    const browserVersion = await browser.version();
+    const browserName = 'Chrome';
     //Logic
     let page; let results;
     let w = 1920, h = 910;
@@ -47,8 +49,8 @@ test('Data Driven Tests', async ({ browser }) => {
                 testName = testCase;
                 await returnResult(page, testName, results);
                 break;
-            case 'Add Customer to Syspro':
-                results = await addCustomerToSysPro(page);
+            case 'Add Customer to Syspro Yes':
+                results = await addCustomerToSysPro(page, data1);
                 testName = testCase;
                 await returnResult(page, testName, results);
                 break;
@@ -183,19 +185,30 @@ test('Data Driven Tests', async ({ browser }) => {
                 await returnResult(page, testName, results);
                 break;
             case 'parts import Yes':
-                await parts_import(page);
+                results = await parts_import(page);
+                testName = testCase;
+                await returnResult(page, testName, results);
                 break;
             case 'first add parts Yes':
-                await add_parts(page, '', '');
+                results = await add_parts(page, '', '');
+                testName = testCase;
+                await returnResult(page, testName, results);
                 break;
             case 'second add parts with duplicates Yes':
-                await add_parts(page, 'duplicates', '');
+                results = await add_parts(page, 'duplicates', '');
+                testName = testCase;
+                await returnResult(page, testName, results);
                 break;
             case 'third add parts with all are empty Yes':
-                await add_parts(page, '', 'empty');
+                results = await add_parts(page, '', 'empty');
+                testName = testCase;
+                await returnResult(page, testName, results);
                 break;
             case 'verify past repair pricing icons Yes':
-                await past_repair_prices(page);
+                results = await past_repair_prices(page);
+                testName = testCase;
+                await returnResult(page, testName, results);
+                break;
                 break;
             case 'edit PO partially received Yes':
                 await edit_PO_pp(page);
@@ -214,15 +227,21 @@ test('Data Driven Tests', async ({ browser }) => {
                 // console.log(testCase, ' is not selected for execution.');
                 break;
         }
+        const currentTime = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
         if (isExecution == 'Yes') {
             if (results) {
                 worksheet.getCell(`C` + (index + 2)).value = 'Passed';
             } else {
                 worksheet.getCell(`C` + (index + 2)).value = 'Failed';
             }
+            await page.close();
         } else {
             worksheet.getCell(`C` + (index + 2)).value = 'Not Executed';
         }
+        //time, browserVersion and browser name
+        worksheet.getCell(`H` + (index + 2)).value = currentTime;
+        worksheet.getCell(`I` + (index + 2)).value = browserName;
+        worksheet.getCell(`J` + (index + 2)).value = browserVersion;
         await workbook.xlsx.writeFile('TestCasesSheet.xlsx');
     }
 });

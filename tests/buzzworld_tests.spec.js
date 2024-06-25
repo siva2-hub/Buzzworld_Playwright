@@ -34,7 +34,8 @@ test.describe('all tests', async () => {
   });
 
   test('Add Customer to Syspro', async ({ }, testInfo) => {
-    results = await addCustomerToSysPro(page);
+    let searchCompany = 'Sulzer Electro-Mechanical Services';
+    results = await addCustomerToSysPro(page, searchCompany);
     let testName = testInfo.title;
     await returnResult(page, testName, results);
   });
