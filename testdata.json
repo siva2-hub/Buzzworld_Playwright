@@ -1,44 +1,59 @@
 {
     "urls": {
-        "portal_url":     "https://www.staging-portal.iidm.com/",
-        "store_url":      "https://staging-store.iidm.com/",
-        "cart_page_url":  "https://staging-store.iidm.com/index.php?route=checkout/cart",
-        "buzz_qa_url":    "https://buzzworld-web-iidm.enterpi.com/",
+        "portal_url": "https://www.staging-portal.iidm.com/",
+        "store_url": "https://staging-store.iidm.com/",
+        "cart_page_url": "https://staging-store.iidm.com/index.php?route=checkout/cart",
+        "buzz_qa_url": "https://buzzworld-web-iidm.enterpi.com/",
         "buzz_stage_url": "https://www.staging-buzzworld.iidm.com/",
-        "buzz_dev_url":   "http://192.168.1.49:3000/quote_for_parts"
+        "buzz_dev_url": "http://192.168.1.49:3000/quote_for_parts"
     },
     "guest_customer": {
-        "comp_name":      "chump change automation",
-        "f_name":         "chump",
-        "l_name":         "testa",
-        "email":          "chump@testb.com",
-        "phone":          "8934683246"
+        "comp_name": "chump change automation",
+        "f_name": "chump",
+        "l_name": "testa",
+        "email": "chump@testb.com",
+        "phone": "8934683246"
     },
     "zummo_customer": {
-        "email":     "",
-        "pwd":       "Enter@4321"
+        "email": "",
+        "pwd": "Enter@4321"
     },
     "helme_customer": {
-        "email":     "helmerich@testuser.com",
-        "pwd":       "Enter@4321"
+        "email": "helmerich@testuser.com",
+        "pwd": "Enter@4321"
     },
-
-    "vendor":         "WIEG001",
+    "vendor": "WIEG001",
     "stock_code_new": "Test#001",
-    "dc_new":         "TestDC#003",
-    "PO":             "0.06",
-    "order_id":       "234051",
-    "job_id":         "86768",
-    "tech":           "Michael Strothers",
-    "urgency":        "Emergency Breakdown",
-
-    "admin":{
-        "0": "Branches", "1": "Account Types","2": "Classifications","3": "Contact Types","4": "Industries",
-        "5": "PO Min Qty","6": "Product Category","7": "Product Class","8": "QC Forms","9": "Quote Approval","10": "Quote Types","11": "Regions","12": "Sales Potential",
-        "13": "Terms Conditions","14": "","15": "","16": "","17": "","18": "", "19": "", "20": ""
+    "dc_new": "TestDC#003",
+    "PO": "0.06",
+    "order_id": "234051",
+    "job_id": "86768",
+    "tech": "Michael Strothers",
+    "urgency": "Emergency Breakdown",
+    "admin": {
+        "0": "Branches",
+        "1": "Account Types",
+        "2": "Classifications",
+        "3": "Contact Types",
+        "4": "Industries",
+        "5": "PO Min Qty",
+        "6": "Product Category",
+        "7": "Product Class",
+        "8": "QC Forms",
+        "9": "Quote Approval",
+        "10": "Quote Types",
+        "11": "Regions",
+        "12": "Sales Potential",
+        "13": "Terms Conditions",
+        "14": "",
+        "15": "",
+        "16": "",
+        "17": "",
+        "18": "",
+        "19": "",
+        "20": ""
     },
-    
-    "parts":{
+    "parts": {
         "part_name": "331EABL1",
         "unit_cost": "33.12",
         "list_price": "33.31",
@@ -48,5 +63,6 @@
         "supplier": "BACO001 - BACO CONTROLS INC",
         "stock_OUM": "EA",
         "warehouse": "10"
-    }
+    },
+    "stock_character": "69875947493857893457894794893412345"
 }

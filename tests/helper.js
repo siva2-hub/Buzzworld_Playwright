@@ -3639,6 +3639,157 @@ async function returnResult(page, testName, results) {
         // throw error;
     }
 }
+
+async function verifyingCharacterLenght(page, condition, quoteType) {
+    let stockCode = testdata.stock_character;
+    let getTestResults;
+    if (condition == 'inventory') {
+        //Inventory
+        await page.getByText('Inventory').first().click();
+        await page.getByText('Add Stock Code').click();
+        let stCode = await page.getByPlaceholder('Stock Code');
+        await stCode.fill(stockCode);
+        await page.click("//*[text() = 'Add']");
+        let sLenght = await stCode.getAttribute('value');
+        let stockLenght = await sLenght.length;
+        if (stockLenght == 30) {
+            getTestResults = true;
+            console.log('Stock code at ', condition, ' accepting 30 characters');
+        } else {
+            console.log('Stock code at ', condition, ' accepting above 30 characters');
+            getTestResults = false;
+        }
+        await page.getByTitle('close').getByRole('img').click();
+    } else if (condition == 'pricing') {
+        //Pricing
+        await page.getByRole('button', { name: 'Pricing expand' }).click();
+        await page.getByRole('menuitem', { name: 'Pricing', exact: true }).click();
+        await page.locator('div').filter({ hasText: /^Add$/ }).click();
+        let pst = await page.getByPlaceholder('Enter Stock Code');
+        await pst.fill(stockCode);
+        await page.getByRole('button', { name: 'Add Product' }).click();
+        let stlen = await pst.getAttribute('value');
+        // console.log('want to fill val ', stockCode);
+        // console.log('filled value ', stlen);
+        let stLenght = await stlen.length;
+        // console.log('filled value lenght', stLenght);
+        if (stLenght == 29) {
+            getTestResults = true;
+            console.log('Stock code at ', condition, ' accepting 29 characters');
+        } else {
+            console.log('Stock code at ', condition, ' accepting above 29 characters');
+            getTestResults = false;
+        }
+        await page.getByTitle('close').getByRole('img').click();
+    } else if (condition == 'quotes') {
+        //Quotes
+        try {
+            await page.getByText('Quotes', { exact: true }).first().click();
+            await spinner(page);
+            await page.getByText(quoteType, { exact: true }).first().click();
+            await spinner(page);
+            try {
+                await expect(page.getByText('Clear')).toBeVisible({ timeout: 1200 });
+                await page.getByText('Clear').click();
+            } catch (error) { }
+            await page.getByText('Filters').click();
+            await page.getByLabel('open').nth(2).click();
+            await page.keyboard.insertText('Open');
+            await page.keyboard.press('Enter');
+            await page.getByRole('button', { name: 'Apply' }).click();
+            await spinner(page);
+            await page.click("(//*[@class = 'ag-react-container'])[1]");
+            await page.getByText('Add Items').click();
+            await page.click("//*[text() = 'Add New Items']");
+            let part = await page.getByPlaceholder('Part Number');
+            await part.fill(stockCode);
+            await page.click("//*[text() = 'Add']");
+            let partValue = await part.getAttribute('value');
+            // console.log(quoteType);
+            // console.log('want to fill val ', stockCode);
+            // console.log('filled value ', partValue);
+            let partLen = await partValue.length;
+            console.log('filled value lenght', partLen);
+            if (partLen == 29) {
+                console.log('Stock code at ', quoteType, ' accepting 29 characters');
+                getTestResults = true;
+            } else {
+                console.log('Stock code at ', quoteType, ' accepting above 29 characters');
+                getTestResults = false;
+            }
+            await page.getByTitle('close').getByRole('img').click();
+        } catch (error) {
+            getTestResults = false;
+        }
+    } else if (condition == 'repairs') {
+        await page.getByText('Repairs').first().click();
+        await spinner(page);
+        try {
+            await expect(page.getByText('Clear')).toBeVisible({ timeout: 1200 });
+            await page.getByText('Clear').click();
+            await spinner(page);
+        } catch (error) { }
+        await expect(allPages.profileIconListView).toBeVisible();
+        await page.waitForTimeout(2000);
+        await page.getByText('Filters').click();
+        await page.getByLabel('open').nth(2).click();
+        await page.keyboard.insertText('Receiving');
+        await page.keyboard.press('ArrowDown');
+        await page.keyboard.press('Enter');
+        await page.keyboard.press('Escape');
+        await page.getByRole('button', { name: 'Apply' }).click();
+        await spinner(page);
+        await page.click("(//*[@class = 'ag-react-container'])[1]");
+        await page.getByText('Add Items').click();
+        await page.click("//*[text() = 'Add New Items']");
+        let part = await page.getByPlaceholder('Part Number');
+        await part.fill(stockCode);
+        await page.click("//*[text() = 'Add New Part']");
+        let partValue = await part.getAttribute('value');
+        // console.log(quoteType);
+        // console.log('want to fill val ', stockCode);
+        // console.log('filled value ', partValue);
+        let partLen = await partValue.length;
+        console.log('filled value lenght', partLen);
+        if (partLen == 29) {
+            console.log('Stock code at Repairs accepting 29 characters');
+            getTestResults = true;
+        } else {
+            console.log('Stock code at Repairs accepting above 29 characters');
+            getTestResults = false;
+        }
+        await page.getByTitle('close').getByRole('img').click();
+    } else {
+        await page.goto('https://www.staging-buzzworld.iidm.com/system_quotes/508fcf08-7fbb-4407-8df5-12f3faec2fd9');
+        await expect(page.locator('#root')).toContainText('Create Sales Order');
+        await page.getByText('Create Sales Order').click();
+        await spinner(page);
+        await expect(page.getByPlaceholder('Enter PO Number')).toBeVisible();
+        try {
+            await expect(page.locator("//*[contains(@src, 'addIcon')]")).toBeEnabled();
+        } catch (error) {
+            throw error;
+        }
+        await page.locator("//*[contains(@src, 'addIcon')]").click();
+        await spinner(page);
+        let part = await page.getByPlaceholder('Stock Code');
+        let befPartValue = await part.getAttribute('value');
+        await part.fill(befPartValue+'TEST');
+        await page.pause();
+        let aftPartValue = await part.getAttribute('value');
+        if (befPartValue.length==29 && aftPartValue.length==30) {
+            console.log('Stock code at Sales order accepting 30 characters');
+            getTestResults = true;
+        } else {
+            console.log('Stock code at Sales order accepting above 30 characters');
+            getTestResults = false;
+        }
+        await page.click("(//*[contains(@src, 'cross')])[2]");
+        await page.getByTitle('close').getByRole('img').click();
+    }
+    return getTestResults;
+}
+
 module.exports = {
     checkout_page,
     order_summary_page,
@@ -3692,5 +3843,6 @@ module.exports = {
     addSPAItemsToQuote,
     validationsAtCreateRMAandQuotePages,
     addCustomerToSysPro,
-    websitePaddingTesting
+    websitePaddingTesting,
+    verifyingCharacterLenght
 };
