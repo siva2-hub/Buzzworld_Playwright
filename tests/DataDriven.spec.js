@@ -4,7 +4,7 @@ const ExcelJS = require('exceljs');
 
 import { start } from 'repl';
 import { timeout } from '../playwright.config';
-import { add_dc, add_sc, admin1, admin2, admin3, admin4, api_data, create_job_manually, create_job_quotes, create_job_repairs, create_parts_purchase, dcAddUpdate, fetchData, fetch_jobs_Data, fetch_jobs_Detail, fetch_jobs_list, fetch_orders_Data, fetch_orders_Detail, fetch_order_list, fetch_pp_status, filters_pricing, functional_flow, import_pricing, inventory_search, leftMenuSearch, login, login_buzz, logout, multi_edit, parts_purchase_left_menu_filter, productAddUpdate, quotesRepairs, setScreenSize, spinner, sync_jobs, update_dc, update_sc, pos_report, reports, parts_import, add_parts, past_repair_prices, edit_PO_pp, returnResult, admin_permissions, pricing_permissions, addDiscountCodeValidations, addFunctionInAdminTabs, getProductWriteIntoExecl, verifyTwoExcelData, nonSPAPrice, addSPAItemsToQuote, validationsAtCreateRMAandQuotePages, read_excel_data, addCustomerToSysPro, verifyingCharacterLenght } from './helper';
+import { add_dc, add_sc, admin1, admin2, admin3, admin4, api_data, create_job_manually, create_job_quotes, create_job_repairs, create_parts_purchase, dcAddUpdate, fetchData, fetch_jobs_Data, fetch_jobs_Detail, fetch_jobs_list, fetch_orders_Data, fetch_orders_Detail, fetch_order_list, fetch_pp_status, filters_pricing, functional_flow, import_pricing, inventory_search, leftMenuSearch, login, login_buzz, logout, multi_edit, parts_purchase_left_menu_filter, productAddUpdate, quotesRepairs, setScreenSize, spinner, sync_jobs, update_dc, update_sc, pos_report, reports, parts_import, add_parts, past_repair_prices, edit_PO_pp, returnResult, admin_permissions, pricing_permissions, addDiscountCodeValidations, addFunctionInAdminTabs, getProductWriteIntoExecl, verifyTwoExcelData, nonSPAPrice, addSPAItemsToQuote, validationsAtCreateRMAandQuotePages, read_excel_data, addCustomerToSysPro, verifyingCharacterLenght, addCustomerToSyspro, addCustomerToSysProValidations } from './helper';
 import AllPages from './PageObjects';
 
 const testdata = JSON.parse(JSON.stringify(require("../testdata.json")));
@@ -49,8 +49,13 @@ test('Data Driven Tests', async ({ browser }) => {
                 testName = testCase;
                 await returnResult(page, testName, results);
                 break;
-            case 'Add Customer to Syspro Yes':
-                results = await addCustomerToSysPro(page, data1);
+            case 'Add Customer to Syspro Validations Yes':
+                results = await addCustomerToSysProValidations(page, data1);
+                testName = testCase;
+                await returnResult(page, testName, results);
+                break;
+            case 'Exist Syspro Id to Add Customer Yes':
+                results = await addCustomerToSyspro(page, data1, data2);
                 testName = testCase;
                 await returnResult(page, testName, results);
                 break;
