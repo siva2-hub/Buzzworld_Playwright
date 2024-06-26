@@ -4,13 +4,15 @@ const ExcelJS = require('exceljs');
 
 import { start } from 'repl';
 import { timeout } from '../playwright.config';
-import { add_dc, add_sc, admin1, admin2, admin3, admin4, api_data, create_job_manually, create_job_quotes, create_job_repairs, create_parts_purchase, dcAddUpdate, fetchData, fetch_jobs_Data, fetch_jobs_Detail, fetch_jobs_list, fetch_orders_Data, fetch_orders_Detail, fetch_order_list, fetch_pp_status, filters_pricing, functional_flow, import_pricing, inventory_search, leftMenuSearch, login, login_buzz, logout, multi_edit, parts_purchase_left_menu_filter, productAddUpdate, quotesRepairs, setScreenSize, spinner, sync_jobs, update_dc, update_sc, pos_report, reports, parts_import, add_parts, past_repair_prices, edit_PO_pp, returnResult, admin_permissions, pricing_permissions, addDiscountCodeValidations, addFunctionInAdminTabs, getProductWriteIntoExecl, verifyTwoExcelData, nonSPAPrice, addSPAItemsToQuote, validationsAtCreateRMAandQuotePages, read_excel_data, addCustomerToSysPro } from './helper';
+import { add_dc, add_sc, admin1, admin2, admin3, admin4, api_data, create_job_manually, create_job_quotes, create_job_repairs, create_parts_purchase, dcAddUpdate, fetchData, fetch_jobs_Data, fetch_jobs_Detail, fetch_jobs_list, fetch_orders_Data, fetch_orders_Detail, fetch_order_list, fetch_pp_status, filters_pricing, functional_flow, import_pricing, inventory_search, leftMenuSearch, login, login_buzz, logout, multi_edit, parts_purchase_left_menu_filter, productAddUpdate, quotesRepairs, setScreenSize, spinner, sync_jobs, update_dc, update_sc, pos_report, reports, parts_import, add_parts, past_repair_prices, edit_PO_pp, returnResult, admin_permissions, pricing_permissions, addDiscountCodeValidations, addFunctionInAdminTabs, getProductWriteIntoExecl, verifyTwoExcelData, nonSPAPrice, addSPAItemsToQuote, validationsAtCreateRMAandQuotePages, read_excel_data, addCustomerToSysPro, verifyingCharacterLenght } from './helper';
 import AllPages from './PageObjects';
 
 const testdata = JSON.parse(JSON.stringify(require("../testdata.json")));
 const stage_url = testdata.urls.buzz_stage_url;
 
 test('Data Driven Tests', async ({ browser }) => {
+    const browserVersion = await browser.version();
+    const browserName = 'Chrome';
     //Logic
     let page; let results;
     let w = 1920, h = 910;
@@ -26,6 +28,10 @@ test('Data Driven Tests', async ({ browser }) => {
         let testCase = test_data[index]['Test Name'];
         let isExecution = test_data[index]['Is Execution'];
         let status = test_data[index]['Results'];
+        let data1 = test_data[index]['TestData1'];
+        let data2 = test_data[index]['TestData2'];
+        let data3 = test_data[index]['TestData3'];
+        let data4 = test_data[index]['TestData4'];
         // await write_excel_data('TestCasesSheet.xlsx', 0, test_data);
         if (isExecution == 'Yes') {
             page = await browser.newPage();
@@ -43,8 +49,8 @@ test('Data Driven Tests', async ({ browser }) => {
                 testName = testCase;
                 await returnResult(page, testName, results);
                 break;
-            case 'Add Customer to Syspro':
-                results = await addCustomerToSysPro(page);
+            case 'Add Customer to Syspro Yes':
+                results = await addCustomerToSysPro(page, data1);
                 testName = testCase;
                 await returnResult(page, testName, results);
                 break;
@@ -70,25 +76,25 @@ test('Data Driven Tests', async ({ browser }) => {
                 break;
             case 'Create Job and Sales Order From Repair Quotes Yes':
                 //Repairable = 1, Not Repairable = 2, Repairable-Outsource = 3
-                results = await create_job_repairs(page, 'Y', 1);
+                results = await create_job_repairs(page, 'Y', 1, data1, data2, data3, data4);
                 testName = testCase;
                 await returnResult(page, testName, results);
 
                 break;
             case 'System Quote Creation with Sales Order and Job Yes':
                 //create system quote
-                results = await create_job_quotes(page, 'Y', 'System Quote');
+                results = await create_job_quotes(page, 'Y', 'System Quote', data1, data2, data3, data4);
                 testName = testCase;
                 await returnResult(page, testName, results);
                 break;
             case 'Parts Quote Creation with Sales Order Yes':
                 //create parts quote
-                results = await create_job_quotes(page, 'Y', 'Parts Quote');
+                results = await create_job_quotes(page, 'Y', 'Parts Quote', data1, data2, data3, data4);
                 testName = testCase;
                 await returnResult(page, testName, results);
                 break;
             case 'Create Job Manually Yes':
-                results = await create_job_manually(page)
+                results = await create_job_manually(page, data1)
                 testName = testCase;
                 await returnResult(page, testName, results);
                 break;
@@ -179,19 +185,30 @@ test('Data Driven Tests', async ({ browser }) => {
                 await returnResult(page, testName, results);
                 break;
             case 'parts import Yes':
-                await parts_import(page);
+                results = await parts_import(page);
+                testName = testCase;
+                await returnResult(page, testName, results);
                 break;
             case 'first add parts Yes':
-                await add_parts(page, '', '');
+                results = await add_parts(page, '', '');
+                testName = testCase;
+                await returnResult(page, testName, results);
                 break;
             case 'second add parts with duplicates Yes':
-                await add_parts(page, 'duplicates', '');
+                results = await add_parts(page, 'duplicates', '');
+                testName = testCase;
+                await returnResult(page, testName, results);
                 break;
             case 'third add parts with all are empty Yes':
-                await add_parts(page, '', 'empty');
+                results = await add_parts(page, '', 'empty');
+                testName = testCase;
+                await returnResult(page, testName, results);
                 break;
             case 'verify past repair pricing icons Yes':
-                await past_repair_prices(page);
+                results = await past_repair_prices(page);
+                testName = testCase;
+                await returnResult(page, testName, results);
+                break;
                 break;
             case 'edit PO partially received Yes':
                 await edit_PO_pp(page);
@@ -205,20 +222,61 @@ test('Data Driven Tests', async ({ browser }) => {
             case 'add functions validations in admin Yes':
                 await addFunctionInAdminTabs(page);
                 break;
+            case 'Inventory stock code character limit Yes':
+                results = await verifyingCharacterLenght(page, data1);
+                testName = testCase;
+                await returnResult(page, testName, results);
+                break;
+            case 'Pricing stock code character limit Yes':
+                results = await verifyingCharacterLenght(page, data1);
+                testName = testCase;
+                await returnResult(page, testName, results);
+                break;
+            case 'Repair Quotes stock code character limit Yes':
+                results = await verifyingCharacterLenght(page, data1, data2);
+                testName = testCase;
+                await returnResult(page, testName, results);
+                break;
+            case 'Parts Quotes stock code character limit Yes':
+                results = await verifyingCharacterLenght(page, data1, data2);
+                testName = testCase;
+                await returnResult(page, testName, results);
+                break;
+            case 'System Quotes stock code character limit Yes':
+                results = await verifyingCharacterLenght(page, data1, data2);
+                testName = testCase;
+                await returnResult(page, testName, results);
+                break;
+            case 'Repairs stock code character limit Yes':
+                results = await verifyingCharacterLenght(page, data1);
+                testName = testCase;
+                await returnResult(page, testName, results);
+                break;
+            case 'Sales order stock code character limit Yes':
+                results = await verifyingCharacterLenght(page, data1);
+                testName = testCase;
+                await returnResult(page, testName, results);
+                break;
             default:
                 worksheet.getCell(`C` + (index + 2)).value = 'Not Executed';
                 // console.log(testCase, ' is not selected for execution.');
                 break;
         }
+        const currentTime = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
         if (isExecution == 'Yes') {
             if (results) {
                 worksheet.getCell(`C` + (index + 2)).value = 'Passed';
             } else {
                 worksheet.getCell(`C` + (index + 2)).value = 'Failed';
             }
+            await page.close();
         } else {
             worksheet.getCell(`C` + (index + 2)).value = 'Not Executed';
         }
+        //time, browserVersion and browser name
+        worksheet.getCell(`H` + (index + 2)).value = currentTime;
+        worksheet.getCell(`I` + (index + 2)).value = browserName;
+        worksheet.getCell(`J` + (index + 2)).value = browserVersion;
         await workbook.xlsx.writeFile('TestCasesSheet.xlsx');
     }
 });

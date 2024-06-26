@@ -12,6 +12,8 @@ export default class AllPages {
     get resetPasswordBtn() { return this.page.locator("//*[text() = 'Reset Password']"); }
     get customerDropdown() { return this.page.getByLabel('Company Name*'); }
     get createButton() { return this.page.getByRole('button', { name: 'Create', exact: true }); }
+    //Select item check box at add items page
+    get checkBox() { return this.page.locator('g > rect'); }
 
     async login(url) {
         await this.page.goto(url);

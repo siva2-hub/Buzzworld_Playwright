@@ -3,7 +3,7 @@ const ExcelJS = require('exceljs');
 
 import { start } from 'repl';
 import { timeout } from '../playwright.config';
-import { add_dc, add_sc, admin1, admin2, admin3, admin4, api_data, create_job_manually, create_job_quotes, create_job_repairs, create_parts_purchase, dcAddUpdate, fetchData, fetch_jobs_Data, fetch_jobs_Detail, fetch_jobs_list, fetch_orders_Data, fetch_orders_Detail, fetch_order_list, fetch_pp_status, filters_pricing, functional_flow, import_pricing, inventory_search, leftMenuSearch, login, login_buzz, logout, multi_edit, parts_purchase_left_menu_filter, productAddUpdate, quotesRepairs, setScreenSize, spinner, sync_jobs, update_dc, update_sc, pos_report, reports, parts_import, add_parts, past_repair_prices, edit_PO_pp, returnResult, admin_permissions, pricing_permissions, addDiscountCodeValidations, addFunctionInAdminTabs, getProductWriteIntoExecl, verifyTwoExcelData, nonSPAPrice, addSPAItemsToQuote, validationsAtCreateRMAandQuotePages, read_excel_data, addCustomerToSysPro, websitePaddingTesting } from './helper';
+import { add_dc, add_sc, admin1, admin2, admin3, admin4, api_data, create_job_manually, create_job_quotes, create_job_repairs, create_parts_purchase, dcAddUpdate, fetchData, fetch_jobs_Data, fetch_jobs_Detail, fetch_jobs_list, fetch_orders_Data, fetch_orders_Detail, fetch_order_list, fetch_pp_status, filters_pricing, functional_flow, import_pricing, inventory_search, leftMenuSearch, login, login_buzz, logout, multi_edit, parts_purchase_left_menu_filter, productAddUpdate, quotesRepairs, setScreenSize, spinner, sync_jobs, update_dc, update_sc, pos_report, reports, parts_import, add_parts, past_repair_prices, edit_PO_pp, returnResult, admin_permissions, pricing_permissions, addDiscountCodeValidations, addFunctionInAdminTabs, getProductWriteIntoExecl, verifyTwoExcelData, nonSPAPrice, addSPAItemsToQuote, validationsAtCreateRMAandQuotePages, read_excel_data, addCustomerToSysPro, websitePaddingTesting, verifyingCharacterLenght } from './helper';
 import AllPages from './PageObjects';
 
 const testdata = JSON.parse(JSON.stringify(require("../testdata.json")));
@@ -34,7 +34,8 @@ test.describe('all tests', async () => {
   });
 
   test('Add Customer to Syspro', async ({ }, testInfo) => {
-    results = await addCustomerToSysPro(page);
+    let searchCompany = 'Sulzer Electro-Mechanical Services';
+    results = await addCustomerToSysPro(page, searchCompany);
     let testName = testInfo.title;
     await returnResult(page, testName, results);
   });
@@ -64,27 +65,31 @@ test.describe('all tests', async () => {
 
   test('Create Job and Sales Order From Repair Quotes', async ({ }, testInfo) => {
     //Repairable = 1, Not Repairable = 2, Repairable-Outsource = 3
-    results = await create_job_repairs(page, 'Y', 1);
+    let acc_num = 'ENGYS00', cont_name = 'Jannice Carrillo', stock_code = 'EW25-104-20';
+    let tech = 'Michael Strothers';
+    results = await create_job_repairs(page, 'Y', 1, acc_num, cont_name, stock_code, tech);
     let testName = testInfo.title;
     await returnResult(page, testName, results);
   })
 
   test('System Quote Creation with Sales Order and Job', async ({ }, testInfo) => {
     //create system quote
-    results = await create_job_quotes(page, 'Y', 'System Quote');
+    let acc_num = 'TESTC02', cont_name = 'Test CompanyTwo', stock_code = '331ED0123';
+    results = await create_job_quotes(page, 'Y', 'System Quote', acc_num, cont_name, stock_code);
     let testName = testInfo.title;
     await returnResult(page, testName, results);
   });
 
   test('Parts Quote Creation with Sales Order', async ({ }, testInfo) => {
     //create parts quote
-    results = await create_job_quotes(page, 'Y', 'Parts Quote');
+    let acc_num = 'TESTC02', cont_name = 'Test CompanyTwo', stock_code = '331ED01';
+    results = await create_job_quotes(page, 'Y', 'Parts Quote', acc_num, cont_name, stock_code);
     let testName = testInfo.title;
     await returnResult(page, testName, results);
   })
 
-  test.skip('Create Job Manually', async ({ }, testInfo) => {
-    results = await create_job_manually(page)
+  test('Create Job Manually', async ({ }, testInfo) => {
+    results = await create_job_manually(page, testdata.order_id)
     let testName = testInfo.title;
     await returnResult(page, testName, results);
   })
@@ -219,6 +224,51 @@ test.describe('all tests', async () => {
 
   test('add functions validations in admin', async () => {
     await addFunctionInAdminTabs(page);
+  });
+  test.describe('stock codes characters test', async () => 
+  { 
+    //Inventory
+    test('Inventory stock code character limit', async ({ }, testInfo) => {
+      results = await verifyingCharacterLenght(page, 'inventory');
+      let testName = testInfo.title;
+      await returnResult(page, testName, results);
+    });
+    //Pricing
+    test('Pricing stock code character limit', async ({ }, testInfo) => {
+      results = await verifyingCharacterLenght(page, 'pricing');
+      let testName = testInfo.title;
+      await returnResult(page, testName, results);
+    });
+    //Quotes
+    test('Repair Quotes stock code character limit', async ({ }, testInfo) => {
+      results = await verifyingCharacterLenght(page, 'quotes', 'Repair Quotes');
+      let testName = testInfo.title;
+      await returnResult(page, testName, results);
+    });
+
+    test('Parts Quotes stock code character limit', async ({ }, testInfo) => {
+      results = await verifyingCharacterLenght(page, 'quotes', 'Parts Quotes');
+      let testName = testInfo.title;
+      await returnResult(page, testName, results);
+    });
+
+    test('System Quotes stock code character limit', async ({ }, testInfo) => {
+      results = await verifyingCharacterLenght(page, 'quotes', 'System Quotes');
+      let testName = testInfo.title;
+      await returnResult(page, testName, results);
+    });
+    //Repairs
+    test('Repairs stock code character limit', async ({ }, testInfo) => {
+      results = await verifyingCharacterLenght(page, 'repairs');
+      let testName = testInfo.title;
+      await returnResult(page, testName, results);
+    });
+    //Repairs
+    test('Sales order stock code character limit', async ({ }, testInfo) => {
+      results = await verifyingCharacterLenght(page, 'sales_order');
+      let testName = testInfo.title;
+      await returnResult(page, testName, results);
+    });
   });
 
   test.skip('functional_flow', async () => {
