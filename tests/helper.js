@@ -9,6 +9,7 @@ const { AsyncLocalStorage } = require('async_hooks');
 const xlsx = require('xlsx');
 const { url } = require('inspector');
 const { default: AllPages } = require('./PageObjects');
+const { threadId } = require('worker_threads');
 const currentDate = new Date().toDateString();
 let date = currentDate.split(" ")[2];
 let vendor = testdata.vendor;
@@ -376,6 +377,38 @@ async function save_changes(page, atype, view) {
     } catch (error) {
 
     }
+}
+
+async function addCustomerPermissions(page, viewEdit) {
+    let getTestResults;
+    await search_user(page, 'defaultuser@enterpi.com');
+    await page.locator('div').filter({ hasText: /^OrganizationsNoneViewEdit$/ }).locator('span').nth(viewEdit).click();
+    try {
+        await expect(page.getByRole('button', { name: 'Save' })).toBeVisible({ timeout: 2000 });
+        await page.getByRole('button', { name: 'Save' }).click();
+        await expect(page.getByText('Are you sure you want to')).toBeVisible();
+        await page.getByLabel('Permissions').getByRole('button', { name: 'Accept' }).click();
+        await expect(page.getByText('Updated Successfully').nth(1)).toBeVisible();
+    } catch (error) {}
+    await page.goto('https://www.staging-buzzworld.iidm.com/organizations');
+    await spinner(page);
+    try {
+        if (viewEdit == 3) {
+            await expect(page.locator("//*[@title = 'Add Customer']").first()).toBeVisible({ timeout: 2000 });
+            getTestResults = false;
+        } else {
+            await delay(page, 2000);
+            await expect(page.locator("//*[@title = 'Add Customer']").first()).toBeVisible();
+            getTestResults = true;
+        }
+    } catch (error) {
+        if (viewEdit == 3) {
+            getTestResults = true;
+        } else {
+            getTestResults = false;
+        }
+    }
+    return getTestResults;
 }
 async function admin_permissions(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
@@ -2330,7 +2363,7 @@ async function parts_purchase_left_menu_filter(page) {
         }
     }
 }
-async function addCustomerToSysPro(page, serachCompany) {
+async function addCustomerToSysProValidations(page, serachCompany) {
     let getResults;
     try {
         await page.getByRole('button', { name: 'Organizations expand' }).click();
@@ -2341,23 +2374,43 @@ async function addCustomerToSysPro(page, serachCompany) {
         await page.locator("//*[@title = 'Add Customer']").first().click();
         await expect(page.getByPlaceholder('Contact')).toBeVisible();
         await page.getByRole('button', { name: 'Create' }).click();
+        for (let index = 5; index < 7; index++) {
+            let reqValue = await page.locator("(//*[@class = 'select-label'])[" + index + "]").textContent();
+            if (reqValue.includes('*')) {
+                console.log(reqValue, ' is Mandatory');
+            } else {
+                console.log(reqValue, ' Field is Non Mandatory');
+            }
+        }
+        await page.getByPlaceholder('Contact').fill('Test 12343');
+        await expect(page.getByText('Please Enter Valid Contact')).toBeHidden();
+        await page.getByPlaceholder('Contact').fill('');
         await expect(page.getByText('Contact is required')).toBeVisible();
-        await page.getByPlaceholder('Enter Primary Phone').click();
+        await page.getByPlaceholder('Contact').fill('Test 12343 ^*^');
+        await expect(page.getByText('Please Enter Valid Contact')).toBeVisible();
+        await page.getByPlaceholder('Enter New SysPro Id').fill('');
+        await expect(page.getByText('New SysPro Id is required')).toBeVisible();
+        await page.getByPlaceholder('Enter New SysPro Id').fill('Test34%&^');
+        await expect(page.getByText('New SysPro Id must be alphanumeric')).toBeVisible();
         await page.getByPlaceholder('Enter Primary Phone').fill('');
         await expect(page.getByText('Primary Phone is required')).toBeVisible();
-        await expect(page.getByText('Alt Phone is required')).toBeVisible();
-        await expect(page.getByText('Fax Phone is required')).toBeVisible();
+        await page.getByPlaceholder('Enter Primary Phone').fill('567');
+        await expect(page.getByText('Please Enter Valid Primary')).toBeVisible();
         await expect(page.getByText('Email Address is required')).toBeVisible();
-        await page.getByPlaceholder('Enter Credit Limit').click();
+        await page.getByPlaceholder('Enter Email Address').fill('4535435');
+        await expect(page.getByText('Please Enter Valid Email Address')).toBeVisible();
         await page.getByPlaceholder('Enter Credit Limit').fill('');
         await expect(page.getByText('Credit Limit required')).toBeVisible();
+        await page.getByPlaceholder('Enter Credit Limit').fill('12345678');
+        let credLen = await page.getByPlaceholder('Enter Credit Limit').getAttribute('value');
+        let creditLimitLemght = credLen.length;
+        console.log('credit limit lenght is ', creditLimitLemght);
         await page.getByPlaceholder('Enter Bill to Address').click();
         await page.getByPlaceholder('Enter Bill to Address').fill('');
         await expect(page.getByText('Bill to Address is required')).toBeVisible();
         await page.getByPlaceholder('Enter Bill to City').fill('');
         await expect(page.getByText('Bill to City required')).toBeVisible();
         await expect(page.getByText('Bill to State required')).toBeVisible();
-
         await expect(page.getByText('Bill to Zip required')).toBeVisible();
         await page.getByPlaceholder('Enter Ship to Address').fill('');
         await page.getByPlaceholder('Enter Ship to Address').click({
@@ -2371,26 +2424,12 @@ async function addCustomerToSysPro(page, serachCompany) {
         await expect(page.getByText('Ship to State required')).toBeVisible();
         await expect(page.getByText('Ship to Zip required')).toBeVisible();
         await page.getByRole('button', { name: 'Create' }).click();
-        await page.getByPlaceholder('Enter Alt Phone').click();
-        await page.getByPlaceholder('Enter Alt Phone').fill('45');
-        await page.getByRole('button', { name: 'Create' }).click();
-        await page.getByPlaceholder('Enter Alt Phone').click();
-        await expect(page.getByText('Please Enter Valid Alt Phone')).toBeVisible();
-        await page.getByPlaceholder('Enter Primary Phone').click();
-        await page.getByPlaceholder('Enter Primary Phone').fill('567');
-        await expect(page.getByText('Please Enter Valid Primary')).toBeVisible();
-        await page.getByPlaceholder('Enter Fax Phone').click();
-        await page.getByPlaceholder('Enter Fax Phone').fill('56');
-        await page.getByPlaceholder('Enter Email Address').fill('4535435');
-        await expect(page.getByText('Please Enter Valid Email Address')).toBeVisible();
-        await expect(page.getByText('Please Enter Valid Fax Phone')).toBeVisible();
         await page.getByLabel('Bill to Zip*').fill('45435');
         await expect(page.getByText('Add Bill to Zip')).toBeVisible();
         await page.getByText('Add Bill to Zip').click();
         await page.getByLabel('clear').click();
         await page.locator('#ship_to_zip').getByLabel('open').click();
         await page.keyboard.insertText('54654');
-        // await page.getByLabel('Ship to Zip*').fill('54654');
         await expect(page.getByText('Add Ship to Zip')).toBeVisible();
         await page.getByText('Add Ship to Zip').click();
         await page.getByLabel('clear').click();
@@ -2402,9 +2441,38 @@ async function addCustomerToSysPro(page, serachCompany) {
         await expect(page.getByText('Territory required')).toBeVisible();
         await expect(page.getByText('Sales Person required')).toBeVisible();
         await page.getByTitle('close').getByRole('img').click();
+        console.log('Displaying all validations');
+        await page.waitForTimeout(2000);
         getResults = true;
     } catch (error) {
         getResults = false;
+        console.log('Not Display all validations');
+        console.log(error);
+    }
+    return getResults;
+}
+async function addCustomerToSyspro(page, serachCompany, sysProId) {
+    let getResults;
+    try {
+        await page.getByRole('button', { name: 'Organizations expand' }).click();
+        await page.getByRole('menuitem', { name: 'Organizations' }).click();
+        await spinner(page);
+        await page.locator("//*[@placeholder = 'Name / Company Name / Account Number / Owner']").fill(serachCompany);
+        await spinner(page);
+        await page.locator("//*[@title = 'Add Customer']").first().click();
+        await expect(page.getByPlaceholder('Contact')).toBeVisible();
+        await page.getByPlaceholder('Contact').fill('Test1234');
+        await page.getByPlaceholder('Enter New SysPro Id').fill(sysProId);
+        await page.getByPlaceholder('Enter Email Address').fill('test@user.co');
+        await page.getByRole('button', { name: 'Create' }).click();
+        await expect(page.getByText('Syspro ID already exists')).toBeVisible();
+        await page.getByTitle('close').getByRole('img').click();
+        console.log('Displaying validations for existing syspro id');
+        await page.waitForTimeout(2000);
+        getResults = true;
+    } catch (error) {
+        getResults = false;
+        console.log('Not Display validations for existing syspro id');
         console.log(error);
     }
     return getResults;
@@ -3774,10 +3842,9 @@ async function verifyingCharacterLenght(page, condition, quoteType) {
         await spinner(page);
         let part = await page.getByPlaceholder('Stock Code');
         let befPartValue = await part.getAttribute('value');
-        await part.fill(befPartValue+'TEST');
-        await page.pause();
+        await part.fill(befPartValue + 'TEST');
         let aftPartValue = await part.getAttribute('value');
-        if (befPartValue.length==29 && aftPartValue.length==30) {
+        if (befPartValue.length == 29 && aftPartValue.length == 30) {
             console.log('Stock code at Sales order accepting 30 characters');
             getTestResults = true;
         } else {
@@ -3788,6 +3855,9 @@ async function verifyingCharacterLenght(page, condition, quoteType) {
         await page.getByTitle('close').getByRole('img').click();
     }
     return getTestResults;
+}
+async function delay(page, time) {
+    await page.waitForTimeout(time);
 }
 
 module.exports = {
@@ -3842,7 +3912,10 @@ module.exports = {
     nonSPAPrice,
     addSPAItemsToQuote,
     validationsAtCreateRMAandQuotePages,
-    addCustomerToSysPro,
+    addCustomerToSysProValidations,
     websitePaddingTesting,
-    verifyingCharacterLenght
+    verifyingCharacterLenght,
+    addCustomerToSyspro,
+    addCustomerPermissions,
+    delay
 };
