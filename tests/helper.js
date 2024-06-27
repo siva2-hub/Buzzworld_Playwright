@@ -9,6 +9,7 @@ const { AsyncLocalStorage } = require('async_hooks');
 const xlsx = require('xlsx');
 const { url } = require('inspector');
 const { default: AllPages } = require('./PageObjects');
+const { threadId } = require('worker_threads');
 const currentDate = new Date().toDateString();
 let date = currentDate.split(" ")[2];
 let vendor = testdata.vendor;
@@ -376,6 +377,38 @@ async function save_changes(page, atype, view) {
     } catch (error) {
 
     }
+}
+
+async function addCustomerPermissions(page, viewEdit) {
+    let getTestResults;
+    await search_user(page, 'defaultuser@enterpi.com');
+    await page.locator('div').filter({ hasText: /^OrganizationsNoneViewEdit$/ }).locator('span').nth(viewEdit).click();
+    try {
+        await expect(page.getByRole('button', { name: 'Save' })).toBeVisible({ timeout: 2000 });
+        await page.getByRole('button', { name: 'Save' }).click();
+        await expect(page.getByText('Are you sure you want to')).toBeVisible();
+        await page.getByLabel('Permissions').getByRole('button', { name: 'Accept' }).click();
+        await expect(page.getByText('Updated Successfully').nth(1)).toBeVisible();
+    } catch (error) {}
+    await page.goto('https://www.staging-buzzworld.iidm.com/organizations');
+    await spinner(page);
+    try {
+        if (viewEdit == 3) {
+            await expect(page.locator("//*[@title = 'Add Customer']").first()).toBeVisible({ timeout: 2000 });
+            getTestResults = false;
+        } else {
+            await delay(page, 2000);
+            await expect(page.locator("//*[@title = 'Add Customer']").first()).toBeVisible();
+            getTestResults = true;
+        }
+    } catch (error) {
+        if (viewEdit == 3) {
+            getTestResults = true;
+        } else {
+            getTestResults = false;
+        }
+    }
+    return getTestResults;
 }
 async function admin_permissions(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
@@ -2342,13 +2375,16 @@ async function addCustomerToSysProValidations(page, serachCompany) {
         await expect(page.getByPlaceholder('Contact')).toBeVisible();
         await page.getByRole('button', { name: 'Create' }).click();
         for (let index = 5; index < 7; index++) {
-            let reqValue = await page.locator("(//*[@class = 'select-label'])["+index+"]").textContent();
+            let reqValue = await page.locator("(//*[@class = 'select-label'])[" + index + "]").textContent();
             if (reqValue.includes('*')) {
-                console.log(reqValue,' is Mandatory');
+                console.log(reqValue, ' is Mandatory');
             } else {
-                console.log(reqValue,' Field is Non Mandatory');
+                console.log(reqValue, ' Field is Non Mandatory');
             }
         }
+        await page.getByPlaceholder('Contact').fill('Test 12343');
+        await expect(page.getByText('Please Enter Valid Contact')).toBeHidden();
+        await page.getByPlaceholder('Contact').fill('');
         await expect(page.getByText('Contact is required')).toBeVisible();
         await page.getByPlaceholder('Contact').fill('Test 12343 ^*^');
         await expect(page.getByText('Please Enter Valid Contact')).toBeVisible();
@@ -2367,9 +2403,8 @@ async function addCustomerToSysProValidations(page, serachCompany) {
         await expect(page.getByText('Credit Limit required')).toBeVisible();
         await page.getByPlaceholder('Enter Credit Limit').fill('12345678');
         let credLen = await page.getByPlaceholder('Enter Credit Limit').getAttribute('value');
-        let creditLimitLemght= credLen.length;
-        console.log('credit limit lenght ', creditLimitLemght);
-        await page.pause();
+        let creditLimitLemght = credLen.length;
+        console.log('credit limit lenght is ', creditLimitLemght);
         await page.getByPlaceholder('Enter Bill to Address').click();
         await page.getByPlaceholder('Enter Bill to Address').fill('');
         await expect(page.getByText('Bill to Address is required')).toBeVisible();
@@ -2416,7 +2451,7 @@ async function addCustomerToSysProValidations(page, serachCompany) {
     }
     return getResults;
 }
-async function addCustomerToSyspro(page, serachCompany,sysProId) {
+async function addCustomerToSyspro(page, serachCompany, sysProId) {
     let getResults;
     try {
         await page.getByRole('button', { name: 'Organizations expand' }).click();
@@ -3821,6 +3856,9 @@ async function verifyingCharacterLenght(page, condition, quoteType) {
     }
     return getTestResults;
 }
+async function delay(page, time) {
+    await page.waitForTimeout(time);
+}
 
 module.exports = {
     checkout_page,
@@ -3877,5 +3915,7 @@ module.exports = {
     addCustomerToSysProValidations,
     websitePaddingTesting,
     verifyingCharacterLenght,
-    addCustomerToSyspro
+    addCustomerToSyspro,
+    addCustomerPermissions,
+    delay
 };
