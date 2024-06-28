@@ -1377,7 +1377,7 @@ async function create_job_repairs(page, is_create_job, repair_type, acc_num, con
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     // let acc_num = 'ENGYS00', cont_name = 'Jannice Carrillo', stock_code = 'EW25-104-20';
     // let tech = 'Michael Strothers';
-    await page.goto('https://www.staging-buzzworld.iidm.com/quote_for_repair/472a3782-326a-4a52-92e6-114b3a21d479');
+    // await page.goto('https://www.staging-buzzworld.iidm.com/quote_for_repair/472a3782-326a-4a52-92e6-114b3a21d479');
     let testResult;
     try {
         await page.getByText('Repairs').first().click();
@@ -1461,7 +1461,10 @@ async function create_job_repairs(page, is_create_job, repair_type, acc_num, con
             await page.getByRole('button', { name: 'Update Evaluation' }).hover();
             await page.getByRole('button', { name: 'Update Evaluation' }).click();
         }
+        await page.waitForTimeout(1800);
         //Add Items to Quote
+        await page.reload();
+        await spinner(page);
         let checkbox = await page.locator('#repair-items label');
         let checkBoxCount = await checkbox.count();
         console.log('count is ', checkBoxCount);
@@ -1948,8 +1951,9 @@ async function create_job_quotes(page, is_create_job, quoteType, acc_num, cont_n
         await page.getByRole('button', { name: 'Won' }).click();
         await expect(page.locator('#root')).toContainText('Are you sure you want to mark it as approve ?');
         await page.getByRole('button', { name: 'Proceed' }).first().click();
-        let itemsCount = await page.locator("(//*[text()= 'Quote:'])").count();
         await expect(page.locator('#root')).toContainText('Create Sales Order');
+        await page.waitForTimeout(2000);
+        let itemsCount = await page.locator("(//*[text()= 'Quote:'])").count();
         await page.getByText('Create Sales Order').click();
         await spinner(page);
         await expect(page.getByPlaceholder('Enter PO Number')).toBeVisible();

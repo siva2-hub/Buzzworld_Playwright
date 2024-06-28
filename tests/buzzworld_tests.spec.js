@@ -17,8 +17,8 @@ test.describe('all tests', async () => {
   let page, dc, stock_code, results;
   // To Run the Tests in Serial Order un comment the below line
   test.describe.configure({ mode: 'serial' });
-  // let w = 1920, h = 910;
-  let w = 1280, h = 551;
+  let w = 1920, h = 910;
+  // let w = 1280, h = 551;
 
   test.beforeAll(async ({ browser }) => {
     // await reports('First Test', 'Passed');
