@@ -17,8 +17,8 @@ test.describe('all tests', async () => {
   let page, dc, stock_code, results;
   // To Run the Tests in Serial Order un comment the below line
   test.describe.configure({ mode: 'serial' });
-  let w = 1920, h = 910;
-  // let w = 1280, h = 551;
+  // let w = 1920, h = 910;
+  let w = 1280, h = 551;
 
   test.beforeAll(async ({ browser }) => {
     // await reports('First Test', 'Passed');
@@ -86,7 +86,7 @@ test.describe('all tests', async () => {
 
   test('Create Job and Sales Order From Repair Quotes', async ({ }, testInfo) => {
     //Repairable = 1, Not Repairable = 2, Repairable-Outsource = 3
-    let acc_num = 'ENGYS00', cont_name = 'Jannice Carrillo', stock_code = 'EW25-104-20';
+    let acc_num = 'SKYCA00', cont_name = 'Denny Graham', stock_code = ['5D56091G012', '5D56091G013'];
     let tech = 'Michael Strothers';
     results = await create_job_repairs(page, 'Y', 1, acc_num, cont_name, stock_code, tech);
     let testName = testInfo.title;
@@ -95,7 +95,7 @@ test.describe('all tests', async () => {
 
   test('System Quote Creation with Sales Order and Job', async ({ }, testInfo) => {
     //create system quote
-    let acc_num = 'TESTC02', cont_name = 'Test CompanyTwo', stock_code = '331ED0123';
+    let acc_num = 'TESTC02', cont_name = 'Test CompanyTwo', stock_code = '331ED01234';
     results = await create_job_quotes(page, 'Y', 'System Quote', acc_num, cont_name, stock_code);
     let testName = testInfo.title;
     await returnResult(page, testName, results);
@@ -103,7 +103,7 @@ test.describe('all tests', async () => {
 
   test('Parts Quote Creation with Sales Order', async ({ }, testInfo) => {
     //create parts quote
-    let acc_num = 'TESTC02', cont_name = 'Test CompanyTwo', stock_code = '331ED01';
+    let acc_num = 'HILAN00', cont_name = 'Jeff Lister', stock_code = '331ED012';
     results = await create_job_quotes(page, 'Y', 'Parts Quote', acc_num, cont_name, stock_code);
     let testName = testInfo.title;
     await returnResult(page, testName, results);
