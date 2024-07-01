@@ -1,0 +1,864 @@
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 12:41:23 pm[0m --------------------------------------------------------
+
+repair is created with id  314901
+
+
+repair url is  https://www.staging-buzzworld.iidm.com/repair-request/d5b14c25-d56f-40da-9aca-749ab96f2154
+
+
+[33m  Slow test file: [39m[Google Chrome] › buzzworld_tests.spec.js[33m (2.8m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (3.4m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+[31m  1) [Google Chrome] › buzzworld_tests.spec.js:87:3 › all tests › Create Job and Sales Order From Repair Quotes [39m
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+    Locator: locator('xpath=(//*[contains(@src, "vendor_logo")])[1]')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      [2m- expect.toBeVisible with timeout 50000ms[22m
+    [2m  - waiting for locator('xpath=(//*[contains(@src, "vendor_logo")])[1]')[22m
+
+
+    [90m   at [39mhelper.js:233
+
+    [0m [90m 231 |[39m     } [36melse[39m {
+     [90m 232 |[39m     }
+    [31m[1m>[22m[39m[90m 233 |[39m     [36mawait[39m expect(allPages[33m.[39mprofileIconListView)[33m.[39mtoBeVisible({ timeout[33m:[39m [35m50000[39m })[33m;[39m
+     [90m     |[39m                                                [31m[1m^[22m[39m
+     [90m 234 |[39m     [36mawait[39m page[33m.[39mwaitForTimeout([35m1600[39m)[33m;[39m
+     [90m 235 |[39m }
+     [90m 236 |[39m[0m
+
+    [2m    at login_buzz (E:\PlaywrightBuzzworld\Buzzworld_Playwright\tests\helper.js:233:48)[22m
+    [2m    at E:\PlaywrightBuzzworld\Buzzworld_Playwright\tests\buzzworld_tests.spec.js:27:5[22m
+
+
+[31m  1 failed[39m
+[31m    [Google Chrome] › buzzworld_tests.spec.js:87:3 › all tests › Create Job and Sales Order From Repair Quotes [39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 12:48:16 pm[0m --------------------------------------------------------
+
+repair is created with id  314902
+
+
+repair url is  https://www.staging-buzzworld.iidm.com/repair-request/df841e6f-691c-4706-96e8-fdbfb129eafa
+
+
+[33m  Slow test file: [39m[Google Chrome] › buzzworld_tests.spec.js[33m (3.7m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (4.4m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 1:02:42 pm[0m --------------------------------------------------------
+
+repair is created with id  314902
+
+
+repair url is  https://www.staging-buzzworld.iidm.com/repair-request/df841e6f-691c-4706-96e8-fdbfb129eafa
+
+
+[32m  1 passed[39m[2m (47.7s)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 1:04:49 pm[0m --------------------------------------------------------
+
+repair is created with id  314902
+
+
+repair url is  https://www.staging-buzzworld.iidm.com/repair-request/df841e6f-691c-4706-96e8-fdbfb129eafa
+check boxes count is  2
+
+
+
+[32m  1 passed[39m[2m (59.5s)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 2:04:41 pm[0m --------------------------------------------------------
+
+repair is created with id  314904
+repair url is  https://www.staging-buzzworld.iidm.com/repair-request/3a06ca2b-686c-4b73-ad70-7d1c26529a51
+
+
+
+
+[33m  Slow test file: [39m[Google Chrome] › buzzworld_tests.spec.js[33m (2.6m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (3.3m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 2:16:12 pm[0m --------------------------------------------------------
+
+repair is created with id  314905
+
+
+repair url is  https://www.staging-buzzworld.iidm.com/repair-request/7b664299-ddbf-4b01-9ef3-9f088f94a8db
+
+
+[33m  Slow test file: [39m[Google Chrome] › buzzworld_tests.spec.js[33m (3.9m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (4.5m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 2:45:58 pm[0m --------------------------------------------------------
+
+quote is created with id  2024062800010
+quote url is  https://www.staging-buzzworld.iidm.com/system_quotes/3ad52772-d01b-4fdc-920e-b8a35e6a5548
+
+
+order created with id  234363
+
+
+job selection checkbox is checked  true
+job created with id  86863
+
+[32mSystem Quote Creation with Sales Order and Job Test Passed![0m
+
+[33m  Slow test file: [39m[Google Chrome] › buzzworld_tests.spec.js[33m (2.5m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (3.1m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 2:50:58 pm[0m --------------------------------------------------------
+
+quote is created with id  2024062800011
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/quote_for_parts/a07d7265-9caf-40ea-abe0-edf41dd1ff38
+create job option is disabled for Parts Quote
+
+order created with id  234364
+
+
+
+job selection checkbox is checked  not display the create job option..
+[32mParts Quote Creation with Sales Order Test Passed![0m
+[33m  Slow test file: [39m[Google Chrome] › buzzworld_tests.spec.js[33m (2.5m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (3.1m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 3:00:12 pm[0m --------------------------------------------------------
+
+repair is created with id  314906
+
+
+repair url is  https://www.staging-buzzworld.iidm.com/repair-request/d1acb271-a718-490c-ac82-dcd480acd1f5
+
+
+[33m  Slow test file: [39m[Google Chrome] › buzzworld_tests.spec.js[33m (3.0m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (3.7m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 3:12:52 pm[0m --------------------------------------------------------
+
+repair is created with id  314906
+
+
+repair url is  https://www.staging-buzzworld.iidm.com/repair-request/d1acb271-a718-490c-ac82-dcd480acd1f5
+count is  2
+
+
+
+[32m  1 passed[39m[2m (45.8s)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 3:38:03 pm[0m --------------------------------------------------------
+
+repair is created with id  314906
+
+
+repair url is  https://www.staging-buzzworld.iidm.com/repair-request/d1acb271-a718-490c-ac82-dcd480acd1f5
+count is  2
+
+
+
+[32m  1 passed[39m[2m (46.2s)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 3:40:09 pm[0m --------------------------------------------------------
+
+repair is created with id  314906
+repair url is  https://www.staging-buzzworld.iidm.com/repair-request/d1acb271-a718-490c-ac82-dcd480acd1f5
+
+
+count is  2
+
+
+
+[32m  1 passed[39m[2m (44.5s)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 3:52:27 pm[0m --------------------------------------------------------
+
+repair is created with id  314906
+repair url is  https://www.staging-buzzworld.iidm.com/repair-request/d1acb271-a718-490c-ac82-dcd480acd1f5
+
+
+count is  2
+
+
+
+[33m  Slow test file: [39m[Google Chrome] › buzzworld_tests.spec.js[33m (4.5m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (5.2m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 3:59:48 pm[0m --------------------------------------------------------
+
+repair is created with id  2024062800012
+
+
+repair url is  https://www.staging-buzzworld.iidm.com/all_quotes/6123fbb5-7a1a-4e62-b5e0-a070f0484c8a
+
+
+[31m  1) [Google Chrome] › buzzworld_tests.spec.js:87:3 › all tests › Create Job and Sales Order From Repair Quotes [39m
+
+    [31mTest was interrupted.[39m
+
+
+[33m  Slow test file: [39m[Google Chrome] › buzzworld_tests.spec.js[33m (29.1s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[33m  1 interrupted[39m
+[33m    [Google Chrome] › buzzworld_tests.spec.js:87:3 › all tests › Create Job and Sales Order From Repair Quotes [39m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 4:01:50 pm[0m --------------------------------------------------------
+
+repair is created with id  2024062800012
+
+
+repair url is  https://www.staging-buzzworld.iidm.com/all_quotes/6123fbb5-7a1a-4e62-b5e0-a070f0484c8a
+quote is created with id  2024062800012
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/all_quotes/6123fbb5-7a1a-4e62-b5e0-a070f0484c8a
+error diplaying Item or Stock Code test at Create Sales Order Screen Error: [31mTimed out 30000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+Locator: locator('xpath=(//*[text()= \'Item\' or contains(text(), \'Stock Code\')])')
+Expected: visible
+Received: <element(s) not found>
+Call log:
+  [2m- expect.toBeVisible with timeout 30000ms[22m
+[2m  - waiting for locator('xpath=(//*[text()= \'Item\' or contains(text(), \'Stock Code\')])')[22m
+
+
+
+
+[33m  Slow test file: [39m[Google Chrome] › buzzworld_tests.spec.js[33m (1.1m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (1.7m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+[31m  1) [Google Chrome] › buzzworld_tests.spec.js:87:3 › all tests › Create Job and Sales Order From Repair Quotes [39m
+
+    [31mTest was interrupted.[39m
+
+
+[33m  1 interrupted[39m
+[33m    [Google Chrome] › buzzworld_tests.spec.js:87:3 › all tests › Create Job and Sales Order From Repair Quotes [39m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 4:22:29 pm[0m --------------------------------------------------------
+
+repair is created with id  2024062800012
+
+
+repair url is  https://www.staging-buzzworld.iidm.com/all_quotes/6123fbb5-7a1a-4e62-b5e0-a070f0484c8a
+quote is created with id  2024062800012
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/all_quotes/6123fbb5-7a1a-4e62-b5e0-a070f0484c8a
+error diplaying Item or Stock Code test at Create Sales Order Screen Error: [31mTimed out 30000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+Locator: locator('xpath=(//*[text()= \'Item\' or contains(text(), \'Stock Code\')])')
+Expected: visible
+Received: <element(s) not found>
+Call log:
+  [2m- expect.toBeVisible with timeout 30000ms[22m
+[2m  - waiting for locator('xpath=(//*[text()= \'Item\' or contains(text(), \'Stock Code\')])')[22m
+
+
+
+
+[31m  1) [Google Chrome] › buzzworld_tests.spec.js:87:3 › all tests › Create Job and Sales Order From Repair Quotes [39m
+
+    Error: locator.isChecked: Error: strict mode violation: locator('label').filter({ hasText: 'Create Job' }) resolved to 2 elements:
+        1) <label class="css-1gx8lri">…</label> aka locator('label').filter({ hasText: 'Create Job' }).first()
+        2) <label class="css-1gx8lri">…</label> aka locator('label').filter({ hasText: 'Create Job' }).nth(1)
+
+    Call log:
+      [2m- waiting for locator('label').filter({ hasText: 'Create Job' })[22m
+
+
+    [90m   at [39mhelper.js:1564
+
+    [0m [90m 1562 |[39m         [36mawait[39m expect(page[33m.[39mgetByRole([32m'button'[39m[33m,[39m { name[33m:[39m [32m'Create'[39m[33m,[39m exact[33m:[39m [36mtrue[39m }))[33m.[39mtoBeVisible()[33m;[39m
+     [90m 1563 |[39m         [36mlet[39m createJobCheck [33m=[39m [36mawait[39m page[33m.[39mlocator([32m'label'[39m)[33m.[39mfilter({ hasText[33m:[39m [32m'Create Job'[39m })[33m;[39m
+    [31m[1m>[22m[39m[90m 1564 |[39m         [36mlet[39m is_checked [33m=[39m createJobCheck[33m.[39misChecked()[33m;[39m
+     [90m      |[39m                                         [31m[1m^[22m[39m
+     [90m 1565 |[39m         [36mawait[39m page[33m.[39mwaitForTimeout([35m1500[39m)[33m;[39m
+     [90m 1566 |[39m         [36mlet[39m createJobCount [33m=[39m [36mawait[39m createJobCheck[33m.[39mcount()[33m;[39m
+     [90m 1567 |[39m         console[33m.[39mlog([32m'create job check box count is '[39m[33m,[39m createJobCount)[33m;[39m[33m;[39m[0m
+
+    [2m    at create_job_repairs (E:\PlaywrightBuzzworld\Buzzworld_Playwright\tests\helper.js:1564:41)[22m
+    [2m    at E:\PlaywrightBuzzworld\Buzzworld_Playwright\tests\buzzworld_tests.spec.js:91:15[22m
+
+
+[33m  Slow test file: [39m[Google Chrome] › buzzworld_tests.spec.js[33m (48.2s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[31m  1 failed[39m
+[31m    [Google Chrome] › buzzworld_tests.spec.js:87:3 › all tests › Create Job and Sales Order From Repair Quotes [39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 4:39:15 pm[0m --------------------------------------------------------
+
+quote is created with id  2024062800013
+
+quote url is  https://www.staging-buzzworld.iidm.com/system_quotes/73637d72-396c-40ea-9372-62c706f0ce1b
+
+
+[33m  Slow test file: [39m[Google Chrome] › buzzworld_tests.spec.js[33m (1.9m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (2.6m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 4:55:56 pm[0m --------------------------------------------------------
+
+quote is created with id  2024062800013
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/system_quotes/73637d72-396c-40ea-9372-62c706f0ce1b
+
+[33m  Slow test file: [39m[Google Chrome] › buzzworld_tests.spec.js[33m (45.4s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (1.4m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 4:58:39 pm[0m --------------------------------------------------------
+
+quote is created with id  2024062800013
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/system_quotes/73637d72-396c-40ea-9372-62c706f0ce1b
+
+[31m  1) [Google Chrome] › buzzworld_tests.spec.js:96:3 › all tests › System Quote Creation with Sales Order and Job [39m
+
+    [31mTest was interrupted.[39m
+
+
+[33m  Slow test file: [39m[Google Chrome] › buzzworld_tests.spec.js[33m (55.5s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[33m  1 interrupted[39m
+[33m    [Google Chrome] › buzzworld_tests.spec.js:96:3 › all tests › System Quote Creation with Sales Order and Job [39m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 5:03:59 pm[0m --------------------------------------------------------
+
+quote is created with id  2024062800013
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/system_quotes/73637d72-396c-40ea-9372-62c706f0ce1b
+
+[33m  Slow test file: [39m[Google Chrome] › buzzworld_tests.spec.js[33m (49.8s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (1.5m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 5:18:48 pm[0m --------------------------------------------------------
+
+quote is created with id  2024062800013
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/system_quotes/73637d72-396c-40ea-9372-62c706f0ce1b
+order created with id  234365
+
+
+job selection checkbox is checked  true
+job created with id  86864
+
+[32mSystem Quote Creation with Sales Order and Job Test Passed![0m
+
+[33m  Slow test file: [39m[Google Chrome] › buzzworld_tests.spec.js[33m (53.2s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (1.5m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 5:29:18 pm[0m --------------------------------------------------------
+
+repair is created with id  2024062800012
+
+
+repair url is  https://www.staging-buzzworld.iidm.com/all_quotes/6123fbb5-7a1a-4e62-b5e0-a070f0484c8a
+quote is created with id  2024062800012
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/all_quotes/6123fbb5-7a1a-4e62-b5e0-a070f0484c8a
+error diplaying Item or Stock Code test at Create Sales Order Screen Error: expect.toBeVisible: Error: strict mode violation: locator('xpath=(//*[(//*[text() = \'Create\'])[2]])') resolved to 1017 elements:
+    1) <html lang="en">…</html> aka locator('html')
+    2) <head>…</head> aka locator('head')
+    3) <meta charset="utf-8"/> aka locator('meta').first()
+    4) <link rel="icon" href="/favicon.ico"/> aka locator('link').first()
+    5) <meta name="viewport" content="width=device-width,init…/> aka locator('meta[name="viewport"]')
+    6) <meta content="#000000" name="theme-color"/> aka locator('meta[name="theme-color"]')
+    7) <meta name="description" content="Buzzworld"/> aka locator('meta[name="description"]')
+    8) <link href="/logo192.png" rel="apple-touch-icon"/> aka locator('link:nth-child(6)')
+    9) <link rel="manifest" href="/manifest.json"/> aka locator('link:nth-child(7)')
+    10) <title>Buzzworld</title> aka locator('title')
+    ...
+
+Call log:
+  [2m- expect.toBeVisible with timeout 30000ms[22m
+[2m  - waiting for locator('xpath=(//*[(//*[text() = \'Create\'])[2]])')[22m
+
+
+create job check box count is  2
+
+order created with id  234366
+
+
+
+job selection checkbox is checked  false
+[32mCreate Job and Sales Order From Repair Quotes Test Passed![0m
+
+[33m  Slow test file: [39m[Google Chrome] › buzzworld_tests.spec.js[33m (2.0m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (2.6m)[22m
+[31m  1 error was not a part of any test, see above for details[39m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 5:38:58 pm[0m --------------------------------------------------------
+
+repair is created with id  2024062800012
+
+
+repair url is  https://www.staging-buzzworld.iidm.com/all_quotes/6123fbb5-7a1a-4e62-b5e0-a070f0484c8a
+quote is created with id  2024062800012
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/all_quotes/6123fbb5-7a1a-4e62-b5e0-a070f0484c8a
+
+
+[33m  Slow test file: [39m[Google Chrome] › buzzworld_tests.spec.js[33m (27.2s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (1.2m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 5:41:46 pm[0m --------------------------------------------------------
+
+repair is created with id  314907
+repair url is  https://www.staging-buzzworld.iidm.com/repair-request/65f45084-746c-4d8b-acc4-f3525dac1286
+
+
+count is  1
+
+quote is created with id  2024062800014
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/c404bef1-af2a-4220-a5fd-c1ec9d6f7612
+
+
+[33m  Slow test file: [39m[Google Chrome] › buzzworld_tests.spec.js[33m (4.6m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (5.4m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 5:49:15 pm[0m --------------------------------------------------------
+
+repair is created with id  2024062800014
+
+repair url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/c404bef1-af2a-4220-a5fd-c1ec9d6f7612
+
+quote is created with id  2024062800014
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/c404bef1-af2a-4220-a5fd-c1ec9d6f7612
+error diplaying Item or Stock Code test at Create Sales Order Screen Error: expect.toBeVisible: DOMException: Failed to execute 'evaluate' on 'Document': The string '(//*[text() = 'Create'])[2]])' is not a valid XPath expression.
+    at Object.queryAll (<anonymous>:41:25)
+    at InjectedScript._queryEngineAll (<anonymous>:5028:49)
+    at InjectedScript.querySelectorAll (<anonymous>:5015:30)
+    at eval (eval at evaluate (:226:30), <anonymous>:6:44)
+    at UtilityScript.evaluate (<anonymous>:228:17)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+Call log:
+  [2m- expect.toBeVisible with timeout 30000ms[22m
+[2m  - waiting for locator('xpath=(//*[text() = \'Create\'])[2]])')[22m
+
+
+create job check box count is  1
+
+order created with id  234367
+
+
+job selection checkbox is checked  true
+job created with id  86865
+
+-------------------------------------------------- [31m28/6/2024, 5:49:15 pm[0m --------------------------------------------------------
+
+getting Error while creating parts purchase  Error: [31mTimed out 30000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+Locator: locator('//*[contains(@src, \'partspurchase\')]')
+Expected: visible
+Received: <element(s) not found>
+Call log:
+  [2m- expect.toBeVisible with timeout 30000ms[22m
+[2m  - waiting for locator('//*[contains(@src, \'partspurchase\')]')[22m
+
+
+
+
+[33m  Slow test file: [39m[Google Chrome] › buzzworld_tests.spec.js[33m (5.9m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (6.5m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+[31m  1) [Google Chrome] › buzzworld_tests.spec.js:87:3 › all tests › Create Job and Sales Order From Repair Quotes [39m
+
+    Error: expect.toBeVisible: Target page, context or browser has been closed
+
+    [90m   at [39mhelper.js:233
+
+    [0m [90m 231 |[39m     } [36melse[39m {
+     [90m 232 |[39m     }
+    [31m[1m>[22m[39m[90m 233 |[39m     [36mawait[39m expect(allPages[33m.[39mprofileIconListView)[33m.[39mtoBeVisible({ timeout[33m:[39m [35m50000[39m })[33m;[39m
+     [90m     |[39m                                                [31m[1m^[22m[39m
+     [90m 234 |[39m     [36mawait[39m page[33m.[39mwaitForTimeout([35m1600[39m)[33m;[39m
+     [90m 235 |[39m }
+     [90m 236 |[39m[0m
+
+    [2m    at login_buzz (E:\PlaywrightBuzzworld\Buzzworld_Playwright\tests\helper.js:233:48)[22m
+    [2m    at E:\PlaywrightBuzzworld\Buzzworld_Playwright\tests\buzzworld_tests.spec.js:27:5[22m
+
+
+[31m  1 failed[39m
+[31m    [Google Chrome] › buzzworld_tests.spec.js:87:3 › all tests › Create Job and Sales Order From Repair Quotes [39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 6:13:20 pm[0m --------------------------------------------------------
+
+repair is created with id  314908
+repair url is  https://www.staging-buzzworld.iidm.com/repair-request/51c56f4b-2939-4c15-8c89-8c1ae1c50745
+
+
+
+
+[33m  Slow test file: [39m[Google Chrome] › buzzworld_tests.spec.js[33m (39.8s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (1.3m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+[31m  1) [Google Chrome] › buzzworld_tests.spec.js:87:3 › all tests › Create Job and Sales Order From Repair Quotes [39m
+
+    Error: page.goto: Target page, context or browser has been closed
+    Call log:
+      [2m- navigating to "https://www.staging-buzzworld.iidm.com/", waiting until "load"[22m
+
+
+    [90m   at [39mhelper.js:225
+
+    [0m [90m 223 |[39m [36masync[39m [36mfunction[39m login_buzz(page[33m,[39m stage_url) {
+     [90m 224 |[39m     allPages [33m=[39m [36mnew[39m [33mAllPages[39m(page)[33m;[39m
+    [31m[1m>[22m[39m[90m 225 |[39m     [36mawait[39m page[33m.[39mgoto(stage_url)[33m;[39m
+     [90m     |[39m                [31m[1m^[22m[39m
+     [90m 226 |[39m     [36mawait[39m page[33m.[39mwaitForTimeout([35m1300[39m)[33m;[39m
+     [90m 227 |[39m     [36mif[39m ([36mawait[39m page[33m.[39murl()[33m.[39mincludes([32m'sso'[39m)) {
+     [90m 228 |[39m         [36mawait[39m allPages[33m.[39muserNameInput[33m.[39mfill([32m'defaultuser@enterpi.com'[39m)[33m;[39m[0m
+
+    [2m    at login_buzz (E:\PlaywrightBuzzworld\Buzzworld_Playwright\tests\helper.js:225:16)[22m
+    [2m    at E:\PlaywrightBuzzworld\Buzzworld_Playwright\tests\buzzworld_tests.spec.js:27:21[22m
+
+
+[31m  1 failed[39m
+[31m    [Google Chrome] › buzzworld_tests.spec.js:87:3 › all tests › Create Job and Sales Order From Repair Quotes [39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+[31m  1) [Google Chrome] › buzzworld_tests.spec.js:87:3 › all tests › Create Job and Sales Order From Repair Quotes [39m
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+    Locator: locator('xpath=(//*[contains(@src, "vendor_logo")])[1]')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      [2m- expect.toBeVisible with timeout 50000ms[22m
+    [2m  - waiting for locator('xpath=(//*[contains(@src, "vendor_logo")])[1]')[22m
+
+
+    [90m   at [39mhelper.js:233
+
+    [0m [90m 231 |[39m     } [36melse[39m {
+     [90m 232 |[39m     }
+    [31m[1m>[22m[39m[90m 233 |[39m     [36mawait[39m expect(allPages[33m.[39mprofileIconListView)[33m.[39mtoBeVisible({ timeout[33m:[39m [35m50000[39m })[33m;[39m
+     [90m     |[39m                                                [31m[1m^[22m[39m
+     [90m 234 |[39m     [36mawait[39m page[33m.[39mwaitForTimeout([35m1600[39m)[33m;[39m
+     [90m 235 |[39m }
+     [90m 236 |[39m[0m
+
+    [2m    at login_buzz (E:\PlaywrightBuzzworld\Buzzworld_Playwright\tests\helper.js:233:48)[22m
+    [2m    at E:\PlaywrightBuzzworld\Buzzworld_Playwright\tests\buzzworld_tests.spec.js:27:5[22m
+
+
+[31m  1 failed[39m
+[31m    [Google Chrome] › buzzworld_tests.spec.js:87:3 › all tests › Create Job and Sales Order From Repair Quotes [39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 6:42:34 pm[0m --------------------------------------------------------
+
+repair is created with id  314908
+
+
+repair url is  https://www.staging-buzzworld.iidm.com/repair-request/51c56f4b-2939-4c15-8c89-8c1ae1c50745
+count is  2
+
+quote is created with id  2024062800015
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/472a3782-326a-4a52-92e6-114b3a21d479
+error diplaying Item or Stock Code test at Create Sales Order Screen Error: expect.toBeVisible: DOMException: Failed to execute 'evaluate' on 'Document': The string '(//*[text() = 'Create'])[2])' is not a valid XPath expression.
+    at Object.queryAll (<anonymous>:41:25)
+    at InjectedScript._queryEngineAll (<anonymous>:5028:49)
+    at InjectedScript.querySelectorAll (<anonymous>:5015:30)
+    at eval (eval at evaluate (:226:30), <anonymous>:6:44)
+    at UtilityScript.evaluate (<anonymous>:228:17)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+Call log:
+  [2m- expect.toBeVisible with timeout 30000ms[22m
+[2m  - waiting for locator('xpath=(//*[text() = \'Create\'])[2])')[22m
+
+
+
+
+[33m  Slow test file: [39m[Google Chrome] › buzzworld_tests.spec.js[33m (4.8m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (5.5m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 6:53:37 pm[0m --------------------------------------------------------
+
+repair is created with id  2024062800015
+
+
+repair url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/472a3782-326a-4a52-92e6-114b3a21d479
+quote is created with id  2024062800015
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/472a3782-326a-4a52-92e6-114b3a21d479
+
+
+[33m  Slow test file: [39m[Google Chrome] › buzzworld_tests.spec.js[33m (48.9s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (1.8m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 6:56:05 pm[0m --------------------------------------------------------
+
+repair is created with id  2024062800015
+
+
+repair url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/472a3782-326a-4a52-92e6-114b3a21d479
+quote is created with id  2024062800015
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/472a3782-326a-4a52-92e6-114b3a21d479
+[31m  1) [Google Chrome] › buzzworld_tests.spec.js:87:3 › all tests › Create Job and Sales Order From Repair Quotes [39m
+
+    [31mTest was interrupted.[39m
+
+
+[33m  Slow test file: [39m[Google Chrome] › buzzworld_tests.spec.js[33m (3.9m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[33m  1 interrupted[39m
+[33m    [Google Chrome] › buzzworld_tests.spec.js:87:3 › all tests › Create Job and Sales Order From Repair Quotes [39m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 7:01:44 pm[0m --------------------------------------------------------
+
+repair is created with id  2024062800015
+
+
+repair url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/472a3782-326a-4a52-92e6-114b3a21d479
+quote is created with id  2024062800015
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/472a3782-326a-4a52-92e6-114b3a21d479
+
+
+[33m  Slow test file: [39m[Google Chrome] › buzzworld_tests.spec.js[33m (23.5s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (1.0m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 7:04:19 pm[0m --------------------------------------------------------
+
+repair is created with id  2024062800015
+
+
+repair url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/472a3782-326a-4a52-92e6-114b3a21d479
+quote is created with id  2024062800015
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/472a3782-326a-4a52-92e6-114b3a21d479
+
+
+[33m  Slow test file: [39m[Google Chrome] › buzzworld_tests.spec.js[33m (22.1m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (22.7m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 7:33:09 pm[0m --------------------------------------------------------
+
+repair is created with id  2024062800015
+
+
+repair url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/472a3782-326a-4a52-92e6-114b3a21d479
+quote is created with id  2024062800015
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/472a3782-326a-4a52-92e6-114b3a21d479
+create job check box count is  2
+
+
+
+[33m  Slow test file: [39m[Google Chrome] › buzzworld_tests.spec.js[33m (16.3s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (59.9s)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 7:42:53 pm[0m --------------------------------------------------------
+
+repair is created with id  2024062800015
+
+
+repair url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/472a3782-326a-4a52-92e6-114b3a21d479
+quote is created with id  2024062800015
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/472a3782-326a-4a52-92e6-114b3a21d479
+create job check box count is  2
+
+
+
+[33m  Slow test file: [39m[Google Chrome] › buzzworld_tests.spec.js[33m (15.7s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (54.1s)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m28/6/2024, 7:47:13 pm[0m --------------------------------------------------------
+
+repair is created with id  2024062800015
+
+
+repair url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/472a3782-326a-4a52-92e6-114b3a21d479
+quote is created with id  2024062800015
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/472a3782-326a-4a52-92e6-114b3a21d479
+create job check box count is  2
+
+order created with id  234368
+
+
+job selection checkbox is checked  true
+job created with id  86868
+
+-------------------------------------------------- [31m28/6/2024, 7:47:13 pm[0m --------------------------------------------------------
+
+getting Error while creating parts purchase  Error: [31mTimed out 30000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+Locator: locator('xpath=(//*[contains(@src, \'partspurchase\')])[1]')
+Expected: visible
+Received: <element(s) not found>
+Call log:
+  [2m- expect.toBeVisible with timeout 30000ms[22m
+[2m  - waiting for locator('xpath=(//*[contains(@src, \'partspurchase\')])[1]')[22m
+
+
