@@ -3,7 +3,7 @@ const ExcelJS = require('exceljs');
 
 import { start } from 'repl';
 import { timeout } from '../playwright.config';
-import { add_dc, add_sc, admin1, admin2, admin3, admin4, api_data, create_job_manually, create_job_quotes, create_job_repairs, create_parts_purchase, dcAddUpdate, fetchData, fetch_jobs_Data, fetch_jobs_Detail, fetch_jobs_list, fetch_orders_Data, fetch_orders_Detail, fetch_order_list, fetch_pp_status, filters_pricing, functional_flow, import_pricing, inventory_search, leftMenuSearch, login, login_buzz, logout, multi_edit, parts_purchase_left_menu_filter, productAddUpdate, quotesRepairs, setScreenSize, spinner, sync_jobs, update_dc, update_sc, pos_report, reports, parts_import, add_parts, past_repair_prices, edit_PO_pp, returnResult, admin_permissions, pricing_permissions, addDiscountCodeValidations, addFunctionInAdminTabs, getProductWriteIntoExecl, verifyTwoExcelData, nonSPAPrice, addSPAItemsToQuote, validationsAtCreateRMAandQuotePages, read_excel_data, addCustomerToSysPro, websitePaddingTesting, verifyingCharacterLenght, addCustomerToSyspro, addCustomerToSysProValidations, addCustomerPermissions } from './helper';
+import { add_dc, add_sc, admin1, admin2, admin3, admin4, api_data, create_job_manually, create_job_quotes, create_job_repairs, create_parts_purchase, dcAddUpdate, fetchData, fetch_jobs_Data, fetch_jobs_Detail, fetch_jobs_list, fetch_orders_Data, fetch_orders_Detail, fetch_order_list, fetch_pp_status, filters_pricing, functional_flow, import_pricing, inventory_search, leftMenuSearch, login, login_buzz, logout, multi_edit, parts_purchase_left_menu_filter, productAddUpdate, quotesRepairs, setScreenSize, spinner, sync_jobs, update_dc, update_sc, pos_report, reports, parts_import, add_parts, past_repair_prices, edit_PO_pp, returnResult, admin_permissions, pricing_permissions, addDiscountCodeValidations, addFunctionInAdminTabs, getProductWriteIntoExecl, verifyTwoExcelData, nonSPAPrice, addSPAItemsToQuote, validationsAtCreateRMAandQuotePages, read_excel_data, addCustomerToSysPro, websitePaddingTesting, verifyingCharacterLenght, addCustomerToSyspro, addCustomerToSysProValidations, addCustomerPermissions, bomImporter } from './helper';
 import AllPages from './PageObjects';
 
 const testdata = JSON.parse(JSON.stringify(require("../testdata.json")));
@@ -78,6 +78,12 @@ test.describe('all tests', async () => {
     await returnResult(page, testName, results);
   });
 
+  test('BOM Importer with Stockcode(s) not found in Warehouse', async ({ }, testInfo) => {
+    let parentPart = '0165009LS', childPart = 'Test7222', qty = '2', sequece = '673839', warehouse = '01';
+    results = await bomImporter(page, parentPart, childPart, qty, sequece, warehouse);
+    let testName = testInfo.title;
+    await returnResult(page, testName, results);
+  });
   test('Verify validations at Create RMA and Quotes Pages', async ({ }, testInfo) => {
     results = await validationsAtCreateRMAandQuotePages(page);
     let testName = testInfo.title;
@@ -86,7 +92,7 @@ test.describe('all tests', async () => {
 
   test('Create Job and Sales Order From Repair Quotes', async ({ }, testInfo) => {
     //Repairable = 1, Not Repairable = 2, Repairable-Outsource = 3
-    let acc_num = 'SKYCA00', cont_name = 'Denny Graham', stock_code = ['5D56091G012', '5D56091G013'];
+    let acc_num = 'ENGYS00', cont_name = 'Jannice Carrillo', stock_code = ['5D56091G013', '5D56091G013'];
     let tech = 'Michael Strothers';
     results = await create_job_repairs(page, 'Y', 1, acc_num, cont_name, stock_code, tech);
     let testName = testInfo.title;
@@ -95,7 +101,7 @@ test.describe('all tests', async () => {
 
   test('System Quote Creation with Sales Order and Job', async ({ }, testInfo) => {
     //create system quote
-    let acc_num = 'TESTC02', cont_name = 'Test CompanyTwo', stock_code = '331ED01234';
+    let acc_num = 'TESTC02', cont_name = 'Test CompanyTwo', stock_code = ['0165009LS1', '0165009LS1'];
     results = await create_job_quotes(page, 'Y', 'System Quote', acc_num, cont_name, stock_code);
     let testName = testInfo.title;
     await returnResult(page, testName, results);
@@ -103,7 +109,7 @@ test.describe('all tests', async () => {
 
   test('Parts Quote Creation with Sales Order', async ({ }, testInfo) => {
     //create parts quote
-    let acc_num = 'HILAN00', cont_name = 'Jeff Lister', stock_code = '331ED012';
+    let acc_num = 'HILAN00', cont_name = 'Jeff Lister', stock_code = ['0165009LS', '0165009LS'];
     results = await create_job_quotes(page, 'Y', 'Parts Quote', acc_num, cont_name, stock_code);
     let testName = testInfo.title;
     await returnResult(page, testName, results);
