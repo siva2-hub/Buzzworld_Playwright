@@ -3094,10 +3094,12 @@ async function add_parts(page, cond2, cond3) {
     return getTestResults;
 }
 
-async function bomImporter(page, parentPart, childPart, qty, sequence, warehouse) {
+async function bomImporter(page, parentPart, childPart, qty, sequence, warehouse, testCount) {
     let testResult;
     try {
-        await page.getByText('Inventory').click();
+        if (testCount == 1) {
+            await page.getByText('Inventory').first().click();
+        }
         await page.getByRole('button', { name: 'Add Stock Code expand' }).click();
         await page.getByRole('menuitem', { name: 'BOM Imports' }).click();
         await expect(page.getByPlaceholder('Enter Sequence')).toBeVisible();
@@ -3105,9 +3107,13 @@ async function bomImporter(page, parentPart, childPart, qty, sequence, warehouse
         await page.keyboard.insertText(parentPart);
         await spinner(page);
         try {
-            await expect(page.getByText('No Parent Part Number Found')).toBeVisible({ timeout: 8000 });
+            await expect(page.getByText('No Parent Part Number Found')).toBeVisible({ timeout: 3000 });
             console.log('Parent Part not exist in our Pricing');
-            testResult = false;
+            if (testCount == 3) {
+                testResult = true;
+            } else {
+                testResult = false;
+            }
         } catch (error) {
             let firstSearch = await page.locator('#react-select-3-option-0').textContent();
             console.log('first result is ', firstSearch);
@@ -3120,16 +3126,89 @@ async function bomImporter(page, parentPart, childPart, qty, sequence, warehouse
                 await page.locator('#react-select-4-input').fill(warehouse);
                 await page.locator('#react-select-4-input').press('Enter');
                 await page.getByRole('button', { name: 'Upload' }).click();
-                await expect(page.getByText('Stockcode(s) not found in Warehouse ' + childPart + '')).toBeVisible();
+                let expText;
+                if (testCount == 1) {
+                    expText = page.getByText('Parent Part Number not found' + parentPart + '');
+                } else if (testCount == 2) {
+                    expText = page.getByText('Stockcode(s) not found in Warehouse' + childPart + '');
+                } else if (testCount == 4) {
+                    expText = page.getByText('Updated Stockcode(s)' + childPart + '');
+                } else {
+                    expText = page.getByText('Inserted Stockcode(s)' + childPart + '');
+                }
+                console.log('Displaying validation is ', await expText.textContent());
+                await expect(expText).toBeVisible();
                 testResult = true;
             } else {
                 console.log('searched part not displayed in first search');
                 testResult = false;
             }
         }
-        
     } catch (error) {
         testResult = false;
+    }
+    await page.reload();
+    return testResult;
+}
+
+async function allValidationsBOMImporter(page, parentPart) {
+    let testResult;
+    let data = [
+        //Stockcode(s) warehouse not found
+        { childPart: 'Test7222', qty: '2', seq: '673839', whouse: '01' },
+        //updated
+        { childPart: '+UTC000037-2', qty: '1', seq: '673839', whouse: '90' },
+        //inserted
+        // { childPart: '+5D56091G012', qty: '1', seq: '454354', whouse: '90' }
+    ];
+    try {
+        // await page.getByText('Inventory').first().click();
+        await page.getByRole('button', { name: 'Add Stock Code expand' }).click();
+        await page.getByRole('menuitem', { name: 'BOM Imports' }).click();
+        await expect(page.getByPlaceholder('Enter Sequence')).toBeVisible();
+        await page.getByLabel('open').nth(1).click();
+        await page.keyboard.insertText(parentPart);
+        await spinner(page);
+        try {
+            await expect(page.getByText('No Parent Part Number Found')).toBeVisible({ timeout: 3000 });
+            console.log('Parent Part not exist in our Pricing');
+            if (testCount == 3) {
+                testResult = true;
+            } else {
+                testResult = false;
+            }
+        } catch (error) {
+            let firstSearch = await page.locator('#react-select-3-option-0').textContent();
+            console.log('first result is ', firstSearch);
+            if (firstSearch == parentPart) {
+                await page.locator('#react-select-3-option-0').click();
+                for (let index = 0; index < data.length; index++) {
+                    await page.fill("(//*[contains(@placeholder,'Enter Stock Code')])[" + (index + 1) + "]", data[index].childPart);
+                    await page.fill("(//*[contains(@placeholder,'Enter Qty')])[" + (index + 1) + "]", data[index].qty);
+                    await page.fill("(//*[contains(@placeholder,'Enter Sequence')])[" + (index + 1) + "]", data[index].seq);
+                    await page.locator('div').filter({ hasText: /^Select Warehouse$/ }).nth(2).click();
+                    await page.keyboard.insertText(data[index].whouse);
+                    await delay(page, 1000);
+                    await page.keyboard.press('Enter');
+                    if (index !== (data.length - 1)) {
+                        await page.click("//*[contains(@src,'addIcon')]");
+                    }
+                }
+                await page.getByRole('button', { name: 'Upload' }).click();
+                await expect(page.getByText('Stockcode(s) not found in Warehouse' + data[0].childPart + '')).toBeVisible();
+                await expect(page.getByText('Updated Stockcode(s)' + data[1].childPart + '')).toBeVisible();
+                // await expect(page.getByText('Inserted Stockcode(s)' + data[2].childPart + '')).toBeVisible();
+                let validsTable = await page.locator("//form/div[2]").textContent();
+                console.log(validsTable);
+                testResult = true;
+            } else {
+                console.log('searched part not displayed in first search');
+                testResult = false;
+            }
+        }
+    } catch (error) {
+        testResult = false;
+        console.log(error);
     }
     return testResult;
 }
@@ -3607,6 +3686,59 @@ async function websitePaddingTesting(browser) {
         getResults = false;
     }
     return getResults;
+}
+async function verifySPAExpiryMails(page) {
+    console.log('------------------------.--------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
+    let testResults;
+    let customer = ['BRIML00', 'GRANU00', 'MADIX00'];
+    let supplier = ['WAGO001', 'WEIN001', 'SWIV001'];
+    let item = ['2000-115', 'CMT2108X2', 'AFC-1002-75-OR'];
+    let oneMonth = 1;
+    // let oneMonth = 3;
+    try {
+        for (let i = 0; i < customer.length; i++) {
+            await page.getByRole('button', { name: 'Pricing expand' }).click();
+            await page.getByRole('menuitem', { name: 'Non Standard Pricing' }).click();
+            await page.getByRole('button', { name: 'Configure' }).click();
+            await page.locator('div').filter({ hasText: /^Company Name\*Search$/ }).getByLabel('open').click();
+            await page.keyboard.insertText(customer[i]);
+            await page.locator("(//*[text() = '" + customer[i] + "'])[2]").click();
+            await page.getByPlaceholder('MM/DD/YYYY-MM/DD/YYYY').click();
+            await page.keyboard.press('ArrowDown');
+            await page.keyboard.press('ArrowDown');
+            await page.keyboard.press('ArrowUp');
+            await page.keyboard.press('Enter');
+            let sDate = await page.getByPlaceholder('MM/DD/YYYY-MM/DD/YYYY').getAttribute('value');
+            let startDate = sDate.replace(" - ", "");
+            let eDate = startDate.substring(3, 5);
+            for (let index = 0; index < oneMonth; index++) {
+                await page.getByLabel('Next Month').click();
+            }
+            await page.locator("(//*[text() = '" + eDate + "'])[1]").click();
+            await page.getByPlaceholder('Enter Client Quote Number').fill('FORTEST00', (i + 1));
+            await page.locator('div').filter({ hasText: /^Supplier\*Search$/ }).getByLabel('open').click();
+            await page.keyboard.insertText(supplier[i]);
+            await page.locator("(//*[text() = '" + supplier[i] + "'])[2]").click();
+            await page.locator("(//*[text() = 'Select '])[1]").click();
+            await page.keyboard.insertText('Specific Item');
+            await page.keyboard.press('Enter');
+            await page.locator('div').filter({ hasText: /^ItemsSearch$/ }).getByLabel('open').click();
+            await page.keyboard.insertText(item[i]);
+            await page.locator("(//*[text() = '" + item[i] + "'])[2]").click();
+            await page.locator('[id="pricing_rules\\.0\\.buy_side_discount"]').fill('26');
+            await page.getByPlaceholder('Enter Buy Price').fill('256.25');
+            await page.locator('div').filter({ hasText: /^Select%$/ }).getByLabel('open').click();
+            await page.getByText('Markup', { exact: true }).click();
+            await page.locator('[id="pricing_rules\\.0\\.type_value"]').fill('54');
+            await page.locator('//*[@id = "pricing_rules.0.fixed_value"]').fill('25.23');
+            await page.locator("//*[text()='Apply Rule']").click();
+            await expect(page.getByRole('button', { name: 'Configure' })).toBeVisible();
+        }
+        testResults = true;
+    } catch (error) {
+        testResults = false;
+    }
+    return testResults;
 }
 async function addSPAItemsToQuote(page, customer, quoteType, items, testCount, qurl, fixedSalesPrice, sellPrice, purchaseDiscount, buyPrice, listIIDMCost) {
     let quoteURL, testResults;
@@ -4109,5 +4241,7 @@ module.exports = {
     addCustomerToSyspro,
     addCustomerPermissions,
     delay,
-    bomImporter
+    bomImporter,
+    allValidationsBOMImporter,
+    verifySPAExpiryMails
 };

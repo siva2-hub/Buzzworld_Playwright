@@ -2,79 +2,126 @@
 // import { checkout_page, order_summary_page, guest_checkout_form, guest_add_products, request_payterms, login } from './helper';
 
 const { test, expect, chromium } = require('@playwright/test');
+const { retries } = require('../playwright.config');
 const { websitePaddingTesting, returnResult } = require('./helper');
 const testdata = JSON.parse(JSON.stringify(require("../testdata.json")))
 
-// let page, page1, context;
-// test.describe('Groupped into all tests', ()=>{
-//   test.only('by default credit card and net 30 as login', async ({ browser }) => {
-//     test.setTimeout(60000);
-//     context = await browser.newContext();
-//     page = await context.newPage();
-//     // login page
-//     await login(page);
-//     [page1] = await Promise.all([
-//       context.waitForEvent("page"),
-//       page.getByRole('button', { name: 'Shop Now' }).click(),
-//     ])
-//     await page1.waitForTimeout(2000);
-//     await page1.locator("//*[text() ='See all products']").scrollIntoViewIfNeeded();
-//     await page1.locator("//*[text() ='See all products']").hover();
-//     await page1.getByRole('link', { name: '231-642 - Male connector; 12-' }).first().hover();
-//     await page1.waitForTimeout(2000);
-//     // await page1.getByRole('button', { name: '' }).nth(1).hover({timeout:1200});
-//     await page1.getByRole('button', { name: '' }).nth(1).click();
-//     await page1.getByRole('link', { name: '231-2706/026-000 - 2-' }).first().hover();
-//     await page1.getByRole('button', { name: '' }).nth(3).click();
-//     await page1.goto(testdata.urls.cart_page_url);
-//     // await guest_add_products(page, '231-642 - Male connector; 12-', '-4T', 2);
-//     await page.waitForTimeout(2000);
-//     //updating the items quantity
-//     for (let index = 0; index < 2; index++) {
-//       await page1.getByRole('button', { name: '' }).first().click();
-//       await page1.getByRole('button', { name: '' }).nth(1).click();
-//     }
-//     //clicking on the update icon
-//     await page1.getByRole('button', { name: 'Refresh Cart' }).first().click();
-//     await page1.getByRole('button', { name: 'Refresh Cart' }).nth(1).click();
-//     await page1.getByRole('link', { name: 'Checkout' }).click();
-//     if (await page1.getByPlaceholder('Enter Phone Number').getAttribute('value') === "") {
-//       await page1.getByPlaceholder('Enter Phone Number').fill('(676) 476-57464');
-//     } else {
-//       console.log("executed the else blox");
-//     }
-//     await page1.getByRole('button', { name: 'Next' }).click();
-//     await page1.getByRole('button', { name: 'Next' }).click();
-//     await page1.locator('div').filter({ hasText: /^Select Shipping Method$/ }).nth(2).click();
-//     await page1.getByText('2 Day', { exact: true }).click();
-//     await page1.getByLabel('', { exact: true }).check();
-//     await page1.waitForTimeout(2000);
-//     await page1.getByPlaceholder('Enter Collect Number').fill('test_clct_number117');
-//     await page1.getByRole('button', { name: 'Next' }).click();
-//     //selecting the payment type
-//     let pay_type = '1% 10 NET 30';
-//     // let pay_type = 'Credit Card';
-//     if (pay_type === 'Credit Card') {
-//       await page1.getByLabel('Credit Card').click({timeout: 10000});
-//     } else {
-      
-//     }
-//     let vals = await checkout_page(page1, pay_type);
-//     if (pay_type === 'Credit Card') {
-//       creditCard(page1);
-//     } else {
-//       net30(page1);
-//     }
-//     await page1.pause();
-//     if (vals[0]) {
-//       // order_summary_page(res[1], res[2], res[3], res[4])
-//       console.log("executed the if block and return status is ", vals[0])
-//     } else {
-//       console.log("else block after checking total " + res);
-//     }
-//     await page1.pause();
-//   });
+let page, context;
+test.describe('Groupped into all tests', ()=>{
+  test.only('Credit Card Payment as Logged In', async ({ page }) => {
+    let card_type = testdata.card_details.american;
+    // let card_type = testdata.card_details.visa;
+    let cardDetails = [
+      card_type.card_number,
+      card_type.exp_date,
+      card_type.cvv
+    ];
+    // let pay_type = '1% 10 NET 30';
+    let pay_type = 'Credit Card';
+    let userName = await storeLogin(page);
+    await cartCheckout(page, false);
+    if (pay_type === 'Credit Card') {
+      await page.getByLabel('Credit Card').click({timeout: 10000});
+      await page.getByRole('button', { name: 'Proceed' }).click();
+      await creditCardPayment(page, userName, cardDetails);
+    } else {
+      await page.getByPlaceholder('Enter PO Number').fill('TESTPO1234');
+      await page.click("//*[text() = 'Approve']");
+    }
+  });
+  test('Declined the Credit Card Payment as Logged In', async ({ page }, testInfo) => {
+    let card_type = testdata.card_details.american;
+    // let card_type = testdata.card_details.visa;
+    let cardDetails = [
+      card_type.card_number,
+      card_type.exp_date,
+      card_type.cvv
+    ];
+    // let pay_type = '1% 10 NET 30';
+    let pay_type = 'Credit Card';
+    let userName = await storeLogin(page);
+    await cartCheckout(page, true);
+    if (pay_type === 'Credit Card') {
+      await page.getByLabel('Credit Card').click({timeout: 10000});
+      await page.getByRole('button', { name: 'Proceed' }).click();
+      await creditCardPayment(page, userName, cardDetails);
+    } else {
+      await page.getByPlaceholder('Enter PO Number').fill('TESTPO1234');
+      await page.click("//*[text() = 'Approve']");
+    }
+    let testResult;
+    try {
+      await expect(page.getByRole('dialog')).toContainText('This transaction has been declined.');
+      testResult = true;
+    } catch (error) {
+      testResult = false;
+    }
+    await returnResult(page, testInfo.title, testResult);
+    await page.waitForTimeout(2000);
+  });
+});
+
+//Logics
+async function storeLogin(page) {
   
+  let w = 1920, h = 910;
+  // let w = 1280, h = 551;
+  await page.setViewportSize({
+    width: w,
+    height: h
+  });
+  let url = testdata.urls.store_stage,
+  logEmail, logPword, userName, path;
+  await page.goto(url);
+  await page.getByRole('link', { name: ' Login' }).click();
+  await expect(page.getByRole('img', { name: 'IIDM' }).first()).toBeVisible();
+  if (url.includes('dev')) {
+    logEmail='cathy@bigmanwashes.com', logPword='Enter@4321', userName='Cathy'
+  } else {
+    logEmail='multicam@testuser.com', logPword='Enter@4321', userName='test'
+  }
+  await page.getByPlaceholder('Enter Email ID').fill(logEmail);
+  await page.getByPlaceholder('Enter Password').fill(logPword);
+  await page.click("(//*[@type='submit'])[1]");
+  await expect(page.locator('#main-header')).toContainText(userName);
+  return userName;
+}
+
+async function cartCheckout(page, isDecline) {
+  await page.locator("(//*[text() = 'Manufacturers'])[1]").hover();
+  await page.click("(//*[text() = 'Yaskawa'])[1]");
+  await page.locator('div.product-thumb-top').first().hover();
+  await page.locator('.product-action > button').first().click();
+  await page.getByRole('link', { name: 'Cart' }).first().click();
+  await page.getByRole('link', { name: 'Checkout' }).click();
+  await page.getByPlaceholder('Enter Phone Number').fill('(565) 465-46544');
+  await page.getByRole('button', { name: 'Next' }).click();
+  if (isDecline) {
+    for (let index = 0; index < 2; index++) {
+      await page.getByLabel('Postal Code').click();
+      await page.keyboard.insertText('46282');
+      await expect(page.locator("//*[contains(text(),'Add Postal Code')]")).toBeVisible();
+      await page.click("//*[contains(text(),'Add Postal Code')]");
+      await page.getByRole('button', { name: 'Next' }).click();
+    }
+  } else {
+    await page.getByRole('button', { name: 'Next' }).click();
+  }
+  await page.getByText('Select Shipping Method').click();
+  await page.getByText('Over Night', { exact: true }).click();
+  await page.getByLabel('', { exact: true }).check();
+  await page.getByPlaceholder('Enter Collect Number').fill('123456ON');
+  await page.getByRole('button', { name: 'Next' }).click();
+  await page.getByRole('textbox').fill('Test\nNotes');
+}
+
+async function creditCardPayment(page, userName, cardDetails) {
+  await page.getByPlaceholder('Enter Name on the Card').fill(userName);
+  await page.getByPlaceholder('Enter Card Number').fill(cardDetails[0]);
+  await page.getByPlaceholder('MM / YY').fill(cardDetails[1]);
+  await page.getByPlaceholder('Enter CVC').fill(cardDetails[2]);
+  await page.getByRole('button', { name: 'Proceed To Payment' }).click();
+}
 //   test('request payterms', async () => {
 //     const browser = await chromium.launch();
 //     const cont = await browser.newContext();
@@ -156,36 +203,36 @@ const testdata = JSON.parse(JSON.stringify(require("../testdata.json")))
 //     await expect(await page.locator('//*[text() = "Shop Now"]')).toBeVisible({ timeout: 10000 });
 //     const pagePeromise = cont.waitForEvent("page");
 //     page.getByRole('button', { name: 'Shop Now' }).click();
-//     const page1 = await pagePeromise;
-//     await page1.getByRole('link', { name: 'See all manufacturers' }).scrollIntoViewIfNeeded();
-//     await page1.getByRole('link', { name: '231-642 - Male connector; 12-' }).first().hover();
-//     await page1.waitForTimeout(2000);
-//     await page1.getByRole('button', { name: '' }).nth(1).click();
-//     await page1.getByRole('link', { name: '231-2706/026-000 - 2-' }).first().hover();
-//     await page1.getByRole('button', { name: '' }).nth(3).click();
-//     await page1.goto(testdata.urls.cart_page_url);
-//     await page1.getByRole('link', { name: 'Checkout' }).click();
-//     if (await page1.getByPlaceholder('Enter Phone Number').getAttribute('value') === "") {
-//       await page1.getByPlaceholder('Enter Phone Number').fill('(676) 476-57464');
+//     const page = await pagePeromise;
+//     await page.getByRole('link', { name: 'See all manufacturers' }).scrollIntoViewIfNeeded();
+//     await page.getByRole('link', { name: '231-642 - Male connector; 12-' }).first().hover();
+//     await page.waitForTimeout(2000);
+//     await page.getByRole('button', { name: '' }).nth(1).click();
+//     await page.getByRole('link', { name: '231-2706/026-000 - 2-' }).first().hover();
+//     await page.getByRole('button', { name: '' }).nth(3).click();
+//     await page.goto(testdata.urls.cart_page_url);
+//     await page.getByRole('link', { name: 'Checkout' }).click();
+//     if (await page.getByPlaceholder('Enter Phone Number').getAttribute('value') === "") {
+//       await page.getByPlaceholder('Enter Phone Number').fill('(676) 476-57464');
 //     } else {
 //       console.log("executed the else blox");
 //     }
-//     await page1.getByText('Billing Information').click();
-//     await page1.getByText('Shipping Information', { exact: true }).click();
-//     await page1.locator('#async-select-example').nth(1).fill('00009');
+//     await page.getByText('Billing Information').click();
+//     await page.getByText('Shipping Information', { exact: true }).click();
+//     await page.locator('#async-select-example').nth(1).fill('00009');
 //     try {
-//       await page1.getByText('Add Postal Code').hover();
-//       await page1.screenshot({ path: "files/Add Postal Code at logged_c billing.png" })
-//       await page1.getByText('Add Postal Code').click();
+//       await page.getByText('Add Postal Code').hover();
+//       await page.screenshot({ path: "files/Add Postal Code at logged_c billing.png" })
+//       await page.getByText('Add Postal Code').click();
 //     } catch (error) {
 //       console.log("add postal code button not displayed at loggedIn checkout page shipping information");
 //     }
-//     await page1.locator('#async-select-example').nth(2).fill('00009');
+//     await page.locator('#async-select-example').nth(2).fill('00009');
 //     try {
-//       await page1.getByText('Add Postal Code').hover();
-//       await page1.getByText('Add Postal Code').scrollIntoViewIfNeeded();
-//       await page1.screenshot({ path: "files/Add Postal Code at logged_c shipping.png" })
-//       await page1.getByText('Add Postal Code').click();
+//       await page.getByText('Add Postal Code').hover();
+//       await page.getByText('Add Postal Code').scrollIntoViewIfNeeded();
+//       await page.screenshot({ path: "files/Add Postal Code at logged_c shipping.png" })
+//       await page.getByText('Add Postal Code').click();
 //     } catch (error) {
 //       console.log("add postal code button not displayed at loggedIn checkout page shipping information");
 //     }
@@ -227,28 +274,28 @@ const testdata = JSON.parse(JSON.stringify(require("../testdata.json")))
 //     await expect(page.locator("//*[text() = 'Yes']")).toHaveText('Yes');
 //     await page.locator("//*[text() = 'Yes']").click();
 //   })
-  test('new customer registration', async({page}) =>{
-    await page.goto(testdata.urls.portal_url);
-    await page.getByRole('button', { name: 'Register' }).click();
-    await page.locator('.react-select__input-container').first().click();
-    await page.getByLabel('Company Name*').fill('Test CompanyTwo');
-    await expect(page.locator("//*[contains(text(), 'Add Company Name')]")).toBeVisible();
-    await page.locator("//*[contains(text(), 'Add Company Name')]").click();
-    await page.getByPlaceholder('Enter First Name').fill('Test');
-    await page.getByPlaceholder('Enter Last Name').fill('CompanyTwo');
-    await page.getByPlaceholder('Enter Email ID').fill('test@two.co');
-    await page.getByPlaceholder('Enter Phone Number').fill('(764) 723-64833');
-    await page.getByPlaceholder('Enter Address1').fill('1620 E. State Highway 121');
-    await page.getByPlaceholder('Enter City').fill('Lewisville');
-    await page.locator('div').filter({ hasText: /^Select State$/ }).nth(2).click();
-    await page.keyboard.insertText('Texas');
-    await page.keyboard.press('Enter');
-    await page.locator("//*[text() = 'Search By Postal Code']").click();
-    await page.keyboard.insertText('75001');
-    await page.getByRole('option', { name: '75001' }).first().click();
-    await page.pause();
-    await page.locator("//*[text() = 'Register']").click();
-  })
+  // test('new customer registration', async({page}) =>{
+  //   await page.goto(testdata.urls.portal_url);
+  //   await page.getByRole('button', { name: 'Register' }).click();
+  //   await page.locator('.react-select__input-container').first().click();
+  //   await page.getByLabel('Company Name*').fill('Test CompanyTwo');
+  //   await expect(page.locator("//*[contains(text(), 'Add Company Name')]")).toBeVisible();
+  //   await page.locator("//*[contains(text(), 'Add Company Name')]").click();
+  //   await page.getByPlaceholder('Enter First Name').fill('Test');
+  //   await page.getByPlaceholder('Enter Last Name').fill('CompanyTwo');
+  //   await page.getByPlaceholder('Enter Email ID').fill('test@two.co');
+  //   await page.getByPlaceholder('Enter Phone Number').fill('(764) 723-64833');
+  //   await page.getByPlaceholder('Enter Address1').fill('1620 E. State Highway 121');
+  //   await page.getByPlaceholder('Enter City').fill('Lewisville');
+  //   await page.locator('div').filter({ hasText: /^Select State$/ }).nth(2).click();
+  //   await page.keyboard.insertText('Texas');
+  //   await page.keyboard.press('Enter');
+  //   await page.locator("//*[text() = 'Search By Postal Code']").click();
+  //   await page.keyboard.insertText('75001');
+  //   await page.getByRole('option', { name: '75001' }).first().click();
+  //   await page.pause();
+  //   await page.locator("//*[text() = 'Register']").click();
+  // })
   
 //   test('quote approve', async({page})=>{
 //   await page.goto('https://www.staging-buzzworld.iidm.com/');
@@ -321,24 +368,24 @@ const testdata = JSON.parse(JSON.stringify(require("../testdata.json")))
 // });
 
 // //--------------------------------------Payment Type Methods--------------------------------
-// async function creditCard(page1) {
-//   await page1.getByLabel('Credit Card').click({timeout: 10000});
-//   await page1.getByRole('button', { name: 'Proceed' }).click();
-//   await page1.getByPlaceholder('Enter Name on the Card').fill('test zummo');
-//   await page1.getByPlaceholder('Enter Card Number').fill('4111 1111 1111 1111');
-//   await page1.getByPlaceholder('MM / YY').fill('12/29');
-//   await page1.getByPlaceholder('Enter CVC').fill('123');
-//   // await page1.pause()
+// async function creditCard(page) {
+//   await page.getByLabel('Credit Card').click({timeout: 10000});
+//   await page.getByRole('button', { name: 'Proceed' }).click();
+//   await page.getByPlaceholder('Enter Name on the Card').fill('test zummo');
+//   await page.getByPlaceholder('Enter Card Number').fill('4111 1111 1111 1111');
+//   await page.getByPlaceholder('MM / YY').fill('12/29');
+//   await page.getByPlaceholder('Enter CVC').fill('123');
+//   // await page.pause()
 // }
 // async function net30() {
 
-//   await page1.getByLabel('1% 10 NET 30').check();
-//   await page1.getByRole('button', { name: 'Proceed' }).click();
-//   await page1.getByPlaceholder('Enter PO Number').fill('TestPO1234');
-//   await page1.pause()
+//   await page.getByLabel('1% 10 NET 30').check();
+//   await page.getByRole('button', { name: 'Proceed' }).click();
+//   await page.getByPlaceholder('Enter PO Number').fill('TestPO1234');
+//   await page.pause()
 // }
-test('Website Padding Tests', async ({ browser}, testInfo) => {
-    let results = await websitePaddingTesting(browser);
-    let testName = testInfo.title;
-    await returnResult(page, testName, results);
-  });
+// test('Website Padding Tests', async ({ browser}, testInfo) => {
+//     let results = await websitePaddingTesting(browser);
+//     let testName = testInfo.title;
+//     await returnResult(page, testName, results);
+//   });
