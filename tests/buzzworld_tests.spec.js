@@ -3,7 +3,7 @@ const ExcelJS = require('exceljs');
 
 import { start } from 'repl';
 import { timeout } from '../playwright.config';
-import { add_dc, add_sc, admin1, admin2, admin3, admin4, api_data, create_job_manually, create_job_quotes, create_job_repairs, create_parts_purchase, dcAddUpdate, fetchData, fetch_jobs_Data, fetch_jobs_Detail, fetch_jobs_list, fetch_orders_Data, fetch_orders_Detail, fetch_order_list, fetch_pp_status, filters_pricing, functional_flow, import_pricing, inventory_search, leftMenuSearch, login, login_buzz, logout, multi_edit, parts_purchase_left_menu_filter, productAddUpdate, quotesRepairs, setScreenSize, spinner, sync_jobs, update_dc, update_sc, pos_report, reports, parts_import, add_parts, past_repair_prices, edit_PO_pp, returnResult, admin_permissions, pricing_permissions, addDiscountCodeValidations, addFunctionInAdminTabs, getProductWriteIntoExecl, verifyTwoExcelData, nonSPAPrice, addSPAItemsToQuote, validationsAtCreateRMAandQuotePages, read_excel_data, addCustomerToSysPro, websitePaddingTesting, verifyingCharacterLenght, addCustomerToSyspro, addCustomerToSysProValidations, addCustomerPermissions, bomImporter } from './helper';
+import  { add_dc, add_sc, admin1, admin2, admin3, admin4, api_data, create_job_manually, create_job_quotes, create_job_repairs, create_parts_purchase, dcAddUpdate, fetchData, fetch_jobs_Data, fetch_jobs_Detail, fetch_jobs_list, fetch_orders_Data, fetch_orders_Detail, fetch_order_list, fetch_pp_status, filters_pricing, functional_flow, import_pricing, inventory_search, leftMenuSearch, login, login_buzz, logout, multi_edit, parts_purchase_left_menu_filter, productAddUpdate, quotesRepairs, setScreenSize, spinner, sync_jobs, update_dc, update_sc, pos_report, reports, parts_import, add_parts, past_repair_prices, edit_PO_pp, returnResult, admin_permissions, pricing_permissions, addDiscountCodeValidations, addFunctionInAdminTabs, getProductWriteIntoExecl, verifyTwoExcelData, nonSPAPrice, addSPAItemsToQuote, validationsAtCreateRMAandQuotePages, read_excel_data, addCustomerToSysPro, websitePaddingTesting, verifyingCharacterLenght, addCustomerToSyspro, addCustomerToSysProValidations, addCustomerPermissions, bomImporter, allValidationsBOMImporter, verifySPAExpiryMails } from './helper';
 import AllPages from './PageObjects';
 
 const testdata = JSON.parse(JSON.stringify(require("../testdata.json")));
@@ -29,6 +29,12 @@ test.describe('all tests', async () => {
 
   test('Login', async ({ }, testInfo) => {
     results = await login(page);
+    let testName = testInfo.title;
+    await returnResult(page, testName, results);
+  });
+
+  test('SPA Expiry Email before One Month', async ({ }, testInfo) => {
+    results = await verifySPAExpiryMails(page);
     let testName = testInfo.title;
     await returnResult(page, testName, results);
   });
@@ -78,11 +84,43 @@ test.describe('all tests', async () => {
     await returnResult(page, testName, results);
   });
 
-  test('BOM Importer with Stockcode(s) not found in Warehouse', async ({ }, testInfo) => {
-    let parentPart = '0165009LS', childPart = 'Test7222', qty = '2', sequece = '673839', warehouse = '01';
-    results = await bomImporter(page, parentPart, childPart, qty, sequece, warehouse);
-    let testName = testInfo.title;
-    await returnResult(page, testName, results);
+  test.describe('BOM Importer', async () => {
+    test('First BOM Importer with Parent Part Not Found.!', async ({ }, testInfo) => {
+      let parentPart = '0165009SS', childPart = 'Test7222', qty = '2', sequece = '673839', warehouse = '01';
+      results = await bomImporter(page, parentPart, childPart, qty, sequece, warehouse, 1);
+      let testName = testInfo.title;
+      await returnResult(page, testName, results);
+    });
+    test('Second BOM Importer with Stockcode(s) not found in Warehouse', async ({ }, testInfo) => {
+      let parentPart = '0165009LS', childPart = 'Test7222', qty = '2', sequece = '673839', warehouse = '01';
+      results = await bomImporter(page, parentPart, childPart, qty, sequece, warehouse, 2);
+      let testName = testInfo.title;
+      await returnResult(page, testName, results);
+    });
+    test('Third BOM Importer with No Parent Part Number Found', async ({ }, testInfo) => {
+      let parentPart = 'ViratKholi', childPart = 'Test7222', qty = '2', sequece = '673839', warehouse = '01';
+      results = await bomImporter(page, parentPart, childPart, qty, sequece, warehouse, 3);
+      let testName = testInfo.title;
+      await returnResult(page, testName, results);
+    });
+    test('Fourth BOM Importer with Updated Stockcode(s)', async ({ }, testInfo) => {
+      let parentPart = '0165009LS', childPart = '+UTC000037-2', qty = '1', sequece = '673839', warehouse = '90';
+      results = await bomImporter(page, parentPart, childPart, qty, sequece, warehouse, 4);
+      let testName = testInfo.title;
+      await returnResult(page, testName, results);
+    });
+    test.skip('Fifth BOM Importer with Inserted Stockcode(s)', async ({ }, testInfo) => {
+      let parentPart = '0165009LS', childPart = '+5D56091G013', qty = '1', sequece = '673839', warehouse = '90';
+      results = await bomImporter(page, parentPart, childPart, qty, sequece, warehouse, 5);
+      let testName = testInfo.title;
+      await returnResult(page, testName, results);
+    });
+    test('All BOM Importer Validations', async ({ }, testInfo) => {
+      let parentPart = '0165009LS';
+      results = await allValidationsBOMImporter(page, parentPart);
+      let testName = testInfo.title;
+      await returnResult(page, testName, results);
+    });
   });
   test('Verify validations at Create RMA and Quotes Pages', async ({ }, testInfo) => {
     results = await validationsAtCreateRMAandQuotePages(page);
