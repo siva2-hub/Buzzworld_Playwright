@@ -1377,7 +1377,7 @@ async function create_job_repairs(page, is_create_job, repair_type, acc_num, con
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     // let acc_num = 'ENGYS00', cont_name = 'Jannice Carrillo', stock_code = 'EW25-104-20';
     // let tech = 'Michael Strothers';
-    // await page.goto('https://www.staging-buzzworld.iidm.com/quote_for_repair/472a3782-326a-4a52-92e6-114b3a21d479');
+    // await page.goto('https://www.staging-buzzworld.iidm.com/quote_for_repair/9696c583-5a0a-4096-88eb-27f835224230');
     let testResult;
     try {
         await page.getByText('Repairs').first().click();
@@ -1396,6 +1396,7 @@ async function create_job_repairs(page, is_create_job, repair_type, acc_num, con
         await expect(page.locator('#repair-items')).toContainText('Repair item(s) Not Available');
         let rep = await page.locator('(//*[@class = "id-num"])[1]').textContent();
         let repair_id = rep.replace("#", "");
+        // let repair_id = '314912';
         console.log('repair is created with id ', repair_id);
         console.log('repair url is ', await page.url());
         for (let index = 0; index < stock_code.length; index++) {
@@ -1461,17 +1462,17 @@ async function create_job_repairs(page, is_create_job, repair_type, acc_num, con
             await page.getByRole('button', { name: 'Update Evaluation' }).hover();
             await page.getByRole('button', { name: 'Update Evaluation' }).click();
         }
-        await page.waitForTimeout(1800);
-        //Add Items to Quote
+        await page.waitForTimeout(2800);
+        // Add Items to Quote
         await page.reload();
-        await spinner(page);
+        await page.waitForTimeout(4000);
         let checkbox = await page.locator('#repair-items label');
         let checkBoxCount = await checkbox.count();
         console.log('count is ', checkBoxCount);
         for (let i = 0; i < checkBoxCount; i++) {
             let check;
             if (checkBoxCount > 1) {
-                if (i==0) {
+                if (i == 0) {
                     check = await page.locator('#repair-items label').first();
                 } else {
                     check = await page.locator('#repair-items label').nth(i);
@@ -1527,11 +1528,11 @@ async function create_job_repairs(page, is_create_job, repair_type, acc_num, con
         await page.getByRole('button', { name: 'Won' }).click();
         await expect(page.locator('#root')).toContainText('Are you sure you want to mark it as approve ?');
         await page.getByRole('button', { name: 'Proceed' }).first().click();
-        let itemsCount = await page.locator("(//*[text()= 'Quote:'])").count();
-        //Create Sales Order
+        let itemsCount = await page.locator("(//*[text()= 'Quote:'])").count({ timeout: 2000 });
+        console.log('Items Count is ', itemsCount);
+        // //Create Sales Order
         await expect(page.locator('#root')).toContainText('Create Sales Order');
         await page.getByText('Create Sales Order').click();
-        await page.pause();
         await expect(page.getByPlaceholder('Enter PO Number')).toBeVisible();
         try {
             // await expect(page.locator("(//*[contains(text(), 'Item') or contains(text(), 'Stock Code')])")).toBeVisible();
@@ -1550,7 +1551,15 @@ async function create_job_repairs(page, is_create_job, repair_type, acc_num, con
         let res1 = false;
         for (let w = 0; w < itemsCount; w++) {
             try {
-                await expect(page.locator("(//*[text() = 'Warehouse'])[" + (w + 1) + "]")).toBeHidden({ timeout: 3000 });
+                if (itemsCount >= 1) {
+                    if (w == 0) {
+                        await expect(page.locator("(//*[text() = 'Warehouse'])").first()).toBeHidden({ timeout: 3000 });
+                    } else {
+                        await expect(page.locator("(//*[text() = 'Warehouse'])").nth(w)).toBeHidden({ timeout: 3000 });
+                    }
+                } else {
+                    await expect(page.locator("(//*[text() = 'Warehouse'])").first()).toBeHidden({ timeout: 3000 });
+                }
                 res1 = true;
             } catch (error) {
                 res1 = false;
@@ -1570,7 +1579,7 @@ async function create_job_repairs(page, is_create_job, repair_type, acc_num, con
                 await page.waitForTimeout(2000);
             } else {
             }
-            if (itemsCount > 1) {
+            if (itemsCount >= 1) {
                 if (w == 0) {
                     await expect(page.getByRole('button', { name: 'Create', exact: true }).first()).toBeVisible();
                 } else {
@@ -1580,25 +1589,25 @@ async function create_job_repairs(page, is_create_job, repair_type, acc_num, con
                 await expect(page.getByRole('button', { name: 'Create', exact: true }).first()).toBeVisible();
             }
         }
-        let createJobCheck = await page.locator('label').filter({ hasText: 'Create Job' });
+        let createJobCheck;
         let is_checked;
         await page.waitForTimeout(1500);
-        let createJobCount = await createJobCheck.count();
+        let createJobCount = await await page.locator('label').filter({ hasText: 'Create Job' }).count();
         console.log('create job check box count is ', createJobCount);;
         for (let j = 0; j < createJobCount; j++) {
-            if (createJobCount > 1) {
+            if (createJobCount >= 1) {
                 if (j == 0) {
-                    is_checked = createJobCheck.first().isChecked();
+                    is_checked = await page.locator('label').filter({ hasText: 'Create Job' }).first().isChecked();
                 } else {
-                    is_checked = createJobCheck.nth(j).isChecked();
+                    is_checked = await page.locator('label').filter({ hasText: 'Create Job' }).nth(j).isChecked();
                 }
             } else {
-                is_checked = createJobCheck.first().isChecked();
+                is_checked = await page.locator('label').filter({ hasText: 'Create Job' }).first().isChecked();
             }
 
             if (is_create_job == 'Y') {
                 if (is_checked) {
-                    if (createJobCount > 1) {
+                    if (createJobCount >= 1) {
                         if (j == 0) {
                             createJobCheck = await page.locator('label').filter({ hasText: 'Create Job' }).first();
                         } else {
@@ -1608,7 +1617,7 @@ async function create_job_repairs(page, is_create_job, repair_type, acc_num, con
                         createJobCheck = await page.locator('label').filter({ hasText: 'Create Job' }).first();
                     }
                 } else {
-                    if (createJobCount > 1) {
+                    if (createJobCount >= 1) {
                         if (j == 0) {
                             createJobCheck = await page.locator('label').filter({ hasText: 'Create Job' }).first();
                         } else {
@@ -1621,7 +1630,7 @@ async function create_job_repairs(page, is_create_job, repair_type, acc_num, con
                 }
             } else if (is_create_job == 'N') {
                 if (is_checked) {
-                    if (createJobCount > 1) {
+                    if (createJobCount >= 1) {
                         if (j == 0) {
                             createJobCheck = await page.locator('label').filter({ hasText: 'Create Job' }).first();
                         } else {
@@ -1632,7 +1641,7 @@ async function create_job_repairs(page, is_create_job, repair_type, acc_num, con
                     }
                     await createJobCheck.click();
                 } else {
-                    if (createJobCount > 1) {
+                    if (createJobCount >= 1) {
                         if (j == 0) {
                             createJobCheck = await page.locator('label').filter({ hasText: 'Create Job' }).first();
                         } else {
@@ -1645,6 +1654,7 @@ async function create_job_repairs(page, is_create_job, repair_type, acc_num, con
             }
             is_checked = await createJobCheck.isChecked();
         }
+        await expect(page.getByRole('button', { name: 'Create', exact: true })).toBeVisible();
         await page.getByRole('button', { name: 'Create', exact: true }).click();
         try {
             //update warehouse if needed
@@ -1661,11 +1671,16 @@ async function create_job_repairs(page, is_create_job, repair_type, acc_num, con
         console.log('order created with id ', order_id);
         if (is_create_job == 'Y') {
             console.log("job selection checkbox is checked ", is_checked);
-            let job_id = await page.locator('(//*[@role = "presentation"])[7]');
+            let job_id;
+            if (itemsCount >= 1) {
+                job_id = await page.locator('(//*[@role = "presentation"])[8]');
+            } else {
+                job_id = await page.locator('(//*[@role = "presentation"])[7]');
+            }
             let job_num = await job_id.textContent();
             console.log('job created with id ', job_num);
-            if (itemsCount > 1) {
-                let job_id2 = await page.locator('(//*[@role = "presentation"])[8]');
+            if (itemsCount >= 1) {
+                let job_id2 = await page.locator('(//*[@role = "presentation"])[7]');
                 let job_num2 = await job_id2.textContent();
                 console.log('second job created with id ', job_num2);
             }
@@ -1774,7 +1789,7 @@ async function rep_complete(page, rep_id, job_sta, tech, job_num, work_hours, pp
     }
     //marked as In Progress
     await expect(page.locator('#repair-items')).toContainText('Mark as In Progress');
-    await page.getByText('Mark as In Progress').click();
+    await page.getByText('Mark as In Progress').first().click();
     await expect(page.locator('#root')).toContainText('Are you sure you want to move this item to Repair In Progress?');
     await page.getByRole('button', { name: 'Accept' }).click();
     await expect(page.locator('#repair-items')).toContainText('In Progress');
@@ -1801,7 +1816,7 @@ async function rep_complete(page, rep_id, job_sta, tech, job_num, work_hours, pp
     await expect(page.locator('#repair-items')).toContainText('Pending QC');
     console.log(rep_id + '- 1 is Assign to QC');
     //Updating QC status
-    await page.locator('div:nth-child(6) > .action-item').click();
+    await page.locator('div:nth-child(6) > .action-item').first().click();
     await expect(page.locator('#root')).toContainText('QC Comments to Customer');
     await page.getByLabel('open').first().click();
     await page.locator('.sc-fytwQQ').click();
@@ -1830,7 +1845,7 @@ async function create_job_quotes(page, is_create_job, quoteType, acc_num, cont_n
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     // let acc_num = 'TESTC02', cont_name = 'Test CompanyTwo', stock_code = '832-1204',
     quote_type = quoteType;
-    // await page.goto('https://www.staging-buzzworld.iidm.com/system_quotes/73637d72-396c-40ea-9372-62c706f0ce1b');
+    // await page.goto('https://www.staging-buzzworld.iidm.com/system_quotes/01447303-61af-46ed-a94b-20379aa22d7b');
     let testResult;
     try {
         await page.getByText('Quotes', { exact: true }).first().click();
@@ -1847,7 +1862,7 @@ async function create_job_quotes(page, is_create_job, quoteType, acc_num, cont_n
         await page.getByPlaceholder('Enter Project Name').fill('for testing');
         await page.locator('div').filter({ hasText: /^Create Quote$/ }).nth(4).click();
         await page.getByRole('button', { name: 'Create Quote' }).click();
-        await expect(page.locator('#repair-items')).toContainText('Quote item(s) Not Available');
+        await expect(page.locator('#repair-items')).toContainText('Add Items');
         let quote = await page.locator('(//*[@class = "id-num"])[1]').textContent();
         let quote_id = quote.replace("#", "");
         console.log('quote is created with id ', quote_id);
@@ -1861,56 +1876,63 @@ async function create_job_quotes(page, is_create_job, quoteType, acc_num, cont_n
         await page.keyboard.press("Enter");
         await page.getByTitle('Save Changes').click();
         await page.waitForTimeout(2000);
-        await page.getByText('Add Items').click();
-        await page.getByPlaceholder('Search By Part Number').click();
-        await page.getByPlaceholder('Search By Part Number').fill(stock_code);
-        await spinner(page);
-        let res = false;
-        try {
-            await expect(page.locator("(//*[text() = 'Items Not Available'])[1]")).toBeVisible({ timeout: 2300 });
-            res = true;
-        } catch (error) {
-            // console.log(error);
-            res = false;
-        }
-        if (res) {
-            await page.getByRole('tab', { name: 'Add New Items' }).click();
-            if (quote_type == 'Parts Quote') {
-                await page.locator("//*[text() = 'Search']").click();
-                await page.keyboard.insertText(testdata.parts.supplier);
-                await page.keyboard.press('Enter');
-            } else {
+        for (let index = 0; index < stock_code.length; index++) {
 
+            await page.getByText('Add Items').click();
+            await page.getByPlaceholder('Search By Part Number').click();
+            await page.getByPlaceholder('Search By Part Number').fill(stock_code[index]);
+            await spinner(page);
+            let res = false;
+            try {
+                await expect(page.locator("(//*[text() = 'Items Not Available'])[1]")).toBeVisible({ timeout: 2300 });
+                res = true;
+            } catch (error) {
+                // console.log(error);
+                res = false;
             }
-            await page.getByPlaceholder('Part Number').fill(stock_code);
-            await page.getByPlaceholder('Quantity').fill('1');
-            await page.getByPlaceholder('Quote Price').fill('20123.56');
-            await page.getByPlaceholder('List Price').fill('256.36');
-            await page.getByPlaceholder('IIDM Cost').fill('2549.256984');
-            await page.getByText('Select').nth(1).click();
-            await page.getByText('Field Service', { exact: true }).click();
-            await page.getByText('Select', { exact: true }).click();
-            await page.getByText('Day(s)', { exact: true }).click();
-            await page.getByPlaceholder('Day(s)').click();
-            await page.getByPlaceholder('Day(s)').fill('12-16');
-            await page.getByPlaceholder('Description').click();
-            await page.getByPlaceholder('Description').fill('Manually Added Items');
-            await page.getByRole('button', { name: 'Add', exact: true }).click();
-        } else {
-            await allPages.checkBox.first().click();
-            await page.getByRole('button', { name: 'Add Selected 1 Items' }).click();
-        }
+            if (res) {
+                await page.getByRole('tab', { name: 'Add New Items' }).click();
+                if (quote_type == 'Parts Quote') {
+                    await page.locator("//*[text() = 'Search']").click();
+                    await page.keyboard.insertText(testdata.parts.supplier);
+                    await page.keyboard.press('Enter');
+                } else {
 
-        await expect(page.getByText('Add Options')).toBeVisible();
-        await page.waitForTimeout(1500);
-        let check = await page.locator('#repair-items label').isChecked();
-        if (check) {
-
-        } else {
-            await page.waitForTimeout(1000);
-            await page.locator('#repair-items label').check();
+                }
+                await page.getByPlaceholder('Part Number').fill(stock_code[index]);
+                await page.getByPlaceholder('Quantity').fill('1');
+                await page.getByPlaceholder('Quote Price').fill('20123.56');
+                await page.getByPlaceholder('List Price').fill('256.36');
+                await page.getByPlaceholder('IIDM Cost').fill('2549.256984');
+                await page.getByText('Select').nth(1).click();
+                await page.getByText('Field Service', { exact: true }).click();
+                await page.getByText('Select', { exact: true }).click();
+                await page.getByText('Day(s)', { exact: true }).click();
+                await page.getByPlaceholder('Day(s)').click();
+                await page.getByPlaceholder('Day(s)').fill('12-16');
+                await page.getByPlaceholder('Description').click();
+                await page.getByPlaceholder('Description').fill('Manually Added Items');
+                await page.getByRole('button', { name: 'Add', exact: true }).click();
+            } else {
+                await allPages.checkBox.first().click();
+                await page.getByRole('button', { name: 'Add Selected 1 Items' }).click();
+            }
+            await expect(page.getByText('Add Options')).toBeVisible();
         }
-        await page.getByRole('button', { name: 'Edit-icon' }).click();
+        await page.waitForTimeout(2500);
+        for (let i = 0; i < stock_code.length; i++) {
+            if (stock_code.length > 1) {
+                if (i == 0) {
+                    await page.locator('#repair-items label').first().check();
+                } else {
+                    await page.locator('#repair-items label').nth(i).check();
+                }
+            } else {
+                await page.locator('#repair-items label').first().check();
+            }
+        }
+        await page.waitForTimeout(1000);
+        await page.click("//img[@alt='Edit-icon' and contains(@src, 'themecolorEdit')]");
         await page.waitForTimeout(1000);
         await expect(page.getByText('Select').first()).toBeVisible();
         await page.waitForTimeout(1000);
@@ -1919,7 +1941,7 @@ async function create_job_quotes(page, is_create_job, quoteType, acc_num, cont_n
         await page.getByText('Field Service', { exact: true }).click();
         await page.waitForTimeout(1000);
         await page.getByRole('button', { name: 'Save' }).click();
-        await page.waitForTimeout(2000);
+        await page.waitForTimeout(2600);
         let total_price = await page.locator("(//*[contains(@class, 'total-price-ellipsis')])[3]").textContent();
         let tqp = parseInt(total_price.replace("$", "").replace(",", ""));
         if (tqp > 10000) {
@@ -1931,6 +1953,32 @@ async function create_job_quotes(page, is_create_job, quoteType, acc_num, cont_n
                 await page.getByPlaceholder('Enter Budgetary Amount').fill('9999.01');
                 await page.getByPlaceholder('Enter Key Decision Maker').fill(cont_name);
                 await page.locator("(//*[text() = 'Save'])[1]").click();
+                await page.locator("(//*[text() = 'Submit for Internal Approval'])[1]").click();
+                await expect(page.locator("(//*[text() = 'Are you sure you want to submit this quote for approval ?'])[1]")).toBeVisible();
+                await page.locator("(//*[text() = 'Proceed'])[1]").click();
+                await page.getByRole('button', { name: 'Approve' }).click();
+                await page.getByRole('button', { name: 'Approve' }).nth(1).click();
+            } else if (tqp > 25001 && 50001) {
+                await page.locator("//*[text() = 'Approval Questions']").click();
+                await page.locator("(//*[text() = 'Type'])[2]").click();
+                await page.keyboard.press('Enter');
+                await page.getByPlaceholder('Enter Competition').fill('Test Competition');
+                await page.getByPlaceholder('Enter Budgetary Amount').fill('9999.01');
+                await page.getByPlaceholder('Enter Key Decision Maker').fill(cont_name);
+                await page.locator("(//*[text() = 'Save'])[1]").click();
+                await expect(page.getByPlaceholder('Enter Decision Making Process')).toBeVisible();
+                await page.getByLabel('25k+ Questions').getByLabel('open').click();
+                await page.getByText('30 to 60 Days', { exact: true }).click();
+                await page.getByPlaceholder('Enter Pain').click();
+                await page.getByPlaceholder('Enter Pain').fill('Pain Entered');
+                await page.getByPlaceholder('Enter Decision Making Process').click();
+                await page.getByPlaceholder('Enter Decision Making Process').fill('Decision Making Process Entered');
+                await page.locator('div').filter({ hasText: /^MM\/DD\/YYYY$/ }).nth(3).click();
+                await page.locator('#react-select-6-input').press('ArrowDown');
+                await page.locator('#react-select-6-input').press('ArrowUp');
+                await page.locator('#react-select-6-input').press('Enter');
+                await page.getByRole('button', { name: 'Save' }).click();
+                await page.waitForTimeout(2500);
                 await page.locator("(//*[text() = 'Submit for Internal Approval'])[1]").click();
                 await expect(page.locator("(//*[text() = 'Are you sure you want to submit this quote for approval ?'])[1]")).toBeVisible();
                 await page.locator("(//*[text() = 'Proceed'])[1]").click();
@@ -1972,62 +2020,63 @@ async function create_job_quotes(page, is_create_job, quoteType, acc_num, cont_n
         } else {
 
         }
-        let res1 = false;
-        try {
-            await expect(page.locator("(//*[text() = 'Warehouse'])")).toBeHidden({ timeout: 3000 });
-            res1 = true;
-        } catch (error) {
-            res1 = false;
-        }
-        if (res1) {
-            await page.locator('(//*[contains(@src, "addIcon")])[1]').click();
-            await expect(page.getByRole('dialog')).toContainText('Add Stock Line Items');
-            await page.getByRole('dialog').getByLabel('open').first().click();
-            await page.keyboard.press('Enter');
-            let desc = await page.getByPlaceholder('Enter Stock Description');
-            if (await desc.getAttribute('value') == '') {
-                desc.fill('Manually Added');
-            } else {
+        let res1 = false; let is_checked;
+        for (let index = 0; index < stock_code.length; index++) {
+            try {
+                await expect(page.locator("(//*[text() = 'Warehouse'])[1]")).toBeHidden({ timeout: 3000 });
+                res1 = true;
+            } catch (error) {
+                res1 = false;
             }
-            await page.getByRole('button', { name: 'Add' }).click();
+            if (res1) {
+                await page.locator('(//*[contains(@src, "addIcon")])[1]').click();
+                await expect(page.getByRole('dialog')).toContainText('Add Stock Line Items');
+                await page.getByRole('dialog').getByLabel('open').first().click();
+                await page.keyboard.press('Enter');
+                let desc = await page.getByPlaceholder('Enter Stock Description');
+                if (await desc.getAttribute('value') == '') {
+                    desc.fill('Manually Added');
+                } else {
+                }
+                await page.getByRole('button', { name: 'Add' }).first().click();
+                if (quote_type == 'Parts Quote') {
+
+                } else {
+                    await expect(page.locator("(//*[text() = 'Create Job'])[1]")).toBeVisible();
+                }
+                await page.waitForTimeout(2000);
+            } else {
+
+            }
+            await page.waitForTimeout(1500);
+            await expect(page.getByRole('button', { name: 'Create', exact: true }).first()).toBeVisible();
             if (quote_type == 'Parts Quote') {
-
+                console.log('create job option is disabled for ' + quote_type);
+                is_checked = 'not display the create job option..';
             } else {
-                await expect(page.locator("//*[text() = 'Create Job']")).toBeVisible();
-            }
-            await page.waitForTimeout(2000);
-        } else {
+                is_checked = await page.locator('label').filter({ hasText: 'Create Job' }).first().isChecked();
+                if (is_create_job == 'Y') {
+                    if (is_checked) {
 
-        }
-        let is_checked;
-        await page.waitForTimeout(1500);
-        await expect(page.getByRole('button', { name: 'Create', exact: true })).toBeVisible();
-        if (quote_type == 'Parts Quote') {
-            console.log('create job option is disabled for ' + quote_type);
-            is_checked = 'not display the create job option..';
-        } else {
-            is_checked = await page.locator('label').filter({ hasText: 'Create Job' }).isChecked();
-            if (is_create_job == 'Y') {
-                if (is_checked) {
+                    } else {
+                        await page.locator('label').filter({ hasText: 'Create Job' }).first().click();
+                    }
+                } else if (is_create_job == 'N') {
+                    if (is_checked) {
+                        await page.locator('label').filter({ hasText: 'Create Job' }).first().click();
+                    } else {
 
-                } else {
-                    await page.locator('label').filter({ hasText: 'Create Job' }).click();
+                    }
                 }
-            } else if (is_create_job == 'N') {
-                if (is_checked) {
-                    await page.locator('label').filter({ hasText: 'Create Job' }).click();
-                } else {
-
-                }
+                is_checked = await page.locator('label').filter({ hasText: 'Create Job' }).first().isChecked();
             }
-            is_checked = await page.locator('label').filter({ hasText: 'Create Job' }).isChecked();
         }
-        await page.getByRole('button', { name: 'Create', exact: true }).click();
+        await page.getByRole('button', { name: 'Create', exact: true }).first().click();
         try {
             //update warehouse if needed
-            await expect(page.locator("//*[contains(text(),  'not stocked in warehouse')]")).toBeVisible({ timeout: 6000 });
+            await expect(page.locator("(//*[contains(text(),  'not stocked in warehouse')])[1]")).toBeVisible({ timeout: 6000 });
             await warehouse_update(page, stock_code);
-            await page.getByRole('button', { name: 'Create', exact: true }).click();
+            await page.getByRole('button', { name: 'Create', exact: true }).first().click();
         } catch (error) {
 
         }
@@ -2059,6 +2108,7 @@ async function create_job_quotes(page, is_create_job, quoteType, acc_num, cont_n
         testResult = true;
     } catch (error) {
         testResult = false;
+        console.log(error);
     }
     return testResult;
 }
@@ -3043,6 +3093,126 @@ async function add_parts(page, cond2, cond3) {
     }
     return getTestResults;
 }
+
+async function bomImporter(page, parentPart, childPart, qty, sequence, warehouse, testCount) {
+    let testResult;
+    try {
+        if (testCount == 1) {
+            await page.getByText('Inventory').first().click();
+        }
+        await page.getByRole('button', { name: 'Add Stock Code expand' }).click();
+        await page.getByRole('menuitem', { name: 'BOM Imports' }).click();
+        await expect(page.getByPlaceholder('Enter Sequence')).toBeVisible();
+        await page.getByLabel('open').nth(1).click();
+        await page.keyboard.insertText(parentPart);
+        await spinner(page);
+        try {
+            await expect(page.getByText('No Parent Part Number Found')).toBeVisible({ timeout: 3000 });
+            console.log('Parent Part not exist in our Pricing');
+            if (testCount == 3) {
+                testResult = true;
+            } else {
+                testResult = false;
+            }
+        } catch (error) {
+            let firstSearch = await page.locator('#react-select-3-option-0').textContent();
+            console.log('first result is ', firstSearch);
+            if (firstSearch == parentPart) {
+                await page.locator('#react-select-3-option-0').click();
+                await page.getByPlaceholder('Enter Stock Code').fill(childPart);
+                await page.getByPlaceholder('Enter Qty').fill(qty);
+                await page.getByPlaceholder('Enter Sequence').fill(sequence);
+                await page.locator('div').filter({ hasText: /^Select Warehouse$/ }).nth(2).click();
+                await page.locator('#react-select-4-input').fill(warehouse);
+                await page.locator('#react-select-4-input').press('Enter');
+                await page.getByRole('button', { name: 'Upload' }).click();
+                let expText;
+                if (testCount == 1) {
+                    expText = page.getByText('Parent Part Number not found' + parentPart + '');
+                } else if (testCount == 2) {
+                    expText = page.getByText('Stockcode(s) not found in Warehouse' + childPart + '');
+                } else if (testCount == 4) {
+                    expText = page.getByText('Updated Stockcode(s)' + childPart + '');
+                } else {
+                    expText = page.getByText('Inserted Stockcode(s)' + childPart + '');
+                }
+                console.log('Displaying validation is ', await expText.textContent());
+                await expect(expText).toBeVisible();
+                testResult = true;
+            } else {
+                console.log('searched part not displayed in first search');
+                testResult = false;
+            }
+        }
+    } catch (error) {
+        testResult = false;
+    }
+    await page.reload();
+    return testResult;
+}
+
+async function allValidationsBOMImporter(page, parentPart) {
+    let testResult;
+    let data = [
+        //Stockcode(s) warehouse not found
+        { childPart: 'Test7222', qty: '2', seq: '673839', whouse: '01' },
+        //updated
+        { childPart: '+UTC000037-2', qty: '1', seq: '673839', whouse: '90' },
+        //inserted
+        // { childPart: '+5D56091G012', qty: '1', seq: '454354', whouse: '90' }
+    ];
+    try {
+        // await page.getByText('Inventory').first().click();
+        await page.getByRole('button', { name: 'Add Stock Code expand' }).click();
+        await page.getByRole('menuitem', { name: 'BOM Imports' }).click();
+        await expect(page.getByPlaceholder('Enter Sequence')).toBeVisible();
+        await page.getByLabel('open').nth(1).click();
+        await page.keyboard.insertText(parentPart);
+        await spinner(page);
+        try {
+            await expect(page.getByText('No Parent Part Number Found')).toBeVisible({ timeout: 3000 });
+            console.log('Parent Part not exist in our Pricing');
+            if (testCount == 3) {
+                testResult = true;
+            } else {
+                testResult = false;
+            }
+        } catch (error) {
+            let firstSearch = await page.locator('#react-select-3-option-0').textContent();
+            console.log('first result is ', firstSearch);
+            if (firstSearch == parentPart) {
+                await page.locator('#react-select-3-option-0').click();
+                for (let index = 0; index < data.length; index++) {
+                    await page.fill("(//*[contains(@placeholder,'Enter Stock Code')])[" + (index + 1) + "]", data[index].childPart);
+                    await page.fill("(//*[contains(@placeholder,'Enter Qty')])[" + (index + 1) + "]", data[index].qty);
+                    await page.fill("(//*[contains(@placeholder,'Enter Sequence')])[" + (index + 1) + "]", data[index].seq);
+                    await page.locator('div').filter({ hasText: /^Select Warehouse$/ }).nth(2).click();
+                    await page.keyboard.insertText(data[index].whouse);
+                    await delay(page, 1000);
+                    await page.keyboard.press('Enter');
+                    if (index !== (data.length - 1)) {
+                        await page.click("//*[contains(@src,'addIcon')]");
+                    }
+                }
+                await page.getByRole('button', { name: 'Upload' }).click();
+                await expect(page.getByText('Stockcode(s) not found in Warehouse' + data[0].childPart + '')).toBeVisible();
+                await expect(page.getByText('Updated Stockcode(s)' + data[1].childPart + '')).toBeVisible();
+                // await expect(page.getByText('Inserted Stockcode(s)' + data[2].childPart + '')).toBeVisible();
+                let validsTable = await page.locator("//form/div[2]").textContent();
+                console.log(validsTable);
+                testResult = true;
+            } else {
+                console.log('searched part not displayed in first search');
+                testResult = false;
+            }
+        }
+    } catch (error) {
+        testResult = false;
+        console.log(error);
+    }
+    return testResult;
+}
+
 async function fetch_jobs_list(page, page_num) {
     const apiUrl = 'https://staging-buzzworld-api.iidm.com//v1/getSysproJobs?page=' + page_num + '&perPage=250&sort=asc&sort_key=job_id&grid_name=Jobs';
     // Make a GET request to the API endpoint
@@ -3516,6 +3686,59 @@ async function websitePaddingTesting(browser) {
         getResults = false;
     }
     return getResults;
+}
+async function verifySPAExpiryMails(page) {
+    console.log('------------------------.--------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
+    let testResults;
+    let customer = ['BRIML00', 'GRANU00', 'MADIX00'];
+    let supplier = ['WAGO001', 'WEIN001', 'SWIV001'];
+    let item = ['2000-115', 'CMT2108X2', 'AFC-1002-75-OR'];
+    let oneMonth = 1;
+    // let oneMonth = 3;
+    try {
+        for (let i = 0; i < customer.length; i++) {
+            await page.getByRole('button', { name: 'Pricing expand' }).click();
+            await page.getByRole('menuitem', { name: 'Non Standard Pricing' }).click();
+            await page.getByRole('button', { name: 'Configure' }).click();
+            await page.locator('div').filter({ hasText: /^Company Name\*Search$/ }).getByLabel('open').click();
+            await page.keyboard.insertText(customer[i]);
+            await page.locator("(//*[text() = '" + customer[i] + "'])[2]").click();
+            await page.getByPlaceholder('MM/DD/YYYY-MM/DD/YYYY').click();
+            await page.keyboard.press('ArrowDown');
+            await page.keyboard.press('ArrowDown');
+            await page.keyboard.press('ArrowUp');
+            await page.keyboard.press('Enter');
+            let sDate = await page.getByPlaceholder('MM/DD/YYYY-MM/DD/YYYY').getAttribute('value');
+            let startDate = sDate.replace(" - ", "");
+            let eDate = startDate.substring(3, 5);
+            for (let index = 0; index < oneMonth; index++) {
+                await page.getByLabel('Next Month').click();
+            }
+            await page.locator("(//*[text() = '" + eDate + "'])[1]").click();
+            await page.getByPlaceholder('Enter Client Quote Number').fill('FORTEST00', (i + 1));
+            await page.locator('div').filter({ hasText: /^Supplier\*Search$/ }).getByLabel('open').click();
+            await page.keyboard.insertText(supplier[i]);
+            await page.locator("(//*[text() = '" + supplier[i] + "'])[2]").click();
+            await page.locator("(//*[text() = 'Select '])[1]").click();
+            await page.keyboard.insertText('Specific Item');
+            await page.keyboard.press('Enter');
+            await page.locator('div').filter({ hasText: /^ItemsSearch$/ }).getByLabel('open').click();
+            await page.keyboard.insertText(item[i]);
+            await page.locator("(//*[text() = '" + item[i] + "'])[2]").click();
+            await page.locator('[id="pricing_rules\\.0\\.buy_side_discount"]').fill('26');
+            await page.getByPlaceholder('Enter Buy Price').fill('256.25');
+            await page.locator('div').filter({ hasText: /^Select%$/ }).getByLabel('open').click();
+            await page.getByText('Markup', { exact: true }).click();
+            await page.locator('[id="pricing_rules\\.0\\.type_value"]').fill('54');
+            await page.locator('//*[@id = "pricing_rules.0.fixed_value"]').fill('25.23');
+            await page.locator("//*[text()='Apply Rule']").click();
+            await expect(page.getByRole('button', { name: 'Configure' })).toBeVisible();
+        }
+        testResults = true;
+    } catch (error) {
+        testResults = false;
+    }
+    return testResults;
 }
 async function addSPAItemsToQuote(page, customer, quoteType, items, testCount, qurl, fixedSalesPrice, sellPrice, purchaseDiscount, buyPrice, listIIDMCost) {
     let quoteURL, testResults;
@@ -4017,5 +4240,8 @@ module.exports = {
     verifyingCharacterLenght,
     addCustomerToSyspro,
     addCustomerPermissions,
-    delay
+    delay,
+    bomImporter,
+    allValidationsBOMImporter,
+    verifySPAExpiryMails
 };
