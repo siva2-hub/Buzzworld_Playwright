@@ -1383,6 +1383,7 @@ async function create_job_repairs(page, is_create_job, repair_type, acc_num, con
         await page.getByText('Repairs').first().click();
         await expect(allPages.profileIconListView).toBeVisible();
         await page.waitForTimeout(2000);
+        let repCount;
         await page.getByText('Create RMA').click();
         await expect(page.locator('#root')).toContainText('Search By Company Name');
         await page.getByText('Search By Company Name').click();
