@@ -1380,10 +1380,13 @@ async function create_job_repairs(page, is_create_job, repair_type, acc_num, con
     // await page.goto('https://www.staging-buzzworld.iidm.com/quote_for_repair/9696c583-5a0a-4096-88eb-27f835224230');
     let testResult;
     try {
+        //Verifying Total Repairs Count
         await page.getByText('Repairs').first().click();
         await expect(allPages.profileIconListView).toBeVisible();
         await page.waitForTimeout(2000);
         let repCount;
+        repCount = await page.textContent("//*[contains(@id, 'row-count')]");
+        console.log('Before creating Repair Totals Repair count is: ', repCount);
         await page.getByText('Create RMA').click();
         await expect(page.locator('#root')).toContainText('Search By Company Name');
         await page.getByText('Search By Company Name').click();
@@ -1701,6 +1704,13 @@ async function create_job_repairs(page, is_create_job, repair_type, acc_num, con
         testResult = false;
         console.error(error);
     }
+    //Verifying Total Repairs Count
+    await page.getByText('Repairs').first().click();
+    await expect(allPages.profileIconListView).toBeVisible();
+    await page.waitForTimeout(2000);
+    let repCount;
+    repCount = await page.textContent("//*[contains(@id, 'row-count')]");
+    console.log('After creating Repair Totals Repair count is: ', repCount);
     return testResult;
 }
 async function rep_complete(page, rep_id, job_sta, tech, job_num, work_hours, ppId) {
