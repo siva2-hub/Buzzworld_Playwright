@@ -223,7 +223,6 @@ async function request_payterms(page) {
 async function login_buzz(page, stage_url) {
     allPages = new AllPages(page);
     await page.goto(stage_url);
-    await page.waitForTimeout(1300);
     if (await page.url().includes('sso')) {
         await allPages.userNameInput.fill('defaultuser@enterpi.com');
         await allPages.passwordInput.fill('Enter@4321');
@@ -1380,9 +1379,13 @@ async function create_job_repairs(page, is_create_job, repair_type, acc_num, con
     // await page.goto('https://www.staging-buzzworld.iidm.com/quote_for_repair/9696c583-5a0a-4096-88eb-27f835224230');
     let testResult;
     try {
+        //Verifying Total Repairs Count
         await page.getByText('Repairs').first().click();
         await expect(allPages.profileIconListView).toBeVisible();
         await page.waitForTimeout(2000);
+        let repCount;
+        repCount = await page.textContent("//*[contains(@id, 'row-count')]");
+        console.log('Before creating Repair Totals Repair count is: ', repCount);
         await page.getByText('Create RMA').click();
         await expect(page.locator('#root')).toContainText('Search By Company Name');
         await page.getByText('Search By Company Name').click();
@@ -1700,6 +1703,13 @@ async function create_job_repairs(page, is_create_job, repair_type, acc_num, con
         testResult = false;
         console.error(error);
     }
+    //Verifying Total Repairs Count
+    await page.getByText('Repairs').first().click();
+    await expect(allPages.profileIconListView).toBeVisible();
+    await page.waitForTimeout(2000);
+    let repCount;
+    repCount = await page.textContent("//*[contains(@id, 'row-count')]");
+    console.log('After creating Repair Totals Repair count is: ', repCount);
     return testResult;
 }
 async function rep_complete(page, rep_id, job_sta, tech, job_num, work_hours, ppId) {
@@ -1845,7 +1855,7 @@ async function create_job_quotes(page, is_create_job, quoteType, acc_num, cont_n
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     // let acc_num = 'TESTC02', cont_name = 'Test CompanyTwo', stock_code = '832-1204',
     quote_type = quoteType;
-    // await page.goto('https://www.staging-buzzworld.iidm.com/system_quotes/01447303-61af-46ed-a94b-20379aa22d7b');
+    // await page.goto('https://www.staging-buzzworld.iidm.com/all_quotes/68c2706d-08dd-4235-93ed-dcb5287cb98d');
     let testResult;
     try {
         await page.getByText('Quotes', { exact: true }).first().click();
@@ -3101,15 +3111,17 @@ async function bomImporter(page, parentPart, childPart, qty, sequence, warehouse
             await page.getByText('Inventory').first().click();
         }
         await page.getByRole('button', { name: 'Add Stock Code expand' }).click();
-        await page.getByRole('menuitem', { name: 'BOM Imports' }).click();
-        await expect(page.getByPlaceholder('Enter Sequence')).toBeVisible();
+        await page.getByRole('menuitem', { name: 'BOM Import' }).click();
+        await expect(page.getByPlaceholder('Enter Stock Code')).toBeVisible();
         await page.getByLabel('open').nth(1).click();
         await page.keyboard.insertText(parentPart);
         await spinner(page);
         try {
             await expect(page.getByText('No Parent Part Number Found')).toBeVisible({ timeout: 3000 });
             console.log('Parent Part not exist in our Pricing');
-            if (testCount == 3) {
+            if (testCount == 1) {
+                testResult = true;
+            } else if (testCount == 3) {
                 testResult = true;
             } else {
                 testResult = false;
@@ -3121,14 +3133,13 @@ async function bomImporter(page, parentPart, childPart, qty, sequence, warehouse
                 await page.locator('#react-select-3-option-0').click();
                 await page.getByPlaceholder('Enter Stock Code').fill(childPart);
                 await page.getByPlaceholder('Enter Qty').fill(qty);
-                await page.getByPlaceholder('Enter Sequence').fill(sequence);
                 await page.locator('div').filter({ hasText: /^Select Warehouse$/ }).nth(2).click();
                 await page.locator('#react-select-4-input').fill(warehouse);
                 await page.locator('#react-select-4-input').press('Enter');
                 await page.getByRole('button', { name: 'Upload' }).click();
                 let expText;
                 if (testCount == 1) {
-                    expText = page.getByText('Parent Part Number not found' + parentPart + '');
+                    expText = page.getByText('No Parent Part Number Found');
                 } else if (testCount == 2) {
                     expText = page.getByText('Stockcode(s) not found in Warehouse' + childPart + '');
                 } else if (testCount == 4) {
@@ -3151,6 +3162,98 @@ async function bomImporter(page, parentPart, childPart, qty, sequence, warehouse
     return testResult;
 }
 
+async function uploadBOMFiles(page, parentPart, testCount, file, testName) {
+    let testResult = false;
+    let uploadedHeaders = 'Stockcode123Quantity123Warehouse123';
+    async function isVisibleScrollable(page, element) {
+        try { await expect(element).toBeVisible({ timeout: 3000 }); await element.scrollIntoViewIfNeeded(); await delay(page, 1200); return true; }
+        catch (error) { return false; }
+    }
+    try {
+        if (testCount == 1) { await page.getByText('Inventory').first().click(); }
+        else { await page.getByText('Inventory').first().click(); }
+        await page.getByRole('button', { name: 'Add Stock Code expand' }).click();
+        await page.getByRole('menuitem', { name: 'BOM Import' }).click();
+        await expect(page.getByPlaceholder('Enter Stock Code')).toBeVisible();
+        await page.click("//*[text()='Upload']");
+        await page.getByLabel('Upload').getByLabel('open').click();
+        await page.keyboard.insertText(parentPart);
+        await expect(page.getByText('Loading...')).toBeHidden();
+        try {
+            await expect(page.getByText('No Parent Part Number Found')).toBeVisible({ timeout: 1500 });
+            console.log('Parent Part not exist in our Pricing');
+        } catch (error) {
+            await page.getByText(parentPart, { exact: true }).nth(1).click();
+            await page.setInputFiles("//*[@type = 'file']", file);
+            let fileUploaded = page.locator("//*[text()='File Uploaded']");
+            if (testCount == 1) {
+
+            } else {
+                await isVisibleScrollable(page, fileUploaded);
+                await allPages.proceed;
+            }
+            if (testCount == 1) {
+                await expect(page.getByLabel('Upload').getByText('Invalid File')).toBeVisible({ timeout: 3000 });
+                testResult = true;
+            } else if (testCount == 2) {
+                let tableItems = await page.locator('//*[@id="table-items"]/div[2]').textContent();
+                let text = "Excel file headers doesn't match Sample format.Sample FormatStockcodeQuantityWarehouseUploaded Format" + uploadedHeaders;
+                if (tableItems == text) {
+                    testResult = true;
+                } else {
+                    testResult = false;
+                }
+            } else if (testCount == 3) {
+                await expect(page.getByLabel('Upload').getByText('Headers information missing')).toBeVisible({ timeout: 3000 });
+                testResult = true;
+            } else if (testCount == 4 || testCount == 6) {
+                await expect(page.getByLabel('Upload').getByText('Stockcode(s) not found in the given file.')).toBeVisible({ timeout: 3000 });
+                testResult = true;
+            } else if (testCount == 5 || testCount == 8) {
+                await expect(page.getByLabel('Upload').getByText('1 row(s) have invalid cell value for headers')).toBeVisible({ timeout: 3000 });
+                let tableItems = await page.textContent("//*[@class='ag-center-cols-container']");
+                let data = await read_excel_data(file, 0); let val = [];
+                for (let index = 0; index < data.length; index++) {
+                    let childStock = data[index]['Quantity'];
+                    val.push(childStock);
+                }
+                let checkValue; if (testCount == 5) { checkValue = '2Quantity' + val.join(',') + 'numericstring'; }
+                else { checkValue = '2Quantity' + val.join(',') + 'numericstring'; }
+                if (tableItems == checkValue) { testResult = true; } else { testResult = false; }
+            } else if (testCount == 7 || testCount == 11) {
+                let data = await read_excel_data(file, 0); let val = [];
+                for (let index = 0; index < data.length; index++) {
+                    let childStock = data[index]['Stockcode'];
+                    val.push(childStock);
+                }
+                let errors = page.getByText('Stockcode(s) not found in Warehouse' + val.join(', '));
+                await isVisibleScrollable(page, errors);
+                testResult = true;
+            } else if (testCount == 9) {
+                let data = await read_excel_data(file, 0); let val = [];
+                for (let index = 0; index < data.length; index++) {
+                    let childStock = data[index]['Stockcode'];
+                    val.push(childStock);
+                }
+                let errors = page.getByLabel('Upload').getByText('Following Stockcode(s) having quantity more than 999999. ' + val.join(', '))
+                await isVisibleScrollable(page, errors);
+                testResult = true;
+            } else if (testCount == 10) {
+                let errors = page.getByLabel('Upload').getByText('Following Stockcode(s) are invalid. ' + val.join(', '))
+                await isVisibleScrollable(page, errors);
+                testResult = true;
+            }else{
+                
+            }
+        }
+    } catch (error) {
+        console.log('error is ', error);
+        testResult = false;
+    }
+    await page.screenshot({ path: 'testResFiles/' + testName + '.png' });
+    await page.reload();
+    return testResult;
+}
 async function allValidationsBOMImporter(page, parentPart) {
     let testResult;
     let data = [
@@ -3162,10 +3265,10 @@ async function allValidationsBOMImporter(page, parentPart) {
         // { childPart: '+5D56091G012', qty: '1', seq: '454354', whouse: '90' }
     ];
     try {
-        // await page.getByText('Inventory').first().click();
+        await page.getByText('Inventory').first().click();
         await page.getByRole('button', { name: 'Add Stock Code expand' }).click();
-        await page.getByRole('menuitem', { name: 'BOM Imports' }).click();
-        await expect(page.getByPlaceholder('Enter Sequence')).toBeVisible();
+        await page.getByRole('menuitem', { name: 'BOM Import' }).click();
+        await expect(page.getByPlaceholder('Enter Stock Code')).toBeVisible();
         await page.getByLabel('open').nth(1).click();
         await page.keyboard.insertText(parentPart);
         await spinner(page);
@@ -3185,7 +3288,6 @@ async function allValidationsBOMImporter(page, parentPart) {
                 for (let index = 0; index < data.length; index++) {
                     await page.fill("(//*[contains(@placeholder,'Enter Stock Code')])[" + (index + 1) + "]", data[index].childPart);
                     await page.fill("(//*[contains(@placeholder,'Enter Qty')])[" + (index + 1) + "]", data[index].qty);
-                    await page.fill("(//*[contains(@placeholder,'Enter Sequence')])[" + (index + 1) + "]", data[index].seq);
                     await page.locator('div').filter({ hasText: /^Select Warehouse$/ }).nth(2).click();
                     await page.keyboard.insertText(data[index].whouse);
                     await delay(page, 1000);
@@ -3583,6 +3685,25 @@ async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPrice, dis
 
     }
     return [testResults, quoteURL[0]];
+}
+
+async function itemNotesLineBreaks(page, stage_url) {
+    await page.goto(stage_url + 'all_quotes/d3c8a32f-d9be-4ba1-9dca-9471130ee105');
+    await delay(page, 2000);
+    let testResults;
+    let text = await page.locator("(//h4[contains(@class, 'line-clamp two-lines')])[2]").textContent();
+    if (text == 'test\nitem\nnotes') {
+        testResults = true
+        console.log('line breaks working... at item notes')
+        console.log('displaying text is ' + text)
+        console.log('expected text is\n' + 'test\nitem\nnotes')
+    } else {
+        testResults = false
+        console.log('line breaks are not working... at item notes')
+        console.log('displaying text is ' + text)
+        console.log('expected text is\n' + 'test\nitem\nnotes')
+    }
+    return testResults;
 }
 
 async function websitePaddingTesting(browser) {
@@ -4179,6 +4300,7 @@ async function verifyingCharacterLenght(page, condition, quoteType) {
     }
     return getTestResults;
 }
+
 async function delay(page, time) {
     await page.waitForTimeout(time);
 }
@@ -4243,5 +4365,7 @@ module.exports = {
     delay,
     bomImporter,
     allValidationsBOMImporter,
-    verifySPAExpiryMails
+    verifySPAExpiryMails,
+    itemNotesLineBreaks,
+    uploadBOMFiles
 };
