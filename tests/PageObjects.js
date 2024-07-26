@@ -13,7 +13,9 @@ export default class AllPages {
     get customerDropdown() { return this.page.getByLabel('Company Name*'); }
     get createButton() { return this.page.getByRole('button', { name: 'Create', exact: true }); }
     //Select item check box at add items page
-    get checkBox() { return this.page.locator('g > rect'); }
+    get checkBox() { return this.page.locator("(//*[contains(@class, 'data grid')]/div)[1]"); }
+    //click Proceed button at BOM Upload Page
+    get proceed() { return this.page.click("(//*[text()='Proceed'])[2]"); }
 
     async login(url) {
         await this.page.goto(url);

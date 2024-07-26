@@ -5,7 +5,7 @@
         "cart_page_url": "https://staging-store.iidm.com/index.php?route=checkout/cart",
         "buzz_qa_url": "https://buzzworld-web-iidm.enterpi.com/",
         "buzz_stage_url": "https://www.staging-buzzworld.iidm.com/",
-        "buzz_dev_url": "http://192.168.1.49:3000/quote_for_parts",
+        "buzz_dev_url": "http://192.168.1.115:3000/quote_for_parts",
         "store_dev": "https://storedev-iidm.enterpi.com:8445/"
     },
     "guest_customer": {
