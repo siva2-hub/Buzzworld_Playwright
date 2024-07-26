@@ -3,7 +3,7 @@ const ExcelJS = require('exceljs');
 
 import { start } from 'repl';
 import { timeout } from '../playwright.config';
-import  { add_dc, add_sc, admin1, admin2, admin3, admin4, api_data, create_job_manually, create_job_quotes, create_job_repairs, create_parts_purchase, dcAddUpdate, fetchData, fetch_jobs_Data, fetch_jobs_Detail, fetch_jobs_list, fetch_orders_Data, fetch_orders_Detail, fetch_order_list, fetch_pp_status, filters_pricing, functional_flow, import_pricing, inventory_search, leftMenuSearch, login, login_buzz, logout, multi_edit, parts_purchase_left_menu_filter, productAddUpdate, quotesRepairs, setScreenSize, spinner, sync_jobs, update_dc, update_sc, pos_report, reports, parts_import, add_parts, past_repair_prices, edit_PO_pp, returnResult, admin_permissions, pricing_permissions, addDiscountCodeValidations, addFunctionInAdminTabs, getProductWriteIntoExecl, verifyTwoExcelData, nonSPAPrice, addSPAItemsToQuote, validationsAtCreateRMAandQuotePages, read_excel_data, addCustomerToSysPro, websitePaddingTesting, verifyingCharacterLenght, addCustomerToSyspro, addCustomerToSysProValidations, addCustomerPermissions, bomImporter, allValidationsBOMImporter, verifySPAExpiryMails } from './helper';
+import { add_dc, add_sc, admin1, admin2, admin3, admin4, api_data, create_job_manually, create_job_quotes, create_job_repairs, create_parts_purchase, dcAddUpdate, fetchData, fetch_jobs_Data, fetch_jobs_Detail, fetch_jobs_list, fetch_orders_Data, fetch_orders_Detail, fetch_order_list, fetch_pp_status, filters_pricing, functional_flow, import_pricing, inventory_search, leftMenuSearch, login, login_buzz, logout, multi_edit, parts_purchase_left_menu_filter, productAddUpdate, quotesRepairs, setScreenSize, spinner, sync_jobs, update_dc, update_sc, pos_report, reports, parts_import, add_parts, past_repair_prices, edit_PO_pp, returnResult, admin_permissions, pricing_permissions, addDiscountCodeValidations, addFunctionInAdminTabs, getProductWriteIntoExecl, verifyTwoExcelData, nonSPAPrice, addSPAItemsToQuote, validationsAtCreateRMAandQuotePages, read_excel_data, addCustomerToSysPro, websitePaddingTesting, verifyingCharacterLenght, addCustomerToSyspro, addCustomerToSysProValidations, addCustomerPermissions, bomImporter, allValidationsBOMImporter, verifySPAExpiryMails, delay, itemNotesLineBreaks, stockCodes, uploadBOMFiles } from './helper';
 import AllPages from './PageObjects';
 
 const testdata = JSON.parse(JSON.stringify(require("../testdata.json")));
@@ -31,6 +31,14 @@ test.describe('all tests', async () => {
     results = await login(page);
     let testName = testInfo.title;
     await returnResult(page, testName, results);
+  });
+
+  test('Item notes line breaks at Quotes', async ({ }, testInfo) => {
+    await page.start.video();
+    results = await itemNotesLineBreaks(page, stage_url);
+    let testName = testInfo.title;
+    await returnResult(page, testName, results);
+    await page.stop.video();
   });
 
   test('SPA Expiry Email before One Month', async ({ }, testInfo) => {
@@ -84,7 +92,7 @@ test.describe('all tests', async () => {
     await returnResult(page, testName, results);
   });
 
-  test.describe('BOM Importer', async () => {
+  test.describe('List BOM Importer', async () => {
     test('First BOM Importer with Parent Part Not Found.!', async ({ }, testInfo) => {
       let parentPart = '0165009SS', childPart = 'Test7222', qty = '2', sequece = '673839', warehouse = '01';
       results = await bomImporter(page, parentPart, childPart, qty, sequece, warehouse, 1);
@@ -122,6 +130,75 @@ test.describe('all tests', async () => {
       await returnResult(page, testName, results);
     });
   });
+  test.describe('Upload BOM Importer', async () => {
+    test('1 BOM Importer with In Valid File', async ({ }, testInfo) => {
+      let parentPart = 'VA13-020-00-01';
+      let testName = testInfo.title;
+      results = await uploadBOMFiles(page, parentPart, 1, 'BOM_Files/data.txt', testName);
+      await returnResult(page, testName, results);
+    });
+    test('2 BOM Importer with In Valid Headers', async ({ }, testInfo) => {
+      let parentPart = 'VA13-020-00-01';
+      let testName = testInfo.title;
+      results = await uploadBOMFiles(page, parentPart, 2, 'BOM_Files/in_valid_headers_file.csv', testName);
+      await returnResult(page, testName, results);
+    });
+    test('3 BOM Importer with Empty Headers', async ({ }, testInfo) => {
+      let parentPart = 'VA13-020-00-01';
+      let testName = testInfo.title;
+      results = await uploadBOMFiles(page, parentPart, 3, 'BOM_Files/empty_headers.xlsx', testName);
+      await returnResult(page, testName, results);
+    });
+    test('4 BOM Importer with Empty Data', async ({ }, testInfo) => {
+      let parentPart = 'VA13-020-00-01';
+      let testName = testInfo.title;
+      results = await uploadBOMFiles(page, parentPart, 4, 'BOM_Files/empty_data.xlsx', testName);
+      await returnResult(page, testName, results);
+    });
+    test('5 BOM Importer with Empty Qty', async ({ }, testInfo) => {
+      let parentPart = 'VA13-020-00-01';
+      let testName = testInfo.title;
+      results = await uploadBOMFiles(page, parentPart, 5, 'BOM_Files/empty_qty.xlsx', testName);
+      await returnResult(page, testName, results);
+    });
+    test('6 BOM Importer with Empty Stock code', async ({ }, testInfo) => {
+      let parentPart = 'VA13-020-00-01';
+      let testName = testInfo.title;
+      results = await uploadBOMFiles(page, parentPart, 6, 'BOM_Files/empty_stock_code.xlsx', testName);
+      await returnResult(page, testName, results);
+    });
+    test('7 BOM Importer with Empty Warehouse', async ({ }, testInfo) => {
+      let parentPart = 'VA13-020-00-01';
+      let testName = testInfo.title;
+      results = await uploadBOMFiles(page, parentPart, 7, 'BOM_Files/empty_warehouse.xlsx', testName);
+      await returnResult(page, testName, results);
+    });
+    test('8 BOM Importer with In Valid Qty', async ({ }, testInfo) => {
+      let parentPart = 'VA13-020-00-01';
+      let testName = testInfo.title;
+      results = await uploadBOMFiles(page, parentPart, 8, 'BOM_Files/in_valid_qty.xlsx', testName);
+      await returnResult(page, testName, results);
+    });
+    test('9 BOM Importer with Qty above 999999', async ({ }, testInfo) => {
+      let parentPart = 'VA13-020-00-01';
+      let testName = testInfo.title;
+      results = await uploadBOMFiles(page, parentPart, 9, 'BOM_Files/qty_above_999999.xlsx', testName);
+      await returnResult(page, testName, results);
+    });
+    test('10 BOM Importer with Stcok Code above 30', async ({ }, testInfo) => {
+      let parentPart = 'VA13-020-00-01';
+      let testName = testInfo.title;
+      results = await uploadBOMFiles(page, parentPart, 10, 'BOM_Files/stock_code_31_character.xlsx', testName);
+      await returnResult(page, testName, results);
+    });
+    test('11 BOM Importer with Stcok Code not found in Warehouse', async ({ }, testInfo) => {
+      let parentPart = 'VA13-020-00-01';
+      let testName = testInfo.title;
+      results = await uploadBOMFiles(page, parentPart, 11, 'BOM_Files/stock_not_found_in_warehouse.xlsx', testName);
+      await returnResult(page, testName, results);
+    });
+
+  });
   test('Verify validations at Create RMA and Quotes Pages', async ({ }, testInfo) => {
     results = await validationsAtCreateRMAandQuotePages(page);
     let testName = testInfo.title;
@@ -139,7 +216,7 @@ test.describe('all tests', async () => {
 
   test('System Quote Creation with Sales Order and Job', async ({ }, testInfo) => {
     //create system quote
-    let acc_num = 'TESTC02', cont_name = 'Test CompanyTwo', stock_code = ['0165009LS1', '0165009LS1'];
+    let acc_num = 'CHUMP03', cont_name = 'Test Epi', stock_code = ['0165009123', '0165009124'];
     results = await create_job_quotes(page, 'Y', 'System Quote', acc_num, cont_name, stock_code);
     let testName = testInfo.title;
     await returnResult(page, testName, results);
@@ -147,7 +224,7 @@ test.describe('all tests', async () => {
 
   test('Parts Quote Creation with Sales Order', async ({ }, testInfo) => {
     //create parts quote
-    let acc_num = 'HILAN00', cont_name = 'Jeff Lister', stock_code = ['0165009LS', '0165009LS'];
+    let acc_num = 'MULTI00', cont_name = 'Test user multicam', stock_code = ['123413A-2', '12342-000', '2TLA050011R1234'];
     results = await create_job_quotes(page, 'Y', 'Parts Quote', acc_num, cont_name, stock_code);
     let testName = testInfo.title;
     await returnResult(page, testName, results);
