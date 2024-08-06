@@ -3,15 +3,20 @@ const ExcelJS = require('exceljs');
 
 import { start } from 'repl';
 import { timeout } from '../playwright.config';
-import { add_dc, add_sc, admin1, admin2, admin3, admin4, api_data, create_job_manually, create_job_quotes, create_job_repairs, create_parts_purchase, dcAddUpdate, fetchData, fetch_jobs_Data, fetch_jobs_Detail, fetch_jobs_list, fetch_orders_Data, fetch_orders_Detail, fetch_order_list, fetch_pp_status, filters_pricing, functional_flow, import_pricing, inventory_search, leftMenuSearch, login, login_buzz, logout, multi_edit, parts_purchase_left_menu_filter, productAddUpdate, quotesRepairs, setScreenSize, spinner, sync_jobs, update_dc, update_sc, pos_report, reports, parts_import, add_parts, past_repair_prices, edit_PO_pp, returnResult, admin_permissions, pricing_permissions, addDiscountCodeValidations, addFunctionInAdminTabs, getProductWriteIntoExecl, verifyTwoExcelData, nonSPAPrice, addSPAItemsToQuote, validationsAtCreateRMAandQuotePages, read_excel_data, addCustomerToSysPro, websitePaddingTesting, verifyingCharacterLenght, addCustomerToSyspro, addCustomerToSysProValidations, addCustomerPermissions, bomImporter, allValidationsBOMImporter, verifySPAExpiryMails, delay, itemNotesLineBreaks, stockCodes, uploadBOMFiles, readExcelHeaders, fetchZipcodes } from './helper';
+import { add_dc, add_sc, admin1, admin2, admin3, admin4, api_data, create_job_manually, create_job_quotes, create_job_repairs, create_parts_purchase, dcAddUpdate, fetchData, fetch_jobs_Data, fetch_jobs_Detail, fetch_jobs_list, fetch_orders_Data, fetch_orders_Detail, fetch_order_list, fetch_pp_status, filters_pricing, functional_flow, import_pricing, inventory_search, leftMenuSearch, login, login_buzz, logout, multi_edit, parts_purchase_left_menu_filter, productAddUpdate, quotesRepairs, setScreenSize, spinner, sync_jobs, update_dc, update_sc, pos_report, reports, parts_import, add_parts, past_repair_prices, edit_PO_pp, returnResult, admin_permissions, pricing_permissions, addDiscountCodeValidations, addFunctionInAdminTabs, getProductWriteIntoExecl, verifyTwoExcelData, nonSPAPrice, addSPAItemsToQuote, validationsAtCreateRMAandQuotePages, read_excel_data, addCustomerToSysPro, websitePaddingTesting, verifyingCharacterLenght, addCustomerToSyspro, addCustomerToSysProValidations, addCustomerPermissions, bomImporter, allValidationsBOMImporter, verifySPAExpiryMails, delay, itemNotesLineBreaks, stockCodes, uploadBOMFiles, readExcelHeaders, fetchZipcodes, addStockInventorySearch } from './helper';
 import AllPages from './PageObjects';
 
 const testdata = JSON.parse(JSON.stringify(require("../testdata.json")));
-const stage_url = testdata.urls.buzz_stage_url;
+// const stage_url = testdata.urls.buzz_qa_url;
+const stage_url = process.env.BASE_URL_BUZZ;
 let allPages;
 test.skip('sync jobs', async ({ page }) => {
   test.setTimeout(990000000);
   await sync_jobs(page);
+});
+test.skip('Fetch Zipcodes', async ({ page }) => {
+  test.setTimeout(990000000);
+  await fetchZipcodes(page);
 });
 test.describe('all tests', async () => {
   let page, dc, stock_code, results;
@@ -24,11 +29,8 @@ test.describe('all tests', async () => {
     // await reports('First Test', 'Passed');
     page = await browser.newPage();
     await setScreenSize(page, w, h);
-    await fetchZipcodes(page);
-    await page.pause();
     await login_buzz(page, stage_url);
   });
-
 
   test('Login', async ({ }, testInfo) => {
     results = await login(page);
@@ -36,18 +38,17 @@ test.describe('all tests', async () => {
     await returnResult(page, testName, results);
   });
 
-  test('Item notes line breaks at Quotes', async ({ }, testInfo) => {
-    await page.start.video();
-    results = await itemNotesLineBreaks(page, stage_url);
-    let testName = testInfo.title;
-    await returnResult(page, testName, results);
-    await page.stop.video();
-  });
-
-  test('SPA Expiry Email before One Month', async ({ }, testInfo) => {
-    results = await verifySPAExpiryMails(page);
-    let testName = testInfo.title;
-    await returnResult(page, testName, results);
+  test.describe('Add Stock Code at Inventory search', async () => {
+    test('First Test for Add Stock Code at Inventory', async ({ }, testInfo) => {
+      results = await addStockInventorySearch(page, 1);
+      let testName = testInfo.title;
+      await returnResult(page, testName, results);
+    });
+    test('Second Test for Add Stock Code at Inventory', async ({ }, testInfo) => {
+      results = await addStockInventorySearch(page, 2);
+      let testName = testInfo.title;
+      await returnResult(page, testName, results);
+    });
   });
 
   test('Add Customer to Syspro Validations', async ({ }, testInfo) => {
