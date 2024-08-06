@@ -16,7 +16,8 @@ export default class AllPages {
     get checkBox() { return this.page.locator("(//*[contains(@class, 'data grid')]/div)[1]"); }
     //click Proceed button at BOM Upload Page
     get proceed() { return this.page.click("(//*[text()='Proceed'])[2]"); }
-
+    //Click Admin tab
+    get clickAdmin(){ this.page.getByText('Admin').first().click();}
     async login(url) {
         await this.page.goto(url);
         await this.page.waitForTimeout(1300);

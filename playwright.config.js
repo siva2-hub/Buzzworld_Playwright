@@ -1,4 +1,5 @@
 // @ts-check
+require('dotenv').config();
 const { defineConfig, devices } = require('@playwright/test');
 // @ts-check
 /**
@@ -11,7 +12,7 @@ const { defineConfig, devices } = require('@playwright/test');
  * @see https://playwright.dev/docs/test-configuration
  */
 module.exports = defineConfig({
-  
+
   testDir: './tests',
   /* Run tests in files in parallel */
   fullyParallel: true,
@@ -24,18 +25,19 @@ module.exports = defineConfig({
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
 
   reporter: 'html',
-  timeout:  1000000 * 10,
+  timeout: 1000000 * 10,
   expect: {
     timeout: 30 * 1000,
   },
   // increate the expect timeout at all areas of project
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    launchOptions:{
+    launchOptions: {
+      
       slowMo: 800,
       headless: false,
       // Maximize the window (specific to Chromium)
-      // args: ['--start-maximized']
+      args: ["--start-maximized"],
     },
     video: 'on',
     videoQuality: 90,
@@ -44,15 +46,18 @@ module.exports = defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
-  
+
   },
 
   /* Configure projects for major browsers */
   projects: [
-    // {
-    //   name: 'chromium',
-    //   use: { ...devices['Desktop Chrome'] },
-    // },
+    {
+      name: 'chromium',
+      use: { 
+        // ...devices['Desktop Chrome']
+        viewport:null
+       },
+    },
 
     // {
     //   name: 'firefox',
@@ -79,10 +84,13 @@ module.exports = defineConfig({
     //   name: 'Microsoft Edge',
     //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
     // },
-    {
-      name: 'Google Chrome',
-      use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    },
+    // {
+    //   name: 'Google Chrome',
+    //   use: {
+        // ...devices['Desktop Chrome'], channel: 'chrome',
+    //     viewport: null,
+    //   },
+    // },
   ],
 
   /* Run your local dev server before starting the tests */
