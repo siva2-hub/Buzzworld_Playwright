@@ -1553,6 +1553,7 @@ async function create_job_repairs(page, is_create_job, repair_type, acc_num, con
         let itemsCount = await page.locator("(//*[text()= 'Quote:'])").count({ timeout: 2000 });
         console.log('Items Count is ', itemsCount);
         // //Create Sales Order
+        await page.pause();
         await expect(page.locator('#root')).toContainText('Create Sales Order');
         await page.getByText('Create Sales Order').click();
         await expect(page.getByPlaceholder('Enter PO Number')).toBeVisible();
@@ -2031,6 +2032,7 @@ async function create_job_quotes(page, is_create_job, quoteType, acc_num, cont_n
         await expect(page.locator('#root')).toContainText('Create Sales Order');
         await page.waitForTimeout(2000);
         let itemsCount = await page.locator("(//*[text()= 'Quote:'])").count();
+        await page.pause()
         await page.getByText('Create Sales Order').click();
         await spinner(page);
         await expect(page.getByPlaceholder('Enter PO Number')).toBeVisible();
@@ -3913,7 +3915,7 @@ async function websitePaddingTesting(browser) {
 async function verifySPAExpiryMails(page) {
     console.log('------------------------.--------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let testResults;
-    let customer = ['BRIML00', 'GRANU00', 'MADIX00'];
+    let customer = ['MULTI00', 'ZUMMO00', 'MADIX00'];
     let supplier = ['WAGO001', 'WEIN001', 'SWIV001'];
     let item = ['2000-115', 'CMT2108X2', 'AFC-1002-75-OR'];
     // let oneMonth = 1;
@@ -3937,9 +3939,9 @@ async function verifySPAExpiryMails(page) {
             for (let index = 0; index < oneMonth; index++) {
                 await page.getByLabel('Next Month').click();
             }
-            if (parseInt(eDate)<10) {
-                await page.locator("(//*[text() = '" + eDate.replace('0','') + "'])[1]").click(); 
-            } else { 
+            if (parseInt(eDate) < 10) {
+                await page.locator("(//*[text() = '" + eDate.replace('0', '') + "'])[1]").click();
+            } else {
                 await page.locator("(//*[text() = '" + eDate + "'])[1]").click();
             }
             await page.getByPlaceholder('Enter Client Quote Number').fill('FORTEST00', (i + 1));
@@ -4486,29 +4488,34 @@ async function addTerritoryToZipcodes(page) {
 
 async function fetchZipcodes(page) {
     // let zipcodes = await getZips();
-    let zipcodes = await read_excel_data('/home/enterpi/Downloads/zipcodes.xlsx', 0);
+    let zipcodes = await read_excel_data('/home/enterpi/Downloads/data-1722942589594.csv', 0);
     console.log('len is ', zipcodes.length);
-    let zip_live = await read_excel_data('/home/enterpi/Downloads/zipcodes_live_30-07-2024.csv', 0);
+    // await page.pause();
+    let acc_num = [];
+    let zip_live = await read_excel_data('/home/enterpi/Desktop/Sell_Side_Total.xlsx', 0);
     for (let index = 0; index < zipcodes.length; index++) {
         // let sheet = zipcodes[index];
-        let sheet = zipcodes[index]['zipcodes'];
+        let sheet = zipcodes[index]['customer_name'];
         let res = false; let live;
         for (let j = 0; j < zip_live.length; j++) {
-            live = zip_live[j]['zip codes'];
+            live = zip_live[j]['Customer Name*'];
             if (sheet == live) {
                 res = true;
                 break;
             } else {
                 res = false;
+
             }
         }
         if (res) {
-            console.log(sheet, ' found', ' from sheet is ' + sheet + ' from live is ' + live);
+            // console.log(sheet, ' found', ' from sheet is ' + sheet + ' from live is ' + live);
         } else {
-            console.log(sheet, ' not found', ' from sheet is ' + sheet + ' from live is ' + live);
+            // console.log(sheet, ' not found', ' from sheet is ' + sheet + ' from live is ' + live);
+            acc_num.push(zipcodes[index]['accountnumber'])
         }
     }
-
+    const uniqueArray = acc_num.filter((value, index, self) => self.indexOf(value) === index);
+    console.log(uniqueArray);
     // console.log('total count of zip codes ', zipcodes.length);
     // for (let index = 0; index < zipcodes.length; index++) {
     //     console.log('iteration ' + (index + 1))
@@ -16328,6 +16335,112 @@ async function getZips() {
         '24030']
     return zipcodes;
 }
+
+async function getImages(page) {
+    let models = await read_excel_data('Models.xlsx', 0);
+    console.log('count is ', models.length)
+    // await page.pause();
+    await page.goto('https://cloud.ihmi.net/photo/#!Albums/')
+    await expect(page.locator("(//*[text()='Accessories'])[1]")).toBeVisible();
+    let categories = [];
+    let categ = await page.locator("(//ul[@class='x-tree-node-ct' and @style=''])[1]/li").count();
+    console.log('categories count is ' + categ); let findCount = 1;
+    for (let index = 0; index < categ; index++) {
+        let cat1 = await page.locator("(//ul[@class='x-tree-node-ct' and @style=''])[1]/li[" + (index + 1) + "]").textContent();
+        categories.push('category ' + cat1);
+        if (cat1 != 'cMT X series') {
+            if (cat1 != 'XE series') {
+                await page.locator("(//*[text()='" + cat1 + "'])[1]").click();
+                await expect(page.locator("(//*[@class='album-info'])[1]")).toBeVisible();
+                await delay(page, 1200);
+                let itemCount = await page.locator("//*[@class='album-info']").count();
+                console.log('items count in ' + cat1 + ' is ' + itemCount);
+                let res;
+                for (let j = 0; j < itemCount; j++) {
+                    let itemText = await page.locator("(//*[@class='album-info'])[" + (j + 1) + "]").textContent();
+                    for (let c = 0; c < models.length; c++) {
+                        let model = models[c]['Model #'];
+                        if (itemText == model) {
+                            // console.log('item from site is ' + itemText);
+                            // console.log('model from sheet is ' + model);
+                            findCount = findCount + 1;
+                            await page.locator("(//*[@class='thumb-border '])[" + (j + 1) + "]").click();
+                            await expect(page.locator("(//*[text()='Slideshow'])[1]")).toBeVisible();
+                            await delay(page, 2000)
+                            let imagesCount = await page.locator("(//*[@class='thumb-check'])").count();
+                            console.log('images count in ' + cat1 + ' / ' + itemText + ' is ' + imagesCount);
+                            await page.goBack(); await expect(page.locator("(//*[@class='album-info'])[1]")).toBeVisible();
+                            await delay(page, 1200);
+                            //one image selection
+                            // await page.locator("(//*[@class='thumb-check'])[1]").click();
+                            //All images selection
+                            // await page.locator("(//*[text()='Select the entire album'])[1]").click();
+                            // // await page.pause();
+                            // await page.locator("(//*[text()='Download'])[1]").click();
+                            res = true;
+                            break;
+                        } else {
+                            res = false;
+                        }
+                    }
+                    if (res) {
+
+                    } else {
+                        console.log('Item not found in sheet / model ' + itemText);
+                    }
+                }
+            } else {
+                console.log('items not found in ' + cat1);
+            }
+        } else {
+            await page.locator("(//*[text()='" + cat1 + "'])[1]").click();
+            await expect(page.locator("(//*[@class='album-info'])[1]")).toBeVisible();
+            await delay(page, 1200);
+            let catCount = await page.locator("//*[@class='album-info']").count();
+            for (let s = 0; s < catCount; s++) {
+                let subCat = await page.locator("(//*[@class='album-info'])[" + (s + 1) + "]").textContent();
+                await page.locator("(//*[@class='thumb-border '])[" + (s + 1) + "]").click();
+                await expect(page.locator("(//*[@class='album-info'])[1]")).toBeVisible();
+                await delay(page, 1200);
+                let itemCount = await page.locator("//*[@class='album-info']").count();
+                console.log('items count in ' + cat1 + ' / ' + subCat + ' is ' + itemCount);
+                let res;
+                for (let j = 0; j < itemCount; j++) {
+                    let itemText = await page.locator("(//*[@class='album-info'])[" + (j + 1) + "]").textContent();
+                    for (let c = 0; c < models.length; c++) {
+                        let model = models[c]['Model #'];
+                        if (itemText == model) {
+                            // console.log('item from site is ' + itemText);
+                            // console.log('model from sheet is ' + model);
+                            findCount = findCount + 1;
+                            await page.locator("(//*[@class='thumb-border '])[" + (j + 1) + "]").click();
+                            await expect(page.locator("(//*[text()='Slideshow'])[1]")).toBeVisible();
+                            await delay(page, 2000)
+                            let imagesCount = await page.locator("(//*[@class='thumb-check'])").count();
+                            console.log('images count in ' + cat1 + ' / ' + subCat + ' / ' + itemText + ' is ' + imagesCount);
+                            await page.goBack(); await expect(page.locator("(//*[@class='album-info'])[1]")).toBeVisible();
+                            await delay(page, 1200);
+                            res = true;
+                            break;
+                        } else {
+                            res = false;
+                        }
+                    }
+                    if (res) {
+
+                    } else {
+                        console.log('Item not found in sheet / model ' + itemText);
+                    }
+                }
+                await page.goBack();
+                await expect(page.locator("(//*[@class='album-info'])[1]")).toBeVisible();
+            }
+        }
+
+    }
+    console.log('items match count is ' + findCount);
+    console.log(categories);
+}
 module.exports = {
     checkout_page,
     order_summary_page,
@@ -16399,5 +16512,6 @@ module.exports = {
     getZips,
     addStockInventorySearch,
     addTerritoryToZipcodes,
-    defaultTurnAroundTime
+    defaultTurnAroundTime,
+    getImages
 };
