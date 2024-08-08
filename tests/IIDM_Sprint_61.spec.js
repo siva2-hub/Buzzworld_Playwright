@@ -1,5 +1,5 @@
 const { test } = require("@playwright/test");
-const { itemNotesLineBreaks, verifySPAExpiryMails, returnResult, setScreenSize, login_buzz, addTerritoryToZipcodes, defaultTurnAroundTime } = require("./helper");
+const { itemNotesLineBreaks, verifySPAExpiryMails, returnResult, setScreenSize, login_buzz, addTerritoryToZipcodes, defaultTurnAroundTime, getImages } = require("./helper");
 const testdata = JSON.parse(JSON.stringify(require("../testdata.json")));
 // const stage_url = testdata.urls.buzz_dev_url;
 const stage_url = process.env.BASE_URL_BUZZ;
@@ -31,6 +31,12 @@ test('Default Turn arround time for Repair Quotes', async ({ }, testInfo) => {
 });
 test('Assign territory while Editing Zipcodes', async ({ }, testInfo) => {
   results = await addTerritoryToZipcodes(page);
+  let testName = testInfo.title;
+  await returnResult(page, testName, results);
+});
+
+test('Images Reading', async ({ }, testInfo) => {
+  results = await getImages(page);
   let testName = testInfo.title;
   await returnResult(page, testName, results);
 });

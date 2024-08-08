@@ -1,0 +1,192 @@
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+count is  51
+
+categories count is 12
+
+items count in Accessories is 1
+
+images count in Accessories / M02 is 11
+
+items count in cMT series is 13
+
+images count in cMT series / cMT-CTRL01 is 10
+
+Item not found in sheet / model cMT-iM21
+
+Item not found in sheet / model cMT-iPC10
+
+Item not found in sheet / model cMT-iPC15
+
+Item not found in sheet / model cMT-iV5
+
+Item not found in sheet / model cMT-iV6
+
+Item not found in sheet / model cMT-SVR
+
+images count in cMT series / cMT-SVR-200 is 10
+
+Item not found in sheet / model cMT3071
+
+Item not found in sheet / model cMT3072
+
+Item not found in sheet / model cMT3090
+
+Item not found in sheet / model cMT3103
+
+Item not found in sheet / model cMT3151
+
+items count in cMT X series / Advanced model is 10
+
+images count in cMT X series / Advanced model / cMT3072X2 is 10
+
+images count in cMT X series / Advanced model / cMT3072XH2 is 10
+
+images count in cMT X series / Advanced model / cMT3072XHT is 10
+
+images count in cMT X series / Advanced model / cMT3072XP is 10
+
+Item not found in sheet / model cMT3092X
+
+images count in cMT X series / Advanced model / cMT3102X is 17
+
+images count in cMT X series / Advanced model / cMT3108XH is 17
+
+images count in cMT X series / Advanced model / cMT3108XP is 17
+
+Item not found in sheet / model cMT3152X
+
+images count in cMT X series / Advanced model / cMT3162X is 10
+
+items count in cMT X series / Basic model is 1
+
+Item not found in sheet / model cMT1106X
+
+items count in cMT X series / Headless Model is 2
+
+images count in cMT X series / Headless Model / cMT-FHDX-820 is 10
+
+
+Item not found in sheet / model cMT-SVRX-820822
+items count in cMT X series / Standard model is 5
+
+images count in cMT X series / Standard model / cMT2078X is 10
+
+images count in cMT X series / Standard model / cMT2108X2 is 17
+
+images count in cMT X series / Standard model / cMT2128X is 10
+
+images count in cMT X series / Standard model / cMT2158X is 10
+
+images count in cMT X series / Standard model / cMT2166X is 10
+
+items count in eMT series is 5
+
+Item not found in sheet / model eMT3070A
+
+Item not found in sheet / model eMT3070B
+
+Item not found in sheet / model eMT3105P
+
+Item not found in sheet / model eMT3120A
+
+Item not found in sheet / model eMT3150A
+
+items count in Gateway series is 6
+
+images count in Gateway series / cMT-G01 is 10
+
+images count in Gateway series / cMT-G02 is 10
+
+images count in Gateway series / cMT-G03 is 10
+
+images count in Gateway series / cMT-G04 is 10
+
+Item not found in sheet / model cMT-G05
+
+Item not found in sheet / model cMT-G06
+
+items count in iER series is 2
+
+Item not found in sheet / model MT8070iER
+
+Item not found in sheet / model MT8071iER
+
+items count in iE series is 1
+
+images count in iE series / MT8051iE is 5
+
+items count in iP series is 3
+
+images count in iP series / MT8052iP is 10
+
+images count in iP series / MT8072iP is 5
+
+images count in iP series / MT8106iP is 10
+
+items count in IR series is 16
+
+images count in IR series / iR-AI04-TR is 5
+
+images count in IR series / iR-AI04-VI is 5
+
+images count in IR series / iR-AM06-VI is 5
+
+images count in IR series / iR-AQ04-VI is 5
+
+images count in IR series / iR-COP is 10
+
+images count in IR series / iR-DI16-K is 5
+
+images count in IR series / iR-DM16-N is 5
+
+images count in IR series / iR-DM16-P is 5
+
+images count in IR series / iR-DQ08-R is 5
+
+images count in IR series / iR-DQ16-N is 5
+
+images count in IR series / iR-DQ16-P is 5
+
+images count in IR series / iR-ECAT is 10
+
+images count in IR series / iR-ETN is 10
+
+Item not found in sheet / model iR-ETN40P
+
+images count in IR series / iR-ETN40R is 10
+
+Item not found in sheet / model iR-PU01-P
+
+items count in i series is 7
+
+Item not found in sheet / model MT6050i
+
+Item not found in sheet / model MT6070iH
+
+Item not found in sheet / model MT6100i
+
+Item not found in sheet / model MT8050i
+
+Item not found in sheet / model MT8070iH
+
+Item not found in sheet / model MT8100i
+
+Item not found in sheet / model MT8104iH
+
+items count in mTV series is 1
+
+Item not found in sheet / model mTV-100
+
+items not found in XE series
+
+
+
+items match count is 40
+category Accessories,category cMT series,category cMT X series,category eMT series,category Gateway series,category iER series,category iE series,category iP series,category IR series,category i series,category mTV series,category XE series
+
+[33m  Slow test file: [39m[chromium] › IIDM_Sprint_61.spec.js[33m (4.1m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (4.1m)[22m
+
