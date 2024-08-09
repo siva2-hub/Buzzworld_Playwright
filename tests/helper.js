@@ -16337,6 +16337,44 @@ async function getZips() {
     return zipcodes;
 }
 
+async function orgSearchLoginAsClient(page, url) {
+    let orgName = await read_excel_data('organization.xlsx', 0);
+    console.log('organizations count is ' + orgName.length); let results = [];
+    let profile = page.locator("//*[@class='user_image']");
+    await page.goto(url + 'inventory');
+    await expect(profile).toBeVisible(); await profile.click()
+    await expect(page.locator("//*[text()='Login as Client']")).toBeVisible()
+    await page.click("//*[text()='Login as Client']")
+    for (let index = 0; index < orgName.length; index++) {
+        let oName = orgName[index]['Name'];
+        let owner = orgName[index]['Owner'];
+        await expect(page.locator("//*[contains(@class, 'login-client-icon')]")).toBeVisible()
+        await page.click("//*[contains(@class, 'login-client-icon')]")
+        await expect(page.locator("//*[text()='Please select Organization']")).toBeVisible()
+        if (typeof oName != "string") { oName = oName.toString(); }
+        await page.getByLabel('Organization*').fill(oName)
+        await expect(page.locator("//*[text()='Loading...']")).toBeHidden()
+        try {
+            await expect(page.getByText(oName, { exact: true }).nth(1)).toBeVisible({ timeout: 1000 })
+            let text = await page.locator("(//*[contains(@class, 'css-4mp3pp-menu')])[1]").textContent()
+            await page.getByText(oName, { exact: true }).nth(1).click()
+            // console.log(text)
+            results.push[true]; await page.click("//*[@aria-label='clear']")
+        } catch (error) {
+            // console.log(error)
+            let text = await page.locator("(//*[contains(@class, 'css-4mp3pp-menu')])[1]").textContent()
+            console.log(ANSI_RED+oName + ' --> ' + text + ' Owner is ' + owner+ANSI_RESET)
+            results.push[false]
+        }
+    }
+    let status;
+    for (let j = 0; j < results.length; j++) {
+        if (results[j] == true) { status = results[j] }
+        else { status = results[j]; break }
+    }
+    return status
+}
+
 async function getImages(page) {
     let models = await read_excel_data('Models.xlsx', 0);
     console.log('count is ', models.length)
@@ -16514,5 +16552,6 @@ module.exports = {
     addStockInventorySearch,
     addTerritoryToZipcodes,
     defaultTurnAroundTime,
-    getImages
+    getImages,
+    orgSearchLoginAsClient
 };

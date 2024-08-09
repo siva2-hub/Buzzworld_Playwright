@@ -1,5 +1,5 @@
 const { test } = require("@playwright/test");
-const { itemNotesLineBreaks, verifySPAExpiryMails, returnResult, setScreenSize, login_buzz, addTerritoryToZipcodes, defaultTurnAroundTime, getImages } = require("./helper");
+const { itemNotesLineBreaks, verifySPAExpiryMails, returnResult, setScreenSize, login_buzz, addTerritoryToZipcodes, defaultTurnAroundTime, getImages, orgSearchLoginAsClient } = require("./helper");
 const testdata = JSON.parse(JSON.stringify(require("../testdata.json")));
 // const stage_url = testdata.urls.buzz_dev_url;
 const stage_url = process.env.BASE_URL_BUZZ;
@@ -34,6 +34,12 @@ test('Assign territory while Editing Zipcodes', async ({ }, testInfo) => {
   let testName = testInfo.title;
   await returnResult(page, testName, results);
 });
+
+test('serach organization in login as client', async({}, testInfo)=>{
+  results = await orgSearchLoginAsClient(page, stage_url);
+  let testName = testInfo.title;
+  await returnResult(page, testName, results);
+})
 
 test('Images Reading', async ({ }, testInfo) => {
   results = await getImages(page);
