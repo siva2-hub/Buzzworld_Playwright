@@ -1510,6 +1510,7 @@ async function create_job_repairs(page, is_create_job, repair_type, acc_num, con
         console.log('repair url is ', await page.url());
         //Add items to items evaluation in repair
         await itemsAddToEvaluation(page, stock_code, tech, repair_type)
+        await page.pause()
         //Add Repair Items to Quote
         await addItemsToQuote(page)
         let quote = await page.locator('(//*[@class = "id-num"])[1]').textContent();
@@ -2032,7 +2033,7 @@ async function create_job_quotes(page, is_create_job, quoteType, acc_num, cont_n
         await expect(page.locator('#root')).toContainText('Create Sales Order');
         await page.waitForTimeout(2000);
         let itemsCount = await page.locator("(//*[text()= 'Quote:'])").count();
-        await page.pause()
+        await page.pause();
         await page.getByText('Create Sales Order').click();
         await spinner(page);
         await expect(page.getByPlaceholder('Enter PO Number')).toBeVisible();
