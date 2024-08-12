@@ -23,6 +23,7 @@ test.describe('Groupped into all tests', ()=>{
     if (pay_type === 'Credit Card') {
       await page.getByLabel('Credit Card').click({timeout: 10000});
       await page.getByRole('button', { name: 'Proceed' }).click();
+      await page.pause()
       await creditCardPayment(page, userName, cardDetails);
     } else {
       await page.getByPlaceholder('Enter PO Number').fill('TESTPO1234');
@@ -70,7 +71,7 @@ async function storeLogin(page) {
     width: w,
     height: h
   });
-  let url = testdata.urls.store_stage,
+  let url = process.env.BASE_URL_STORE,
   logEmail, logPword, userName, path;
   await page.goto(url);
   await page.getByRole('link', { name: ' Login' }).click();

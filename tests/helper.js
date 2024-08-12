@@ -4489,34 +4489,35 @@ async function addTerritoryToZipcodes(page) {
 
 async function fetchZipcodes(page) {
     // let zipcodes = await getZips();
-    let zipcodes = await read_excel_data('/home/enterpi/Downloads/data-1722942589594.csv', 0);
+    let zipcodes = await read_excel_data('/home/enterpi/Downloads/Omron_Deleted_Products.csv', 0);
     console.log('len is ', zipcodes.length);
     // await page.pause();
-    let acc_num = [];
-    let zip_live = await read_excel_data('/home/enterpi/Desktop/Sell_Side_Total.xlsx', 0);
+    let acc_num = []; let count =1;
+    let zip_live = await read_excel_data('/home/enterpi/Desktop/OMRO001_pricelist (1)/pricing_Omron001_qty1_products.csv', 0);
     for (let index = 0; index < zipcodes.length; index++) {
         // let sheet = zipcodes[index];
-        let sheet = zipcodes[index]['customer_name'];
+        let sheet = zipcodes[index]['model'];
         let res = false; let live;
         for (let j = 0; j < zip_live.length; j++) {
-            live = zip_live[j]['Customer Name*'];
+            live = zip_live[j]['Stock Code'];
             if (sheet == live) {
                 res = true;
                 break;
             } else {
                 res = false;
-
             }
         }
         if (res) {
+            count++;
             // console.log(sheet, ' found', ' from sheet is ' + sheet + ' from live is ' + live);
         } else {
             // console.log(sheet, ' not found', ' from sheet is ' + sheet + ' from live is ' + live);
-            acc_num.push(zipcodes[index]['accountnumber'])
+            // acc_num.push(zipcodes[index]['accountnumber'])
+            console.log(sheet+" not found in deleted data");
         }
     }
-    const uniqueArray = acc_num.filter((value, index, self) => self.indexOf(value) === index);
-    console.log(uniqueArray);
+    // const uniqueArray = acc_num.filter((value, index, self) => self.indexOf(value) === index);
+    console.log("founded item count is "+count);
     // console.log('total count of zip codes ', zipcodes.length);
     // for (let index = 0; index < zipcodes.length; index++) {
     //     console.log('iteration ' + (index + 1))
@@ -16346,8 +16347,9 @@ async function orgSearchLoginAsClient(page, url) {
     await expect(page.locator("//*[text()='Login as Client']")).toBeVisible()
     await page.click("//*[text()='Login as Client']")
     for (let index = 0; index < orgName.length; index++) {
-        let oName = orgName[index]['Name'];
-        let owner = orgName[index]['Owner'];
+        let oName = orgName[index]['Name']
+        let owner = orgName[index]['Owner']
+        let orgStatus = orgName[index]['Status']
         await expect(page.locator("//*[contains(@class, 'login-client-icon')]")).toBeVisible()
         await page.click("//*[contains(@class, 'login-client-icon')]")
         await expect(page.locator("//*[text()='Please select Organization']")).toBeVisible()
@@ -16359,20 +16361,25 @@ async function orgSearchLoginAsClient(page, url) {
             let text = await page.locator("(//*[contains(@class, 'css-4mp3pp-menu')])[1]").textContent()
             await page.getByText(oName, { exact: true }).nth(1).click()
             // console.log(text)
-            results.push[true]; await page.click("//*[@aria-label='clear']")
+            results.push(true); await page.click("//*[@aria-label='clear']")
         } catch (error) {
             // console.log(error)
             let text = await page.locator("(//*[contains(@class, 'css-4mp3pp-menu')])[1]").textContent()
-            console.log(ANSI_RED+oName + ' --> ' + text + ' Owner is ' + owner+ANSI_RESET)
-            results.push[false]
+            if (orgStatus=='InActive') {
+                results.push(true)
+            } else {
+                results.push(false)
+                console.log(ANSI_RED+oName + ' --> ' + text + ' Owner is ' + owner+ANSI_RESET)
+            }
         }
     }
-    let status;
+    console.log('results '+results)
+    let status
     for (let j = 0; j < results.length; j++) {
         if (results[j] == true) { status = results[j] }
         else { status = results[j]; break }
     }
-    return status
+    return status;
 }
 
 async function getImages(page) {
