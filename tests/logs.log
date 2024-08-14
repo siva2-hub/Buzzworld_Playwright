@@ -595,3 +595,10 @@ status is:  true
 [32mItem notes line breaks at Quotes Test Passed![0m
 [32m  1 passed[39m[2m (40.6s)[22m
 
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+[33m  Slow test file: [39m[chromium] › portal_tests.spec.js[33m (2.1m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (2.2m)[22m
+
