@@ -1,13 +1,14 @@
 const { test } = require("@playwright/test");
-const { itemNotesLineBreaks, verifySPAExpiryMails, returnResult, setScreenSize, login_buzz, addTerritoryToZipcodes, defaultTurnAroundTime, getImages, orgSearchLoginAsClient } = require("./helper");
+const { itemNotesLineBreaks, verifySPAExpiryMails, returnResult, setScreenSize, login_buzz, addTerritoryToZipcodes, defaultTurnAroundTime, getImages, orgSearchLoginAsClient, loginAsClient } = require("./helper");
 const testdata = JSON.parse(JSON.stringify(require("../testdata.json")));
 // const stage_url = testdata.urls.buzz_dev_url;
 const stage_url = process.env.BASE_URL_BUZZ;
-let page, results;
+let page, results, context;
 test.beforeAll(async ({ browser }) => {
   // await reports('First Test', 'Passed');
   let w = 1920, h = 910;
-  page = await browser.newPage();
+  context = await browser.newContext()
+  page = await context.newPage()
   // await setScreenSize(page, w, h);
   await login_buzz(page, stage_url);
 });
@@ -35,8 +36,14 @@ test('Assign territory while Editing Zipcodes', async ({ }, testInfo) => {
   await returnResult(page, testName, results);
 });
 
-test('serach organization in login as client', async({}, testInfo)=>{
-  results = await orgSearchLoginAsClient(page, stage_url);
+test('serach organization in loginAs client', async ({ }, testInfo) => {
+  results = await orgSearchLoginAsClient(page, stage_url)
+  let testName = testInfo.title;
+  await returnResult(page, testName, results);
+})
+
+test('login as client', async ({ }, testInfo) => {
+  results = await loginAsClient(page, stage_url, context)
   let testName = testInfo.title;
   await returnResult(page, testName, results);
 })

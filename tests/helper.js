@@ -4492,7 +4492,7 @@ async function fetchZipcodes(page) {
     let zipcodes = await read_excel_data('/home/enterpi/Downloads/Omron_Deleted_Products.csv', 0);
     console.log('len is ', zipcodes.length);
     // await page.pause();
-    let acc_num = []; let count =1;
+    let acc_num = []; let count = 1;
     let zip_live = await read_excel_data('/home/enterpi/Desktop/OMRO001_pricelist (1)/pricing_Omron001_qty1_products.csv', 0);
     for (let index = 0; index < zipcodes.length; index++) {
         // let sheet = zipcodes[index];
@@ -4513,11 +4513,11 @@ async function fetchZipcodes(page) {
         } else {
             // console.log(sheet, ' not found', ' from sheet is ' + sheet + ' from live is ' + live);
             // acc_num.push(zipcodes[index]['accountnumber'])
-            console.log(sheet+" not found in deleted data");
+            console.log(sheet + " not found in deleted data");
         }
     }
     // const uniqueArray = acc_num.filter((value, index, self) => self.indexOf(value) === index);
-    console.log("founded item count is "+count);
+    console.log("founded item count is " + count);
     // console.log('total count of zip codes ', zipcodes.length);
     // for (let index = 0; index < zipcodes.length; index++) {
     //     console.log('iteration ' + (index + 1))
@@ -16365,21 +16365,105 @@ async function orgSearchLoginAsClient(page, url) {
         } catch (error) {
             // console.log(error)
             let text = await page.locator("(//*[contains(@class, 'css-4mp3pp-menu')])[1]").textContent()
-            if (orgStatus=='InActive') {
+            if (orgStatus == 'InActive') {
                 results.push(true)
             } else {
                 results.push(false)
-                console.log(ANSI_RED+oName + ' --> ' + text + ' Owner is ' + owner+ANSI_RESET)
+                console.log(ANSI_RED + oName + ' --> ' + text + ' Owner is ' + owner + ANSI_RESET)
             }
         }
     }
-    console.log('results '+results)
+    console.log('results ' + results)
     let status
     for (let j = 0; j < results.length; j++) {
         if (results[j] == true) { status = results[j] }
         else { status = results[j]; break }
     }
     return status;
+}
+
+async function loginAsClient(page, url, context) {
+    let oName = 'ZUMMO00'
+    let profile = page.locator("//*[@class='user_image']");
+    await page.goto(url + 'inventory');
+    await expect(profile).toBeVisible(); await profile.click()
+    await expect(page.locator("//*[text()='Login as Client']")).toBeVisible()
+    await page.click("//*[text()='Login as Client']")
+    await expect(page.locator("//*[contains(@class, 'login-client-icon')]")).toBeVisible()
+    await page.click("//*[contains(@class, 'login-client-icon')]")
+    await expect(page.locator("//*[text()='Please select Organization']")).toBeVisible()
+    if (typeof oName != "string") { oName = oName.toString(); }
+    await page.getByLabel('Organization*').fill(oName)
+    await expect(page.locator("//*[text()='Loading...']")).toBeHidden()
+    try {
+        await expect(page.getByText(oName, { exact: true }).nth(1)).toBeVisible({ timeout: 1000 })
+        let text = await page.locator("(//*[contains(@class, 'css-4mp3pp-menu')])[1]").textContent()
+        await page.getByText(oName, { exact: true }).nth(1).click()
+        // console.log(text)
+        const [page1] = await Promise.all([
+            context.waitForEvent('page'),
+            await page.click("//*[contains(@src, 'open-new-tab')]")
+        ]);
+        await expect(page1.locator("//*[text()='Need Your Attention ']")).toBeVisible();
+        await expect(page1.getByText('ZUMMO MEAT CO INC', { exact: true })).toBeVisible();
+        await expect(page1.getByText('ST JAMES BLVD, BEAUMONT, TX, 77705')).toBeVisible();
+        await page1.getByText('Repairs', { exact: true }).click();
+        await expect(page1.getByText('Repairs').nth(1)).toBeVisible();
+        await page1.click("//*[contains(@class,'ag-center-cols-container')]/div/div")
+        await expect(page1.locator("//*[contains(text(),'Repair Items')]")).toBeVisible()
+        await delay(page, 2000)
+        let upload = await page1.locator("//*[text()='Upload']");
+        let uplStatus = await upload.isEnabled();
+        console.log('upload button status: ' + uplStatus)
+        if (uplStatus) {
+            console.log('upload button is enabled')
+        } else {
+            await page1.getByText('Quotes').click();
+            await expect(page1.getByText('Quote Requests')).toBeVisible();
+            await expect(page1.getByText('Pending Approval').first()).toBeVisible();
+            await page1.click("(//*[text()='Pending Approval'])[1]");
+            let approve = await page1.locator("//*[text()='Approve']");
+            let reject = await page1.locator("//*[text()='Reject']");
+            let print = await page1.locator("//*[contains(@src,'print')]")
+            let dnload = await page1.locator("//*[contains(@src,'download')]")
+            let aprStatus = await approve.isEnabled(); let rejStatus = await reject.isEnabled();
+            let prnStatus = await print.isEnabled(); let dnStatus = await dnload.isEnabled();
+            if (prnStatus) {
+                if (dnStatus) {
+                    if (aprStatus) {
+                        console.log('approve button is enabled')
+                    } else {
+                        if (rejStatus) {
+                            console.log('reject button is enabled')
+                        } else {
+                            // await page1.pause()
+                            await page1.getByText('Orders').click();
+                            await page1.getByText('Orders').nth(1).click();
+                            await expect(page1.getByText('Orders').nth(1)).toBeVisible();
+                            await page1.getByText('Company Profile').click();
+                            await expect(page1.getByText('ZUMMO MEAT CO INC')).toBeVisible();
+                            await expect(page1.getByText('ST JAMES BLVD, BEAUMONT, TX, 77705').first()).toBeVisible();
+                            await expect(page1.getByRole('heading', { name: 'Default Shipping Method,' })).toBeVisible();
+                            await expect(page1.getByText('Shipping Address')).toBeVisible();
+                            await expect(page1.getByText('3705 SAINT JAMES BLVD,')).toBeVisible();
+                            await expect(page1.getByText('Billing Address')).toBeVisible();
+                            await expect(page1.getByTitle('3705 ST JAMES BLVD, BEAUMONT')).toBeVisible();
+                            await page1.getByText('Invoices').click();
+                            await page1.pause()
+                        }
+                    }
+                } else {
+                    console.log('download icon is disabled')
+                }
+            } else {
+                console.log('pirnt icon is disabled')
+            }
+        }
+    } catch (error) {
+        console.log(error)
+        let text = await page.locator("(//*[contains(@class, 'css-4mp3pp-menu')])[1]").textContent()
+        console.log(ANSI_RED + oName + ' -->  Owner is ' + ANSI_RESET)
+    }
 }
 
 async function getImages(page) {
@@ -16560,5 +16644,6 @@ module.exports = {
     addTerritoryToZipcodes,
     defaultTurnAroundTime,
     getImages,
-    orgSearchLoginAsClient
+    orgSearchLoginAsClient,
+    loginAsClient
 };
