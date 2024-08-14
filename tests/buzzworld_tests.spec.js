@@ -218,7 +218,7 @@ test.describe('all tests', async () => {
 
   test('Create Job and Sales Order From Repair Quotes', async ({ }, testInfo) => {
     //Repairable = 1, Not Repairable = 2, Repairable-Outsource = 3
-    let acc_num = 'ENGYS00', cont_name = 'Jannice Carrillo', stock_code = ['5D56091G013', '5D56091G013'];
+    let acc_num = 'MULTI00', cont_name = 'Garret Luppino', stock_code = ['05P00620-0123', '05P00620-0123', '05P00620-0123'];
     let tech = 'Michael Strothers';
     results = await create_job_repairs(page, 'Y', 1, acc_num, cont_name, stock_code, tech);
     let testName = testInfo.title;
@@ -227,7 +227,7 @@ test.describe('all tests', async () => {
 
   test('System Quote Creation with Sales Order and Job', async ({ }, testInfo) => {
     //create system quote
-    let acc_num = 'CHUMP03', cont_name = 'Test Epi', stock_code = ['0165009123', '0165009124'];
+    let acc_num = 'SKYCA00', cont_name = 'Joe Ward', stock_code = ['12342-000'];
     results = await create_job_quotes(page, 'Y', 'System Quote', acc_num, cont_name, stock_code);
     let testName = testInfo.title;
     await returnResult(page, testName, results);
@@ -235,7 +235,7 @@ test.describe('all tests', async () => {
 
   test('Parts Quote Creation with Sales Order', async ({ }, testInfo) => {
     //create parts quote
-    let acc_num = 'MULTI00', cont_name = 'Test user multicam', stock_code = ['123413A-2', '12342-000', '2TLA050011R1234'];
+    let acc_num = 'MULTI00', cont_name = 'Garret Luppino', stock_code = ['12342-000'];
     results = await create_job_quotes(page, 'Y', 'Parts Quote', acc_num, cont_name, stock_code);
     let testName = testInfo.title;
     await returnResult(page, testName, results);
