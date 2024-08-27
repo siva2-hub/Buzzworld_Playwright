@@ -34,7 +34,7 @@ module.exports = defineConfig({
   use: {
     launchOptions: {
       
-      slowMo: 800,
+      slowMo: 900,
       headless: false,
       // Maximize the window (specific to Chromium)
       args: ["--start-maximized"],

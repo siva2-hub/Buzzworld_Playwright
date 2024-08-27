@@ -602,3 +602,808 @@ status is:  true
 [33m  Consider splitting slow test files to speed up parallel execution[39m
 [32m  1 passed[39m[2m (2.2m)[22m
 
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m27/8/2024, 3:32:35 pm[0m --------------------------------------------------------
+
+Error: locator.click: Target page, context or browser has been closed
+
+
+[33m  Slow test file: [39m[chromium] › buzzworld_tests.spec.js[33m (25.8s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (1.3m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+
+quote is created with id  2024082700002
+
+quote url is  https://www.staging-buzzworld.iidm.com/quote_for_parts/cc488374-fb4f-4ca7-81a9-adcef45aedba
+count is  0
+
+[31m  1) [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m───────────────────────────[22m[39m
+
+    Error: locator.click: Target page, context or browser has been closed
+    Call log:
+      [2m- waiting for getByRole('button', { name: 'Add items to quote' })[22m
+
+
+    [90m   at [39mhelper.js:1485
+
+    [0m [90m 1483 |[39m         }
+     [90m 1484 |[39m     }
+    [31m[1m>[22m[39m[90m 1485 |[39m     [36mawait[39m page[33m.[39mgetByRole([32m'button'[39m[33m,[39m { name[33m:[39m [32m'Add items to quote'[39m })[33m.[39mclick()[33m;[39m
+     [90m      |[39m                                                                    [31m[1m^[22m[39m
+     [90m 1486 |[39m     [36mawait[39m expect(page[33m.[39mlocator([32m'#root'[39m))[33m.[39mtoContainText([32m'Are you sure you want to add these item(s) to quote ?'[39m)[33m;[39m
+     [90m 1487 |[39m     [36mawait[39m page[33m.[39mgetByRole([32m'button'[39m[33m,[39m { name[33m:[39m [32m'Accept'[39m })[33m.[39mclick()[33m;[39m
+     [90m 1488 |[39m     [36mawait[39m expect(page[33m.[39mlocator([32m'#repair-items'[39m))[33m.[39mtoContainText([32m'Quote Items'[39m)[33m;[39m[0m
+
+    [2m    at addItemsToQuote (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:1485:68)[22m
+    [2m    at quoteTotalDisplaysZero (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:16430:5)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/IIDM_Sprint_62.spec.js:17:15[22m
+
+
+[33m  Slow test file: [39m[chromium] › IIDM_Sprint_62.spec.js[33m (1.4m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[31m  1 failed[39m
+[31m    [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m────────────────────────────[22m[39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+quote is created with id  2024082700002
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/quote_for_parts/cc488374-fb4f-4ca7-81a9-adcef45aedba
+[31m  1) [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m───────────────────────────[22m[39m
+
+    Error: page.click: Target page, context or browser has been closed
+    Call log:
+      [2m- waiting for locator('//img[@alt=\'Edit-icon\' and contains(@src, \'themecolorEdit\')]')[22m
+
+
+    [90m   at [39mhelper.js:1917
+
+    [0m [90m 1915 |[39m     }
+     [90m 1916 |[39m     [36mawait[39m page[33m.[39mwaitForTimeout([35m1000[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 1917 |[39m     [36mawait[39m page[33m.[39mclick([32m"//img[@alt='Edit-icon' and contains(@src, 'themecolorEdit')]"[39m)[33m;[39m
+     [90m      |[39m                [31m[1m^[22m[39m
+     [90m 1918 |[39m     [36mawait[39m page[33m.[39mwaitForTimeout([35m1000[39m)[33m;[39m
+     [90m 1919 |[39m     [36mawait[39m expect(page[33m.[39mgetByText([32m'Select'[39m)[33m.[39mfirst())[33m.[39mtoBeVisible()[33m;[39m
+     [90m 1920 |[39m     [36mawait[39m page[33m.[39mwaitForTimeout([35m1000[39m)[33m;[39m[0m
+
+    [2m    at soucreSelection (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:1917:16)[22m
+    [2m    at quoteTotalDisplaysZero (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:16479:5)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/IIDM_Sprint_62.spec.js:17:15[22m
+
+
+[33m  Slow test file: [39m[chromium] › IIDM_Sprint_62.spec.js[33m (25.8s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[31m  1 failed[39m
+[31m    [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m────────────────────────────[22m[39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+quote is created with id  2024082700002
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/quote_for_parts/cc488374-fb4f-4ca7-81a9-adcef45aedba
+
+[33m  Slow test file: [39m[chromium] › IIDM_Sprint_62.spec.js[33m (15.7s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (38.1s)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+[31m  1) [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m───────────────────────────[22m[39m
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+    Locator: locator('xpath=(//*[contains(@src, "vendor_logo")])[1]')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      [2m- expect.toBeVisible with timeout 50000ms[22m
+    [2m  - waiting for locator('xpath=(//*[contains(@src, "vendor_logo")])[1]')[22m
+
+
+    [90m   at [39mhelper.js:237
+
+    [0m [90m 235 |[39m         [36mawait[39m allPages[33m.[39msignInButton[33m.[39mclick()[33m;[39m
+     [90m 236 |[39m     } [36melse[39m { }
+    [31m[1m>[22m[39m[90m 237 |[39m     [36mawait[39m expect(allPages[33m.[39mprofileIconListView)[33m.[39mtoBeVisible({ timeout[33m:[39m [35m50000[39m })[33m;[39m
+     [90m     |[39m                                                [31m[1m^[22m[39m
+     [90m 238 |[39m     [36mawait[39m page[33m.[39mwaitForTimeout([35m1600[39m)[33m;[39m
+     [90m 239 |[39m }
+     [90m 240 |[39m[0m
+
+    [2m    at login_buzz (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:237:48)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/IIDM_Sprint_62.spec.js:13:3[22m
+
+
+[31m  1 failed[39m
+[31m    [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m────────────────────────────[22m[39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+quote is created with id  2024082700001
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/all_quotes/dd2b3a5f-8329-4b7a-b7f3-af9ba85121f9
+
+[33m  Slow test file: [39m[chromium] › IIDM_Sprint_62.spec.js[33m (10.5m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (10.9m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+[31m  1) [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m───────────────────────────[22m[39m
+
+    Error: expect.toBeVisible: Target page, context or browser has been closed
+
+    [90m   at [39mhelper.js:1882
+
+    [0m [90m 1880 |[39m     [36mawait[39m page[33m.[39mlocator([32m'div'[39m)[33m.[39mfilter({ hasText[33m:[39m [35m/^Company Name\*Search By Account ID or Company Name$/[39m })[33m.[39mgetByLabel([32m'open'[39m)[33m.[39mclick()[33m;[39m
+     [90m 1881 |[39m     [36mawait[39m page[33m.[39mgetByLabel([32m'Company Name*'[39m)[33m.[39mfill(acc_num)[33m;[39m
+    [31m[1m>[22m[39m[90m 1882 |[39m     [36mawait[39m expect(page[33m.[39mgetByText(acc_num[33m,[39m { exact[33m:[39m [36mtrue[39m })[33m.[39mnth([35m1[39m))[33m.[39mtoBeVisible()[33m;[39m
+     [90m      |[39m                                                                   [31m[1m^[22m[39m
+     [90m 1883 |[39m     [36mawait[39m page[33m.[39mgetByText(acc_num[33m,[39m { exact[33m:[39m [36mtrue[39m })[33m.[39mnth([35m1[39m)[33m.[39mclick()[33m;[39m
+     [90m 1884 |[39m     [36mawait[39m page[33m.[39mgetByText([32m'Quote Type'[39m)[33m.[39mnth([35m1[39m)[33m.[39mclick()[33m;[39m
+     [90m 1885 |[39m     [36mawait[39m page[33m.[39mgetByText(quote_type[33m,[39m { exact[33m:[39m [36mtrue[39m })[33m.[39mclick()[33m;[39m[0m
+
+    [2m    at createQuote (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:1882:67)[22m
+    [2m    at quoteTotalDisplaysZero (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:16524:5)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/IIDM_Sprint_62.spec.js:17:15[22m
+
+
+[31m  1 failed[39m
+[31m    [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m────────────────────────────[22m[39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+quote is created with id  2024082700003
+quote url is  https://www.staging-buzzworld.iidm.com/quote_for_parts/3df635fd-f8d2-4d97-94e9-b2499214eea4
+
+
+[31m  1) [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m───────────────────────────[22m[39m
+
+    Error: page.click: Target page, context or browser has been closed
+    Call log:
+      [2m- waiting for locator('//img[@alt=\'Edit-icon\' and contains(@src, \'themecolorEdit\')]')[22m
+
+
+    [90m   at [39mhelper.js:1917
+
+    [0m [90m 1915 |[39m     }
+     [90m 1916 |[39m     [36mawait[39m page[33m.[39mwaitForTimeout([35m1000[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 1917 |[39m     [36mawait[39m page[33m.[39mclick([32m"//img[@alt='Edit-icon' and contains(@src, 'themecolorEdit')]"[39m)[33m;[39m
+     [90m      |[39m                [31m[1m^[22m[39m
+     [90m 1918 |[39m     [36mawait[39m page[33m.[39mwaitForTimeout([35m1000[39m)[33m;[39m
+     [90m 1919 |[39m     [36mawait[39m expect(page[33m.[39mgetByText([32m'Select'[39m)[33m.[39mfirst())[33m.[39mtoBeVisible()[33m;[39m
+     [90m 1920 |[39m     [36mawait[39m page[33m.[39mwaitForTimeout([35m1000[39m)[33m;[39m[0m
+
+    [2m    at soucreSelection (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:1917:16)[22m
+    [2m    at quoteTotalDisplaysZero (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:16532:5)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/IIDM_Sprint_62.spec.js:17:15[22m
+
+
+[33m  Slow test file: [39m[chromium] › IIDM_Sprint_62.spec.js[33m (1.5m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[31m  1 failed[39m
+[31m    [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m────────────────────────────[22m[39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+quote is created with id  2024082700003
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/quote_for_parts/3df635fd-f8d2-4d97-94e9-b2499214eea4
+[31m  1) [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m───────────────────────────[22m[39m
+
+    Error: keyboard.insertText: Target page, context or browser has been closed
+
+    [90m   at [39mhelper.js:1900
+
+    [0m [90m 1898 |[39m     [36mawait[39m page[33m.[39mgetByLabel([32m'open'[39m)[33m.[39mclick()[33m;[39m
+     [90m 1899 |[39m     [36mawait[39m spinner(page)[33m;[39m
+    [31m[1m>[22m[39m[90m 1900 |[39m     [36mawait[39m page[33m.[39mkeyboard[33m.[39minsertText(cont_name)[33m;[39m
+     [90m      |[39m                         [31m[1m^[22m[39m
+     [90m 1901 |[39m     [36mtry[39m {
+     [90m 1902 |[39m         [36mawait[39m expect([36mawait[39m page[33m.[39mlocator([32m"//*[@style = 'animation-delay: 0ms;']"[39m))[33m.[39mtoBeVisible({ timeout[33m:[39m [35m1400[39m })[33m;[39m
+     [90m 1903 |[39m         [36mawait[39m expect([36mawait[39m page[33m.[39mlocator([32m"//*[@style = 'animation-delay: 0ms;']"[39m))[33m.[39mtoBeHidden()[33m;[39m[0m
+
+    [2m    at selectRFQDateandQuoteRequestedBy (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:1900:25)[22m
+    [2m    at quoteTotalDisplaysZero (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:16535:5)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/IIDM_Sprint_62.spec.js:17:15[22m
+
+
+[33m  Slow test file: [39m[chromium] › IIDM_Sprint_62.spec.js[33m (25.1s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[31m  1 failed[39m
+[31m    [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m────────────────────────────[22m[39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+quote is created with id  2024082700003
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/quote_for_parts/3df635fd-f8d2-4d97-94e9-b2499214eea4
+[31m  1) [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m───────────────────────────[22m[39m
+
+    Error: [31mTimed out 30000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+    Locator: locator('xpath=(//*[text() = \'Are you sure you want to submit this quote for approval ?\'])[1]')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      [2m- expect.toBeVisible with timeout 30000ms[22m
+    [2m  - waiting for locator('xpath=(//*[text() = \'Are you sure you want to submit this quote for approval ?\'])[1]')[22m
+
+
+    [90m   at [39mhelper.js:1991
+
+    [0m [90m 1989 |[39m             [36mawait[39m page[33m.[39mlocator([32m"(//*[text() = 'Save'])[1]"[39m)[33m.[39mclick()[33m;[39m
+     [90m 1990 |[39m             [36mawait[39m page[33m.[39mlocator([32m"(//*[text() = 'Submit for Internal Approval'])[1]"[39m)[33m.[39mclick()[33m;[39m
+    [31m[1m>[22m[39m[90m 1991 |[39m             [36mawait[39m expect(page[33m.[39mlocator([32m"(//*[text() = 'Are you sure you want to submit this quote for approval ?'])[1]"[39m))[33m.[39mtoBeVisible()[33m;[39m
+     [90m      |[39m                                                                                                                          [31m[1m^[22m[39m
+     [90m 1992 |[39m             [36mawait[39m page[33m.[39mlocator([32m"(//*[text() = 'Proceed'])[1]"[39m)[33m.[39mclick()[33m;[39m
+     [90m 1993 |[39m             [36mawait[39m page[33m.[39mgetByRole([32m'button'[39m[33m,[39m { name[33m:[39m [32m'Approve'[39m })[33m.[39mclick()[33m;[39m
+     [90m 1994 |[39m             [36mawait[39m page[33m.[39mgetByRole([32m'button'[39m[33m,[39m { name[33m:[39m [32m'Approve'[39m })[33m.[39mnth([35m1[39m)[33m.[39mclick()[33m;[39m[0m
+
+    [2m    at submitForInternalApproval_or_Approve (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:1991:122)[22m
+    [2m    at quoteTotalDisplaysZero (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:16538:5)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/IIDM_Sprint_62.spec.js:17:15[22m
+
+
+[33m  Slow test file: [39m[chromium] › IIDM_Sprint_62.spec.js[33m (1.6m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[31m  1 failed[39m
+[31m    [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m────────────────────────────[22m[39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+[31m  1) [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m───────────────────────────[22m[39m
+
+    Error: locator.textContent: Target page, context or browser has been closed
+    Call log:
+      [2m- waiting for locator('xpath=(//*[@class = "id-num"])[1]')[22m
+
+
+    [90m   at [39mhelper.js:16531
+
+    [0m [90m 16529 |[39m     [90m// await createQuote(page, acc_num, quoteType);[39m
+     [90m 16530 |[39m     [36mawait[39m page[33m.[39mgoto([32m"https://www.staging-buzzworld.iidm.com/quote_for_parts/3df635fd-f8d2-4d97-94e9-b2499214eea4"[39m)
+    [31m[1m>[22m[39m[90m 16531 |[39m     [36mlet[39m quote [33m=[39m [36mawait[39m page[33m.[39mlocator([32m'(//*[@class = "id-num"])[1]'[39m)[33m.[39mtextContent()[33m;[39m
+     [90m       |[39m                                                                   [31m[1m^[22m[39m
+     [90m 16532 |[39m     [36mlet[39m quote_id [33m=[39m quote[33m.[39mreplace([32m"#"[39m[33m,[39m [32m""[39m)[33m;[39m
+     [90m 16533 |[39m     console[33m.[39mlog([32m'quote is created with id '[39m[33m,[39m quote_id)[33m;[39m
+     [90m 16534 |[39m     console[33m.[39mlog([32m'quote url is '[39m[33m,[39m [36mawait[39m page[33m.[39murl())[33m;[39m[0m
+
+    [2m    at quoteTotalDisplaysZero (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:16531:67)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/IIDM_Sprint_62.spec.js:17:15[22m
+
+
+[31m  1 failed[39m
+[31m    [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m────────────────────────────[22m[39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+
+quote is created with id  2024082700004
+
+quote url is  https://www.staging-buzzworld.iidm.com/quote_for_parts/c85c8e3a-4b38-4a59-9d02-9e6b40a812c2
+[31m  1) [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m───────────────────────────[22m[39m
+
+    Error: keyboard.press: Target page, context or browser has been closed
+
+    [90m   at [39mhelper.js:1905
+
+    [0m [90m 1903 |[39m         [36mawait[39m expect([36mawait[39m page[33m.[39mlocator([32m"//*[@style = 'animation-delay: 0ms;']"[39m))[33m.[39mtoBeHidden()[33m;[39m
+     [90m 1904 |[39m     } [36mcatch[39m (error) {}
+    [31m[1m>[22m[39m[90m 1905 |[39m     [36mawait[39m page[33m.[39mkeyboard[33m.[39mpress([32m"Enter"[39m)[33m;[39m
+     [90m      |[39m                         [31m[1m^[22m[39m
+     [90m 1906 |[39m     [36mawait[39m page[33m.[39mgetByTitle([32m'Save Changes'[39m)[33m.[39mclick()[33m;[39m
+     [90m 1907 |[39m     [36mawait[39m page[33m.[39mwaitForTimeout([35m2000[39m)[33m;[39m
+     [90m 1908 |[39m }[0m
+
+    [2m    at selectRFQDateandQuoteRequestedBy (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:1905:25)[22m
+    [2m    at quoteTotalDisplaysZero (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:16535:5)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/IIDM_Sprint_62.spec.js:17:15[22m
+
+
+[33m  Slow test file: [39m[chromium] › IIDM_Sprint_62.spec.js[33m (1.3m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[31m  1 failed[39m
+[31m    [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m────────────────────────────[22m[39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+
+quote is created with id  2024082700004
+
+quote url is  https://www.staging-buzzworld.iidm.com/quote_for_parts/c85c8e3a-4b38-4a59-9d02-9e6b40a812c2
+[31m  1) [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m───────────────────────────[22m[39m
+
+    Error: [31mTimed out 30000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+    Locator: locator('//*[text()=\'2024082700004\']')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      [2m- expect.toBeVisible with timeout 30000ms[22m
+    [2m  - waiting for locator('//*[text()=\'2024082700004\']')[22m
+
+
+    [90m   at [39mhelper.js:16553
+
+    [0m [90m 16551 |[39m     [36mawait[39m expect(allPages[33m.[39mprofileIconListView)[33m.[39mtoBeVisible({ timeout[33m:[39m [35m50000[39m })[33m;[39m
+     [90m 16552 |[39m     [36mawait[39m expect(page[33m.[39mlocator([32m"//*[text()='"[39m [33m+[39m quote_id [33m+[39m [32m"']"[39m))[33m.[39mtoBeVisible()[33m;[39m
+    [31m[1m>[22m[39m[90m 16553 |[39m }
+     [90m       |[39m  [31m[1m^[22m[39m
+     [90m 16554 |[39m [36masync[39m [36mfunction[39m loginAsClient(page[33m,[39m url[33m,[39m context) {
+     [90m 16555 |[39m     [36mlet[39m oName [33m=[39m [32m'ZUMMO00'[39m
+     [90m 16556 |[39m     [36mlet[39m profile [33m=[39m page[33m.[39mlocator([32m"//*[@class='user_image']"[39m)[33m;[39m[0m
+
+    [2m    at quoteTotalDisplaysZero (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:16553:66)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/IIDM_Sprint_62.spec.js:17:15[22m
+
+
+[33m  Slow test file: [39m[chromium] › IIDM_Sprint_62.spec.js[33m (3.4m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[31m  1 failed[39m
+[31m    [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m────────────────────────────[22m[39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+[31m  1) [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m───────────────────────────[22m[39m
+
+    Error: [31mTimed out 50000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+    Locator: locator('xpath=(//*[contains(@src, "vendor_logo")])[1]')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      [2m- expect.toBeVisible with timeout 50000ms[22m
+    [2m  - waiting for locator('xpath=(//*[contains(@src, "vendor_logo")])[1]')[22m
+
+
+    [90m   at [39mhelper.js:237
+
+    [0m [90m 235 |[39m         [36mawait[39m allPages[33m.[39msignInButton[33m.[39mclick()[33m;[39m
+     [90m 236 |[39m     } [36melse[39m { }
+    [31m[1m>[22m[39m[90m 237 |[39m     [36mawait[39m expect(allPages[33m.[39mprofileIconListView)[33m.[39mtoBeVisible({ timeout[33m:[39m [35m50000[39m })[33m;[39m
+     [90m     |[39m                                                [31m[1m^[22m[39m
+     [90m 238 |[39m     [36mawait[39m page[33m.[39mwaitForTimeout([35m1600[39m)[33m;[39m
+     [90m 239 |[39m }
+     [90m 240 |[39m[0m
+
+    [2m    at login_buzz (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:237:48)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/IIDM_Sprint_62.spec.js:13:3[22m
+
+
+[31m  1 failed[39m
+[31m    [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m────────────────────────────[22m[39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+[31m  1) [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m───────────────────────────[22m[39m
+
+    [31mTest was interrupted.[39m
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+    Locator: locator('xpath=(//*[contains(@src, "vendor_logo")])[1]')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      [2m- expect.toBeVisible with timeout 50000ms[22m
+    [2m  - waiting for locator('xpath=(//*[contains(@src, "vendor_logo")])[1]')[22m
+
+
+    [90m   at [39mhelper.js:238
+
+    [0m [90m 236 |[39m         [36mawait[39m allPages[33m.[39msignInButton[33m.[39mclick()[33m;[39m
+     [90m 237 |[39m     } [36melse[39m { }
+    [31m[1m>[22m[39m[90m 238 |[39m     [36mawait[39m expect(allPages[33m.[39mprofileIconListView)[33m.[39mtoBeVisible({ timeout[33m:[39m [35m50000[39m })[33m;[39m
+     [90m     |[39m                                                [31m[1m^[22m[39m
+     [90m 239 |[39m     [36mawait[39m page[33m.[39mwaitForTimeout([35m1600[39m)[33m;[39m
+     [90m 240 |[39m }
+     [90m 241 |[39m[0m
+
+    [2m    at login_buzz (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:238:48)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/IIDM_Sprint_62.spec.js:13:3[22m
+
+
+[33m  1 interrupted[39m
+[33m    [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m────────────────────────────[22m[39m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+[31m  1) [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m───────────────────────────[22m[39m
+
+    Error: page.goto: net::ERR_CERT_DATE_INVALID at https://ssodev-iidm.enterpi.com:8443/
+    Call log:
+      [2m- navigating to "https://ssodev-iidm.enterpi.com:8443/", waiting until "load"[22m
+
+
+    [90m   at [39mhelper.js:225
+
+    [0m [90m 223 |[39m [36masync[39m [36mfunction[39m login_buzz(page[33m,[39m stage_url) {
+     [90m 224 |[39m     allPages [33m=[39m [36mnew[39m [33mAllPages[39m(page)[33m;[39m
+    [31m[1m>[22m[39m[90m 225 |[39m     [36mawait[39m page[33m.[39mgoto(stage_url)[33m;[39m
+     [90m     |[39m                [31m[1m^[22m[39m
+     [90m 226 |[39m     [36mif[39m ([36mawait[39m page[33m.[39murl()[33m.[39mincludes([32m'sso'[39m)) {
+     [90m 227 |[39m         [36mlet[39m userName[33m,[39m password[33m;[39m
+     [90m 228 |[39m         [36mif[39m (stage_url[33m.[39mincludes([32m'192.168'[39m)) {[0m
+
+    [2m    at login_buzz (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:225:16)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/IIDM_Sprint_62.spec.js:13:9[22m
+
+
+[31m  1 failed[39m
+[31m    [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m────────────────────────────[22m[39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+[31m  1) [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m───────────────────────────[22m[39m
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+    Locator: locator('xpath=(//*[contains(@src, "vendor_logo")])[1]')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      [2m- expect.toBeVisible with timeout 50000ms[22m
+    [2m  - waiting for locator('xpath=(//*[contains(@src, "vendor_logo")])[1]')[22m
+
+
+    [90m   at [39mhelper.js:238
+
+    [0m [90m 236 |[39m         [36mawait[39m allPages[33m.[39msignInButton[33m.[39mclick()[33m;[39m
+     [90m 237 |[39m     [90m// } else { }[39m
+    [31m[1m>[22m[39m[90m 238 |[39m     [36mawait[39m expect(allPages[33m.[39mprofileIconListView)[33m.[39mtoBeVisible({ timeout[33m:[39m [35m50000[39m })[33m;[39m
+     [90m     |[39m                                                [31m[1m^[22m[39m
+     [90m 239 |[39m     [36mawait[39m page[33m.[39mwaitForTimeout([35m1600[39m)[33m;[39m
+     [90m 240 |[39m }
+     [90m 241 |[39m[0m
+
+    [2m    at login_buzz (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:238:48)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/IIDM_Sprint_62.spec.js:13:3[22m
+
+
+[31m  1 failed[39m
+[31m    [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m────────────────────────────[22m[39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+
+quote is created with number:  2024082700002
+
+quote url is:  http://192.168.1.115:3000/quote_for_parts/09e0ce04-989a-4c12-b61e-689be591a6cd
+[31m  1) [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m───────────────────────────[22m[39m
+
+    Error: [31mTimed out 30000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+    Locator: locator('xpath=(//*[text() = \'Few Quote Items are having GP less than 23%, Do you want to continue ?\'])[1]')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      [2m- expect.toBeVisible with timeout 30000ms[22m
+    [2m  - waiting for locator('xpath=(//*[text() = \'Few Quote Items are having GP less than 23%, Do you want to continue ?\'])[1]')[22m
+
+
+    [90m   at [39mhelper.js:1992
+
+    [0m [90m 1990 |[39m             [36mawait[39m page[33m.[39mlocator([32m"(//*[text() = 'Save'])[1]"[39m)[33m.[39mclick()[33m;[39m
+     [90m 1991 |[39m             [36mawait[39m page[33m.[39mlocator([32m"(//*[text() = 'Submit for Internal Approval'])[1]"[39m)[33m.[39mclick()[33m;[39m
+    [31m[1m>[22m[39m[90m 1992 |[39m             [36mawait[39m expect(page[33m.[39mlocator([32m"(//*[text() = 'Few Quote Items are having GP less than 23%, Do you want to continue ?'])[1]"[39m))[33m.[39mtoBeVisible()[33m;[39m
+     [90m      |[39m                                                                                                                                       [31m[1m^[22m[39m
+     [90m 1993 |[39m             [36mawait[39m page[33m.[39mlocator([32m"(//*[text() = 'Proceed'])[1]"[39m)[33m.[39mclick()[33m;[39m
+     [90m 1994 |[39m             [36mawait[39m page[33m.[39mgetByRole([32m'button'[39m[33m,[39m { name[33m:[39m [32m'Approve'[39m })[33m.[39mclick()[33m;[39m
+     [90m 1995 |[39m             [36mawait[39m page[33m.[39mgetByRole([32m'button'[39m[33m,[39m { name[33m:[39m [32m'Approve'[39m })[33m.[39mnth([35m1[39m)[33m.[39mclick()[33m;[39m[0m
+
+    [2m    at submitForInternalApproval_or_Approve (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:1992:135)[22m
+    [2m    at quoteTotalDisplaysZero (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:16539:5)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/IIDM_Sprint_62.spec.js:17:15[22m
+
+
+[33m  Slow test file: [39m[chromium] › IIDM_Sprint_62.spec.js[33m (3.3m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[31m  1 failed[39m
+[31m    [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m────────────────────────────[22m[39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+
+quote is created with number:  2024082700005
+
+quote url is:  https://www.staging-buzzworld.iidm.com/quote_for_parts/a27840e8-4483-4da1-9726-659aa7a4fd5b
+[31m  1) [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m───────────────────────────[22m[39m
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+    Locator: locator('xpath=(//*[contains(@src, "vendor_logo")])[1]')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      [2m- expect.toBeVisible with timeout 50000ms[22m
+    [2m  - waiting for locator('xpath=(//*[contains(@src, "vendor_logo")])[1]')[22m
+
+
+    [90m   at [39mhelper.js:16549
+
+    [0m [90m 16547 |[39m     [36mawait[39m page[33m.[39mgetByPlaceholder([32m'Quote ID / Company Name / Sales Person Name / Email'[39m)[33m.[39mfill(quote_id)[33m;[39m
+     [90m 16548 |[39m     [36mawait[39m delay(page[33m,[39m [35m2000[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 16549 |[39m     [36mawait[39m expect(allPages[33m.[39mprofileIconListView)[33m.[39mtoBeVisible({ timeout[33m:[39m [35m50000[39m })[33m;[39m
+     [90m       |[39m                                                [31m[1m^[22m[39m
+     [90m 16550 |[39m     [36mawait[39m expect(page[33m.[39mlocator([32m"//*[text()='"[39m [33m+[39m quote_id [33m+[39m [32m"']"[39m))[33m.[39mtoBeVisible()[33m;[39m
+     [90m 16551 |[39m     [36mlet[39m grandTotal [33m=[39m [36mawait[39m page[33m.[39mlocator([32m"//*[@class='ag-center-cols-container']/div/div[4]"[39m)[33m.[39mtextContent()[33m;[39m
+     [90m 16552 |[39m     [36mif[39m (grandTotal [33m==[39m [32m'$0.00'[39m) {[0m
+
+    [2m    at quoteTotalDisplaysZero (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:16549:48)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/IIDM_Sprint_62.spec.js:17:15[22m
+
+
+[33m  Slow test file: [39m[chromium] › IIDM_Sprint_62.spec.js[33m (2.8m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[31m  1 failed[39m
+[31m    [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m────────────────────────────[22m[39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+quote is created with number:  2024082700005
+
+
+quote url is:  https://www.staging-buzzworld.iidm.com/quote_for_parts/a27840e8-4483-4da1-9726-659aa7a4fd5b
+[31m  1) [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m───────────────────────────[22m[39m
+
+    ReferenceError: res is not defined
+
+    [90m   at [39mhelper.js:16556
+
+    [0m [90m 16554 |[39m         res [33m=[39m [36mtrue[39m[33m;[39m
+     [90m 16555 |[39m     } [36melse[39m {
+    [31m[1m>[22m[39m[90m 16556 |[39m         res [33m=[39m [36mfalse[39m[33m;[39m
+     [90m       |[39m            [31m[1m^[22m[39m
+     [90m 16557 |[39m         console[33m.[39mlog([32m'in list view grand total: '[39m [33m+[39m grandTotal)[33m;[39m
+     [90m 16558 |[39m     }
+     [90m 16559 |[39m     [36mreturn[39m res[33m;[39m[0m
+
+    [2m    at quoteTotalDisplaysZero (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:16556:12)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/IIDM_Sprint_62.spec.js:17:15[22m
+
+
+[31m  1 failed[39m
+[31m    [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m────────────────────────────[22m[39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+quote is created with number:  2024082700005
+
+
+quote url is:  https://www.staging-buzzworld.iidm.com/quote_for_parts/a27840e8-4483-4da1-9726-659aa7a4fd5b
+in list view grand total: Default User
+
+
+[32m  1 passed[39m[2m (36.2s)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+quote is created with number:  2024082700005
+
+
+quote url is:  https://www.staging-buzzworld.iidm.com/quote_for_parts/a27840e8-4483-4da1-9726-659aa7a4fd5b
+in list view grand total: $10,326.00
+
+
+[32m  1 passed[39m[2m (35.7s)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+[31m  1) [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m───────────────────────────[22m[39m
+
+    ReferenceError: searchQuoteID is not defined
+
+    [90m   at [39mhelper.js:16530
+
+    [0m [90m 16528 |[39m }
+     [90m 16529 |[39m [36masync[39m [36mfunction[39m quoteTotalDisplaysZero(page[33m,[39m acc_num[33m,[39m cont_name[33m,[39m quoteType[33m,[39m stockCode) {
+    [31m[1m>[22m[39m[90m 16530 |[39m     [36mawait[39m searchQuoteID(()[33m=>[39m{
+     [90m       |[39m     [31m[1m^[22m[39m
+     [90m 16531 |[39m         page[33m.[39mgetByText([32m'Quotes'[39m)[33m.[39mclick()[33m;[39m
+     [90m 16532 |[39m     expect(allPages[33m.[39mprofileIconListView)[33m.[39mtoBeVisible({ timeout[33m:[39m [35m50000[39m })[33m;[39m
+     [90m 16533 |[39m     page[33m.[39mgetByPlaceholder([32m'Quote ID / Company Name / Sales Person Name / Email'[39m)[33m.[39mfill(quote_id)[33m;[39m[0m
+
+    [2m    at quoteTotalDisplaysZero (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:16530:5)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/IIDM_Sprint_62.spec.js:17:21[22m
+
+
+[31m  1 failed[39m
+[31m    [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m────────────────────────────[22m[39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+quote is created with number:  2024082700005
+
+
+quote url is:  https://www.staging-buzzworld.iidm.com/quote_for_parts/a27840e8-4483-4da1-9726-659aa7a4fd5b
+[31m  1) [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m───────────────────────────[22m[39m
+
+    ReferenceError: res is not defined
+
+    [90m   at [39mhelper.js:16561
+
+    [0m [90m 16559 |[39m         [36mlet[39m tqp [33m=[39m parseInt(total_price[33m.[39mreplace([32m"$"[39m[33m,[39m [32m""[39m)[33m.[39mreplace([32m","[39m[33m,[39m [32m""[39m))[33m;[39m
+     [90m 16560 |[39m     } [36melse[39m {
+    [31m[1m>[22m[39m[90m 16561 |[39m         res [33m=[39m [36mfalse[39m[33m;[39m
+     [90m       |[39m            [31m[1m^[22m[39m
+     [90m 16562 |[39m         console[33m.[39mlog([32m'in list view grand total: '[39m [33m+[39m grandTotal)[33m;[39m
+     [90m 16563 |[39m     }
+     [90m 16564 |[39m     [36mreturn[39m res[33m;[39m[0m
+
+    [2m    at quoteTotalDisplaysZero (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:16561:12)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/IIDM_Sprint_62.spec.js:17:15[22m
+
+
+[31m  1 failed[39m
+[31m    [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m────────────────────────────[22m[39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+quote is created with number:  2024082700005
+
+
+quote url is:  https://www.staging-buzzworld.iidm.com/quote_for_parts/a27840e8-4483-4da1-9726-659aa7a4fd5b
+in list view grand total: $10,326.00
+
+
+[32m  1 passed[39m[2m (31.9s)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+quote is created with number:  2024082700005
+
+
+quote url is:  https://www.staging-buzzworld.iidm.com/quote_for_parts/a27840e8-4483-4da1-9726-659aa7a4fd5b
+[31m  1) [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m───────────────────────────[22m[39m
+
+    [31mTest was interrupted.[39m
+
+
+[33m  Slow test file: [39m[chromium] › IIDM_Sprint_62.spec.js[33m (34.9s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[33m  1 interrupted[39m
+[33m    [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m────────────────────────────[22m[39m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+quote is created with number:  2024082700005
+
+
+quote url is:  https://www.staging-buzzworld.iidm.com/quote_for_parts/a27840e8-4483-4da1-9726-659aa7a4fd5b
+[31m  1) [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m───────────────────────────[22m[39m
+
+    Error: locator.click: Target page, context or browser has been closed
+
+    [90m   at [39mhelper.js:1973
+
+    [0m [90m 1971 |[39m             [36mawait[39m page[33m.[39mgetByRole([32m'button'[39m[33m,[39m { name[33m:[39m [32m'Add'[39m[33m,[39m exact[33m:[39m [36mtrue[39m })[33m.[39mclick()[33m;[39m
+     [90m 1972 |[39m         } [36melse[39m {
+    [31m[1m>[22m[39m[90m 1973 |[39m             [36mawait[39m allPages[33m.[39mcheckBox[33m.[39mfirst()[33m.[39mclick()[33m;[39m
+     [90m      |[39m                                             [31m[1m^[22m[39m
+     [90m 1974 |[39m             [36mawait[39m page[33m.[39mgetByRole([32m'button'[39m[33m,[39m { name[33m:[39m [32m'Add Selected 1 Items'[39m })[33m.[39mclick()[33m;[39m
+     [90m 1975 |[39m         }
+     [90m 1976 |[39m         [36mawait[39m expect(page[33m.[39mgetByText([32m'Add Options'[39m))[33m.[39mtoBeVisible()[33m;[39m[0m
+
+    [2m    at addItesms (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:1973:45)[22m
+    [2m    at quoteTotalDisplaysZero (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:16558:9)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/IIDM_Sprint_62.spec.js:17:15[22m
+
+
+[33m  Slow test file: [39m[chromium] › IIDM_Sprint_62.spec.js[33m (22.4s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[31m  1 failed[39m
+[31m    [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m────────────────────────────[22m[39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+quote is created with number:  2024082700005
+
+
+quote url is:  https://www.staging-buzzworld.iidm.com/quote_for_parts/a27840e8-4483-4da1-9726-659aa7a4fd5b
+[32mQuote Total display zero Test Passed![0m
+
+[33m  Slow test file: [39m[chromium] › IIDM_Sprint_62.spec.js[33m (40.3s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (1.3m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+quote is created with number:  2024082700005
+
+
+quote url is:  https://www.staging-buzzworld.iidm.com/quote_for_parts/a27840e8-4483-4da1-9726-659aa7a4fd5b
+in list view grand total: $0.00
+
+
+[32m  1 passed[39m[2m (33.7s)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+quote is created with number:  2024082700005
+
+
+quote url is:  https://www.staging-buzzworld.iidm.com/quote_for_parts/a27840e8-4483-4da1-9726-659aa7a4fd5b
+[31m  1) [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m───────────────────────────[22m[39m
+
+    ReferenceError: quote_type is not defined
+
+    [90m   at [39mhelper.js:1951
+
+    [0m [90m 1949 |[39m         [36mif[39m (res) {
+     [90m 1950 |[39m             [36mawait[39m page[33m.[39mgetByRole([32m'tab'[39m[33m,[39m { name[33m:[39m [32m'Add New Items'[39m })[33m.[39mclick()[33m;[39m
+    [31m[1m>[22m[39m[90m 1951 |[39m             [36mif[39m (quote_type [33m==[39m [32m'Parts Quote'[39m) {
+     [90m      |[39m             [31m[1m^[22m[39m
+     [90m 1952 |[39m                 [36mawait[39m page[33m.[39mlocator([32m"//*[text() = 'Search']"[39m)[33m.[39mclick()[33m;[39m
+     [90m 1953 |[39m                 [36mawait[39m page[33m.[39mkeyboard[33m.[39minsertText(testdata[33m.[39mparts[33m.[39msupplier)[33m;[39m
+     [90m 1954 |[39m                 [36mawait[39m page[33m.[39mkeyboard[33m.[39mpress([32m'Enter'[39m)[33m;[39m[0m
+
+    [2m    at addItesms (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:1951:13)[22m
+    [2m    at quoteTotalDisplaysZero (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:16558:9)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/IIDM_Sprint_62.spec.js:17:15[22m
+
+
+[33m  Slow test file: [39m[chromium] › IIDM_Sprint_62.spec.js[33m (18.4s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[31m  1 failed[39m
+[31m    [chromium] › IIDM_Sprint_62.spec.js:15:1 › Quote Total display zero [2m────────────────────────────[22m[39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
