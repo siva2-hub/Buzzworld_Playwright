@@ -1947,7 +1947,7 @@ async function soucreSelection(page, stock_code) {
     for (let i = 0; i < stock_code.length; i++) {
         let xpath = "(//*[contains(@class, '-highlight check_box')])['" + count + "']/div[1]";
         await page.locator(xpath).click();
-        count = count+1;
+        count++;
     }
     await page.waitForTimeout(1000);
     await page.click("//img[@alt='Edit-icon' and contains(@src, 'themecolorEdit')]");
