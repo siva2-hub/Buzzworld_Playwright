@@ -1972,7 +1972,36 @@ async function addItesms(page, stock_code, quote_type) {
         await expect(page.getByText('Add Options')).toBeVisible();
     }
 }
-async function submitForInternalApproval_or_Approve(page, cont_name) {
+async function soucreSelection(page, stock_code) {
+    let count = 1;
+    for (let i = 0; i < stock_code.length; i++) {
+        let xpath = "(//*[contains(@class, '-highlight check_box')])['" + count + "']/div[1]";
+        await page.locator(xpath).click();
+        count++;
+    }
+    await page.waitForTimeout(1000);
+    await page.click("//img[@alt='Edit-icon' and contains(@src, 'themecolorEdit')]");
+    await page.waitForTimeout(1000);
+    await expect(page.getByText('Select').first()).toBeVisible();
+    await page.waitForTimeout(1000);
+    await page.getByText('Select').first().click();
+    await page.waitForTimeout(1000);
+    await page.getByText('Field Service', { exact: true }).click();
+    await page.waitForTimeout(1000);
+    await page.getByRole('button', { name: 'Save' }).click();
+    await page.waitForTimeout(2600);
+}
+async function submitForInternalApproval(page) {
+    await expect(page.locator("(//*[text() = 'Submit for Internal Approval'])[1]")).toBeVisible();
+    await page.locator("(//*[text() = 'Submit for Internal Approval'])[1]").click();
+    try {
+        await expect(page.locator("(//*[text() = 'Are you sure you want to submit this quote for approval ?'])[1]")).toBeVisible({ timeout: 2000 });
+    } catch (error) {
+        await expect(page.locator("(//*[text() = 'Few Quote Items are having GP less than 23%, Do you want to continue ?'])[1]")).toBeVisible({ timeout: 2000 });
+    }
+    await page.locator("(//*[text() = 'Proceed'])[1]").click();
+}
+async function approve(page, cont_name) {
     let total_price = await page.locator("(//*[contains(@class, 'total-price-ellipsis')])[3]").textContent();
     let tqp = parseInt(total_price.replace("$", "").replace(",", ""));
     if (tqp > 10000) {
