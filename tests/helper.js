@@ -2029,7 +2029,6 @@ async function createVersion(page, quote_id) {
     await page.getByRole('button', { name: 'Proceed' }).first().click();
     await expect(page.getByRole('heading', { name: 'Related to' })).toBeVisible();
     await expect(page.locator('#root')).toContainText('Quote has been revised #' + quote_id + '');
-    await page.pause();
 }
 async function create_job_quotes(page, is_create_job, quoteType, acc_num, cont_name, stock_code, quote_type) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
