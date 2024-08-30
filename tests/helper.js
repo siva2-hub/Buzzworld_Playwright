@@ -1897,36 +1897,6 @@ async function selectRFQDateandQuoteRequestedBy(page, cont_name) {
     await page.getByTitle('Save Changes').click();
     await page.waitForTimeout(2000);
 }
-async function soucreSelection(page, stock_code) {
-    for (let i = 0; i < stock_code.length; i++) {
-        if (stock_code.length > 1) {
-            if (i == 0) {
-                let checkBox = await page.locator('#repair-items label').first();
-                let isSelected = await checkBox.isChecked();
-                if (isSelected) { } else { await checkBox.check(); }
-            } else {
-                let checkBox = await page.locator('#repair-items label').nth(i);
-                let isSelected = await checkBox.isChecked();
-                if (isSelected) { } else { await checkBox.check(); }
-            }
-        } else {
-            let checkBox = await page.locator('#repair-items label').first();
-            let isSelected = await checkBox.isChecked();
-            if (isSelected) { } else { await checkBox.check(); }
-        }
-    }
-    await page.waitForTimeout(1000);
-    await page.click("//img[@alt='Edit-icon' and contains(@src, 'themecolorEdit')]");
-    await page.waitForTimeout(1000);
-    await expect(page.getByText('Select').first()).toBeVisible();
-    await page.waitForTimeout(1000);
-    await page.getByText('Select').first().click();
-    await page.waitForTimeout(1000);
-    await page.getByText('Field Service', { exact: true }).click();
-    await page.waitForTimeout(1000);
-    await page.getByRole('button', { name: 'Save' }).click();
-    await page.waitForTimeout(2600);
-}
 async function addItesms(page, stock_code, quote_type) {
     for (let index = 0; index < stock_code.length; index++) {
 
@@ -1972,7 +1942,36 @@ async function addItesms(page, stock_code, quote_type) {
         await expect(page.getByText('Add Options')).toBeVisible();
     }
 }
-async function submitForInternalApproval_or_Approve(page, cont_name) {
+async function soucreSelection(page, stock_code) {
+    let count = 1;
+    for (let i = 0; i < stock_code.length; i++) {
+        let xpath = "(//*[contains(@class, '-highlight check_box')])['" + count + "']/div[1]";
+        await page.locator(xpath).click();
+        count = count+1;
+    }
+    await page.waitForTimeout(1000);
+    await page.click("//img[@alt='Edit-icon' and contains(@src, 'themecolorEdit')]");
+    await page.waitForTimeout(1000);
+    await expect(page.getByText('Select').first()).toBeVisible();
+    await page.waitForTimeout(1000);
+    await page.getByText('Select').first().click();
+    await page.waitForTimeout(1000);
+    await page.getByText('Field Service', { exact: true }).click();
+    await page.waitForTimeout(1000);
+    await page.getByRole('button', { name: 'Save' }).click();
+    await page.waitForTimeout(2600);
+}
+async function submitForInternalApproval(page) {
+    await expect(page.locator("(//*[text() = 'Submit for Internal Approval'])[1]")).toBeVisible();
+    await page.locator("(//*[text() = 'Submit for Internal Approval'])[1]").click();
+    try {
+        await expect(page.locator("(//*[text() = 'Are you sure you want to submit this quote for approval ?'])[1]")).toBeVisible({ timeout: 2000 });
+    } catch (error) {
+        await expect(page.locator("(//*[text() = 'Few Quote Items are having GP less than 23%, Do you want to continue ?'])[1]")).toBeVisible({ timeout: 2000 });
+    }
+    await page.locator("(//*[text() = 'Proceed'])[1]").click();
+}
+async function approve(page, cont_name) {
     let total_price = await page.locator("(//*[contains(@class, 'total-price-ellipsis')])[3]").textContent();
     let tqp = parseInt(total_price.replace("$", "").replace(",", ""));
     if (tqp > 10000) {
@@ -2010,9 +2009,6 @@ async function submitForInternalApproval_or_Approve(page, cont_name) {
             await page.locator('#react-select-6-input').press('Enter');
             await page.getByRole('button', { name: 'Save' }).click();
             await page.waitForTimeout(2500);
-            await page.locator("(//*[text() = 'Submit for Internal Approval'])[1]").click();
-            await expect(page.locator("(//*[text() = 'Are you sure you want to submit this quote for approval ?'])[1]")).toBeVisible();
-            await page.locator("(//*[text() = 'Proceed'])[1]").click();
             await page.getByRole('button', { name: 'Approve' }).click();
             await page.getByRole('button', { name: 'Approve' }).nth(1).click();
         } else {
@@ -2030,7 +2026,6 @@ async function createVersion(page, quote_id) {
     await page.getByRole('button', { name: 'Proceed' }).first().click();
     await expect(page.getByRole('heading', { name: 'Related to' })).toBeVisible();
     await expect(page.locator('#root')).toContainText('Quote has been revised #' + quote_id + '');
-    await page.pause();
 }
 async function create_job_quotes(page, is_create_job, quoteType, acc_num, cont_name, stock_code, quote_type) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
@@ -16512,7 +16507,7 @@ async function quoteTotalDisplaysZero(page, acc_num, cont_name, quoteType, stock
         await expect(page.locator("//*[text()='" + quote_id + "']")).toBeVisible();
     }
     await createQuote(page, acc_num, quoteType);
-    // await page.goto("https://buzzworld-web-iidm.enterpi.com/quote_for_parts/46de07f0-2a93-49c0-8d05-780c2d233832")
+    // await page.goto("https://www.staging-buzzworld.iidm.com/quote_for_parts/364b2f47-d6e7-4d1b-81cf-a372d26e1746")
     let quote = await page.locator('(//*[@class = "id-num"])[1]').textContent();
     let quote_id = quote.replace("#", "");
     console.log('quote is created with number: ', quote_id);
@@ -16520,7 +16515,7 @@ async function quoteTotalDisplaysZero(page, acc_num, cont_name, quoteType, stock
     await selectRFQDateandQuoteRequestedBy(page, cont_name);
     await addItesms(page, stockCode, quoteType);
     await soucreSelection(page, stockCode);
-    await submitForInternalApproval_or_Approve(page, cont_name);
+    await submitForInternalApproval(page);
     await createVersion(page, quote_id);
     await expect(page.getByRole('button', { name: 'delet-icon' }).first()).toBeVisible();
     //Option deleting
@@ -16529,26 +16524,26 @@ async function quoteTotalDisplaysZero(page, acc_num, cont_name, quoteType, stock
     await page.getByRole('button', { name: 'Yes' }).nth(1).click();
     await delay(page, 1200);
     await searchQuoteID(); let res;
-    let grandTotal = await page.locator("//*[@class='ag-center-cols-container']/div/div[9]").textContent();
-    if (grandTotal != '$0.00') {
+    await delay(page, 1200);
+    let grandTotalInList = await page.locator("//*[@class='ag-center-cols-container']/div/div[9]").textContent();
+    if (grandTotalInList == '$0.00') {
         await allPages.gridFirstRow.click();
         await addItesms(page, ["GA80U2211ABM"], quoteType);
-        let total_price = await page.locator("(//*[contains(@class, 'total-price-ellipsis')])[3]").textContent();
-        let tqp = parseInt(total_price.replace("$", "").replace(",", ""));
+        let grandTotalInDet = await page.locator("(//*[contains(@class, 'total-price-ellipsis')])[3]").textContent();
         await searchQuoteID();
-        let grandTotal = await page.locator("//*[@class='ag-center-cols-container']/div/div[9]").textContent();
-        if (grandTotal == tqp) {
+        let grandTotalInList = await page.locator("//*[@class='ag-center-cols-container']/div/div[9]").textContent();
+        if (grandTotalInList == grandTotalInDet) {
             res = true;
-            console.log('in list view grand total: ' + grandTotal);
-            console.log('in detail view grand total: ' + tqp);
+            console.log('in list view grand total: ' + grandTotalInList);
+            console.log('in detail view grand total: ' + grandTotalInDet);
         } else {
             res = false;
-            console.log('in list view grand total: ' + grandTotal);
-            console.log('in detail view grand total: ' + tqp);
+            console.log('in list view grand total: ' + grandTotalInList);
+            console.log('in detail view grand total: ' + grandTotalInDet);
         }
     } else {
         res = false;
-        console.log('in list view grand total: ' + grandTotal);
+        console.log('in list view grand total: ' + grandTotalInList);
     }
     return res;
 }
