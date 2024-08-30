@@ -1897,36 +1897,6 @@ async function selectRFQDateandQuoteRequestedBy(page, cont_name) {
     await page.getByTitle('Save Changes').click();
     await page.waitForTimeout(2000);
 }
-async function soucreSelection(page, stock_code) {
-    for (let i = 0; i < stock_code.length; i++) {
-        if (stock_code.length > 1) {
-            if (i == 0) {
-                let checkBox = await page.locator('#repair-items label').first();
-                let isSelected = await checkBox.isChecked();
-                if (isSelected) { } else { await checkBox.check(); }
-            } else {
-                let checkBox = await page.locator('#repair-items label').nth(i);
-                let isSelected = await checkBox.isChecked();
-                if (isSelected) { } else { await checkBox.check(); }
-            }
-        } else {
-            let checkBox = await page.locator('#repair-items label').first();
-            let isSelected = await checkBox.isChecked();
-            if (isSelected) { } else { await checkBox.check(); }
-        }
-    }
-    await page.waitForTimeout(1000);
-    await page.click("//img[@alt='Edit-icon' and contains(@src, 'themecolorEdit')]");
-    await page.waitForTimeout(1000);
-    await expect(page.getByText('Select').first()).toBeVisible();
-    await page.waitForTimeout(1000);
-    await page.getByText('Select').first().click();
-    await page.waitForTimeout(1000);
-    await page.getByText('Field Service', { exact: true }).click();
-    await page.waitForTimeout(1000);
-    await page.getByRole('button', { name: 'Save' }).click();
-    await page.waitForTimeout(2600);
-}
 async function addItesms(page, stock_code, quote_type) {
     for (let index = 0; index < stock_code.length; index++) {
 
@@ -16549,7 +16519,7 @@ async function quoteTotalDisplaysZero(page, acc_num, cont_name, quoteType, stock
     await selectRFQDateandQuoteRequestedBy(page, cont_name);
     await addItesms(page, stockCode, quoteType);
     await soucreSelection(page, stockCode);
-    await submitForInternalApproval_or_Approve(page, cont_name);
+    await submitForInternalApproval(page, cont_name);
     await createVersion(page, quote_id);
     await expect(page.getByRole('button', { name: 'delet-icon' }).first()).toBeVisible();
     //Option deleting
@@ -16558,26 +16528,25 @@ async function quoteTotalDisplaysZero(page, acc_num, cont_name, quoteType, stock
     await page.getByRole('button', { name: 'Yes' }).nth(1).click();
     await delay(page, 1200);
     await searchQuoteID(); let res;
-    let grandTotal = await page.locator("//*[@class='ag-center-cols-container']/div/div[9]").textContent();
-    if (grandTotal != '$0.00') {
+    let grandTotalInList = await page.locator("//*[@class='ag-center-cols-container']/div/div[9]").textContent();
+    if (grandTotalInList == '$0.00') {
         await allPages.gridFirstRow.click();
         await addItesms(page, ["GA80U2211ABM"], quoteType);
-        let total_price = await page.locator("(//*[contains(@class, 'total-price-ellipsis')])[3]").textContent();
-        let tqp = parseInt(total_price.replace("$", "").replace(",", ""));
+        let grandTotalInDet = await page.locator("(//*[contains(@class, 'total-price-ellipsis')])[3]").textContent();
         await searchQuoteID();
-        let grandTotal = await page.locator("//*[@class='ag-center-cols-container']/div/div[9]").textContent();
-        if (grandTotal == tqp) {
+        let grandTotalInList = await page.locator("//*[@class='ag-center-cols-container']/div/div[9]").textContent();
+        if (grandTotalInList == grandTotalInDet) {
             res = true;
-            console.log('in list view grand total: ' + grandTotal);
-            console.log('in detail view grand total: ' + tqp);
+            console.log('in list view grand total: ' + grandTotalInList);
+            console.log('in detail view grand total: ' + grandTotalInDet);
         } else {
             res = false;
-            console.log('in list view grand total: ' + grandTotal);
-            console.log('in detail view grand total: ' + tqp);
+            console.log('in list view grand total: ' + grandTotalInList);
+            console.log('in detail view grand total: ' + grandTotalInDet);
         }
     } else {
         res = false;
-        console.log('in list view grand total: ' + grandTotal);
+        console.log('in list view grand total: ' + grandTotalInList);
     }
     return res;
 }
