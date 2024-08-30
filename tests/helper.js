@@ -20,14 +20,12 @@ const ANSI_RESET = "\x1b[0m";
 const ANSI_RED = "\x1b[31m";
 const ANSI_GREEN = "\x1b[32m";
 const ANSI_ORANGE = "\x1b[38;2;255;165;0m";
-
 // const month = parseInt(text.substring(3, 4));
 // Outputs "Mon Aug 31 2020"
-
 //store the logs 
 const logFilePath = path.join(__dirname, 'logs.log');
 redirectConsoleToFile(logFilePath);
-
+//--------------------------------------------------------------------//----------------------------------------------------------------//
 async function checkout_page(page1, pay_type) {
     let sub_total = await page1.locator("(//h4[@class = 'number'])[4]").textContent({ timeout: 10000 });
     // @ts-ignore
@@ -75,7 +73,6 @@ async function checkout_page(page1, pay_type) {
     }
     return res, exp_total;
 }
-
 async function order_summary_page(check_total, check_st, check_tax, check_cf) {
     const browser = await chromium.launch();
     const cont = await browser.newContext();
@@ -219,25 +216,25 @@ async function request_payterms(page) {
     await page.getByRole('button', { name: 'Request' }).click();
     await page.pause();
 }
-
 async function login_buzz(page, stage_url) {
     allPages = new AllPages(page);
     await page.goto(stage_url);
-    if (await page.url().includes('sso')) {
-        let userName, password;
-        if (stage_url.includes('192.168')) {
-            userName = 'b.raghuvardhanreddy@enterpi.com', password = 'Enter@4321';
-        } else {
-            userName = 'defaultuser@enterpi.com', password = 'Enter@4321';
-        }
-        await allPages.userNameInput.fill(userName);
-        await allPages.passwordInput.fill(password);
-        await allPages.signInButton.click();
-    } else { }
+    // if (await page.url().includes('sso')) {
+    let userName, password;
+    if (stage_url.includes('192.168')) {
+        // userName = 'b.raghuvardhanreddy@enterpi.com', password = 'Enter@4321';
+        userName = 'defaultuser@enterpi.com', password = 'Enter@4321';
+    } else {
+        userName = 'defaultuser@enterpi.com', password = 'Enter@4321';
+    }
+    await expect(allPages.userNameInput).toBeVisible();
+    await allPages.userNameInput.fill(userName);
+    await allPages.passwordInput.fill(password);
+    await allPages.signInButton.click();
+    // } else { }
     await expect(allPages.profileIconListView).toBeVisible({ timeout: 50000 });
     await page.waitForTimeout(1600);
 }
-
 async function login(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     //positive scenario
@@ -354,7 +351,6 @@ async function login(page) {
     }
     return testResult;
 }
-
 async function logout(page) {
     await page.locator('//*[@class = "user_image"]').click();
     await page.getByRole('menuitem', { name: 'Logout' }).click();
@@ -382,7 +378,6 @@ async function save_changes(page, atype, view) {
 
     }
 }
-
 async function addCustomerPermissions(page, viewEdit) {
     let getTestResults;
     await search_user(page, 'defaultuser@enterpi.com');
@@ -1368,7 +1363,6 @@ async function filters_pricing(page) {
     await page.waitForTimeout(1500);
     console.log('filter is applied for ', testdata.dc_new);
 }
-
 async function spinner(page) {
     try {
         await page.waitForTimeout(1500);
@@ -1390,7 +1384,6 @@ async function createRMA(page, acc_num, cont_name) {
     await page.getByText(cont_name, { exact: true }).nth(1).click();
     await page.getByRole('button', { name: 'Create', exact: true }).click();
 }
-
 async function itemsAddToEvaluation(page, stock_code, tech, repair_type) {
     for (let index = 0; index < stock_code.length; index++) {
         await page.getByText('Add Items').click();
@@ -1872,41 +1865,188 @@ async function rep_complete(page, rep_id, job_sta, tech, job_num, work_hours, pp
     await expect(page.locator('#repair-items')).toContainText('Completed');
     console.log(rep_id + '- 1 is completed');
 }
+async function createQuote(page, acc_num, quote_type) {
+    await allPages.headerQuotesTab.click();
+    await expect(allPages.profileIconListView).toBeVisible();
+    await allPages.createQuoteAtQuotesLV.click();
+    await expect(page.getByText('Search By Account ID or')).toBeVisible();
+    await page.locator('div').filter({ hasText: /^Company Name\*Search By Account ID or Company Name$/ }).getByLabel('open').click();
+    await page.getByLabel('Company Name*').fill(acc_num);
+    await expect(page.getByText(acc_num, { exact: true }).nth(1)).toBeVisible();
+    await page.getByText(acc_num, { exact: true }).nth(1).click();
+    await page.getByText('Quote Type').nth(1).click();
+    await page.getByText(quote_type, { exact: true }).click();
+    await page.getByPlaceholder('Enter Project Name').click();
+    await page.getByPlaceholder('Enter Project Name').fill('for testing');
+    await page.locator('div').filter({ hasText: /^Create Quote$/ }).nth(4).click();
+    await page.getByRole('button', { name: 'Create Quote' }).click();
+    await expect(page.locator('#repair-items')).toContainText('Add Items');
+}
+async function selectRFQDateandQuoteRequestedBy(page, cont_name) {
+    await page.locator('(//*[@class = "pi-label-edit-icon"])[2]').click();
+    await page.getByRole('button', { name: 'Now' }).click();
+    await page.getByTitle('Save Changes').click();
+    await page.locator('(//*[@class = "pi-label-edit-icon"])[4]').click();
+    await page.getByLabel('open').click();
+    await page.keyboard.insertText(cont_name);
+    try {
+        await expect(await page.locator("//*[@style = 'animation-delay: 0ms;']")).toBeVisible({ timeout: 2000 });
+        await expect(await page.locator("//*[@style = 'animation-delay: 0ms;']")).toBeHidden();
+    } catch (error) { }
+    await page.keyboard.press("Enter");
+    await page.getByTitle('Save Changes').click();
+    await page.waitForTimeout(2000);
+}
+async function soucreSelection(page, stock_code) {
+    for (let i = 0; i < stock_code.length; i++) {
+        if (stock_code.length > 1) {
+            if (i == 0) {
+                let checkBox = await page.locator('#repair-items label').first();
+                let isSelected = await checkBox.isChecked();
+                if (isSelected) { } else { await checkBox.check(); }
+            } else {
+                let checkBox = await page.locator('#repair-items label').nth(i);
+                let isSelected = await checkBox.isChecked();
+                if (isSelected) { } else { await checkBox.check(); }
+            }
+        } else {
+            let checkBox = await page.locator('#repair-items label').first();
+            let isSelected = await checkBox.isChecked();
+            if (isSelected) { } else { await checkBox.check(); }
+        }
+    }
+    await page.waitForTimeout(1000);
+    await page.click("//img[@alt='Edit-icon' and contains(@src, 'themecolorEdit')]");
+    await page.waitForTimeout(1000);
+    await expect(page.getByText('Select').first()).toBeVisible();
+    await page.waitForTimeout(1000);
+    await page.getByText('Select').first().click();
+    await page.waitForTimeout(1000);
+    await page.getByText('Field Service', { exact: true }).click();
+    await page.waitForTimeout(1000);
+    await page.getByRole('button', { name: 'Save' }).click();
+    await page.waitForTimeout(2600);
+}
+async function addItesms(page, stock_code, quote_type) {
+    for (let index = 0; index < stock_code.length; index++) {
+
+        await page.getByText('Add Items').click();
+        await page.getByPlaceholder('Search By Part Number').click();
+        await page.getByPlaceholder('Search By Part Number').fill(stock_code[index]);
+        await spinner(page);
+        let res = false;
+        try {
+            await expect(page.locator("(//*[text() = 'Items Not Available'])[1]")).toBeVisible({ timeout: 2300 });
+            res = true;
+        } catch (error) {
+            // console.log(error);
+            res = false;
+        }
+        if (res) {
+            await page.getByRole('tab', { name: 'Add New Items' }).click();
+            if (quote_type == 'Parts Quote') {
+                await page.locator("//*[text() = 'Search']").click();
+                await page.keyboard.insertText(testdata.parts.supplier);
+                await page.keyboard.press('Enter');
+            } else {
+
+            }
+            await page.getByPlaceholder('Part Number').fill(stock_code[index]);
+            await page.getByPlaceholder('Quantity').fill('1');
+            await page.getByPlaceholder('Quote Price').fill('20123.56');
+            await page.getByPlaceholder('List Price').fill('256.36');
+            await page.getByPlaceholder('IIDM Cost').fill('2549.256984');
+            await page.getByText('Select').nth(1).click();
+            await page.getByText('Field Service', { exact: true }).click();
+            await page.getByText('Select', { exact: true }).click();
+            await page.getByText('Day(s)', { exact: true }).click();
+            await page.getByPlaceholder('Day(s)').click();
+            await page.getByPlaceholder('Day(s)').fill('12-16');
+            await page.getByPlaceholder('Description').click();
+            await page.getByPlaceholder('Description').fill('Manually Added Items');
+            await page.getByRole('button', { name: 'Add', exact: true }).click();
+        } else {
+            await allPages.checkBox.first().click();
+            await page.getByRole('button', { name: 'Add Selected 1 Items' }).click();
+        }
+        await expect(page.getByText('Add Options')).toBeVisible();
+    }
+}
+async function submitForInternalApproval_or_Approve(page, cont_name) {
+    let total_price = await page.locator("(//*[contains(@class, 'total-price-ellipsis')])[3]").textContent();
+    let tqp = parseInt(total_price.replace("$", "").replace(",", ""));
+    if (tqp > 10000) {
+        if (tqp > 10000 && tqp < 25001) {
+            await page.locator("//*[text() = 'Approval Questions']").click();
+            await page.locator("(//*[text() = 'Type'])[2]").click();
+            await page.keyboard.press('Enter');
+            await page.getByPlaceholder('Enter Competition').fill('Test Competition');
+            await page.getByPlaceholder('Enter Budgetary Amount').fill('9999.01');
+            await page.getByPlaceholder('Enter Key Decision Maker').fill(cont_name);
+            await page.locator("(//*[text() = 'Save'])[1]").click();
+            await page.locator("(//*[text() = 'Submit for Internal Approval'])[1]").click();
+            await expect(page.locator("(//*[text() = 'Few Quote Items are having GP less than 23%, Do you want to continue ?'])[1]")).toBeVisible();
+            await page.locator("(//*[text() = 'Proceed'])[1]").click();
+            await page.getByRole('button', { name: 'Approve' }).click();
+            await page.getByRole('button', { name: 'Approve' }).nth(1).click();
+        } else if (tqp > 25001 && 50001) {
+            await page.locator("//*[text() = 'Approval Questions']").click();
+            await page.locator("(//*[text() = 'Type'])[2]").click();
+            await page.keyboard.press('Enter');
+            await page.getByPlaceholder('Enter Competition').fill('Test Competition');
+            await page.getByPlaceholder('Enter Budgetary Amount').fill('9999.01');
+            await page.getByPlaceholder('Enter Key Decision Maker').fill(cont_name);
+            await page.locator("(//*[text() = 'Save'])[1]").click();
+            await expect(page.getByPlaceholder('Enter Decision Making Process')).toBeVisible();
+            await page.getByLabel('25k+ Questions').getByLabel('open').click();
+            await page.getByText('30 to 60 Days', { exact: true }).click();
+            await page.getByPlaceholder('Enter Pain').click();
+            await page.getByPlaceholder('Enter Pain').fill('Pain Entered');
+            await page.getByPlaceholder('Enter Decision Making Process').click();
+            await page.getByPlaceholder('Enter Decision Making Process').fill('Decision Making Process Entered');
+            await page.locator('div').filter({ hasText: /^MM\/DD\/YYYY$/ }).nth(3).click();
+            await page.locator('#react-select-6-input').press('ArrowDown');
+            await page.locator('#react-select-6-input').press('ArrowUp');
+            await page.locator('#react-select-6-input').press('Enter');
+            await page.getByRole('button', { name: 'Save' }).click();
+            await page.waitForTimeout(2500);
+            await page.locator("(//*[text() = 'Submit for Internal Approval'])[1]").click();
+            await expect(page.locator("(//*[text() = 'Are you sure you want to submit this quote for approval ?'])[1]")).toBeVisible();
+            await page.locator("(//*[text() = 'Proceed'])[1]").click();
+            await page.getByRole('button', { name: 'Approve' }).click();
+            await page.getByRole('button', { name: 'Approve' }).nth(1).click();
+        } else {
+
+        }
+    } else {
+        await page.getByRole('button', { name: 'Approve' }).click();
+        await page.getByRole('button', { name: 'Approve' }).nth(1).click();
+    }
+    await expect(page.locator("//*[text()='Revise Quote']")).toBeVisible();
+}
+async function createVersion(page, quote_id) {
+    await page.locator("//*[text()='Revise Quote']").click();
+    await expect(page.locator('#root')).toContainText('This will move the quote to Open, Do you want to continue ?');
+    await page.getByRole('button', { name: 'Proceed' }).first().click();
+    await expect(page.getByRole('heading', { name: 'Related to' })).toBeVisible();
+    await expect(page.locator('#root')).toContainText('Quote has been revised #' + quote_id + '');
+    await page.pause();
+}
 async function create_job_quotes(page, is_create_job, quoteType, acc_num, cont_name, stock_code, quote_type) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     // let acc_num = 'TESTC02', cont_name = 'Test CompanyTwo', stock_code = '832-1204',
     quote_type = quoteType;
     // await page.goto('https://www.staging-buzzworld.iidm.com/all_quotes/68c2706d-08dd-4235-93ed-dcb5287cb98d');
-    let testResult;
+    let testResult; let quote_id
     try {
-        await page.getByText('Quotes', { exact: true }).first().click();
-        await expect(allPages.profileIconListView).toBeVisible();
-        await page.locator('div').filter({ hasText: /^Create Quote$/ }).nth(1).click();
-        await expect(page.getByText('Search By Account ID or')).toBeVisible();
-        await page.locator('div').filter({ hasText: /^Company Name\*Search By Account ID or Company Name$/ }).getByLabel('open').click();
-        await page.getByLabel('Company Name*').fill(acc_num);
-        await expect(page.getByText(acc_num, { exact: true }).nth(1)).toBeVisible();
-        await page.getByText(acc_num, { exact: true }).nth(1).click();
-        await page.getByText('Quote Type').nth(1).click();
-        await page.getByText(quote_type, { exact: true }).click();
-        await page.getByPlaceholder('Enter Project Name').click();
-        await page.getByPlaceholder('Enter Project Name').fill('for testing');
-        await page.locator('div').filter({ hasText: /^Create Quote$/ }).nth(4).click();
-        await page.getByRole('button', { name: 'Create Quote' }).click();
-        await expect(page.locator('#repair-items')).toContainText('Add Items');
+        await createQuote(page, acc_num, quoteType);
         let quote = await page.locator('(//*[@class = "id-num"])[1]').textContent();
-        let quote_id = quote.replace("#", "");
+        quote_id = quote.replace("#", "");
         console.log('quote is created with id ', quote_id);
         console.log('quote url is ', await page.url());
-        await page.locator('(//*[@class = "pi-label-edit-icon"])[2]').click();
-        await page.getByRole('button', { name: 'Now' }).click();
-        await page.getByTitle('Save Changes').click();
-        await page.locator('(//*[@class = "pi-label-edit-icon"])[4]').click();
-        await page.getByLabel('open').click();
-        await page.keyboard.insertText(cont_name);
-        await page.keyboard.press("Enter");
-        await page.getByTitle('Save Changes').click();
-        await page.waitForTimeout(2000);
+        //RFQ Received Date selection and Quote Requested By Update
+        await selectRFQDateandQuoteRequestedBy(page, cont_name);
+        //Add Items
         for (let index = 0; index < stock_code.length; index++) {
 
             await page.getByText('Add Items').click();
@@ -1950,6 +2090,7 @@ async function create_job_quotes(page, is_create_job, quoteType, acc_num, cont_n
             }
             await expect(page.getByText('Add Options')).toBeVisible();
         }
+        //Bulk Update Source
         await page.waitForTimeout(2500);
         for (let i = 0; i < stock_code.length; i++) {
             if (stock_code.length > 1) {
@@ -2227,7 +2368,6 @@ async function create_parts_purchase(page, is_manually, repair_id) {
     }
     return [results, pp_id];
 }
-
 async function validationsAtCreateRMAandQuotePages(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let testResults;
@@ -2265,7 +2405,6 @@ async function validationsAtCreateRMAandQuotePages(page) {
     }
     return testResults;
 }
-
 async function create_job_manually(page, orderId) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let testResult;
@@ -3145,7 +3284,6 @@ async function add_parts(page, cond2, cond3) {
     }
     return getTestResults;
 }
-
 async function bomImporter(page, parentPart, childPart, qty, sequence, warehouse, testCount) {
     let testResult;
     try {
@@ -3203,7 +3341,6 @@ async function bomImporter(page, parentPart, childPart, qty, sequence, warehouse
     await page.reload();
     return testResult;
 }
-
 async function uploadBOMFiles(page, parentPart, testCount, file, testName) {
     let testResult = false;
     async function isVisibleScrollable(page, element) {
@@ -3361,7 +3498,6 @@ async function allValidationsBOMImporter(page, parentPart) {
     }
     return testResult;
 }
-
 async function fetch_jobs_list(page, page_num) {
     const apiUrl = 'https://staging-buzzworld-api.iidm.com//v1/getSysproJobs?page=' + page_num + '&perPage=250&sort=asc&sort_key=job_id&grid_name=Jobs';
     // Make a GET request to the API endpoint
@@ -3461,7 +3597,6 @@ async function read_excel_data(file, sheetIndex) {
     const jsonData = xlsx.utils.sheet_to_json(sheet);
     return jsonData;
 }
-
 async function readExcelHeaders(file, sheetIndex) {
     const workbook = xlsx.readFile(file);
     // Choose the first sheet (you can specify the sheet name or index)
@@ -3559,7 +3694,6 @@ async function getProductWriteIntoExecl(page) {
     //
     //
 }
-
 async function verifyTwoExcelData(page) {
     let excel_data = await read_excel_data('test_pricing.xlsx', 1);
     let yask_data = await read_excel_data('Yaskawa 2024 Pricelist Import.xlsx', 0);
@@ -3738,7 +3872,6 @@ async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPrice, dis
     }
     return [testResults, quoteURL[0]];
 }
-
 async function itemNotesLineBreaks(page, stage_url) {
     let quoteIds = [
         '3399173b-9bb2-44f4-a0f5-18ed6210db49',
@@ -3785,7 +3918,6 @@ async function itemNotesLineBreaks(page, stage_url) {
     }
     return status;
 }
-
 async function defaultTurnAroundTime(page, acc_num, cont_name, isCreateNew, stock_code, tech, repair_type, stage_url) {
     if (isCreateNew) {
         await createRMA(page, acc_num, cont_name)
@@ -3810,7 +3942,6 @@ async function defaultTurnAroundTime(page, acc_num, cont_name, isCreateNew, stoc
     }
     return getResults;
 }
-
 async function websitePaddingTesting(browser) {
     const context = await browser.newContext();
 
@@ -4055,7 +4186,6 @@ async function addSPAItemsToQuote(page, customer, quoteType, items, testCount, q
     }
     return [quoteURL, testResults];
 }
-
 async function addFunctionInAdminTabs(page) {
     await page.getByText('Admin').click();
     await page.getByRole('gridcell', { name: 'H20' }).click();
@@ -4218,7 +4348,6 @@ async function addFunctionInAdminTabs(page) {
     await page.getByTitle('close').getByRole('img').click();
     await page.waitForTimeout(2000);
 }
-
 async function addStockInventorySearch(page, testCount) {
     let getResults = []; let vals = ['No', 'Yes']; let btns = ['View', 'Edit'];
     for (let index = 0; index < vals.length; index++) {
@@ -4273,7 +4402,6 @@ async function addStockInventorySearch(page, testCount) {
     }
     return res;
 }
-
 async function warehouse_update(page, stock_code) {
     await page.waitForTimeout(1600);
     await page.locator("(//*[contains(@src,  'themecolorEdit')])[2]").click();
@@ -4306,7 +4434,6 @@ async function setScreenSize(page, w, h) {
         height: h
     });
 }
-
 async function returnResult(page, testName, results) {
     try {
         expect(results).toBe(true);
@@ -4317,7 +4444,6 @@ async function returnResult(page, testName, results) {
         // throw error;
     }
 }
-
 async function verifyingCharacterLenght(page, condition, quoteType) {
     let stockCode = testdata.stock_character;
     let getTestResults;
@@ -4466,7 +4592,6 @@ async function verifyingCharacterLenght(page, condition, quoteType) {
     }
     return getTestResults;
 }
-
 async function addTerritoryToZipcodes(page) {
     try {
         await allPages.clickAdmin;
@@ -4486,7 +4611,6 @@ async function addTerritoryToZipcodes(page) {
         console.log(error);
     }
 }
-
 async function fetchZipcodes(page) {
     // let zipcodes = await getZips();
     let zipcodes = await read_excel_data('/home/enterpi/Downloads/Omron_Deleted_Products.csv', 0);
@@ -4546,11 +4670,9 @@ async function fetchZipcodes(page) {
     //     }
     // }
 }
-
 async function delay(page, time) {
     await page.waitForTimeout(time);
 }
-
 async function getZips() {
     let zipcodes = ['16849',
         '12045',
@@ -16337,7 +16459,6 @@ async function getZips() {
         '24030']
     return zipcodes;
 }
-
 async function orgSearchLoginAsClient(page, url) {
     let orgName = await read_excel_data('organization.xlsx', 0);
     console.log('organizations count is ' + orgName.length); let results = [];
@@ -16381,7 +16502,56 @@ async function orgSearchLoginAsClient(page, url) {
     }
     return status;
 }
-
+async function quoteTotalDisplaysZero(page, acc_num, cont_name, quoteType, stockCode) {
+    async function searchQuoteID() {
+        await page.getByText('Quotes').click();
+        await expect(allPages.profileIconListView).toBeVisible({ timeout: 50000 });
+        await page.getByPlaceholder('Quote ID / Company Name / Sales Person Name / Email').fill(quote_id);
+        await delay(page, 2000);
+        await expect(allPages.profileIconListView).toBeVisible({ timeout: 50000 });
+        await expect(page.locator("//*[text()='" + quote_id + "']")).toBeVisible();
+    }
+    await createQuote(page, acc_num, quoteType);
+    // await page.goto("https://buzzworld-web-iidm.enterpi.com/quote_for_parts/46de07f0-2a93-49c0-8d05-780c2d233832")
+    let quote = await page.locator('(//*[@class = "id-num"])[1]').textContent();
+    let quote_id = quote.replace("#", "");
+    console.log('quote is created with number: ', quote_id);
+    console.log('quote url is: ', await page.url());
+    await selectRFQDateandQuoteRequestedBy(page, cont_name);
+    await addItesms(page, stockCode, quoteType);
+    await soucreSelection(page, stockCode);
+    await submitForInternalApproval_or_Approve(page, cont_name);
+    await createVersion(page, quote_id);
+    await expect(page.getByRole('button', { name: 'delet-icon' }).first()).toBeVisible();
+    //Option deleting
+    await page.getByRole('button', { name: 'delet-icon' }).first().click();
+    await expect(page.locator('#root')).toContainText('Are you sure you want to delete this option ?');
+    await page.getByRole('button', { name: 'Yes' }).nth(1).click();
+    await delay(page, 1200);
+    await searchQuoteID(); let res;
+    let grandTotal = await page.locator("//*[@class='ag-center-cols-container']/div/div[9]").textContent();
+    if (grandTotal != '$0.00') {
+        await allPages.gridFirstRow.click();
+        await addItesms(page, ["GA80U2211ABM"], quoteType);
+        let total_price = await page.locator("(//*[contains(@class, 'total-price-ellipsis')])[3]").textContent();
+        let tqp = parseInt(total_price.replace("$", "").replace(",", ""));
+        await searchQuoteID();
+        let grandTotal = await page.locator("//*[@class='ag-center-cols-container']/div/div[9]").textContent();
+        if (grandTotal == tqp) {
+            res = true;
+            console.log('in list view grand total: ' + grandTotal);
+            console.log('in detail view grand total: ' + tqp);
+        } else {
+            res = false;
+            console.log('in list view grand total: ' + grandTotal);
+            console.log('in detail view grand total: ' + tqp);
+        }
+    } else {
+        res = false;
+        console.log('in list view grand total: ' + grandTotal);
+    }
+    return res;
+}
 async function loginAsClient(page, url, context) {
     let oName = 'ZUMMO00'
     let profile = page.locator("//*[@class='user_image']");
@@ -16465,7 +16635,6 @@ async function loginAsClient(page, url, context) {
         console.log(ANSI_RED + oName + ' -->  Owner is ' + ANSI_RESET)
     }
 }
-
 async function getImages(page) {
     let models = await read_excel_data('Models.xlsx', 0);
     console.log('count is ', models.length)
@@ -16645,5 +16814,6 @@ module.exports = {
     defaultTurnAroundTime,
     getImages,
     orgSearchLoginAsClient,
-    loginAsClient
+    loginAsClient,
+    quoteTotalDisplaysZero
 };

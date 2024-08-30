@@ -32,7 +32,7 @@ test.describe('all tests', async () => {
     await login_buzz(page, stage_url);
   });
 
-  test('Login', async ({ }, testInfo) => {
+  test('First Test Login', async ({ }, testInfo) => {
     results = await login(page);
     let testName = testInfo.title;
     await returnResult(page, testName, results);
