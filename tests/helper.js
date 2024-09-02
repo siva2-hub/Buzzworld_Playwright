@@ -218,7 +218,7 @@ async function request_payterms(page) {
 }
 async function login_buzz(page, stage_url) {
     allPages = new AllPages(page);
-    await page.goto(stage_url);
+    await page.goto(stage_url+"all_quotes");
     // if (await page.url().includes('sso')) {
     let userName, password;
     if (stage_url.includes('192.168')) {
@@ -1943,23 +1943,18 @@ async function addItesms(page, stock_code, quote_type) {
     }
 }
 async function soucreSelection(page, stock_code) {
-    let count = 1;
-    for (let i = 0; i < stock_code.length; i++) {
-        let xpath = "(//*[contains(@class, '-highlight check_box')])['" + count + "']/div[1]";
-        await page.locator(xpath).click();
-        count++;
+    for (let index = 0; index < stock_code.length; index++) {
+        //item edit icon
+        await expect(page.locator("(//*[text()='GP'])["+(index+1)+"]")).toBeVisible();
+        await page.locator("(//*[contains(@class, 'highlight check_box')]/div[5]/div/div[1])["+(index+1)+"]").click();
+        await expect(page.locator("//*[@name='part_number']")).toBeVisible();
+        await page.getByLabel('Open').nth(1).click();
+        await page.keyboard.insertText('Field Service');
+        await page.keyboard.press('Enter');
+        await await page.locator('#repair-items').getByRole('paragraph').nth(1).scrollIntoViewIfNeeded();
+        await await page.locator("//*[@class='ql-editor ql-blank']").fill('Test Item Notes 1\nTest Item Notes 2\nTest Item Notes 3\nTest Item Notes 4');``
+        await page.getByRole('button', { name: 'Save' }).click();
     }
-    await page.waitForTimeout(1000);
-    await page.click("//img[@alt='Edit-icon' and contains(@src, 'themecolorEdit')]");
-    await page.waitForTimeout(1000);
-    await expect(page.getByText('Select').first()).toBeVisible();
-    await page.waitForTimeout(1000);
-    await page.getByText('Select').first().click();
-    await page.waitForTimeout(1000);
-    await page.getByText('Field Service', { exact: true }).click();
-    await page.waitForTimeout(1000);
-    await page.getByRole('button', { name: 'Save' }).click();
-    await page.waitForTimeout(2600);
 }
 async function submitForInternalApproval(page) {
     await expect(page.locator("(//*[text() = 'Submit for Internal Approval'])[1]")).toBeVisible();
@@ -2088,29 +2083,8 @@ async function create_job_quotes(page, is_create_job, quoteType, acc_num, cont_n
             }
             await expect(page.getByText('Add Options')).toBeVisible();
         }
-        //Bulk Update Source
-        await page.waitForTimeout(2500);
-        for (let i = 0; i < stock_code.length; i++) {
-            if (stock_code.length > 1) {
-                if (i == 0) {
-                    await page.locator('#repair-items label').first().check();
-                } else {
-                    await page.locator('#repair-items label').nth(i).check();
-                }
-            } else {
-                await page.locator('#repair-items label').first().check();
-            }
-        }
-        await page.waitForTimeout(1000);
-        await page.click("//img[@alt='Edit-icon' and contains(@src, 'themecolorEdit')]");
-        await page.waitForTimeout(1000);
-        await expect(page.getByText('Select').first()).toBeVisible();
-        await page.waitForTimeout(1000);
-        await page.getByText('Select').first().click();
-        await page.waitForTimeout(1000);
-        await page.getByText('Field Service', { exact: true }).click();
-        await page.waitForTimeout(1000);
-        await page.getByRole('button', { name: 'Save' }).click();
+        //Update Source
+        await soucreSelection(page, stock_code);
         await page.waitForTimeout(2600);
         let total_price = await page.locator("(//*[contains(@class, 'total-price-ellipsis')])[3]").textContent();
         let tqp = parseInt(total_price.replace("$", "").replace(",", ""));
@@ -16510,7 +16484,7 @@ async function quoteTotalDisplaysZero(page, acc_num, cont_name, quoteType, stock
         await expect(page.locator("//*[text()='" + quote_id + "']")).toBeVisible();
     }
     await createQuote(page, acc_num, quoteType);
-    // await page.goto("https://buzzworld-web-iidm.enterpi.com/quote_for_parts/46de07f0-2a93-49c0-8d05-780c2d233832")
+    // await page.goto("https://www.staging-buzzworld.iidm.com/all_quotes/2a0f9873-9002-4cd6-a165-cdc8ef51302d")
     let quote = await page.locator('(//*[@class = "id-num"])[1]').textContent();
     let quote_id = quote.replace("#", "");
     console.log('quote is created with number: ', quote_id);
@@ -16548,6 +16522,11 @@ async function quoteTotalDisplaysZero(page, acc_num, cont_name, quoteType, stock
         console.log('in list view grand total: ' + grandTotalInList);
     }
     return res;
+}
+async function displayNCNRatItemsPage(page) {
+    await allPages.gridFirstRow.click();
+    await expect(allPages.addItemsBtn).toBeVisible();
+    await page.pause();
 }
 async function loginAsClient(page, url, context) {
     let oName = 'ZUMMO00'
@@ -16812,5 +16791,6 @@ module.exports = {
     getImages,
     orgSearchLoginAsClient,
     loginAsClient,
-    quoteTotalDisplaysZero
+    quoteTotalDisplaysZero,
+    displayNCNRatItemsPage
 };
