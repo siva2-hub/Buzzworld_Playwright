@@ -15,11 +15,13 @@ export default class AllPages {
         //click Proceed button at BOM Upload Page
         this.proceed = this.page.click("(//*[text()='Proceed'])[2]");
         //Click Admin tab
-        this.clickAdmin = this.page.getByText('Admin').first().click();
+        // this.clickAdmin = this.page.getByText('Admin').first().click();
         //First row in grid list
         this.gridFirstRow = this.page.locator("//*[@class='ag-center-cols-container']/div[1]");
         this.headerQuotesTab = this.page.getByText('Quotes', { exact: true }).first();
         this.createQuoteAtQuotesLV = this.page.locator('div').filter({ hasText: /^Create Quote$/ }).nth(1);
+        this.addItemsBtn = this.page.locator("//*[text()='Add Items']");
+        this.itemsNotAvailText = this.page.getByText('Quote item(s) Not Available');
     }
     //Page Objects
     // get userNameInput() { return this.page.getByLabel('Email'); }
