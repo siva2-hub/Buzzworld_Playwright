@@ -227,7 +227,7 @@ test.describe('all tests', async () => {
 
   test('System Quote Creation with Sales Order and Job', async ({ }, testInfo) => {
     //create system quote
-    let acc_num = 'SKYCA00', cont_name = 'Joe Ward', stock_code = ['12342-000'];
+    let acc_num = 'MULTI00', cont_name = 'Garret Luppino', stock_code = ['12342-00012'];
     results = await create_job_quotes(page, 'Y', 'System Quote', acc_num, cont_name, stock_code);
     let testName = testInfo.title;
     await returnResult(page, testName, results);
