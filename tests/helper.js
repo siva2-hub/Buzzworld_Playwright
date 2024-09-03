@@ -218,7 +218,7 @@ async function request_payterms(page) {
 }
 async function login_buzz(page, stage_url) {
     allPages = new AllPages(page);
-    await page.goto(stage_url+"all_quotes");
+    await page.goto(stage_url + "all_quotes");
     // if (await page.url().includes('sso')) {
     let userName, password;
     if (stage_url.includes('192.168')) {
@@ -1945,14 +1945,14 @@ async function addItesms(page, stock_code, quote_type) {
 async function soucreSelection(page, stock_code) {
     for (let index = 0; index < stock_code.length; index++) {
         //item edit icon
-        await expect(page.locator("(//*[text()='GP'])["+(index+1)+"]")).toBeVisible();
-        await page.locator("(//*[contains(@class, 'highlight check_box')]/div[5]/div/div[1])["+(index+1)+"]").click();
+        await expect(page.locator("(//*[text()='GP'])[" + (index + 1) + "]")).toBeVisible();
+        await page.locator("(//*[contains(@class, 'highlight check_box')]/div[5]/div/div[1])[" + (index + 1) + "]").click();
         await expect(page.locator("//*[@name='part_number']")).toBeVisible();
         await page.getByLabel('Open').nth(1).click();
         await page.keyboard.insertText('Field Service');
         await page.keyboard.press('Enter');
         await await page.locator('#repair-items').getByRole('paragraph').nth(1).scrollIntoViewIfNeeded();
-        await await page.locator("//*[@class='ql-editor ql-blank']").fill('Test Item Notes 1\nTest Item Notes 2\nTest Item Notes 3\nTest Item Notes 4');``
+        await await page.locator("//*[@class='ql-editor ql-blank']").fill('Test Item Notes 1\nTest Item Notes 2\nTest Item Notes 3\nTest Item Notes 4'); ``
         await page.getByRole('button', { name: 'Save' }).click();
     }
 }
@@ -16716,6 +16716,60 @@ async function getImages(page) {
     console.log('items match count is ' + findCount);
     console.log(categories);
 }
+async function salesOrderVerification(page) {
+    await page.getByText('Orders').click();
+    for (let i = 0; i < 4; i++) {
+        if (i > 0) {
+            await expect(allPages.profileIconListView).toBeVisible();
+            if (i == 1) {
+                await page.locator("//*[@class='ag-icon ag-icon-next']").click();
+            } else if (i == 2) {
+                await page.locator("//*[@class='ag-icon ag-icon-next']").click();
+                await expect(allPages.profileIconListView).toBeVisible();
+                await page.locator("//*[@class='ag-icon ag-icon-next']").click();
+            } else if (i == 3) {
+                await page.locator("//*[@class='ag-icon ag-icon-next']").click();
+                await expect(allPages.profileIconListView).toBeVisible();
+                await page.locator("//*[@class='ag-icon ag-icon-next']").click();
+                await expect(allPages.profileIconListView).toBeVisible();
+                await page.locator("//*[@class='ag-icon ag-icon-next']").click();
+            }
+        }
+        for (let index = 0; index < 26; index=index+7) {
+            await expect(allPages.profileIconListView).toBeVisible();
+            if (i == 1) {
+                await page.locator("//*[@class='ag-icon ag-icon-next']").click();
+            } else if (i == 2) {
+                await page.locator("//*[@class='ag-icon ag-icon-next']").click();
+                await expect(allPages.profileIconListView).toBeVisible();
+                await page.locator("//*[@class='ag-icon ag-icon-next']").click();
+            } else if (i == 3) {
+                await page.locator("//*[@class='ag-icon ag-icon-next']").click();
+                await expect(allPages.profileIconListView).toBeVisible();
+                await page.locator("//*[@class='ag-icon ag-icon-next']").click();
+                await expect(allPages.profileIconListView).toBeVisible();
+                await page.locator("//*[@class='ag-icon ag-icon-next']").click();
+            }
+            await expect(allPages.profileIconListView).toBeVisible();
+            let orderId = await page.locator("//*[@class='ag-center-cols-container']/div[" + (index + 1) + "]/div[1]").textContent();
+            await page.locator("//*[@class='ag-center-cols-container']/div[" + (index + 1) + "]").click();
+            let res;
+            try {
+                let ele = await page.getByText('Order Details Not Found.');
+                await expect(ele).toBeVisible({ timeout: 2000 });
+                res = false;
+            } catch (error) {
+                res = true;
+            }
+            if (res) {
+                console.log(orderId + " order details found");
+            } else {
+                console.log(orderId + " order not found");
+            }
+            await page.goBack();
+        }
+    }
+}
 module.exports = {
     checkout_page,
     order_summary_page,
@@ -16792,5 +16846,6 @@ module.exports = {
     orgSearchLoginAsClient,
     loginAsClient,
     quoteTotalDisplaysZero,
-    displayNCNRatItemsPage
+    displayNCNRatItemsPage,
+    salesOrderVerification
 };
