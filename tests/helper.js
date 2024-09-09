@@ -1365,10 +1365,9 @@ async function filters_pricing(page) {
 }
 async function spinner(page) {
     try {
-        await page.waitForTimeout(1500);
-        await expect(await page.locator("//*[@style = 'animation-delay: 0ms;']")).toBeVisible();
+        await expect(await page.locator("//*[contains(@style, 'stroke:')]")).toBeVisible();
         await page.waitForTimeout(1200)
-        await expect(await page.locator("//*[@style = 'animation-delay: 0ms;']")).toBeHidden();
+        await expect(await page.locator("//*[contains(@style, 'stroke:')]")).toBeHidden();
     } catch (error) { }
 }
 async function createRMA(page, acc_num, cont_name) {
@@ -1479,6 +1478,48 @@ async function addItemsToQuote(page) {
     await expect(page.locator('#root')).toContainText('Are you sure you want to add these item(s) to quote ?');
     await page.getByRole('button', { name: 'Accept' }).click();
     await expect(page.locator('#repair-items')).toContainText('Quote Items');
+}
+async function addMultipleItems(page, stock_code) {
+    await page.goto("https://buzzworld-web-iidm.enterpi.com/quote_for_parts/23b1fd51-4af6-4a46-84c0-ff58ddaab865")
+    await expect(page.locator("//*[text()='Add Items']")).toBeVisible()
+    let rep = await page.locator('(//*[@class = "id-num"])[1]').textContent()
+    let repair_id = rep.replace("#", "")
+    console.log('repair is created with id ', repair_id)
+    console.log('repair url is ', await page.url())
+    for (let index = 0; index < stock_code.length; index++) {
+        await page.getByText('Add Items').click();
+        await page.getByPlaceholder('Search By Part Number').fill(stock_code[index]);
+        await spinner(page); let res = false;
+        try {
+            await expect(page.locator("(//*[text() = 'Items Not Available'])[1]")).toBeVisible({ timeout: 2300 }); res = true;
+        } catch (error) { res = false; }
+        if (res) {
+            await page.getByRole('tab', { name: 'Add New Items' }).click();
+            await page.locator("//*[text() = 'Search']").click();
+            await page.keyboard.insertText(testdata.parts.supplier);
+            await page.keyboard.press('Enter');
+            let fields = ['Part Number', 'Quantity', 'Quote Price', 'List Price', 'IIDM Cost'];
+            let vals = [stock_code[index], '1', '20123.56', '256.36', '2549.256984'];
+            await enterTextByPlaceholder(page, fields, vals);
+            await page.getByText('Select').nth(1).click();
+            await page.getByText('Field Service', { exact: true }).click();
+            await page.getByText('Select', { exact: true }).click();
+            await page.getByText('Day(s)', { exact: true }).click();
+            await page.getByPlaceholder('Day(s)').fill('12-16');
+            await page.getByPlaceholder('Description').fill('Manually Added Items');
+            await page.getByRole('button', { name: 'Add', exact: true }).click();
+        } else {
+            await allPages.checkBox.first().click();
+            await page.getByRole('button', { name: 'Add Selected 1 Items' }).click();
+        }
+    }
+    async function enterTextByPlaceholder(page, texts, values) {
+        for (let index = 0; index < texts.length; index++) {
+            await page.getByPlaceholder(texts[index]).fill(values[index]);
+        }
+    }
+    await expect(page.getByText('Add Options')).toBeVisible();
+
 }
 async function create_job_repairs(page, is_create_job, repair_type, acc_num, cont_name, stock_code, tech) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
@@ -1889,13 +1930,10 @@ async function selectRFQDateandQuoteRequestedBy(page, cont_name) {
     await page.locator('(//*[@class = "pi-label-edit-icon"])[4]').click();
     await page.getByLabel('open').click();
     await page.keyboard.insertText(cont_name);
-    try {
-        await expect(await page.locator("//*[@style = 'animation-delay: 0ms;']")).toBeVisible({ timeout: 2000 });
-        await expect(await page.locator("//*[@style = 'animation-delay: 0ms;']")).toBeHidden();
-    } catch (error) { }
+    await spinner(page);
     await page.keyboard.press("Enter");
     await page.getByTitle('Save Changes').click();
-    await page.waitForTimeout(2000);
+    await delay(page, 1200);
 }
 async function addItesms(page, stock_code, quote_type) {
     for (let index = 0; index < stock_code.length; index++) {
@@ -2029,10 +2067,11 @@ async function create_job_quotes(page, is_create_job, quoteType, acc_num, cont_n
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     // let acc_num = 'TESTC02', cont_name = 'Test CompanyTwo', stock_code = '832-1204',
     quote_type = quoteType;
-    // await page.goto('https://www.staging-buzzworld.iidm.com/all_quotes/68c2706d-08dd-4235-93ed-dcb5287cb98d');
+    await page.goto('http://192.168.1.115:3000/system_quotes/8e6916b7-1574-4d9f-9b68-df411a9b1942');
     let testResult; let quote_id
     try {
-        await createQuote(page, acc_num, quoteType);
+        // await createQuote(page, acc_num, quoteType);
+        await spinner(page);
         let quote = await page.locator('(//*[@class = "id-num"])[1]').textContent();
         quote_id = quote.replace("#", "");
         console.log('quote is created with id ', quote_id);
@@ -2040,49 +2079,50 @@ async function create_job_quotes(page, is_create_job, quoteType, acc_num, cont_n
         //RFQ Received Date selection and Quote Requested By Update
         await selectRFQDateandQuoteRequestedBy(page, cont_name);
         //Add Items
-        for (let index = 0; index < stock_code.length; index++) {
+        await addItesms(page, stock_code, quoteType);
+        // for (let index = 0; index < stock_code.length; index++) {
 
-            await page.getByText('Add Items').click();
-            await page.getByPlaceholder('Search By Part Number').click();
-            await page.getByPlaceholder('Search By Part Number').fill(stock_code[index]);
-            await spinner(page);
-            let res = false;
-            try {
-                await expect(page.locator("(//*[text() = 'Items Not Available'])[1]")).toBeVisible({ timeout: 2300 });
-                res = true;
-            } catch (error) {
-                // console.log(error);
-                res = false;
-            }
-            if (res) {
-                await page.getByRole('tab', { name: 'Add New Items' }).click();
-                if (quote_type == 'Parts Quote') {
-                    await page.locator("//*[text() = 'Search']").click();
-                    await page.keyboard.insertText(testdata.parts.supplier);
-                    await page.keyboard.press('Enter');
-                } else {
+        //     await page.getByText('Add Items').click();
+        //     await page.getByPlaceholder('Search By Part Number').click();
+        //     await page.getByPlaceholder('Search By Part Number').fill(stock_code[index]);
+        //     await spinner(page);
+        //     let res = false;
+        //     try {
+        //         await expect(page.locator("(//*[text() = 'Items Not Available'])[1]")).toBeVisible({ timeout: 2300 });
+        //         res = true;
+        //     } catch (error) {
+        //         // console.log(error);
+        //         res = false;
+        //     }
+        //     if (res) {
+        //         await page.getByRole('tab', { name: 'Add New Items' }).click();
+        //         if (quote_type == 'Parts Quote') {
+        //             await page.locator("//*[text() = 'Search']").click();
+        //             await page.keyboard.insertText(testdata.parts.supplier);
+        //             await page.keyboard.press('Enter');
+        //         } else {
 
-                }
-                await page.getByPlaceholder('Part Number').fill(stock_code[index]);
-                await page.getByPlaceholder('Quantity').fill('1');
-                await page.getByPlaceholder('Quote Price').fill('20123.56');
-                await page.getByPlaceholder('List Price').fill('256.36');
-                await page.getByPlaceholder('IIDM Cost').fill('2549.256984');
-                await page.getByText('Select').nth(1).click();
-                await page.getByText('Field Service', { exact: true }).click();
-                await page.getByText('Select', { exact: true }).click();
-                await page.getByText('Day(s)', { exact: true }).click();
-                await page.getByPlaceholder('Day(s)').click();
-                await page.getByPlaceholder('Day(s)').fill('12-16');
-                await page.getByPlaceholder('Description').click();
-                await page.getByPlaceholder('Description').fill('Manually Added Items');
-                await page.getByRole('button', { name: 'Add', exact: true }).click();
-            } else {
-                await allPages.checkBox.first().click();
-                await page.getByRole('button', { name: 'Add Selected 1 Items' }).click();
-            }
-            await expect(page.getByText('Add Options')).toBeVisible();
-        }
+        //         }
+        //         await page.getByPlaceholder('Part Number').fill(stock_code[index]);
+        //         await page.getByPlaceholder('Quantity').fill('1');
+        //         await page.getByPlaceholder('Quote Price').fill('20123.56');
+        //         await page.getByPlaceholder('List Price').fill('256.36');
+        //         await page.getByPlaceholder('IIDM Cost').fill('2549.256984');
+        //         await page.getByText('Select').nth(1).click();
+        //         await page.getByText('Field Service', { exact: true }).click();
+        //         await page.getByText('Select', { exact: true }).click();
+        //         await page.getByText('Day(s)', { exact: true }).click();
+        //         await page.getByPlaceholder('Day(s)').click();
+        //         await page.getByPlaceholder('Day(s)').fill('12-16');
+        //         await page.getByPlaceholder('Description').click();
+        //         await page.getByPlaceholder('Description').fill('Manually Added Items');
+        //         await page.getByRole('button', { name: 'Add', exact: true }).click();
+        //     } else {
+        //         await allPages.checkBox.first().click();
+        //         await page.getByRole('button', { name: 'Add Selected 1 Items' }).click();
+        //     }
+        //     await expect(page.getByText('Add Options')).toBeVisible();
+        // }
         //Update Source
         await soucreSelection(page, stock_code);
         await page.waitForTimeout(2600);
@@ -4354,7 +4394,6 @@ async function addStockInventorySearch(page, testCount) {
                 let res = true;
                 getResults.push(res);
             } else {
-                await page.pause()
                 await expect(page.getByText('For the searched stock code,')).toBeVisible();
                 await delay(page, 2000);
                 let res = true;
@@ -16735,7 +16774,7 @@ async function salesOrderVerification(page) {
                 await page.locator("//*[@class='ag-icon ag-icon-next']").click();
             }
         }
-        for (let index = 0; index < 26; index=index+7) {
+        for (let index = 0; index < 26; index = index + 7) {
             await expect(allPages.profileIconListView).toBeVisible();
             if (i == 1) {
                 await page.locator("//*[@class='ag-icon ag-icon-next']").click();
@@ -16847,5 +16886,6 @@ module.exports = {
     loginAsClient,
     quoteTotalDisplaysZero,
     displayNCNRatItemsPage,
-    salesOrderVerification
+    salesOrderVerification,
+    addMultipleItems
 };
