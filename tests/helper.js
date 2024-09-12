@@ -1383,72 +1383,89 @@ async function createRMA(page, acc_num, cont_name) {
     await page.getByText(cont_name, { exact: true }).nth(1).click();
     await page.getByRole('button', { name: 'Create', exact: true }).click();
 }
-async function itemsAddToEvaluation(page, stock_code, tech, repair_type) {
-    for (let index = 0; index < stock_code.length; index++) {
-        await page.getByText('Add Items').click();
-        await page.getByPlaceholder('Search By Part Number').fill(stock_code[index]);
-        await spinner(page)
-        let res = false;
-        try {
-            await expect(page.locator('//*[text() = "? Click here to add them"]')).toBeVisible({ timeout: 4000 });
-            res = true;
-        } catch (error) {
-            console.log(error)
-            res = false;
-        }
-        if (res) {
-            //Add New Part
-            await add_new_part(page, stock_code[index]);
+async function assignLocation(page) {
+
+    await expect(page.locator('#repair-items')).toContainText('Assign Location');
+    let alCount = await page.locator("//*[text()='Assign Location']").count()
+    for (let index = 0; index < alCount; index++) {
+        await page.locator("(//*[text()='Assign Location'])[" + (index + 1) + "]")
+        await page.locator('(//*[@class = "pi-label-edit-icon"])[1]').click();
+        if (await page.getByPlaceholder('Serial No').getAttribute('value') === '') {
+            await page.getByPlaceholder('Serial No').fill('R1');
         } else {
-            await page.locator("//*[contains(@class,'data repair_grid')]/div/div/label").click();
-            await page.getByRole('button', { name: 'Add Selected 1 Parts' }).click();
+
         }
-        //Assign Location
-        await expect(page.locator('#repair-items')).toContainText('Assign Location');
-        await page.getByText('Assign Location').click();
-        if (res) {
-        } else {
-            await page.locator('(//*[@class = "pi-label-edit-icon"])[1]').click();
-            await page.getByPlaceholder('Serial No').fill('TestSN7934');
-            await page.getByTitle('Save Changes').getByRole('img').click();
-        }
+        await page.getByTitle('Save Changes').getByRole('img').click();
         await page.getByPlaceholder('Storage Location').fill('SL001');
         await page.getByPlaceholder('Type here').fill('Internal Item Notes Assign Location');
         await page.getByRole('button', { name: 'Update Location' }).click();
-        //Assign Technician
-        await expect(page.locator('#repair-items')).toContainText('Assign Technician');
-        await page.getByText('Assign Technician').click();
-        await page.getByText('Select').click();
-        await page.keyboard.insertText(tech);
-        await page.keyboard.press('Enter');
-        // await page.getByText(tech, { exact: true }).nth(1).click();
-        await page.getByPlaceholder('Type here').fill('Internal Item Notes Assign Technician');
-        await page.getByRole('button', { name: 'Assign' }).click();
-        //Item Evaluation
-        await expect(page.locator('#repair-items')).toContainText('Evaluate Item');
-        await page.getByText('Evaluate Item').click();
-        //select repair type
-        await page.locator("(//*[@class = 'radio'])[" + repair_type + "]").click();
-        if (repair_type == 1) {
-            await page.getByPlaceholder('Estimated Repair Hrs').fill('2');
-            await page.getByPlaceholder('Estimated Parts Cost').fill('123.53');
-            await page.getByPlaceholder('Technician Suggested Price').fill('568.56');
-        } else if (repair_type == 2) {
-
-        } else {
-            await page.getByPlaceholder('Technician Suggested Price').fill('568.56');
-        }
-        await page.waitForTimeout(1500);
-        await page.getByText('Select').click();
-        for (let index = 0; index < 3; index++) {
-            await page.keyboard.press('Space');
-            await page.keyboard.press('ArrowDown');
-        }
-        await page.getByPlaceholder('Type here').fill('Internal Item Notes Item Evaluation');
-        await page.getByRole('button', { name: 'Update Evaluation' }).hover();
-        await page.getByRole('button', { name: 'Update Evaluation' }).click();
     }
-    await page.waitForTimeout(2800);
+}
+async function itemsAddToEvaluation(page, stock_code, tech, repair_type) {
+    // for (let index = 0; index < stock_code.length; index++) {
+    await page.getByText('Add Items').click();
+    await page.getByPlaceholder('Search By Part Number').fill(stock_code);
+    await spinner(page)
+    let res = false;
+    try {
+        await expect(page.locator('//*[text() = "? Click here to add them"]')).toBeVisible({ timeout: 4000 });
+        res = true;
+    } catch (error) {
+        console.log(error)
+        res = false;
+    }
+    if (res) {
+        //Add New Part
+        await add_new_part(page, stock_code);
+    } else {
+        await page.locator("//*[contains(@class,'data repair_grid')]/div/div/label").click();
+        await page.getByRole('button', { name: 'Add Selected 1 Parts' }).click();
+    }
+    // Assign Location
+    await expect(page.locator('#repair-items')).toContainText('Assign Location');
+    await page.getByText('Assign Location').click();
+    await page.locator('//*[@class = "side-drawer open"]/div/div[2]/div/div/div[2]/div[2]/div[4]/div/span').click();
+    if (await page.getByPlaceholder('Serial No').getAttribute('value') === '') {
+        await page.getByPlaceholder('Serial No').fill('OU68687GVF');
+        await page.getByTitle('Save Changes').getByRole('img').click();
+    }
+    await page.getByPlaceholder('Storage Location').fill('R2');
+    await page.getByPlaceholder('Type here').fill('Internal Item Notes Assign Location');
+    await page.getByRole('button', { name: 'Update Location' }).click();
+    //Assign Technician
+    await expect(page.locator('#repair-items')).toContainText('Assign Technician');
+    await page.getByText('Assign Technician').click();
+    await page.getByText('Select').click();
+    await page.keyboard.insertText(tech);
+    await page.keyboard.press('Enter');
+    // await page.getByText(tech, { exact: true }).nth(1).click();
+    await page.getByPlaceholder('Type here').fill('Internal Item Notes Assign Technician');
+    await page.getByRole('button', { name: 'Assign' }).click();
+    //Item Evaluation
+    await expect(page.locator('#repair-items')).toContainText('Evaluate Item');
+    await page.getByText('Evaluate Item').click();
+    //select repair type
+    await page.locator("(//*[@class = 'radio'])[" + repair_type + "]").click();
+    if (repair_type == 1) {
+        await page.getByPlaceholder('Estimated Repair Hrs').fill('2');
+        await page.getByPlaceholder('Estimated Parts Cost').fill('123.53');
+        await page.getByPlaceholder('Technician Suggested Price').fill('568.56');
+    } else if (repair_type == 2) {
+
+    } else {
+        await page.getByPlaceholder('Technician Suggested Price').fill('568.56');
+    }
+    await page.waitForTimeout(1500);
+    await page.getByText('Select').click();
+    for (let index = 0; index < 3; index++) {
+        await page.keyboard.press('Space');
+        await page.keyboard.press('ArrowDown');
+    }
+    await page.getByPlaceholder('Type here').fill('Internal Item Notes Item Evaluation');
+    await page.getByRole('button', { name: 'Update Evaluation' }).hover();
+    await page.getByRole('button', { name: 'Update Evaluation' }).click();
+    // }
+    await page.waitForTimeout(1800);
 }
 async function addItemsToQuote(page) {
     // Add Items to Quote
@@ -1479,47 +1496,27 @@ async function addItemsToQuote(page) {
     await page.getByRole('button', { name: 'Accept' }).click();
     await expect(page.locator('#repair-items')).toContainText('Quote Items');
 }
-async function addMultipleItems(page, stock_code) {
-    await page.goto("https://buzzworld-web-iidm.enterpi.com/quote_for_parts/23b1fd51-4af6-4a46-84c0-ff58ddaab865")
-    await expect(page.locator("//*[text()='Add Items']")).toBeVisible()
+async function cloneRepairQuote(page, acc_num, cont_name, tech) {
+    await createRMA(page, acc_num, cont_name);
+    // await page.goto("https://www.staging-buzzworld.iidm.com/all_quotes/a23bbd84-8478-4e24-b5f7-16524c5dde12")
     let rep = await page.locator('(//*[@class = "id-num"])[1]').textContent()
     let repair_id = rep.replace("#", "")
     console.log('repair is created with id ', repair_id)
     console.log('repair url is ', await page.url())
+    let stock_code = ['10D0001-1000', '10DDT01-0250', '10BB001-1000']
+    let repTypes = ['1', '2', '3'];
     for (let index = 0; index < stock_code.length; index++) {
-        await page.getByText('Add Items').click();
-        await page.getByPlaceholder('Search By Part Number').fill(stock_code[index]);
-        await spinner(page); let res = false;
-        try {
-            await expect(page.locator("(//*[text() = 'Items Not Available'])[1]")).toBeVisible({ timeout: 2300 }); res = true;
-        } catch (error) { res = false; }
-        if (res) {
-            await page.getByRole('tab', { name: 'Add New Items' }).click();
-            await page.locator("//*[text() = 'Search']").click();
-            await page.keyboard.insertText(testdata.parts.supplier);
-            await page.keyboard.press('Enter');
-            let fields = ['Part Number', 'Quantity', 'Quote Price', 'List Price', 'IIDM Cost'];
-            let vals = [stock_code[index], '1', '20123.56', '256.36', '2549.256984'];
-            await enterTextByPlaceholder(page, fields, vals);
-            await page.getByText('Select').nth(1).click();
-            await page.getByText('Field Service', { exact: true }).click();
-            await page.getByText('Select', { exact: true }).click();
-            await page.getByText('Day(s)', { exact: true }).click();
-            await page.getByPlaceholder('Day(s)').fill('12-16');
-            await page.getByPlaceholder('Description').fill('Manually Added Items');
-            await page.getByRole('button', { name: 'Add', exact: true }).click();
-        } else {
-            await allPages.checkBox.first().click();
-            await page.getByRole('button', { name: 'Add Selected 1 Items' }).click();
-        }
+        await itemsAddToEvaluation(page, stock_code[index], tech, repTypes[index])
+        let lineNumber = await page.locator("(//*[@class='line-number'])[" + (index + 1) + "]")
+        await expect(lineNumber).toBeVisible();
     }
-    async function enterTextByPlaceholder(page, texts, values) {
-        for (let index = 0; index < texts.length; index++) {
-            await page.getByPlaceholder(texts[index]).fill(values[index]);
-        }
-    }
-    await expect(page.getByText('Add Options')).toBeVisible();
-
+    await addItemsToQuote(page)
+    await expect(page.locator("(//*[text()='GP'])[1]")).toBeVisible()
+    let quote = await page.locator('(//*[@class = "id-num"])[1]').textContent()
+    let quote_id = quote.replace("#", "")
+    console.log('quote is created with id ', quote_id)
+    console.log('quote url is ', await page.url())
+    await expect(page.locator("//*[contains(@src, 'clone')]")).toBeVisible()
 }
 async function create_job_repairs(page, is_create_job, repair_type, acc_num, cont_name, stock_code, tech) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
@@ -16887,5 +16884,5 @@ module.exports = {
     quoteTotalDisplaysZero,
     displayNCNRatItemsPage,
     salesOrderVerification,
-    addMultipleItems
+    cloneRepairQuote
 };
