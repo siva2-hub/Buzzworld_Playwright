@@ -1411,7 +1411,7 @@ async function itemsAddToEvaluation(page, stock_code, tech, repair_type) {
         await expect(page.locator('//*[text() = "? Click here to add them"]')).toBeVisible({ timeout: 4000 });
         res = true;
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         res = false;
     }
     if (res) {
@@ -1498,7 +1498,7 @@ async function addItemsToQuote(page) {
 }
 async function cloneRepairQuote(page, acc_num, cont_name, tech) {
     await createRMA(page, acc_num, cont_name);
-    // await page.goto("https://www.staging-buzzworld.iidm.com/all_quotes/a23bbd84-8478-4e24-b5f7-16524c5dde12")
+    // await page.goto("https://www.staging-buzzworld.iidm.com/quote_for_repair/e9334bb4-3fa0-4cc0-add5-f832266ee5ce")
     let rep = await page.locator('(//*[@class = "id-num"])[1]').textContent()
     let repair_id = rep.replace("#", "")
     console.log('repair is created with id ', repair_id)
@@ -1516,7 +1516,23 @@ async function cloneRepairQuote(page, acc_num, cont_name, tech) {
     let quote_id = quote.replace("#", "")
     console.log('quote is created with id ', quote_id)
     console.log('quote url is ', await page.url())
+    await approve(page, cont_name);
+    await expect(page.locator('#root')).toContainText('Submit for Customer Approval');
+    await page.locator('//*[@id="root"]/div/div[3]/div[1]/div[1]/div/div[2]/div[1]/div[3]/div/button').click();
+    await expect(page.getByRole('menuitem')).toContainText('Delivered to Customer');
+    await page.getByRole('menuitem', { name: 'Delivered to Customer' }).click();
+    await expect(page.locator('#root')).toContainText('Won');
     await expect(page.locator("//*[contains(@src, 'clone')]")).toBeVisible()
+    await page.locator("//*[contains(@src, 'clone')]").click()
+    let disText = stock_code.join(', '); let result;
+    try {
+        await expect(page.locator("//*[text()='Quote can be cloned with " + disText + ".']")).toBeVisible()
+
+        result = true
+    } catch (error) {
+        result = false
+    }
+    return result
 }
 async function create_job_repairs(page, is_create_job, repair_type, acc_num, cont_name, stock_code, tech) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');

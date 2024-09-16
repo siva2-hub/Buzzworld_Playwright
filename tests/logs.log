@@ -3902,3 +3902,234 @@ quote url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/f839a05d-a
 [31m    [chromium] › IIDM_Sprint_62.spec.js:32:1 › Repair Quote Clone [2m──────────────────────────────────[22m[39m
 
 [36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+repair is created with id  314950
+
+
+repair url is  https://www.staging-buzzworld.iidm.com/repair-request/96ca9e1d-e678-4b71-a43b-32dbc3d640c7
+Error: [31mTimed out 4000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+Locator: locator('//*[text() = "? Click here to add them"]')
+Expected: visible
+Received: <element(s) not found>
+Call log:
+  [2m- expect.toBeVisible with timeout 4000ms[22m
+[2m  - waiting for locator('//*[text() = "? Click here to add them"]')[22m
+
+
+Error: [31mTimed out 4000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+Locator: locator('//*[text() = "? Click here to add them"]')
+Expected: visible
+Received: <element(s) not found>
+Call log:
+  [2m- expect.toBeVisible with timeout 4000ms[22m
+[2m  - waiting for locator('//*[text() = "? Click here to add them"]')[22m
+
+
+Error: [31mTimed out 4000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+Locator: locator('//*[text() = "? Click here to add them"]')
+Expected: visible
+Received: <element(s) not found>
+Call log:
+  [2m- expect.toBeVisible with timeout 4000ms[22m
+[2m  - waiting for locator('//*[text() = "? Click here to add them"]')[22m
+
+
+count is  3
+
+quote is created with id  2024091600001
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/b8a11864-a760-48d9-98da-8295042af724
+[31m  1) [chromium] › IIDM_Sprint_63.spec.js:32:1 › Repair Quote Clone [2m─────────────────────────────────[22m[39m
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+    Locator: locator('//*[contains(@src, \'clone\')]')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      [2m- expect.toBeVisible with timeout 30000ms[22m
+    [2m  - waiting for locator('//*[contains(@src, \'clone\')]')[22m
+
+
+    [90m   at [39mhelper.js:1519
+
+    [0m [90m 1517 |[39m     console[33m.[39mlog([32m'quote is created with id '[39m[33m,[39m quote_id)
+     [90m 1518 |[39m     console[33m.[39mlog([32m'quote url is '[39m[33m,[39m [36mawait[39m page[33m.[39murl())
+    [31m[1m>[22m[39m[90m 1519 |[39m     [36mawait[39m expect(page[33m.[39mlocator([32m"//*[contains(@src, 'clone')]"[39m))[33m.[39mtoBeVisible()
+     [90m      |[39m                                                                [31m[1m^[22m[39m
+     [90m 1520 |[39m }
+     [90m 1521 |[39m [36masync[39m [36mfunction[39m create_job_repairs(page[33m,[39m is_create_job[33m,[39m repair_type[33m,[39m acc_num[33m,[39m cont_name[33m,[39m stock_code[33m,[39m tech) {
+     [90m 1522 |[39m     console[33m.[39mlog([32m'--------------------------------------------------'[39m[33m,[39m [33mANSI_RED[39m [33m+[39m currentDateTime [33m+[39m [33mANSI_RESET[39m[33m,[39m [32m'--------------------------------------------------------'[39m)[33m;[39m[0m
+
+    [2m    at cloneRepairQuote (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:1519:64)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/IIDM_Sprint_63.spec.js:34:13[22m
+
+
+[33m  Slow test file: [39m[chromium] › IIDM_Sprint_63.spec.js[33m (3.6m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[31m  1 failed[39m
+[31m    [chromium] › IIDM_Sprint_63.spec.js:32:1 › Repair Quote Clone [2m──────────────────────────────────[22m[39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+repair is created with id  314953
+
+
+repair url is  https://www.staging-buzzworld.iidm.com/repair-request/4ebd2e33-2154-4d7d-ab04-464ecc42f538
+Error: [31mTimed out 4000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+Locator: locator('//*[text() = "? Click here to add them"]')
+Expected: visible
+Received: <element(s) not found>
+Call log:
+  [2m- expect.toBeVisible with timeout 4000ms[22m
+[2m  - waiting for locator('//*[text() = "? Click here to add them"]')[22m
+
+
+[31m  1) [chromium] › IIDM_Sprint_63.spec.js:32:1 › Repair Quote Clone [2m─────────────────────────────────[22m[39m
+
+    Error: locator.click: Target page, context or browser has been closed
+
+    [90m   at [39mhelper.js:1422
+
+    [0m [90m 1420 |[39m     } [36melse[39m {
+     [90m 1421 |[39m         [36mawait[39m page[33m.[39mlocator([32m"//*[contains(@class,'data repair_grid')]/div/div/label"[39m)[33m.[39mclick()[33m;[39m
+    [31m[1m>[22m[39m[90m 1422 |[39m         [36mawait[39m page[33m.[39mgetByRole([32m'button'[39m[33m,[39m { name[33m:[39m [32m'Add Selected 1 Parts'[39m })[33m.[39mclick()[33m;[39m
+     [90m      |[39m                                                                          [31m[1m^[22m[39m
+     [90m 1423 |[39m     }
+     [90m 1424 |[39m     [90m// Assign Location[39m
+     [90m 1425 |[39m     [36mawait[39m expect(page[33m.[39mlocator([32m'#repair-items'[39m))[33m.[39mtoContainText([32m'Assign Location'[39m)[33m;[39m[0m
+
+    [2m    at itemsAddToEvaluation (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:1422:74)[22m
+    [2m    at cloneRepairQuote (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:1509:9)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/IIDM_Sprint_63.spec.js:34:13[22m
+
+    Error: page.click: Target page, context or browser has been closed
+    Call log:
+      [2m- waiting for locator('xpath=(//*[text()=\'Proceed\'])[2]')[22m
+
+
+    [90m   at [39mPageObjects.js:16
+
+    [0m [90m 14 |[39m         [36mthis[39m[33m.[39mcheckBox [33m=[39m [36mthis[39m[33m.[39mpage[33m.[39mlocator([32m"(//*[contains(@class, 'data grid')]/div)[1]"[39m)[33m;[39m
+     [90m 15 |[39m         [90m//click Proceed button at BOM Upload Page[39m
+    [31m[1m>[22m[39m[90m 16 |[39m         [36mthis[39m[33m.[39mproceed [33m=[39m [36mthis[39m[33m.[39mpage[33m.[39mclick([32m"(//*[text()='Proceed'])[2]"[39m)[33m;[39m
+     [90m    |[39m                                  [31m[1m^[22m[39m
+     [90m 17 |[39m         [90m//Click Admin tab[39m
+     [90m 18 |[39m         [90m// this.clickAdmin = this.page.getByText('Admin').first().click();[39m
+     [90m 19 |[39m         [90m//First row in grid list[39m[0m
+
+    [2m    at AllPages (/home/enterpi/git/Buzzworld/Playwright/tests/PageObjects.js:16:34)[22m
+    [2m    at login_buzz (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:220:16)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/IIDM_Sprint_63.spec.js:14:9[22m
+
+
+[33m  Slow test file: [39m[chromium] › IIDM_Sprint_63.spec.js[33m (39.7s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[31m  1 failed[39m
+[31m    [chromium] › IIDM_Sprint_63.spec.js:32:1 › Repair Quote Clone [2m──────────────────────────────────[22m[39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+repair is created with id  314953
+
+
+repair url is  https://www.staging-buzzworld.iidm.com/repair-request/4ebd2e33-2154-4d7d-ab04-464ecc42f538
+Error: [31mTimed out 4000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+Locator: locator('//*[text() = "? Click here to add them"]')
+Expected: visible
+Received: <element(s) not found>
+Call log:
+  [2m- expect.toBeVisible with timeout 4000ms[22m
+[2m  - waiting for locator('//*[text() = "? Click here to add them"]')[22m
+
+
+Error: [31mTimed out 4000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+Locator: locator('//*[text() = "? Click here to add them"]')
+Expected: visible
+Received: <element(s) not found>
+Call log:
+  [2m- expect.toBeVisible with timeout 4000ms[22m
+[2m  - waiting for locator('//*[text() = "? Click here to add them"]')[22m
+
+
+Error: [31mTimed out 4000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+Locator: locator('//*[text() = "? Click here to add them"]')
+Expected: visible
+Received: <element(s) not found>
+Call log:
+  [2m- expect.toBeVisible with timeout 4000ms[22m
+[2m  - waiting for locator('//*[text() = "? Click here to add them"]')[22m
+
+
+count is  3
+
+quote is created with id  2024091600006
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/e9334bb4-3fa0-4cc0-add5-f832266ee5ce
+
+[33m  Slow test file: [39m[chromium] › IIDM_Sprint_63.spec.js[33m (2.8m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (3.2m)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+repair is created with id  2024091600006
+
+
+repair url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/e9334bb4-3fa0-4cc0-add5-f832266ee5ce
+quote is created with id  2024091600006
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/e9334bb4-3fa0-4cc0-add5-f832266ee5ce
+10D0001-1000,10DDT01-0250,10BB001-1000
+
+
+[32m  1 passed[39m[2m (30.5s)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+
+repair is created with id  2024091600006
+
+repair url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/e9334bb4-3fa0-4cc0-add5-f832266ee5ce
+quote is created with id  2024091600006
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/e9334bb4-3fa0-4cc0-add5-f832266ee5ce
+10D0001-1000, 10DDT01-0250, 10BB001-1000
+
+
+[32m  1 passed[39m[2m (31.1s)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+
+
+repair is created with id  2024091600006
+repair url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/e9334bb4-3fa0-4cc0-add5-f832266ee5ce
+quote is created with id  2024091600006
+
+
+quote url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/e9334bb4-3fa0-4cc0-add5-f832266ee5ce
+
+[32mRepair Quote Clone Test Passed![0m
+[32m  1 passed[39m[2m (35.3s)[22m
+
