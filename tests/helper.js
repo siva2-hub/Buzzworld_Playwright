@@ -1534,30 +1534,35 @@ async function cloneRepairQuote(page, acc_num, cont_name, tech) {
     }
     return result
 }
-async function create_job_repairs(page, is_create_job, repair_type, acc_num, cont_name, stock_code, tech) {
+async function create_job_repairs(page, is_create_job, repTypes, acc_num, cont_name, stock_code, tech) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     // let acc_num = 'ENGYS00', cont_name = 'Jannice Carrillo', stock_code = 'EW25-104-20';
     // let tech = 'Michael Strothers';
-    // await page.goto('https://www.staging-buzzworld.iidm.com/quote_for_repair/9696c583-5a0a-4096-88eb-27f835224230');
+    // await page.goto('https://www.staging-buzzworld.iidm.com/repair-request/11cb7a4a-6220-483b-8b6d-a55dc08e4f49');
     let testResult;
     try {
-        //Verifying Total Repairs Count
+        // Verifying Total Repairs Count
         await page.getByText('Repairs').first().click();
         await expect(allPages.profileIconListView).toBeVisible();
         await page.waitForTimeout(2000);
         let repCount;
         repCount = await page.textContent("//*[contains(@id, 'row-count')]");
         console.log('Before creating Repair Totals Repair count is: ', repCount);
-        //RMA creation
+        // RMA creation
         await createRMA(page, acc_num, cont_name);
         await expect(page.locator('#repair-items')).toContainText('Repair item(s) Not Available');
         let rep = await page.locator('(//*[@class = "id-num"])[1]').textContent();
         let repair_id = rep.replace("#", "");
         console.log('repair is created with id ', repair_id);
         console.log('repair url is ', await page.url());
-        //Add items to items evaluation in repair
-        await itemsAddToEvaluation(page, stock_code, tech, repair_type)
+        console.log(repTypes)
         await page.pause()
+        //Add items to items evaluation in repair
+        for (let index = 0; index < stock_code.length; index++) {
+            await itemsAddToEvaluation(page, stock_code[index], tech, repTypes[index])
+            let lineNumber = await page.locator("(//*[@class='line-number'])[" + (index + 1) + "]")
+            await expect(lineNumber).toBeVisible();
+        }
         //Add Repair Items to Quote
         await addItemsToQuote(page)
         let quote = await page.locator('(//*[@class = "id-num"])[1]').textContent();
@@ -1565,29 +1570,30 @@ async function create_job_repairs(page, is_create_job, repair_type, acc_num, con
         console.log('quote is created with id ', quote_id);
         let quote_url = await page.url();
         console.log('quote url is ', quote_url);
-        let total_price = await page.locator("(//*[contains(@class, 'total-price-ellipsis')])[3]").textContent();
-        let tqp = parseInt(total_price.replace("$", "").replace(",", ""));
-        if (tqp > 10000) {
-            if (tqp > 10000 && tqp < 25001) {
-                await page.locator("//*[text() = 'Approval Questions']").click();
-                await page.locator("(//*[text() = 'Type'])[2]").click();
-                await page.keyboard.press('Enter');
-                await page.getByPlaceholder('Enter Competition').fill('Test Competition');
-                await page.getByPlaceholder('Enter Budgetary Amount').fill('9999.01');
-                await page.getByPlaceholder('Enter Key Decision Maker').fill(cont_name);
-                await page.locator("(//*[text() = 'Save'])[1]").click();
-                await page.locator("(//*[text() = 'Submit for Internal Approval'])[1]").click();
-                await expect(page.locator("(//*[text() = 'Are you sure you want to submit this quote for approval ?'])[1]")).toBeVisible();
-                await page.locator("(//*[text() = 'Proceed'])[1]").click();
-                await page.getByRole('button', { name: 'Approve' }).click();
-                await page.getByRole('button', { name: 'Approve' }).nth(1).click();
-            } else {
+        await approve(page, cont_name)
+        // let total_price = await page.locator("(//*[contains(@class, 'total-price-ellipsis')])[3]").textContent();
+        // let tqp = parseInt(total_price.replace("$", "").replace(",", ""));
+        // if (tqp > 10000) {
+        //     if (tqp > 10000 && tqp < 25001) {
+        //         await page.locator("//*[text() = 'Approval Questions']").click();
+        //         await page.locator("(//*[text() = 'Type'])[2]").click();
+        //         await page.keyboard.press('Enter');
+        //         await page.getByPlaceholder('Enter Competition').fill('Test Competition');
+        //         await page.getByPlaceholder('Enter Budgetary Amount').fill('9999.01');
+        //         await page.getByPlaceholder('Enter Key Decision Maker').fill(cont_name);
+        //         await page.locator("(//*[text() = 'Save'])[1]").click();
+        //         await page.locator("(//*[text() = 'Submit for Internal Approval'])[1]").click();
+        //         await expect(page.locator("(//*[text() = 'Are you sure you want to submit this quote for approval ?'])[1]")).toBeVisible();
+        //         await page.locator("(//*[text() = 'Proceed'])[1]").click();
+        //         await page.getByRole('button', { name: 'Approve' }).click();
+        //         await page.getByRole('button', { name: 'Approve' }).nth(1).click();
+        //     } else {
 
-            }
-        } else {
-            await page.getByRole('button', { name: 'Approve' }).click();
-            await page.getByRole('button', { name: 'Approve' }).nth(1).click();
-        }
+        //     }
+        // } else {
+        //     await page.getByRole('button', { name: 'Approve' }).click();
+        //     await page.getByRole('button', { name: 'Approve' }).nth(1).click();
+        // }
         //Approve the Quote
         await expect(page.locator('#root')).toContainText('Submit for Customer Approval');
         await page.locator('//*[@id="root"]/div/div[3]/div[1]/div[1]/div/div[2]/div[1]/div[3]/div/button').click();
@@ -2018,6 +2024,7 @@ async function submitForInternalApproval(page) {
     await page.locator("(//*[text() = 'Proceed'])[1]").click();
 }
 async function approve(page, cont_name) {
+    await expect(page.locator("(//*[text()='GP'])[1]")).toBeVisible()
     let total_price = await page.locator("(//*[contains(@class, 'total-price-ellipsis')])[3]").textContent();
     let tqp = parseInt(total_price.replace("$", "").replace(",", ""));
     if (tqp > 10000) {
