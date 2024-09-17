@@ -13,7 +13,7 @@ export default class AllPages {
         //Select item check box at add items page
         this.checkBox = this.page.locator("(//*[contains(@class, 'data grid')]/div)[1]");
         //click Proceed button at BOM Upload Page
-        this.proceed = this.page.click("(//*[text()='Proceed'])[2]");
+        // this.proceed = this.page.click("(//*[text()='Proceed'])[2]");
         //Click Admin tab
         // this.clickAdmin = this.page.getByText('Admin').first().click();
         //First row in grid list
