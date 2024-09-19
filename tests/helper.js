@@ -1514,25 +1514,35 @@ async function cloneRepairQuote(page, acc_num, cont_name, tech) {
     await expect(page.locator("(//*[text()='GP'])[1]")).toBeVisible()
     let quote = await page.locator('(//*[@class = "id-num"])[1]').textContent()
     let quote_id = quote.replace("#", "")
-    console.log('quote is created with id ', quote_id)
-    console.log('quote url is ', await page.url())
+    console.log('befor clone quote is created with id ', quote_id)
+    console.log('befor clone quote url is ', await page.url())
     await approve(page, cont_name)
     await expect(page.locator('#root')).toContainText('Submit for Customer Approval');
-    await page.locator('//*[@id="root"]/div/div[3]/div[1]/div[1]/div/div[2]/div[1]/div[3]/div/button').click();
+    await allPages.submitForCustomerDropdown.click()
     await expect(page.getByRole('menuitem')).toContainText('Delivered to Customer');
     await page.getByRole('menuitem', { name: 'Delivered to Customer' }).click();
     await expect(page.locator('#root')).toContainText('Won');
     await expect(page.locator("//*[contains(@src, 'clone')]")).toBeVisible()
     await page.locator("//*[contains(@src, 'clone')]").click()
-    let disText = stock_code.join(', '); let result;
+    let disText = stock_code.join(', '); let result; let errorMessage;
     try {
         await expect(page.locator("//*[text()='Quote can be cloned with " + disText + ".']")).toBeVisible()
-
         result = true
     } catch (error) {
+        errorMessage = await page.locator("//*[contains(@class, 'error-msg')]").textContent()
         result = false
     }
-    return result
+    if (result) {
+        await page.click("//*[contains(@class, 'Primary') and @type='button']")
+        await delay(page, 2200)
+        expect(page.locator("(//*[text()='GP'])[1]")).toBeVisible()
+        let newQuote = await page.locator('(//*[@class = "id-num"])[1]').textContent()
+        let new_quote_id = newQuote.replace("#", "")
+        console.log('after clone quote is created with id ', new_quote_id)
+        console.log('after clone quote url is ', await page.url())
+    } else {
+        console.log(errorMessage)
+    }
 }
 async function create_job_repairs(page, is_create_job, repTypes, acc_num, cont_name, stock_code, tech) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
@@ -3751,7 +3761,7 @@ async function verifyTwoExcelData(page) {
             let dcY = yask_data[index1].DiscountCode;
             let prodY = yask_data[index1]['ProductClass(4)'];
             if (supplT === supplY) {
-                message = supplT+' found in our bd';
+                message = supplT + ' found in our bd';
                 // console.log(supplT+' found in our bd')
                 // console.log(stockT, ' ', stockY);
                 // console.log('test file row no ', (index + 1));
@@ -3766,13 +3776,13 @@ async function verifyTwoExcelData(page) {
                 // });
                 break;
             } else {
-                message = supplT+' not found in our bd '+name;
+                message = supplT + ' not found in our bd ' + name;
                 // console.log()
             }
             // return message;
         }
-        const data =[];
-        if (message.includes('not found in our bd')) { 
+        const data = [];
+        if (message.includes('not found in our bd')) {
             data.push(message)
         }
         console.log(data)
