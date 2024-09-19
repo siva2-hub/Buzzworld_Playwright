@@ -29,7 +29,7 @@ test.describe('all tests', async () => {
     // await reports('First Test', 'Passed');
     page = await browser.newPage();
     // await setScreenSize(page, w, h);
-    // await login_buzz(page, stage_url);
+    await login_buzz(page, stage_url);
   });
 
   test('First Test Login', async ({ }, testInfo) => {
@@ -218,9 +218,9 @@ test.describe('all tests', async () => {
 
   test('Create Job and Sales Order From Repair Quotes', async ({ }, testInfo) => {
     //Repairable = 1, Not Repairable = 2, Repairable-Outsource = 3
-    let acc_num = 'MULTI00', cont_name = 'Garret Luppino', stock_code = ['05P00620-0123', '05P00620-0123', '05P00620-0123'];
-    let tech = 'Michael Strothers';
-    results = await create_job_repairs(page, 'Y', 1, acc_num, cont_name, stock_code, tech);
+    let acc_num = 'MULTI00', cont_name = 'Garret Luppino', stock_code = ['10D0001-1000', '10DDT01-0250', '10BB001-1000'];
+    let tech = 'Michael Strothers', repairType = ['1', '2', '3'];
+    results = await create_job_repairs(page, 'Y', repairType, acc_num, cont_name, stock_code, tech);
     let testName = testInfo.title;
     await returnResult(page, testName, results);
   })
