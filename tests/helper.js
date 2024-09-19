@@ -1383,72 +1383,89 @@ async function createRMA(page, acc_num, cont_name) {
     await page.getByText(cont_name, { exact: true }).nth(1).click();
     await page.getByRole('button', { name: 'Create', exact: true }).click();
 }
-async function itemsAddToEvaluation(page, stock_code, tech, repair_type) {
-    for (let index = 0; index < stock_code.length; index++) {
-        await page.getByText('Add Items').click();
-        await page.getByPlaceholder('Search By Part Number').fill(stock_code[index]);
-        await spinner(page)
-        let res = false;
-        try {
-            await expect(page.locator('//*[text() = "? Click here to add them"]')).toBeVisible({ timeout: 4000 });
-            res = true;
-        } catch (error) {
-            console.log(error)
-            res = false;
-        }
-        if (res) {
-            //Add New Part
-            await add_new_part(page, stock_code[index]);
+async function assignLocation(page) {
+
+    await expect(page.locator('#repair-items')).toContainText('Assign Location');
+    let alCount = await page.locator("//*[text()='Assign Location']").count()
+    for (let index = 0; index < alCount; index++) {
+        await page.locator("(//*[text()='Assign Location'])[" + (index + 1) + "]")
+        await page.locator('(//*[@class = "pi-label-edit-icon"])[1]').click();
+        if (await page.getByPlaceholder('Serial No').getAttribute('value') === '') {
+            await page.getByPlaceholder('Serial No').fill('R1');
         } else {
-            await page.locator("//*[contains(@class,'data repair_grid')]/div/div/label").click();
-            await page.getByRole('button', { name: 'Add Selected 1 Parts' }).click();
+
         }
-        //Assign Location
-        await expect(page.locator('#repair-items')).toContainText('Assign Location');
-        await page.getByText('Assign Location').click();
-        if (res) {
-        } else {
-            await page.locator('(//*[@class = "pi-label-edit-icon"])[1]').click();
-            await page.getByPlaceholder('Serial No').fill('TestSN7934');
-            await page.getByTitle('Save Changes').getByRole('img').click();
-        }
+        await page.getByTitle('Save Changes').getByRole('img').click();
         await page.getByPlaceholder('Storage Location').fill('SL001');
         await page.getByPlaceholder('Type here').fill('Internal Item Notes Assign Location');
         await page.getByRole('button', { name: 'Update Location' }).click();
-        //Assign Technician
-        await expect(page.locator('#repair-items')).toContainText('Assign Technician');
-        await page.getByText('Assign Technician').click();
-        await page.getByText('Select').click();
-        await page.keyboard.insertText(tech);
-        await page.keyboard.press('Enter');
-        // await page.getByText(tech, { exact: true }).nth(1).click();
-        await page.getByPlaceholder('Type here').fill('Internal Item Notes Assign Technician');
-        await page.getByRole('button', { name: 'Assign' }).click();
-        //Item Evaluation
-        await expect(page.locator('#repair-items')).toContainText('Evaluate Item');
-        await page.getByText('Evaluate Item').click();
-        //select repair type
-        await page.locator("(//*[@class = 'radio'])[" + repair_type + "]").click();
-        if (repair_type == 1) {
-            await page.getByPlaceholder('Estimated Repair Hrs').fill('2');
-            await page.getByPlaceholder('Estimated Parts Cost').fill('123.53');
-            await page.getByPlaceholder('Technician Suggested Price').fill('568.56');
-        } else if (repair_type == 2) {
-
-        } else {
-            await page.getByPlaceholder('Technician Suggested Price').fill('568.56');
-        }
-        await page.waitForTimeout(1500);
-        await page.getByText('Select').click();
-        for (let index = 0; index < 3; index++) {
-            await page.keyboard.press('Space');
-            await page.keyboard.press('ArrowDown');
-        }
-        await page.getByPlaceholder('Type here').fill('Internal Item Notes Item Evaluation');
-        await page.getByRole('button', { name: 'Update Evaluation' }).hover();
-        await page.getByRole('button', { name: 'Update Evaluation' }).click();
     }
-    await page.waitForTimeout(2800);
+}
+async function itemsAddToEvaluation(page, stock_code, tech, repair_type) {
+    // for (let index = 0; index < stock_code.length; index++) {
+    await page.getByText('Add Items').click();
+    await page.getByPlaceholder('Search By Part Number').fill(stock_code);
+    await spinner(page)
+    let res = false;
+    try {
+        await expect(page.locator('//*[text() = "? Click here to add them"]')).toBeVisible({ timeout: 4000 });
+        res = true;
+    } catch (error) {
+        // console.log(error)
+        res = false;
+    }
+    if (res) {
+        //Add New Part
+        await add_new_part(page, stock_code);
+    } else {
+        await page.locator("//*[contains(@class,'data repair_grid')]/div/div/label").click();
+        await page.getByRole('button', { name: 'Add Selected 1 Parts' }).click();
+    }
+    // Assign Location
+    await expect(page.locator('#repair-items')).toContainText('Assign Location');
+    await page.getByText('Assign Location').click();
+    await page.locator('//*[@class = "side-drawer open"]/div/div[2]/div/div/div[2]/div[2]/div[4]/div/span').click();
+    if (await page.getByPlaceholder('Serial No').getAttribute('value') === '') {
+        await page.getByPlaceholder('Serial No').fill('OU68687GVF');
+        await page.getByTitle('Save Changes').getByRole('img').click();
+    }
+    await page.getByPlaceholder('Storage Location').fill('R2');
+    await page.getByPlaceholder('Type here').fill('Internal Item Notes Assign Location');
+    await page.getByRole('button', { name: 'Update Location' }).click();
+    //Assign Technician
+    await expect(page.locator('#repair-items')).toContainText('Assign Technician');
+    await page.getByText('Assign Technician').click();
+    await page.getByText('Select').click();
+    await page.keyboard.insertText(tech);
+    await page.keyboard.press('Enter');
+    // await page.getByText(tech, { exact: true }).nth(1).click();
+    await page.getByPlaceholder('Type here').fill('Internal Item Notes Assign Technician');
+    await page.getByRole('button', { name: 'Assign' }).click();
+    //Item Evaluation
+    await expect(page.locator('#repair-items')).toContainText('Evaluate Item');
+    await page.getByText('Evaluate Item').click();
+    //select repair type
+    await page.locator("(//*[@class = 'radio'])[" + repair_type + "]").click();
+    if (repair_type == 1) {
+        await page.getByPlaceholder('Estimated Repair Hrs').fill('2');
+        await page.getByPlaceholder('Estimated Parts Cost').fill('123.53');
+        await page.getByPlaceholder('Technician Suggested Price').fill('568.56');
+    } else if (repair_type == 2) {
+
+    } else {
+        await page.getByPlaceholder('Technician Suggested Price').fill('568.56');
+    }
+    await page.waitForTimeout(1500);
+    await page.getByText('Select').click();
+    for (let index = 0; index < 3; index++) {
+        await page.keyboard.press('Space');
+        await page.keyboard.press('ArrowDown');
+    }
+    await page.getByPlaceholder('Type here').fill('Internal Item Notes Item Evaluation');
+    await page.getByRole('button', { name: 'Update Evaluation' }).hover();
+    await page.getByRole('button', { name: 'Update Evaluation' }).click();
+    // }
+    await page.waitForTimeout(1800);
 }
 async function addItemsToQuote(page) {
     // Add Items to Quote
@@ -1479,72 +1496,73 @@ async function addItemsToQuote(page) {
     await page.getByRole('button', { name: 'Accept' }).click();
     await expect(page.locator('#repair-items')).toContainText('Quote Items');
 }
-async function addMultipleItems(page, stock_code) {
-    await page.goto("https://buzzworld-web-iidm.enterpi.com/quote_for_parts/23b1fd51-4af6-4a46-84c0-ff58ddaab865")
-    await expect(page.locator("//*[text()='Add Items']")).toBeVisible()
+async function cloneRepairQuote(page, acc_num, cont_name, tech) {
+    await createRMA(page, acc_num, cont_name);
+    // await page.goto("https://www.staging-buzzworld.iidm.com/quote_for_repair/e9334bb4-3fa0-4cc0-add5-f832266ee5ce")
     let rep = await page.locator('(//*[@class = "id-num"])[1]').textContent()
     let repair_id = rep.replace("#", "")
     console.log('repair is created with id ', repair_id)
     console.log('repair url is ', await page.url())
+    let stock_code = ['10D0001-1000']
+    let repTypes = ['1', '2', '3'];
     for (let index = 0; index < stock_code.length; index++) {
-        await page.getByText('Add Items').click();
-        await page.getByPlaceholder('Search By Part Number').fill(stock_code[index]);
-        await spinner(page); let res = false;
-        try {
-            await expect(page.locator("(//*[text() = 'Items Not Available'])[1]")).toBeVisible({ timeout: 2300 }); res = true;
-        } catch (error) { res = false; }
-        if (res) {
-            await page.getByRole('tab', { name: 'Add New Items' }).click();
-            await page.locator("//*[text() = 'Search']").click();
-            await page.keyboard.insertText(testdata.parts.supplier);
-            await page.keyboard.press('Enter');
-            let fields = ['Part Number', 'Quantity', 'Quote Price', 'List Price', 'IIDM Cost'];
-            let vals = [stock_code[index], '1', '20123.56', '256.36', '2549.256984'];
-            await enterTextByPlaceholder(page, fields, vals);
-            await page.getByText('Select').nth(1).click();
-            await page.getByText('Field Service', { exact: true }).click();
-            await page.getByText('Select', { exact: true }).click();
-            await page.getByText('Day(s)', { exact: true }).click();
-            await page.getByPlaceholder('Day(s)').fill('12-16');
-            await page.getByPlaceholder('Description').fill('Manually Added Items');
-            await page.getByRole('button', { name: 'Add', exact: true }).click();
-        } else {
-            await allPages.checkBox.first().click();
-            await page.getByRole('button', { name: 'Add Selected 1 Items' }).click();
-        }
+        await itemsAddToEvaluation(page, stock_code[index], tech, repTypes[index])
+        let lineNumber = await page.locator("(//*[@class='line-number'])[" + (index + 1) + "]")
+        await expect(lineNumber).toBeVisible();
     }
-    async function enterTextByPlaceholder(page, texts, values) {
-        for (let index = 0; index < texts.length; index++) {
-            await page.getByPlaceholder(texts[index]).fill(values[index]);
-        }
-    }
-    await expect(page.getByText('Add Options')).toBeVisible();
+    await addItemsToQuote(page)
+    await expect(page.locator("(//*[text()='GP'])[1]")).toBeVisible()
+    let quote = await page.locator('(//*[@class = "id-num"])[1]').textContent()
+    let quote_id = quote.replace("#", "")
+    console.log('quote is created with id ', quote_id)
+    console.log('quote url is ', await page.url())
+    await approve(page, cont_name)
+    await expect(page.locator('#root')).toContainText('Submit for Customer Approval');
+    await page.locator('//*[@id="root"]/div/div[3]/div[1]/div[1]/div/div[2]/div[1]/div[3]/div/button').click();
+    await expect(page.getByRole('menuitem')).toContainText('Delivered to Customer');
+    await page.getByRole('menuitem', { name: 'Delivered to Customer' }).click();
+    await expect(page.locator('#root')).toContainText('Won');
+    await expect(page.locator("//*[contains(@src, 'clone')]")).toBeVisible()
+    await page.locator("//*[contains(@src, 'clone')]").click()
+    let disText = stock_code.join(', '); let result;
+    try {
+        await expect(page.locator("//*[text()='Quote can be cloned with " + disText + ".']")).toBeVisible()
 
+        result = true
+    } catch (error) {
+        result = false
+    }
+    return result
 }
-async function create_job_repairs(page, is_create_job, repair_type, acc_num, cont_name, stock_code, tech) {
+async function create_job_repairs(page, is_create_job, repTypes, acc_num, cont_name, stock_code, tech) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     // let acc_num = 'ENGYS00', cont_name = 'Jannice Carrillo', stock_code = 'EW25-104-20';
     // let tech = 'Michael Strothers';
-    // await page.goto('https://www.staging-buzzworld.iidm.com/quote_for_repair/9696c583-5a0a-4096-88eb-27f835224230');
+    // await page.goto('https://www.staging-buzzworld.iidm.com/repair-request/11cb7a4a-6220-483b-8b6d-a55dc08e4f49');
     let testResult;
     try {
-        //Verifying Total Repairs Count
+        // Verifying Total Repairs Count
         await page.getByText('Repairs').first().click();
         await expect(allPages.profileIconListView).toBeVisible();
         await page.waitForTimeout(2000);
         let repCount;
         repCount = await page.textContent("//*[contains(@id, 'row-count')]");
         console.log('Before creating Repair Totals Repair count is: ', repCount);
-        //RMA creation
+        // RMA creation
         await createRMA(page, acc_num, cont_name);
         await expect(page.locator('#repair-items')).toContainText('Repair item(s) Not Available');
         let rep = await page.locator('(//*[@class = "id-num"])[1]').textContent();
         let repair_id = rep.replace("#", "");
         console.log('repair is created with id ', repair_id);
         console.log('repair url is ', await page.url());
-        //Add items to items evaluation in repair
-        await itemsAddToEvaluation(page, stock_code, tech, repair_type)
+        console.log(repTypes)
         await page.pause()
+        //Add items to items evaluation in repair
+        for (let index = 0; index < stock_code.length; index++) {
+            await itemsAddToEvaluation(page, stock_code[index], tech, repTypes[index])
+            let lineNumber = await page.locator("(//*[@class='line-number'])[" + (index + 1) + "]")
+            await expect(lineNumber).toBeVisible();
+        }
         //Add Repair Items to Quote
         await addItemsToQuote(page)
         let quote = await page.locator('(//*[@class = "id-num"])[1]').textContent();
@@ -1552,29 +1570,30 @@ async function create_job_repairs(page, is_create_job, repair_type, acc_num, con
         console.log('quote is created with id ', quote_id);
         let quote_url = await page.url();
         console.log('quote url is ', quote_url);
-        let total_price = await page.locator("(//*[contains(@class, 'total-price-ellipsis')])[3]").textContent();
-        let tqp = parseInt(total_price.replace("$", "").replace(",", ""));
-        if (tqp > 10000) {
-            if (tqp > 10000 && tqp < 25001) {
-                await page.locator("//*[text() = 'Approval Questions']").click();
-                await page.locator("(//*[text() = 'Type'])[2]").click();
-                await page.keyboard.press('Enter');
-                await page.getByPlaceholder('Enter Competition').fill('Test Competition');
-                await page.getByPlaceholder('Enter Budgetary Amount').fill('9999.01');
-                await page.getByPlaceholder('Enter Key Decision Maker').fill(cont_name);
-                await page.locator("(//*[text() = 'Save'])[1]").click();
-                await page.locator("(//*[text() = 'Submit for Internal Approval'])[1]").click();
-                await expect(page.locator("(//*[text() = 'Are you sure you want to submit this quote for approval ?'])[1]")).toBeVisible();
-                await page.locator("(//*[text() = 'Proceed'])[1]").click();
-                await page.getByRole('button', { name: 'Approve' }).click();
-                await page.getByRole('button', { name: 'Approve' }).nth(1).click();
-            } else {
+        await approve(page, cont_name)
+        // let total_price = await page.locator("(//*[contains(@class, 'total-price-ellipsis')])[3]").textContent();
+        // let tqp = parseInt(total_price.replace("$", "").replace(",", ""));
+        // if (tqp > 10000) {
+        //     if (tqp > 10000 && tqp < 25001) {
+        //         await page.locator("//*[text() = 'Approval Questions']").click();
+        //         await page.locator("(//*[text() = 'Type'])[2]").click();
+        //         await page.keyboard.press('Enter');
+        //         await page.getByPlaceholder('Enter Competition').fill('Test Competition');
+        //         await page.getByPlaceholder('Enter Budgetary Amount').fill('9999.01');
+        //         await page.getByPlaceholder('Enter Key Decision Maker').fill(cont_name);
+        //         await page.locator("(//*[text() = 'Save'])[1]").click();
+        //         await page.locator("(//*[text() = 'Submit for Internal Approval'])[1]").click();
+        //         await expect(page.locator("(//*[text() = 'Are you sure you want to submit this quote for approval ?'])[1]")).toBeVisible();
+        //         await page.locator("(//*[text() = 'Proceed'])[1]").click();
+        //         await page.getByRole('button', { name: 'Approve' }).click();
+        //         await page.getByRole('button', { name: 'Approve' }).nth(1).click();
+        //     } else {
 
-            }
-        } else {
-            await page.getByRole('button', { name: 'Approve' }).click();
-            await page.getByRole('button', { name: 'Approve' }).nth(1).click();
-        }
+        //     }
+        // } else {
+        //     await page.getByRole('button', { name: 'Approve' }).click();
+        //     await page.getByRole('button', { name: 'Approve' }).nth(1).click();
+        // }
         //Approve the Quote
         await expect(page.locator('#root')).toContainText('Submit for Customer Approval');
         await page.locator('//*[@id="root"]/div/div[3]/div[1]/div[1]/div/div[2]/div[1]/div[3]/div/button').click();
@@ -2005,6 +2024,7 @@ async function submitForInternalApproval(page) {
     await page.locator("(//*[text() = 'Proceed'])[1]").click();
 }
 async function approve(page, cont_name) {
+    await expect(page.locator("(//*[text()='GP'])[1]")).toBeVisible()
     let total_price = await page.locator("(//*[contains(@class, 'total-price-ellipsis')])[3]").textContent();
     let tqp = parseInt(total_price.replace("$", "").replace(",", ""));
     if (tqp > 10000) {
@@ -3707,45 +3727,55 @@ async function getProductWriteIntoExecl(page) {
     //
 }
 async function verifyTwoExcelData(page) {
-    let excel_data = await read_excel_data('test_pricing.xlsx', 1);
-    let yask_data = await read_excel_data('Yaskawa 2024 Pricelist Import.xlsx', 0);
+    let excel_data = await read_excel_data('/home/enterpi/Downloads/so-db-salesperson.csv', 0);//so db
+    let yask_data = await read_excel_data('/home/enterpi/Downloads/live-syspro-users.csv', 0);// our db
     console.log('yaskawa price list rows count is ', yask_data.length);
     console.log('test pricing list rows count is ', excel_data.length);
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.readFile('test_pricing.xlsx');
     for (let index = 0; index < excel_data.length; index++) {
         //test_priding file Sheet2 Data
-        let supplT = excel_data[index]['Supplier(7)'];
-        let stockT = excel_data[index]['VendorStockCode(30)'];
+        let supplT = excel_data[index]['Code'];
+        let name = excel_data[index]['Name'];
         let descT = excel_data[index]['VendorDescription(30)'];
         let lpT = excel_data[index].ListPrice;
         let dcT = excel_data[index].DiscountCode;
         let prodT = excel_data[index]['ProductClass(4)'];
+        let message;
         for (let index1 = 0; index1 < yask_data.length; index1++) {
             //YASKAWA Pricing 2024 file Sheet1 Data
-            let supplY = yask_data[index1]['Supplier(7)'];
+            let supplY = yask_data[index1]['syspro_id'];
             let stockY = yask_data[index1]['VendorStockCode(30)'];
             let descY = yask_data[index1]['VendorDescription(30)'];
             let lpY = yask_data[index1].ListPrice;
             let dcY = yask_data[index1].DiscountCode;
             let prodY = yask_data[index1]['ProductClass(4)'];
-            if (stockT === stockY) {
-                console.log(stockT, ' ', stockY);
-                console.log('test file row no ', (index + 1));
-                console.log('yeskawa original file row no ', (index1 + 1));
-                // Get the first worksheet
-                const worksheet = workbook.getWorksheet('Sheet3');
-                const data = [
-                    [supplT, supplY, stockT, stockY, descT, descY, lpT, lpY, dcT, dcY, prodT, prodY]
-                ];
-                data.forEach(row => {
-                    worksheet.addRow(row);
-                });
+            if (supplT === supplY) {
+                message = supplT+' found in our bd';
+                // console.log(supplT+' found in our bd')
+                // console.log(stockT, ' ', stockY);
+                // console.log('test file row no ', (index + 1));
+                // console.log('yeskawa original file row no ', (index1 + 1));
+                // // Get the first worksheet
+                // const worksheet = workbook.getWorksheet('Sheet3');
+                // const data = [
+                //     [supplT, supplY, stockT, stockY, descT, descY, lpT, lpY, dcT, dcY, prodT, prodY]
+                // ];
+                // data.forEach(row => {
+                //     worksheet.addRow(row);
+                // });
                 break;
             } else {
-
+                message = supplT+' not found in our bd '+name;
+                // console.log()
             }
+            // return message;
         }
+        const data =[];
+        if (message.includes('not found in our bd')) { 
+            data.push(message)
+        }
+        console.log(data)
     }
     // Write the workbook to a file
     await workbook.xlsx.writeFile('test_pricing.xlsx');
@@ -16887,5 +16917,5 @@ module.exports = {
     quoteTotalDisplaysZero,
     displayNCNRatItemsPage,
     salesOrderVerification,
-    addMultipleItems
+    cloneRepairQuote
 };

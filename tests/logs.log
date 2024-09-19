@@ -1,48 +1,35 @@
-
+BLK2  BRANDT KING 509
+CFN  CENTRIFUGE NORTH
+CFS  CENTRIFUGE SOUTH
+CRP  CORPORATE ACCOUNT
+EEH2  ED HYER MEMPHIS
+MAJ  DO NOT DELETE!
+TEM  TEAM ACCOUNT
+TM1  TEAM 1
+TM2  DO NOT DELETE!
+TM3  TEAM 3
+TM4  TEAM 4
+TM5  TEAM 5
+TM6  TEAM 6
+TM7  TEAM 7
+TM8  TEAM 8
+TMZ  TEAM INTRACOMPANY
+TXF  DO NOT DELETE!
 [2mRunning [22m1[2m test using [22m1[2m worker[22m
 
-812766 order details found
+repair is created with id  314964
 
-812765 order details found
 
-812764 order details found
+repair url is  https://www.staging-buzzworld.iidm.com/repair-request/7db4d5c3-a80b-4c48-af6d-354c78213fb1
+count is  1
 
-812763 order details found
+quote is created with id  2024091900002
 
-812762 order details found
 
-812760 order details found
+quote url is  https://www.staging-buzzworld.iidm.com/quote_for_repair/efcc5a96-00d2-4928-b255-d1fe4e81affa
+[32mRepair Quote Clone Test Passed![0m
 
-812758 order details found
+[33m  Slow test file: [39m[chromium] › IIDM_Sprint_63.spec.js[33m (1.7m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (2.2m)[22m
 
-812757 order details found
-
-812756 order details found
-
-812755 order details found
-
-812766 order details found
-
-812758 order details found
-
-812722 order details found
-
-812746 order details found
-
-812737 order details found
-
-812726 order details found
-
-812661 order details found
-
-812715 order details found
-
-812707 order details found
-
-812698 order details found
-
-812592 order details found
-
-812685 order details found
-
-812675 order details found
