@@ -28,8 +28,8 @@ test.describe('all tests', async () => {
   test.beforeAll(async ({ browser }) => {
     // await reports('First Test', 'Passed');
     page = await browser.newPage();
-    await setScreenSize(page, w, h);
-    await login_buzz(page, stage_url);
+    // await setScreenSize(page, w, h);
+    // await login_buzz(page, stage_url);
   });
 
   test('First Test Login', async ({ }, testInfo) => {
@@ -432,7 +432,7 @@ test.describe('all tests', async () => {
     await getProductWriteIntoExecl(page);
   });
 
-  test.skip('verifying two excel files data', async () => {
+  test('verifying two excel files data', async () => {
     await verifyTwoExcelData(page);
   });
 

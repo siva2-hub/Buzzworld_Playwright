@@ -3720,45 +3720,55 @@ async function getProductWriteIntoExecl(page) {
     //
 }
 async function verifyTwoExcelData(page) {
-    let excel_data = await read_excel_data('test_pricing.xlsx', 1);
-    let yask_data = await read_excel_data('Yaskawa 2024 Pricelist Import.xlsx', 0);
+    let excel_data = await read_excel_data('/home/enterpi/Downloads/so-db-salesperson.csv', 0);//so db
+    let yask_data = await read_excel_data('/home/enterpi/Downloads/live-syspro-users.csv', 0);// our db
     console.log('yaskawa price list rows count is ', yask_data.length);
     console.log('test pricing list rows count is ', excel_data.length);
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.readFile('test_pricing.xlsx');
     for (let index = 0; index < excel_data.length; index++) {
         //test_priding file Sheet2 Data
-        let supplT = excel_data[index]['Supplier(7)'];
-        let stockT = excel_data[index]['VendorStockCode(30)'];
+        let supplT = excel_data[index]['Code'];
+        let name = excel_data[index]['Name'];
         let descT = excel_data[index]['VendorDescription(30)'];
         let lpT = excel_data[index].ListPrice;
         let dcT = excel_data[index].DiscountCode;
         let prodT = excel_data[index]['ProductClass(4)'];
+        let message;
         for (let index1 = 0; index1 < yask_data.length; index1++) {
             //YASKAWA Pricing 2024 file Sheet1 Data
-            let supplY = yask_data[index1]['Supplier(7)'];
+            let supplY = yask_data[index1]['syspro_id'];
             let stockY = yask_data[index1]['VendorStockCode(30)'];
             let descY = yask_data[index1]['VendorDescription(30)'];
             let lpY = yask_data[index1].ListPrice;
             let dcY = yask_data[index1].DiscountCode;
             let prodY = yask_data[index1]['ProductClass(4)'];
-            if (stockT === stockY) {
-                console.log(stockT, ' ', stockY);
-                console.log('test file row no ', (index + 1));
-                console.log('yeskawa original file row no ', (index1 + 1));
-                // Get the first worksheet
-                const worksheet = workbook.getWorksheet('Sheet3');
-                const data = [
-                    [supplT, supplY, stockT, stockY, descT, descY, lpT, lpY, dcT, dcY, prodT, prodY]
-                ];
-                data.forEach(row => {
-                    worksheet.addRow(row);
-                });
+            if (supplT === supplY) {
+                message = supplT+' found in our bd';
+                // console.log(supplT+' found in our bd')
+                // console.log(stockT, ' ', stockY);
+                // console.log('test file row no ', (index + 1));
+                // console.log('yeskawa original file row no ', (index1 + 1));
+                // // Get the first worksheet
+                // const worksheet = workbook.getWorksheet('Sheet3');
+                // const data = [
+                //     [supplT, supplY, stockT, stockY, descT, descY, lpT, lpY, dcT, dcY, prodT, prodY]
+                // ];
+                // data.forEach(row => {
+                //     worksheet.addRow(row);
+                // });
                 break;
             } else {
-
+                message = supplT+' not found in our bd '+name;
+                // console.log()
             }
+            // return message;
         }
+        const data =[];
+        if (message.includes('not found in our bd')) { 
+            data.push(message)
+        }
+        console.log(data)
     }
     // Write the workbook to a file
     await workbook.xlsx.writeFile('test_pricing.xlsx');
