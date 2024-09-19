@@ -432,7 +432,7 @@ test.describe('all tests', async () => {
     await getProductWriteIntoExecl(page);
   });
 
-  test.skip('verifying two excel files data', async () => {
+  test('verifying two excel files data', async () => {
     await verifyTwoExcelData(page);
   });
 
