@@ -22,6 +22,7 @@ export default class AllPages {
         this.createQuoteAtQuotesLV = this.page.locator('div').filter({ hasText: /^Create Quote$/ }).nth(1);
         this.addItemsBtn = this.page.locator("//*[text()='Add Items']");
         this.itemsNotAvailText = this.page.getByText('Quote item(s) Not Available');
+        this.submitForCustomerDropdown = this.page.locator('//*[@id="root"]/div/div[3]/div[1]/div[1]/div/div[2]/div[1]/div[3]/div/button');
     }
     //Page Objects
     // get userNameInput() { return this.page.getByLabel('Email'); }
