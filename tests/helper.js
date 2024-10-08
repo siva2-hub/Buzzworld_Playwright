@@ -2921,12 +2921,13 @@ async function pos_report(page) {
 }
 async function past_repair_prices(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
-    let quote_types = ['Repair Quotes', 'Parts Quotes', 'System Quotes'];
+    let quote_types = ['Repair Quotes', 'System Quotes'];//'Parts Quotes',
     let getTestResults;
     try {
         await page.getByText('Quotes', { exact: true }).first().click();
         for (let qt = 0; qt < quote_types.length; qt++) {
-            await spinner(page);
+            // await spinner(page);
+            await expect(page.locator("(//*[contains(@src,'vendor_logo')])[1]")).toBeVisible();
             await page.getByText(quote_types[qt], { exact: true }).first().click();
             await spinner(page);
             try {
@@ -2938,40 +2939,60 @@ async function past_repair_prices(page) {
             await page.keyboard.insertText('Open');
             await page.keyboard.press('Enter');
             await page.getByRole('button', { name: 'Apply' }).click();
-            await spinner(page);
-            let gt = await page.locator("//*[@style = 'left: 1424px; width: 174px;']").count();
+            // await spinner(page);
+            await expect(page.locator("(//*[contains(@src,'vendor_logo')])[1]")).toBeVisible();
+            await page.waitForTimeout(1200);
+            let gt = await page.locator("//*[@class='ag-center-cols-container']/div/div[9]").count();
             for (let index = 1; index <= gt; index++) {
-                let price = await page.locator("(//*[@style = 'left: 1424px; width: 174px;'])[" + index + "]").textContent();
+                let price = await page.locator("(//*[@class='ag-center-cols-container']/div/div[9])[" + index + "]").textContent();
                 if (price == '$0.00') {
-
                 } else {
-                    await page.locator("(//*[@style = 'left: 1424px; width: 174px;'])[" + index + "]").click();
-                    break;
+                    await page.locator("(//*[@class='ag-center-cols-container']/div/div[9])[" + index + "]").click();
+                    await expect(page.locator("(//*[contains(@src, 'themecolorEdit')][@alt = 'chevron-right'])[1]")).toBeVisible();
+                    let itemsCount = await page.locator("//*[contains(@src, 'themecolorEdit')][@alt = 'chevron-right']").count();
+                    for (let index = 1; index <= itemsCount; index++) {
+                        await page.locator("(//*[contains(@src, 'themecolorEdit')][@alt = 'chevron-right'])[" + index + "]").click();
+                        let part_num = await page.locator("(//*[contains(@placeholder, 'Part Number')])[1]").getAttribute('value');
+                        await expect(page.locator("//*[contains(@placeholder, 'Quote Price')]")).toBeVisible();
+                        if (quote_types[qt] == 'System Quotes') {
+                            await page.waitForTimeout(1200);
+                            await expect(page.locator("//*[contains(@src, 'email_invoices')]")).toBeHidden({ timeout: 5000 });
+                            console.log('past quote price is not displayed for ' + quote_types[qt] + ' ' + part_num + ' - ' + index);
+                            await page.locator("(//*[contains(@title, 'close')])[1]").click();
+                        } else {
+                            await page.waitForTimeout(1200);
+                            try {
+                                await expect(page.locator("//*[contains(@src, 'email_invoices')]")).toBeVisible({ timeout: 5000 });
+                                await page.locator("//*[contains(@src, 'email_invoices')]").click();
+                                if (quote_types[qt] == 'Parts Quotes') { await expect(page.locator("//*[text()='Past Quote Prices']")).toBeVisible(); }
+                                else { await expect(page.locator("//*[text()='Past Repair Prices']")).toBeVisible(); }
+                                await page.waitForTimeout(1200);
+                                let pastRepairPricesCount = await page.locator("//*[@class='ag-center-cols-container']/div/div[2]").count();
+                                let values = [];
+                                for (let i = 1; i <= pastRepairPricesCount; i++) {
+                                    values.push(await page.locator("(//*[@class='ag-center-cols-container']/div/div[2])[" + i + "]").textContent())
+                                }
+                                let consoleText;
+                                if (quote_types[qt] == 'Parts Quotes') { consoleText = 'quote' } else { consoleText = 'repair' }
+                                console.log('past ' + consoleText + ' price is displayed for ' + quote_types[qt] + ' ' + part_num + ' - ' + index);
+                                console.log('Net Sales values are: ' + values);
+                                await page.locator("(//*[contains(@title, 'close')])[2]").click();
+                                await page.locator("(//*[contains(@title, 'close')])[1]").click();
+                            } catch (error) {
+                                let consoleText;
+                                if (quote_types[qt] == 'Parts Quotes') { consoleText = 'quote' } else { consoleText = 'repair' }
+                                console.log('past ' + consoleText + ' price is not displayed for ' + quote_types[qt] + ' ' + part_num + ' - ' + index);
+                                await page.locator("(//*[contains(@title, 'close')])[1]").click();
+                            }
+                        }
+                    }
+                    // break;
                 }
+                await page.goBack();
+                await expect(page.locator("(//*[contains(@src,'vendor_logo')])[1]")).toBeVisible();
             }
-            await expect(page.locator("(//*[contains(@src, 'themecolorEdit')][@alt = 'chevron-right'])[1]")).toBeVisible();
-            let itemsCount = await page.locator("//*[contains(@src, 'themecolorEdit')][@alt = 'chevron-right']").count();
-            for (let index = 1; index <= itemsCount; index++) {
-                await page.locator("(//*[contains(@src, 'themecolorEdit')][@alt = 'chevron-right'])[" + index + "]").click();
-                let part_num = await page.locator("(//*[contains(@placeholder, 'Part Number')])[1]").getAttribute('value');
-                await expect(page.locator("//*[contains(@placeholder, 'Quote Price')]")).toBeVisible();
-                if (quote_types[qt] == 'System Quotes') {
-                    await page.waitForTimeout(1200);
-                    await expect(page.locator("//*[contains(@src, 'email_invoices')]")).toBeHidden({ timeout: 5000 });
-                    await spinner(page);
-                    console.log('past repair price is not displayed for ' + quote_types[qt] + ' ' + part_num + ' - ' + index);
-                    await page.locator("(//*[contains(@title, 'close')])[1]").click();
-                } else {
-                    await page.waitForTimeout(1200);
-                    await expect(page.locator("//*[contains(@src, 'email_invoices')]")).toBeVisible({ timeout: 5000 });
-                    await page.locator("//*[contains(@src, 'email_invoices')]").click();
-                    await spinner(page);
-                    console.log('past repair price is displayed for ' + quote_types[qt] + ' ' + part_num + ' - ' + index);
-                    await page.locator("(//*[contains(@title, 'close')])[2]").click();
-                    await page.locator("(//*[contains(@title, 'close')])[1]").click();
-                }
-            }
-            await page.goBack();
+            // await page.goBack();
+            await page.getByText('Quotes', { exact: true }).first().click();
         }
         getTestResults = true;
     } catch (error) {

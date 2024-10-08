@@ -100,6 +100,3 @@ module.exports = defineConfig({
   //   reuseExistingServer: !process.env.CI,
   // },
 });
-
-//sivadara17@gmail.com
-//siva2-hub1
