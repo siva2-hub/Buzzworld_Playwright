@@ -1,67 +1,122 @@
-
-[2mRunning [22m1[2m test using [22m1[2m worker[22m
-
-[31m  1) [chromium] › IIDM_Sprint_63.spec.js:32:1 › Repair Quote Clone [2m─────────────────────────────────[22m[39m
-
-    Error: locator.click: Target page, context or browser has been closed
-    Call log:
-      [2m- waiting for getByText('Select', { exact: true })[22m
-    [2m  -   locator resolved to <div class="react-select__placeholder css-mxwmeq-placeholder">Select</div>[22m
-    [2m  - attempting click action[22m
-    [2m  -   waiting for element to be visible, enabled and stable[22m
-    [2m  -   element is visible, enabled and stable[22m
-    [2m  -   scrolling into view if needed[22m
-    [2m  -   done scrolling[22m
-    [2m  -   <div class="react-select--is-disabled css-ta8joy-container">…</div> intercepts pointer events[22m
-    [2m  - retrying click action, attempt #1[22m
-    [2m  -   waiting for element to be visible, enabled and stable[22m
-    [2m  -   element is visible, enabled and stable[22m
-    [2m  -   scrolling into view if needed[22m
-    [2m  -   done scrolling[22m
-    [2m  -   <div class="react-select--is-disabled css-ta8joy-container">…</div> intercepts pointer events[22m
-    [2m  - retrying click action, attempt #2[22m
-    [2m  -   waiting 20ms[22m
-    [2m  -   waiting for element to be visible, enabled and stable[22m
-    [2m  -   element is visible, enabled and stable[22m
-    [2m  -   scrolling into view if needed[22m
-    [2m  -   done scrolling[22m
-    [2m  -   <div class="react-select--is-disabled css-ta8joy-container">…</div> intercepts pointer events[22m
-    [2m  - retrying click action, attempt #3[22m
-    [2m  -   waiting 100ms[22m
-    [2m  -   waiting for element to be visible, enabled and stable[22m
-    [2m  -   element is visible, enabled and stable[22m
-    [2m  -   scrolling into view if needed[22m
-    [2m  -   done scrolling[22m
-    [2m  -   <div class="react-select--is-disabled css-ta8joy-container">…</div> intercepts pointer events[22m
-    [2m  - retrying click action, attempt #4[22m
-    [2m  -   waiting 100ms[22m
-    [2m  -   waiting for element to be visible, enabled and stable[22m
-    [2m  -   element is visible, enabled and stable[22m
-    [2m  -   scrolling into view if needed[22m
-    [2m  -   done scrolling[22m
-    [2m  -   <div class="react-select--is-disabled css-ta8joy-container">…</div> intercepts pointer events[22m
-    [2m  - retrying click action, attempt #5[22m
-    [2m  -   waiting 500ms[22m
+-------------------------------------------------- [31m8/10/2024, 3:56:45 pm[0m --------------------------------------------------------
 
 
-    [90m   at [39mhelper.js:1381
+past repair price is displayed for Repair Quotes 2002-1404 - 1
 
-    [0m [90m 1379 |[39m     [36mawait[39m expect(page[33m.[39mgetByText(acc_num[33m,[39m { exact[33m:[39m [36mtrue[39m })[33m.[39mnth([35m1[39m))[33m.[39mtoBeVisible()[33m;[39m
-     [90m 1380 |[39m     [36mawait[39m page[33m.[39mgetByText(acc_num[33m,[39m { exact[33m:[39m [36mtrue[39m })[33m.[39mnth([35m1[39m)[33m.[39mclick()[33m;[39m
-    [31m[1m>[22m[39m[90m 1381 |[39m     [36mawait[39m page[33m.[39mgetByText([32m'Select'[39m[33m,[39m { exact[33m:[39m [36mtrue[39m })[33m.[39mclick()[33m;[39m
-     [90m      |[39m                                                     [31m[1m^[22m[39m
-     [90m 1382 |[39m     [36mawait[39m page[33m.[39mkeyboard[33m.[39minsertText(cont_name)[33m;[39m
-     [90m 1383 |[39m     [36mawait[39m page[33m.[39mgetByText(cont_name[33m,[39m { exact[33m:[39m [36mtrue[39m })[33m.[39mnth([35m1[39m)[33m.[39mclick()[33m;[39m
-     [90m 1384 |[39m     [36mawait[39m page[33m.[39mgetByRole([32m'button'[39m[33m,[39m { name[33m:[39m [32m'Create'[39m[33m,[39m exact[33m:[39m [36mtrue[39m })[33m.[39mclick()[33m;[39m[0m
-
-    [2m    at createRMA (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:1381:53)[22m
-    [2m    at cloneRepairQuote (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:1500:5)[22m
-    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/IIDM_Sprint_63.spec.js:34:13[22m
+Net Sales values are: $1.42,$2.33,$1.29,$2.25,$1.67
+past repair price is displayed for Repair Quotes 2002-1404 - 1
 
 
-[33m  Slow test file: [39m[chromium] › IIDM_Sprint_63.spec.js[33m (17.8s)[39m
-[33m  Consider splitting slow test files to speed up parallel execution[39m
-[31m  1 failed[39m
-[31m    [chromium] › IIDM_Sprint_63.spec.js:32:1 › Repair Quote Clone [2m──────────────────────────────────[22m[39m
+Net Sales values are: $1.42,$2.33,$1.29,$2.25,$1.67
+past repair price is displayed for Repair Quotes 2002-1404 - 1
 
-[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+Net Sales values are: $1.42,$2.33,$1.29,$2.25,$1.67
+past repair price is displayed for Repair Quotes 2002-1404 - 1
+
+
+Net Sales values are: $1.42,$2.33,$1.29,$2.25,$1.67
+past repair price is not displayed for Repair Quotes 12340-255F - 1
+
+past repair price is not displayed for Repair Quotes SJDHFBDJS - 1
+
+past repair price is not displayed for Repair Quotes 10-SYJ3123-1M-M3-F - 1
+
+past repair price is not displayed for Repair Quotes 10-SYJ3123-2LO-M3-F - 2
+
+past repair price is not displayed for Repair Quotes 10-SYJ3123-2LZD-M3-F - 3
+
+past repair price is displayed for Repair Quotes 22A-D4P0N104 - 1
+
+
+Net Sales values are: $495.21,$495.26,$495.32,$474.08,$498.33
+past repair price is displayed for Repair Quotes 22A-D4P0N104 - 2
+
+
+Net Sales values are: $495.21,$495.26,$495.32,$474.08,$498.33
+past repair price is displayed for Repair Quotes 22A-D4P0N104 - 3
+
+
+Net Sales values are: $495.21,$495.26,$495.32,$474.08,$498.33
+past repair price is displayed for Repair Quotes 3P500-495HF - 1
+
+
+Net Sales values are: $4,995.31
+past repair price is not displayed for Repair Quotes PN1234-1 - 1
+
+past repair price is not displayed for Repair Quotes PN1234-2 - 2
+
+past repair price is not displayed for Repair Quotes PN1234-3 - 3
+
+past repair price is displayed for Repair Quotes CMT2108X2 - 4
+
+
+Net Sales values are: $875.00
+past repair price is not displayed for Repair Quotes 10BB001-1000 - 1
+
+past repair price is not displayed for Repair Quotes TEST-123T - 1
+
+past repair price is not displayed for Repair Quotes 10D0001-1000 - 1
+
+past repair price is not displayed for Repair Quotes 10DDT01-0250 - 2
+
+past repair price is not displayed for Repair Quotes 10BB001-1000 - 3
+
+past repair price is not displayed for Repair Quotes 123413A-2 - 1
+
+past repair price is not displayed for Repair Quotes 123413A-2 - 1
+
+past repair price is not displayed for Repair Quotes 1234901TS-V - 1
+
+past repair price is not displayed for Repair Quotes 280-101 - 1
+
+past repair price is not displayed for Repair Quotes 106EE - 1
+
+past repair price is not displayed for Repair Quotes 5D56091G013 - 2
+
+past repair price is not displayed for Repair Quotes 106EE - 3
+
+past repair price is not displayed for Repair Quotes 0165009LIC - 1
+
+past repair price is not displayed for Repair Quotes 01230.9-00 - 2
+
+past repair price is not displayed for Repair Quotes NS23-TS01B-V2 - 3
+
+past repair price is not displayed for Repair Quotes 20G11ND040JA0NNNNN - 1
+
+past repair price is not displayed for Repair Quotes Type 83.02 - 2
+
+past repair price is not displayed for Repair Quotes 150-F201NBD - 1
+
+past repair price is not displayed for Repair Quotes 6LA20671 - 1
+
+past repair price is not displayed for Repair Quotes 25A-D017N104 - 2
+
+past repair price is not displayed for Repair Quotes 23t48732875t2875t82t35832t875 - 1
+
+past repair price is not displayed for Repair Quotes 23t48732875t2875t82t35832t875 - 2
+
+past repair price is not displayed for Repair Quotes 831-1204 - 1
+
+past repair price is not displayed for Repair Quotes 2002-1404 - 1
+
+past quote price is not displayed for System Quotes 05P00620-0123 - 1
+
+past quote price is not displayed for System Quotes 01230.9-00 - 2
+
+past quote price is not displayed for System Quotes  - 1
+
+past quote price is not displayed for System Quotes VA24-XXX-XX-01V4 - 2
+
+past quote price is not displayed for System Quotes 678456-TEST - 3
+
+past quote price is not displayed for System Quotes 123456-1 - 1
+
+past quote price is not displayed for System Quotes 123456-1 - 2
+
+past quote price is not displayed for System Quotes 123456-1 - 1
+
+past quote price is not displayed for System Quotes 123456-1 - 2
+
+past quote price is not displayed for System Quotes 002-2123-01 - 3
+
