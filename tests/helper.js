@@ -1401,7 +1401,7 @@ async function assignLocation(page) {
         await page.getByRole('button', { name: 'Update Location' }).click();
     }
 }
-async function itemsAddToEvaluation(page, stock_code, tech, repair_type) {
+async function itemsAddToEvaluation(page, stock_code, tech, repair_type, vendorCode, vendorName) {
     // for (let index = 0; index < stock_code.length; index++) {
     await page.getByText('Add Items').click();
     await page.getByPlaceholder('Search By Part Number').fill(stock_code);
@@ -1416,7 +1416,7 @@ async function itemsAddToEvaluation(page, stock_code, tech, repair_type) {
     }
     if (res) {
         //Add New Part
-        await add_new_part(page, stock_code);
+        await add_new_part(page, stock_code, vendorCode, vendorName);
     } else {
         await page.locator("//*[contains(@class,'data repair_grid')]/div/div/label").click();
         await page.getByRole('button', { name: 'Add Selected 1 Parts' }).click();
@@ -1544,11 +1544,11 @@ async function cloneRepairQuote(page, acc_num, cont_name, tech) {
         console.log(errorMessage)
     }
 }
-async function create_job_repairs(page, is_create_job, repTypes, acc_num, cont_name, stock_code, tech) {
+async function create_job_repairs(page, is_create_job, repTypes, acc_num, cont_name, stock_code, tech, vendorCode, vendorName) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     // let acc_num = 'ENGYS00', cont_name = 'Jannice Carrillo', stock_code = 'EW25-104-20';
     // let tech = 'Michael Strothers';
-    // await page.goto('https://www.staging-buzzworld.iidm.com/repair-request/11cb7a4a-6220-483b-8b6d-a55dc08e4f49');
+    // await page.goto('https://www.staging-buzzworld.iidm.com/quote_for_repair/98ef9068-8c80-491c-a00e-5fff869e8e60');
     let testResult;
     try {
         // Verifying Total Repairs Count
@@ -1565,11 +1565,9 @@ async function create_job_repairs(page, is_create_job, repTypes, acc_num, cont_n
         let repair_id = rep.replace("#", "");
         console.log('repair is created with id ', repair_id);
         console.log('repair url is ', await page.url());
-        console.log(repTypes)
-        await page.pause()
         //Add items to items evaluation in repair
         for (let index = 0; index < stock_code.length; index++) {
-            await itemsAddToEvaluation(page, stock_code[index], tech, repTypes[index])
+            await itemsAddToEvaluation(page, stock_code[index], tech, repTypes[index], vendorCode, vendorName)
             let lineNumber = await page.locator("(//*[@class='line-number'])[" + (index + 1) + "]")
             await expect(lineNumber).toBeVisible();
         }
@@ -1614,10 +1612,10 @@ async function create_job_repairs(page, is_create_job, repTypes, acc_num, cont_n
         await page.getByRole('button', { name: 'Won' }).click();
         await expect(page.locator('#root')).toContainText('Are you sure you want to mark it as approve ?');
         await page.getByRole('button', { name: 'Proceed' }).first().click();
+        await expect(page.locator("(//*[text()= 'Quote:'])")).toBeVisible();
         let itemsCount = await page.locator("(//*[text()= 'Quote:'])").count({ timeout: 2000 });
         console.log('Items Count is ', itemsCount);
-        // //Create Sales Order
-        await page.pause();
+        //Create Sales Order
         await expect(page.locator('#root')).toContainText('Create Sales Order');
         await page.getByText('Create Sales Order').click();
         await expect(page.getByPlaceholder('Enter PO Number')).toBeVisible();
@@ -1628,6 +1626,12 @@ async function create_job_repairs(page, is_create_job, repTypes, acc_num, cont_n
             console.log('error diplaying Item or Stock Code test at Create Sales Order Screen', error);
         }
         await page.getByPlaceholder('Enter PO Number').fill('543534534');
+        let fobTxt = await page.locator("(//*[contains(@class, 'react-select__value-container')])[2]").textContent();
+        if (fobTxt == 'Select FOB Point') {
+            await page.locator("//*[text()='Select FOB Point']").click();
+            await page.keyboard.insertText('Dest');
+            await page.keyboard.press('Enter');
+        }
         let ship_text = await page.locator("(//*[contains(@class, 'react-select__value-container')])[2]").textContent();
         if (ship_text == 'Select Shipping Instructions') {
             await page.getByText('Select Shipping Instructions').click();
@@ -1657,10 +1661,14 @@ async function create_job_repairs(page, is_create_job, repTypes, acc_num, cont_n
                 await page.getByRole('dialog').getByLabel('open').first().click();
                 await page.keyboard.press('Enter');
                 let desc = await page.getByPlaceholder('Enter Stock Description');
-                if (await desc.getAttribute('value') == '') {
-                    desc.fill('Manually Added');
-                } else {
+                if (await desc.getAttribute('value') == '') { desc.fill('Manually Added'); }
+                let manfg = await page.locator("(//*[contains(@class, 'react-select__value-container')])[6]").textContent()
+                if (manfg == 'Select supplier') {
+                    await page.locator("//*[text()='Select supplier']").click();
+                    await page.keyboard.insertText('omro');
+                    await page.keyboard.press('Enter');
                 }
+                await page.pause();
                 await page.getByRole('button', { name: 'Add' }).click();
                 await expect(page.locator("(//*[text() = 'Create Job'])[" + (w + 1) + "]")).toBeVisible();
                 await page.waitForTimeout(2000);
@@ -1758,7 +1766,7 @@ async function create_job_repairs(page, is_create_job, repTypes, acc_num, cont_n
         console.log('order created with id ', order_id);
         if (is_create_job == 'Y') {
             console.log("job selection checkbox is checked ", is_checked);
-            let job_id;
+            let job_id; await page.waitForTimeout(3000);
             if (itemsCount >= 1) {
                 job_id = await page.locator('(//*[@role = "presentation"])[8]');
             } else {
@@ -2327,14 +2335,18 @@ async function create_job_quotes(page, is_create_job, quoteType, acc_num, cont_n
     }
     return testResult;
 }
-async function add_new_part(page, stock_code) {
+async function add_new_part(page, stock_code, vendorCode, vendorName) {
     await page.getByRole('button', { name: '? Click here to add them' }).click();
     await expect(page.getByPlaceholder('Part Number')).toBeVisible();
     await page.getByPlaceholder('Part Number').fill(stock_code);
     await page.getByLabel('open').click();
-    await page.getByLabel('Manufacturer*').fill('omro001');
+    await page.getByLabel('Manufacturer*').fill(vendorCode);
     // await this.delay(2000);
-    await page.getByText('OMRON ELECTRONICS LLCOMRO001').first().click();
+    try {
+        await page.getByText(vendorName).first().click({ timeout: 4000 });
+    } catch (error) {
+
+    }
     await page.getByPlaceholder('Serial No').fill('SN797444');
     await page.getByPlaceholder('Description').fill('manually added');
     await page.getByRole('button', { name: 'Add New Part' }).click();
@@ -2921,7 +2933,7 @@ async function pos_report(page) {
 }
 async function past_repair_prices(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
-    let quote_types = ['Repair Quotes', 'System Quotes'];//'Parts Quotes',
+    let quote_types = ['Repair Quotes', 'Parts Quotes'];//'System Quotes',
     let getTestResults;
     try {
         await page.getByText('Quotes', { exact: true }).first().click();
@@ -2966,6 +2978,7 @@ async function past_repair_prices(page) {
                                 await page.locator("//*[contains(@src, 'email_invoices')]").click();
                                 if (quote_types[qt] == 'Parts Quotes') { await expect(page.locator("//*[text()='Past Quote Prices']")).toBeVisible(); }
                                 else { await expect(page.locator("//*[text()='Past Repair Prices']")).toBeVisible(); }
+                                let quotePrice = await page.locator("//*[@id='quote_price']").getAttribute('value');
                                 await page.waitForTimeout(1200);
                                 let pastRepairPricesCount = await page.locator("//*[@class='ag-center-cols-container']/div/div[2]").count();
                                 let values = [];
@@ -2976,6 +2989,7 @@ async function past_repair_prices(page) {
                                 if (quote_types[qt] == 'Parts Quotes') { consoleText = 'quote' } else { consoleText = 'repair' }
                                 console.log('past ' + consoleText + ' price is displayed for ' + quote_types[qt] + ' ' + part_num + ' - ' + index);
                                 console.log('Net Sales values are: ' + values);
+                                console.log('quote price is: '+quotePrice);
                                 await page.locator("(//*[contains(@title, 'close')])[2]").click();
                                 await page.locator("(//*[contains(@title, 'close')])[1]").click();
                             } catch (error) {

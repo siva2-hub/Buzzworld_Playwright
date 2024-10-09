@@ -1,122 +1,47 @@
--------------------------------------------------- [31m8/10/2024, 3:56:45 pm[0m --------------------------------------------------------
 
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+-------------------------------------------------- [31m9/10/2024, 4:50:25 pm[0m --------------------------------------------------------
 
 past repair price is displayed for Repair Quotes 2002-1404 - 1
 
+
+
 Net Sales values are: $1.42,$2.33,$1.29,$2.25,$1.67
+quote price is: 1.79
 past repair price is displayed for Repair Quotes 2002-1404 - 1
 
 
+
 Net Sales values are: $1.42,$2.33,$1.29,$2.25,$1.67
+quote price is: 1.42
 past repair price is displayed for Repair Quotes 2002-1404 - 1
 
 
+
 Net Sales values are: $1.42,$2.33,$1.29,$2.25,$1.67
+quote price is: 2.51
 past repair price is displayed for Repair Quotes 2002-1404 - 1
 
 
+
 Net Sales values are: $1.42,$2.33,$1.29,$2.25,$1.67
+quote price is: 12.00
+past repair price is displayed for Repair Quotes 2002-1404 - 1
+
+
+
+Net Sales values are: $1.42,$2.33,$1.29,$2.25,$1.67
+quote price is: 1.42
 past repair price is not displayed for Repair Quotes 12340-255F - 1
 
-past repair price is not displayed for Repair Quotes SJDHFBDJS - 1
+[31m  1) [chromium] › buzzworld_tests.spec.js:365:3 › all tests › verify past repair pricing icons [2m─────[22m[39m
 
-past repair price is not displayed for Repair Quotes 10-SYJ3123-1M-M3-F - 1
-
-past repair price is not displayed for Repair Quotes 10-SYJ3123-2LO-M3-F - 2
-
-past repair price is not displayed for Repair Quotes 10-SYJ3123-2LZD-M3-F - 3
-
-past repair price is displayed for Repair Quotes 22A-D4P0N104 - 1
+    [31mTest was interrupted.[39m
 
 
-Net Sales values are: $495.21,$495.26,$495.32,$474.08,$498.33
-past repair price is displayed for Repair Quotes 22A-D4P0N104 - 2
-
-
-Net Sales values are: $495.21,$495.26,$495.32,$474.08,$498.33
-past repair price is displayed for Repair Quotes 22A-D4P0N104 - 3
-
-
-Net Sales values are: $495.21,$495.26,$495.32,$474.08,$498.33
-past repair price is displayed for Repair Quotes 3P500-495HF - 1
-
-
-Net Sales values are: $4,995.31
-past repair price is not displayed for Repair Quotes PN1234-1 - 1
-
-past repair price is not displayed for Repair Quotes PN1234-2 - 2
-
-past repair price is not displayed for Repair Quotes PN1234-3 - 3
-
-past repair price is displayed for Repair Quotes CMT2108X2 - 4
-
-
-Net Sales values are: $875.00
-past repair price is not displayed for Repair Quotes 10BB001-1000 - 1
-
-past repair price is not displayed for Repair Quotes TEST-123T - 1
-
-past repair price is not displayed for Repair Quotes 10D0001-1000 - 1
-
-past repair price is not displayed for Repair Quotes 10DDT01-0250 - 2
-
-past repair price is not displayed for Repair Quotes 10BB001-1000 - 3
-
-past repair price is not displayed for Repair Quotes 123413A-2 - 1
-
-past repair price is not displayed for Repair Quotes 123413A-2 - 1
-
-past repair price is not displayed for Repair Quotes 1234901TS-V - 1
-
-past repair price is not displayed for Repair Quotes 280-101 - 1
-
-past repair price is not displayed for Repair Quotes 106EE - 1
-
-past repair price is not displayed for Repair Quotes 5D56091G013 - 2
-
-past repair price is not displayed for Repair Quotes 106EE - 3
-
-past repair price is not displayed for Repair Quotes 0165009LIC - 1
-
-past repair price is not displayed for Repair Quotes 01230.9-00 - 2
-
-past repair price is not displayed for Repair Quotes NS23-TS01B-V2 - 3
-
-past repair price is not displayed for Repair Quotes 20G11ND040JA0NNNNN - 1
-
-past repair price is not displayed for Repair Quotes Type 83.02 - 2
-
-past repair price is not displayed for Repair Quotes 150-F201NBD - 1
-
-past repair price is not displayed for Repair Quotes 6LA20671 - 1
-
-past repair price is not displayed for Repair Quotes 25A-D017N104 - 2
-
-past repair price is not displayed for Repair Quotes 23t48732875t2875t82t35832t875 - 1
-
-past repair price is not displayed for Repair Quotes 23t48732875t2875t82t35832t875 - 2
-
-past repair price is not displayed for Repair Quotes 831-1204 - 1
-
-past repair price is not displayed for Repair Quotes 2002-1404 - 1
-
-past quote price is not displayed for System Quotes 05P00620-0123 - 1
-
-past quote price is not displayed for System Quotes 01230.9-00 - 2
-
-past quote price is not displayed for System Quotes  - 1
-
-past quote price is not displayed for System Quotes VA24-XXX-XX-01V4 - 2
-
-past quote price is not displayed for System Quotes 678456-TEST - 3
-
-past quote price is not displayed for System Quotes 123456-1 - 1
-
-past quote price is not displayed for System Quotes 123456-1 - 2
-
-past quote price is not displayed for System Quotes 123456-1 - 1
-
-past quote price is not displayed for System Quotes 123456-1 - 2
-
-past quote price is not displayed for System Quotes 002-2123-01 - 3
+[33m  Slow test file: [39m[chromium] › buzzworld_tests.spec.js[33m (1.6m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[33m  1 interrupted[39m
+[33m    [chromium] › buzzworld_tests.spec.js:365:3 › all tests › verify past repair pricing icons [2m──────[22m[39m
 
