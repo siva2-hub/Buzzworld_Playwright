@@ -2983,7 +2983,7 @@ async function past_repair_prices(page) {
                                 let pastRepairPricesCount = await page.locator("//*[@class='ag-center-cols-container']/div/div[2]").count();
                                 let values = [];
                                 for (let i = 1; i <= pastRepairPricesCount; i++) {
-                                    values.push(await page.locator("(//*[@class='ag-center-cols-container']/div/div[2])[" + i + "]").textContent())
+                                    values.push(await page.locator("(//*[@data-placement='top-end']/div[2]/div/div[2]/div/div[2])[" + i + "]").textContent())
                                 }
                                 let consoleText;
                                 if (quote_types[qt] == 'Parts Quotes') { consoleText = 'quote' } else { consoleText = 'repair' }
