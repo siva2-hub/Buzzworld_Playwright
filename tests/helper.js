@@ -2953,7 +2953,7 @@ async function past_repair_prices(page) {
             await page.getByRole('button', { name: 'Apply' }).click();
             // await spinner(page);
             await expect(page.locator("(//*[contains(@src,'vendor_logo')])[1]")).toBeVisible();
-            await page.waitForTimeout(1200);
+            await page.waitForTimeout(1200); let custName;
             let gt = await page.locator("//*[@class='ag-center-cols-container']/div/div[9]").count();
             for (let index = 1; index <= gt; index++) {
                 let price = await page.locator("(//*[@class='ag-center-cols-container']/div/div[9])[" + index + "]").textContent();
@@ -2966,10 +2966,11 @@ async function past_repair_prices(page) {
                         await page.locator("(//*[contains(@src, 'themecolorEdit')][@alt = 'chevron-right'])[" + index + "]").click();
                         let part_num = await page.locator("(//*[contains(@placeholder, 'Part Number')])[1]").getAttribute('value');
                         await expect(page.locator("//*[contains(@placeholder, 'Quote Price')]")).toBeVisible();
+                        custName = await page.locator("//*[@class='repair-name']").textContent();
                         if (quote_types[qt] == 'System Quotes') {
                             await page.waitForTimeout(1200);
                             await expect(page.locator("//*[contains(@src, 'email_invoices')]")).toBeHidden({ timeout: 5000 });
-                            console.log('past quote price is not displayed for ' + quote_types[qt] + ' ' + part_num + ' - ' + index);
+                            console.log('past quote price is not displayed for ' + quote_types[qt] + ' ' + part_num + ' - ' + index + " customer is: " + custName);
                             await page.locator("(//*[contains(@title, 'close')])[1]").click();
                         } else {
                             await page.waitForTimeout(1200);
@@ -2987,15 +2988,15 @@ async function past_repair_prices(page) {
                                 }
                                 let consoleText;
                                 if (quote_types[qt] == 'Parts Quotes') { consoleText = 'quote' } else { consoleText = 'repair' }
-                                console.log('past ' + consoleText + ' price is displayed for ' + quote_types[qt] + ' ' + part_num + ' - ' + index);
+                                console.log('past ' + consoleText + ' price is displayed for ' + quote_types[qt] + ' ' + part_num + ' - ' + index + ' - ' + index + " customer is: " + custName);
                                 console.log('Net Sales values are: ' + values);
-                                console.log('quote price is: '+quotePrice);
+                                console.log('quote price is: ' + quotePrice);
                                 await page.locator("(//*[contains(@title, 'close')])[2]").click();
                                 await page.locator("(//*[contains(@title, 'close')])[1]").click();
                             } catch (error) {
                                 let consoleText;
                                 if (quote_types[qt] == 'Parts Quotes') { consoleText = 'quote' } else { consoleText = 'repair' }
-                                console.log('past ' + consoleText + ' price is not displayed for ' + quote_types[qt] + ' ' + part_num + ' - ' + index);
+                                console.log('past ' + consoleText + ' price is not displayed for ' + quote_types[qt] + ' ' + part_num + ' - ' + index + ' - ' + index + " customer is: " + custName);
                                 await page.locator("(//*[contains(@title, 'close')])[1]").click();
                             }
                         }
@@ -16884,6 +16885,76 @@ async function salesOrderVerification(page) {
         }
     }
 }
+async function spaNewItemImport(page, fileName, b_s_Side) {
+    let spaData = await read_excel_data('/home/enterpi/Downloads/' + fileName + '', 0);// read import file
+    let spaNewItemsCount = spaData.length;
+    console.log('test pricing list rows count is ', spaNewItemsCount);
+    const workbook = new ExcelJS.Workbook(); let newItem = [], listPrice = [], discountPer = [];
+    await workbook.xlsx.readFile('test_pricing.xlsx');
+    for (let index = 0; index < spaNewItemsCount; index++) {
+        //test_priding file Sheet2 Data
+        newItem.push(spaData[index]['Item']);
+        listPrice.push(spaData[index]['Fixed Price']);
+        discountPer.push(spaData[index]['% Discount Off List']);
+    }
+    let results, cardItems; // console.log(newItem.join(', ')); 
+    await page.click("(//*[contains(text(), 'Pricing')])[1]")
+    await page.getByRole('menuitem', { name: 'Non Standard Pricing' }).click();
+    await expect(page.locator('.spa-delete').first()).toBeVisible();
+    await page.locator('div').filter({ hasText: /^Configure$/ }).getByRole('button').nth(2).click();
+    await page.getByRole('menuitem', { name: 'Import '+b_s_Side+' Side Data' }).click();
+    await expect(page.getByText('Sample File')).toBeVisible();
+    await page.setInputFiles("//*[contains(@type, 'file')]", '/home/enterpi/Downloads/' + fileName + '')
+    await page.waitForTimeout(1200)
+    await expect(page.getByRole('dialog')).toContainText(fileName);
+    await expect(page.getByText('File Uploaded')).toBeVisible();
+    await page.getByRole('dialog').getByRole('button', { name: 'Proceed' }).click();
+    try {
+        await expect(page.getByText('ProceedSkip & Proceed')).toBeVisible();
+        await expect(page.getByRole('dialog')).toContainText('Stock codes/Discount Codes doesnot exist.');
+        await page.getByRole('dialog').getByRole('button', { name: 'Proceed', exact: true }).click();
+        await delay(page, 2000)
+        await expect(page.locator("//*[text()='Okay']")).toBeEnabled()
+        await page.locator("//*[text()='Okay']").click()
+        await page.reload(); await page.reload(); await page.reload(); await delay(page, 4000)
+        await page.reload(); await delay(page, 2000)
+        cardItems = await page.locator("(//*[@style='padding: unset;'])/div/div[1]/*[1]/*[4]").textContent();
+        // if (cardItems === 'Items:' + newItem.join(', ')) {
+        //     await page.locator("(//*[@style='padding: unset;'])/div/div[1]/*[1]/*[4]").click();
+        //     await expect(page.locator("(//*[text()='more'])[1]")).toBeHidden(); await delay(page, 1200);
+        //     let rows = await page.locator("(//*[@class='ag-center-cols-container'])/*/*[3]");
+        //     if (await rows.count() > 0) {
+        //         for (let i = 0; i < await rows.count(); i++) {
+        //             let gridPart = await rows.nth(i).textContent();
+        //             if (gridPart === newItem[i]) {
+        //                 let gridListPrice = await page.locator("(//*[@class='ag-center-cols-container'])/*/*[5]").textContent().replace("$", "");
+        //                 if (listPrice[i] === gridListPrice) {
+        //                     let purchDiscount = await page.locator("(//*[@class='ag-center-cols-container'])/*/*[8]").textContent();
+        //                     let markupDiscount = await page.locator("(//*[@class='ag-center-cols-container'])/*/*[10]").textContent();
+        //                     if (purchDiscount != 0 || purchDiscount != 0.0) {
+        //                         console.log('discount percentage at file ' + discountPer)
+        //                         console.log('discount percentage at grid ' + purchDiscount)
+        //                     } else {
+        //                         console.log('discount percentage at file ' + discountPer)
+        //                         console.log('discount percentage at grid ' + markupDiscount)
+        //                     }
+        //                 }
+        //             } else {
+        //                 console.log('list prices not match.')
+        //             }
+        //         }
+        //         await page.pause();
+        //     }
+        //     results = true;
+        // } else {
+        //     console.log(cardItems)
+        //     results = false;
+        // }
+    } catch (error) {
+        results = false;
+    }
+    return results;
+}
 module.exports = {
     checkout_page,
     order_summary_page,
@@ -16962,5 +17033,6 @@ module.exports = {
     quoteTotalDisplaysZero,
     displayNCNRatItemsPage,
     salesOrderVerification,
-    cloneRepairQuote
+    cloneRepairQuote,
+    spaNewItemImport
 };
