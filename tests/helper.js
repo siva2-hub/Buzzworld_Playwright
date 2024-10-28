@@ -16902,7 +16902,7 @@ async function spaNewItemImport(page, fileName, b_s_Side) {
     await page.getByRole('menuitem', { name: 'Non Standard Pricing' }).click();
     await expect(page.locator('.spa-delete').first()).toBeVisible();
     await page.locator('div').filter({ hasText: /^Configure$/ }).getByRole('button').nth(2).click();
-    await page.getByRole('menuitem', { name: 'Import '+b_s_Side+' Side Data' }).click();
+    await page.getByRole('menuitem', { name: 'Import ' + b_s_Side + ' Side Data' }).click();
     await expect(page.getByText('Sample File')).toBeVisible();
     await page.setInputFiles("//*[contains(@type, 'file')]", '/home/enterpi/Downloads/' + fileName + '')
     await page.waitForTimeout(1200)
@@ -16919,39 +16919,41 @@ async function spaNewItemImport(page, fileName, b_s_Side) {
         await page.reload(); await page.reload(); await page.reload(); await delay(page, 4000)
         await page.reload(); await delay(page, 2000)
         cardItems = await page.locator("(//*[@style='padding: unset;'])/div/div[1]/*[1]/*[4]").textContent();
-        // if (cardItems === 'Items:' + newItem.join(', ')) {
-        //     await page.locator("(//*[@style='padding: unset;'])/div/div[1]/*[1]/*[4]").click();
-        //     await expect(page.locator("(//*[text()='more'])[1]")).toBeHidden(); await delay(page, 1200);
-        //     let rows = await page.locator("(//*[@class='ag-center-cols-container'])/*/*[3]");
-        //     if (await rows.count() > 0) {
-        //         for (let i = 0; i < await rows.count(); i++) {
-        //             let gridPart = await rows.nth(i).textContent();
-        //             if (gridPart === newItem[i]) {
-        //                 let gridListPrice = await page.locator("(//*[@class='ag-center-cols-container'])/*/*[5]").textContent().replace("$", "");
-        //                 if (listPrice[i] === gridListPrice) {
-        //                     let purchDiscount = await page.locator("(//*[@class='ag-center-cols-container'])/*/*[8]").textContent();
-        //                     let markupDiscount = await page.locator("(//*[@class='ag-center-cols-container'])/*/*[10]").textContent();
-        //                     if (purchDiscount != 0 || purchDiscount != 0.0) {
-        //                         console.log('discount percentage at file ' + discountPer)
-        //                         console.log('discount percentage at grid ' + purchDiscount)
-        //                     } else {
-        //                         console.log('discount percentage at file ' + discountPer)
-        //                         console.log('discount percentage at grid ' + markupDiscount)
-        //                     }
-        //                 }
-        //             } else {
-        //                 console.log('list prices not match.')
-        //             }
-        //         }
-        //         await page.pause();
-        //     }
-        //     results = true;
-        // } else {
-        //     console.log(cardItems)
-        //     results = false;
-        // }
+        let productCount = await page.locator("(//*[@style='padding: unset;'])/div/div[1]/*[2]/*[2]").textContent();
+        if ('' + productCount.replace(' Products', '') + '' === '' + spaNewItemsCount + '') {
+            //     await page.locator("(//*[@style='padding: unset;'])/div/div[1]/*[1]/*[4]").click();
+            //     await expect(page.locator("(//*[text()='more'])[1]")).toBeHidden(); await delay(page, 1200);
+            //     let rows = await page.locator("(//*[@class='ag-center-cols-container'])/*/*[3]");
+            //     if (await rows.count() > 0) {
+            //         for (let i = 0; i < await rows.count(); i++) {
+            //             let gridPart = await rows.nth(i).textContent();
+            //             if (gridPart === newItem[i]) {
+            //                 let gridListPrice = await page.locator("(//*[@class='ag-center-cols-container'])/*/*[5]").textContent().replace("$", "");
+            //                 if (listPrice[i] === gridListPrice) {
+            //                     let purchDiscount = await page.locator("(//*[@class='ag-center-cols-container'])/*/*[8]").textContent();
+            //                     let markupDiscount = await page.locator("(//*[@class='ag-center-cols-container'])/*/*[10]").textContent();
+            //                     if (purchDiscount != 0 || purchDiscount != 0.0) {
+            //                         console.log('discount percentage at file ' + discountPer)
+            //                         console.log('discount percentage at grid ' + purchDiscount)
+            //                     } else {
+            //                         console.log('discount percentage at file ' + discountPer)
+            //                         console.log('discount percentage at grid ' + markupDiscount)
+            //                     }
+            //                 }
+            //             } else {
+            //                 console.log('list prices not match.')
+            //             }
+            //         }
+            //         await page.pause();
+            //     }
+            results = true;
+        } else {
+            console.log(cardItems)
+            results = false;
+        }
     } catch (error) {
         results = false;
+        console.log(error)
     }
     return results;
 }

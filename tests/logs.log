@@ -256,3 +256,113 @@ Items:209-566/000-005, 280-597, 2016-1304, 209-833, 283-301, 750-978/000-022, 75
 [33m  Consider splitting slow test files to speed up parallel execution[39m
 [32m  1 passed[39m[2m (38.6s)[22m
 
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+test pricing list rows count is  4
+
+
+[33m  Slow test file: [39m[chromium] › IIDM_Sprint_63.spec.js[33m (23.3s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (39.0s)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+test pricing list rows count is  4
+
+
+[33m  Slow test file: [39m[chromium] › IIDM_Sprint_63.spec.js[33m (23.4s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (38.1s)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+test pricing list rows count is  4
+
+[32mSPA New Item Import Test Passed![0m
+
+[33m  Slow test file: [39m[chromium] › IIDM_Sprint_63.spec.js[33m (23.3s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (38.0s)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+test pricing list rows count is  4
+
+Items:2000-1401, 1234-TEST123, 1234-TEST124, 2000-1304
+
+
+[33m  Slow test file: [39m[chromium] › IIDM_Sprint_63.spec.js[33m (23.2s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (38.1s)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+test pricing list rows count is  4
+
+Items:2000-1401, 1234-TEST123, 1234-TEST124, 2000-1304
+
+
+[33m  Slow test file: [39m[chromium] › IIDM_Sprint_63.spec.js[33m (23.4s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (37.9s)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+test pricing list rows count is  4
+
+
+4 Products
+
+Items:2000-1401, 1234-TEST123, 1234-TEST124, 2000-1304
+
+[33m  Slow test file: [39m[chromium] › IIDM_Sprint_63.spec.js[33m (23.4s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (37.8s)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+test pricing list rows count is  4
+
+
+2
+
+Items:63856385BVUG854Y4, 331E10Y7
+
+[33m  Slow test file: [39m[chromium] › IIDM_Sprint_63.spec.js[33m (23.2s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (42.7s)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+test pricing list rows count is  4
+
+
+after adding both counted values: 24
+
+Items:63856385BVUG854Y4, 331E10Y7
+
+[33m  Slow test file: [39m[chromium] › IIDM_Sprint_63.spec.js[33m (23.3s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (40.2s)[22m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+test pricing list rows count is  4
+
+after adding both counted values: 44
+
+
+[32mSPA New Item Import Test Passed![0m
+[33m  Slow test file: [39m[chromium] › IIDM_Sprint_63.spec.js[33m (23.3s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (37.8s)[22m
+
