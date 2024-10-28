@@ -37,7 +37,7 @@ test('Repair Quote Clone', async ({ }, testInfo) => {
 });
 test('SPA New Item Import', async ({ }, testInfo) => {
   // 1729698356.xlsx,  1729698374.xlsx, Buy, Sell
-  let fileName = '1729698356.xlsx', s_b_Side = 'Buy';
+  let fileName = 'sample_buy_side_file_new_item.csv', s_b_Side = 'Sell';
   results = await spaNewItemImport(page, fileName, s_b_Side);
   let testName = testInfo.title;
   await returnResult(page, testName, results);
