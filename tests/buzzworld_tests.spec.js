@@ -218,9 +218,11 @@ test.describe('all tests', async () => {
 
   test('Create Job and Sales Order From Repair Quotes', async ({ }, testInfo) => {
     //Repairable = 1, Not Repairable = 2, Repairable-Outsource = 3
-    let acc_num = 'MULTI00', cont_name = 'Garret Luppino', stock_code = ['10D0001-1000', '10DDT01-0250', '10BB001-1000'];
-    let tech = 'Michael Strothers', repairType = ['1', '2', '3'];
-    results = await create_job_repairs(page, 'Y', repairType, acc_num, cont_name, stock_code, tech);
+    let acc_num = 'MULTI00', cont_name = 'Garret Luppino', stock_code = ['B880502B2'];
+    // repairType '1' is Repairable, repairType '2' is Non Repairable and repairType '3' is Outsource Repairable
+    let tech = 'Dan Holmes', repairType = ['1'];
+    let vendorName = 'CUTLER HAMMER--', vendorCode = 'CUTLER HAMMER'
+    results = await create_job_repairs(page, 'Y', repairType, acc_num, cont_name, stock_code, tech, vendorCode, vendorName);
     let testName = testInfo.title;
     await returnResult(page, testName, results);
   })

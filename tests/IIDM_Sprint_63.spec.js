@@ -1,5 +1,5 @@
 const { test, devices, expect } = require("@playwright/test");
-const { itemNotesLineBreaks, verifySPAExpiryMails, returnResult, setScreenSize, login_buzz, addTerritoryToZipcodes, defaultTurnAroundTime, getImages, orgSearchLoginAsClient, loginAsClient, quoteTotalDisplaysZero, displayNCNRatItemsPage, salesOrderVerification,  cloneRepairQuote } = require("./helper");
+const { itemNotesLineBreaks, verifySPAExpiryMails, returnResult, setScreenSize, login_buzz, addTerritoryToZipcodes, defaultTurnAroundTime, getImages, orgSearchLoginAsClient, loginAsClient, quoteTotalDisplaysZero, displayNCNRatItemsPage, salesOrderVerification, cloneRepairQuote, spaNewItemImport } = require("./helper");
 const exp = require("constants");
 const testdata = JSON.parse(JSON.stringify(require("../testdata.json")));
 // const stage_url = testdata.urls.buzz_dev_url;
@@ -32,6 +32,13 @@ test('8 series sales order verification', async ({ }, testInfo) => {
 test('Repair Quote Clone', async ({ }, testInfo) => {
   let acc_num = 'MULTI00', cont_name = 'Garret Luppino', tech = 'Michael Strothers';
   results = await cloneRepairQuote(page, acc_num, cont_name, tech);
+  let testName = testInfo.title;
+  await returnResult(page, testName, results);
+});
+test('SPA New Item Import', async ({ }, testInfo) => {
+  // BUYSIDE.xlsx,  SELLSIDE.xlsx, Buy, Sell
+  let fileName = 'sample_buy_side_file_new_item.csv', s_b_Side = 'Sell';
+  results = await spaNewItemImport(page, fileName, s_b_Side, context);
   let testName = testInfo.title;
   await returnResult(page, testName, results);
 });

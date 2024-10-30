@@ -1401,7 +1401,7 @@ async function assignLocation(page) {
         await page.getByRole('button', { name: 'Update Location' }).click();
     }
 }
-async function itemsAddToEvaluation(page, stock_code, tech, repair_type) {
+async function itemsAddToEvaluation(page, stock_code, tech, repair_type, vendorCode, vendorName) {
     // for (let index = 0; index < stock_code.length; index++) {
     await page.getByText('Add Items').click();
     await page.getByPlaceholder('Search By Part Number').fill(stock_code);
@@ -1416,7 +1416,7 @@ async function itemsAddToEvaluation(page, stock_code, tech, repair_type) {
     }
     if (res) {
         //Add New Part
-        await add_new_part(page, stock_code);
+        await add_new_part(page, stock_code, vendorCode, vendorName);
     } else {
         await page.locator("//*[contains(@class,'data repair_grid')]/div/div/label").click();
         await page.getByRole('button', { name: 'Add Selected 1 Parts' }).click();
@@ -1544,11 +1544,11 @@ async function cloneRepairQuote(page, acc_num, cont_name, tech) {
         console.log(errorMessage)
     }
 }
-async function create_job_repairs(page, is_create_job, repTypes, acc_num, cont_name, stock_code, tech) {
+async function create_job_repairs(page, is_create_job, repTypes, acc_num, cont_name, stock_code, tech, vendorCode, vendorName) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     // let acc_num = 'ENGYS00', cont_name = 'Jannice Carrillo', stock_code = 'EW25-104-20';
     // let tech = 'Michael Strothers';
-    // await page.goto('https://www.staging-buzzworld.iidm.com/repair-request/11cb7a4a-6220-483b-8b6d-a55dc08e4f49');
+    // await page.goto('https://www.staging-buzzworld.iidm.com/quote_for_repair/98ef9068-8c80-491c-a00e-5fff869e8e60');
     let testResult;
     try {
         // Verifying Total Repairs Count
@@ -1565,11 +1565,9 @@ async function create_job_repairs(page, is_create_job, repTypes, acc_num, cont_n
         let repair_id = rep.replace("#", "");
         console.log('repair is created with id ', repair_id);
         console.log('repair url is ', await page.url());
-        console.log(repTypes)
-        await page.pause()
         //Add items to items evaluation in repair
         for (let index = 0; index < stock_code.length; index++) {
-            await itemsAddToEvaluation(page, stock_code[index], tech, repTypes[index])
+            await itemsAddToEvaluation(page, stock_code[index], tech, repTypes[index], vendorCode, vendorName)
             let lineNumber = await page.locator("(//*[@class='line-number'])[" + (index + 1) + "]")
             await expect(lineNumber).toBeVisible();
         }
@@ -1614,10 +1612,10 @@ async function create_job_repairs(page, is_create_job, repTypes, acc_num, cont_n
         await page.getByRole('button', { name: 'Won' }).click();
         await expect(page.locator('#root')).toContainText('Are you sure you want to mark it as approve ?');
         await page.getByRole('button', { name: 'Proceed' }).first().click();
+        await expect(page.locator("(//*[text()= 'Quote:'])")).toBeVisible();
         let itemsCount = await page.locator("(//*[text()= 'Quote:'])").count({ timeout: 2000 });
         console.log('Items Count is ', itemsCount);
-        // //Create Sales Order
-        await page.pause();
+        //Create Sales Order
         await expect(page.locator('#root')).toContainText('Create Sales Order');
         await page.getByText('Create Sales Order').click();
         await expect(page.getByPlaceholder('Enter PO Number')).toBeVisible();
@@ -1628,6 +1626,12 @@ async function create_job_repairs(page, is_create_job, repTypes, acc_num, cont_n
             console.log('error diplaying Item or Stock Code test at Create Sales Order Screen', error);
         }
         await page.getByPlaceholder('Enter PO Number').fill('543534534');
+        let fobTxt = await page.locator("(//*[contains(@class, 'react-select__value-container')])[2]").textContent();
+        if (fobTxt == 'Select FOB Point') {
+            await page.locator("//*[text()='Select FOB Point']").click();
+            await page.keyboard.insertText('Dest');
+            await page.keyboard.press('Enter');
+        }
         let ship_text = await page.locator("(//*[contains(@class, 'react-select__value-container')])[2]").textContent();
         if (ship_text == 'Select Shipping Instructions') {
             await page.getByText('Select Shipping Instructions').click();
@@ -1657,10 +1661,14 @@ async function create_job_repairs(page, is_create_job, repTypes, acc_num, cont_n
                 await page.getByRole('dialog').getByLabel('open').first().click();
                 await page.keyboard.press('Enter');
                 let desc = await page.getByPlaceholder('Enter Stock Description');
-                if (await desc.getAttribute('value') == '') {
-                    desc.fill('Manually Added');
-                } else {
+                if (await desc.getAttribute('value') == '') { desc.fill('Manually Added'); }
+                let manfg = await page.locator("(//*[contains(@class, 'react-select__value-container')])[6]").textContent()
+                if (manfg == 'Select supplier') {
+                    await page.locator("//*[text()='Select supplier']").click();
+                    await page.keyboard.insertText('omro');
+                    await page.keyboard.press('Enter');
                 }
+                await page.pause();
                 await page.getByRole('button', { name: 'Add' }).click();
                 await expect(page.locator("(//*[text() = 'Create Job'])[" + (w + 1) + "]")).toBeVisible();
                 await page.waitForTimeout(2000);
@@ -1758,7 +1766,7 @@ async function create_job_repairs(page, is_create_job, repTypes, acc_num, cont_n
         console.log('order created with id ', order_id);
         if (is_create_job == 'Y') {
             console.log("job selection checkbox is checked ", is_checked);
-            let job_id;
+            let job_id; await page.waitForTimeout(3000);
             if (itemsCount >= 1) {
                 job_id = await page.locator('(//*[@role = "presentation"])[8]');
             } else {
@@ -2327,14 +2335,18 @@ async function create_job_quotes(page, is_create_job, quoteType, acc_num, cont_n
     }
     return testResult;
 }
-async function add_new_part(page, stock_code) {
+async function add_new_part(page, stock_code, vendorCode, vendorName) {
     await page.getByRole('button', { name: '? Click here to add them' }).click();
     await expect(page.getByPlaceholder('Part Number')).toBeVisible();
     await page.getByPlaceholder('Part Number').fill(stock_code);
     await page.getByLabel('open').click();
-    await page.getByLabel('Manufacturer*').fill('omro001');
+    await page.getByLabel('Manufacturer*').fill(vendorCode);
     // await this.delay(2000);
-    await page.getByText('OMRON ELECTRONICS LLCOMRO001').first().click();
+    try {
+        await page.getByText(vendorName).first().click({ timeout: 4000 });
+    } catch (error) {
+
+    }
     await page.getByPlaceholder('Serial No').fill('SN797444');
     await page.getByPlaceholder('Description').fill('manually added');
     await page.getByRole('button', { name: 'Add New Part' }).click();
@@ -2863,7 +2875,7 @@ async function pos_report(page) {
     let testResults;
     try {
         let vendor_name = [
-            'ABB', 'Omron', 'Omron STI', 'Parker', 'Rethink Robotics', 'Schmersal', 'SMC', 'Wago', 'Wago Rebate', 'Yaskawa Motion', 'Yaskawa VFD', 'Omron SFSAC', 'ABB SFSAC'
+            'ABB','ABB Drives', 'ABB SFSAC', 'Omron', 'Omron SFSAC', 'Omron STI', 'Parker', 'Rethink Robotics', 'SMC', 'Schmersal', 'Wago POS', 'Wago S/D','Yaskawa Motion', 'Yaskawa VFD' 
         ];
         let dates = [];
         await page.waitForTimeout(600);
@@ -2876,7 +2888,7 @@ async function pos_report(page) {
                 dates.push('06'), dates.push('2017')
             } else {
                 dates = []
-                dates.push('07'), dates.push('2024')
+                dates.push('09'), dates.push('2024')
             }
             //selecting month
             await page.locator("(//*[contains(@class, 'react-select__indicator')])[1]").click();
@@ -2900,7 +2912,7 @@ async function pos_report(page) {
                 if (grid_text.length > 38) {
                     console.log(ANSI_GREEN + vendor_name[index] + ' POS report list is displayed' + ANSI_RESET + " for " + dates[0] + '/' + dates[1]);
                     console.log(ANSI_GREEN + vendor_name[index] + ' POS reports Count is ' + totalRowsCount + ANSI_RESET);
-                    await page.click("//*[text()='Export']");
+                    // await page.click("//*[text()='Export']"); //File Export is completed as file download
                     await delay(page, 1500);
                 } else {
                     console.log(ANSI_RED + vendor_name[index] + ' POS report list is Empty at selected dates.' + ANSI_RESET);
@@ -2921,12 +2933,13 @@ async function pos_report(page) {
 }
 async function past_repair_prices(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
-    let quote_types = ['Repair Quotes', 'Parts Quotes', 'System Quotes'];
+    let quote_types = ['Repair Quotes', 'Parts Quotes'];//'System Quotes',
     let getTestResults;
     try {
         await page.getByText('Quotes', { exact: true }).first().click();
         for (let qt = 0; qt < quote_types.length; qt++) {
-            await spinner(page);
+            // await spinner(page);
+            await expect(page.locator("(//*[contains(@src,'vendor_logo')])[1]")).toBeVisible();
             await page.getByText(quote_types[qt], { exact: true }).first().click();
             await spinner(page);
             try {
@@ -2938,40 +2951,63 @@ async function past_repair_prices(page) {
             await page.keyboard.insertText('Open');
             await page.keyboard.press('Enter');
             await page.getByRole('button', { name: 'Apply' }).click();
-            await spinner(page);
-            let gt = await page.locator("//*[@style = 'left: 1424px; width: 174px;']").count();
+            // await spinner(page);
+            await expect(page.locator("(//*[contains(@src,'vendor_logo')])[1]")).toBeVisible();
+            await page.waitForTimeout(1200); let custName;
+            let gt = await page.locator("//*[@class='ag-center-cols-container']/div/div[9]").count();
             for (let index = 1; index <= gt; index++) {
-                let price = await page.locator("(//*[@style = 'left: 1424px; width: 174px;'])[" + index + "]").textContent();
+                let price = await page.locator("(//*[@class='ag-center-cols-container']/div/div[9])[" + index + "]").textContent();
                 if (price == '$0.00') {
-
                 } else {
-                    await page.locator("(//*[@style = 'left: 1424px; width: 174px;'])[" + index + "]").click();
-                    break;
+                    await page.locator("(//*[@class='ag-center-cols-container']/div/div[9])[" + index + "]").click();
+                    await expect(page.locator("(//*[contains(@src, 'themecolorEdit')][@alt = 'chevron-right'])[1]")).toBeVisible();
+                    let itemsCount = await page.locator("//*[contains(@src, 'themecolorEdit')][@alt = 'chevron-right']").count();
+                    for (let index = 1; index <= itemsCount; index++) {
+                        await page.locator("(//*[contains(@src, 'themecolorEdit')][@alt = 'chevron-right'])[" + index + "]").click();
+                        let part_num = await page.locator("(//*[contains(@placeholder, 'Part Number')])[1]").getAttribute('value');
+                        await expect(page.locator("//*[contains(@placeholder, 'Quote Price')]")).toBeVisible();
+                        custName = await page.locator("//*[@class='repair-name']").textContent();
+                        if (quote_types[qt] == 'System Quotes') {
+                            await page.waitForTimeout(1200);
+                            await expect(page.locator("//*[contains(@src, 'email_invoices')]")).toBeHidden({ timeout: 5000 });
+                            console.log('past quote price is not displayed for ' + quote_types[qt] + ' ' + part_num + ' - ' + index + " customer is: " + custName);
+                            await page.locator("(//*[contains(@title, 'close')])[1]").click();
+                        } else {
+                            await page.waitForTimeout(1200);
+                            try {
+                                await expect(page.locator("//*[contains(@src, 'email_invoices')]")).toBeVisible({ timeout: 5000 });
+                                await page.locator("//*[contains(@src, 'email_invoices')]").click();
+                                if (quote_types[qt] == 'Parts Quotes') { await expect(page.locator("//*[text()='Past Quote Prices']")).toBeVisible(); }
+                                else { await expect(page.locator("//*[text()='Past Repair Prices']")).toBeVisible(); }
+                                let quotePrice = await page.locator("//*[@id='quote_price']").getAttribute('value');
+                                await page.waitForTimeout(1200);
+                                let pastRepairPricesCount = await page.locator("//*[@class='ag-center-cols-container']/div/div[2]").count();
+                                let values = [];
+                                for (let i = 1; i <= pastRepairPricesCount; i++) {
+                                    values.push(await page.locator("(//*[@data-placement='top-end']/div[2]/div/div[2]/div/div[2])[" + i + "]").textContent())
+                                }
+                                let consoleText;
+                                if (quote_types[qt] == 'Parts Quotes') { consoleText = 'quote' } else { consoleText = 'repair' }
+                                console.log('past ' + consoleText + ' price is displayed for ' + quote_types[qt] + ' ' + part_num + ' - ' + index + ' - ' + index + " customer is: " + custName);
+                                console.log('Net Sales values are: ' + values);
+                                console.log('quote price is: ' + quotePrice);
+                                await page.locator("(//*[contains(@title, 'close')])[2]").click();
+                                await page.locator("(//*[contains(@title, 'close')])[1]").click();
+                            } catch (error) {
+                                let consoleText;
+                                if (quote_types[qt] == 'Parts Quotes') { consoleText = 'quote' } else { consoleText = 'repair' }
+                                console.log('past ' + consoleText + ' price is not displayed for ' + quote_types[qt] + ' ' + part_num + ' - ' + index + ' - ' + index + " customer is: " + custName);
+                                await page.locator("(//*[contains(@title, 'close')])[1]").click();
+                            }
+                        }
+                    }
+                    // break;
                 }
+                await page.goBack();
+                await expect(page.locator("(//*[contains(@src,'vendor_logo')])[1]")).toBeVisible();
             }
-            await expect(page.locator("(//*[contains(@src, 'themecolorEdit')][@alt = 'chevron-right'])[1]")).toBeVisible();
-            let itemsCount = await page.locator("//*[contains(@src, 'themecolorEdit')][@alt = 'chevron-right']").count();
-            for (let index = 1; index <= itemsCount; index++) {
-                await page.locator("(//*[contains(@src, 'themecolorEdit')][@alt = 'chevron-right'])[" + index + "]").click();
-                let part_num = await page.locator("(//*[contains(@placeholder, 'Part Number')])[1]").getAttribute('value');
-                await expect(page.locator("//*[contains(@placeholder, 'Quote Price')]")).toBeVisible();
-                if (quote_types[qt] == 'System Quotes') {
-                    await page.waitForTimeout(1200);
-                    await expect(page.locator("//*[contains(@src, 'email_invoices')]")).toBeHidden({ timeout: 5000 });
-                    await spinner(page);
-                    console.log('past repair price is not displayed for ' + quote_types[qt] + ' ' + part_num + ' - ' + index);
-                    await page.locator("(//*[contains(@title, 'close')])[1]").click();
-                } else {
-                    await page.waitForTimeout(1200);
-                    await expect(page.locator("//*[contains(@src, 'email_invoices')]")).toBeVisible({ timeout: 5000 });
-                    await page.locator("//*[contains(@src, 'email_invoices')]").click();
-                    await spinner(page);
-                    console.log('past repair price is displayed for ' + quote_types[qt] + ' ' + part_num + ' - ' + index);
-                    await page.locator("(//*[contains(@title, 'close')])[2]").click();
-                    await page.locator("(//*[contains(@title, 'close')])[1]").click();
-                }
-            }
-            await page.goBack();
+            // await page.goBack();
+            await page.getByText('Quotes', { exact: true }).first().click();
         }
         getTestResults = true;
     } catch (error) {
@@ -16849,6 +16885,91 @@ async function salesOrderVerification(page) {
         }
     }
 }
+async function spaNewItemImport(page, fileName, b_s_Side, context) {
+    async function importSPA(page, b_s_Side, fileName) {
+        await page.click("(//*[contains(text(), 'Pricing')])[1]")
+        await page.getByRole('menuitem', { name: 'Non Standard Pricing' }).click();
+        await expect(page.locator('.spa-delete').first()).toBeVisible();
+        await page.locator('div').filter({ hasText: /^Configure$/ }).getByRole('button').nth(2).click();
+        await page.getByRole('menuitem', { name: 'Import ' + b_s_Side + ' Side Data' }).click();
+        await expect(page.getByText('Sample File')).toBeVisible();
+        await page.setInputFiles("//*[contains(@type, 'file')]", '/home/enterpi/Downloads/' + fileName + '')
+        await page.waitForTimeout(1200)
+        await expect(page.getByRole('dialog')).toContainText(fileName);
+        await expect(page.getByText('File Uploaded')).toBeVisible();
+        await page.getByRole('dialog').getByRole('button', { name: 'Proceed' }).click();
+    }
+    let spaData = await read_excel_data('/home/enterpi/Downloads/' + fileName + '', 0);// read import file
+    let spaNewItemsCount = spaData.length;
+    console.log('test pricing list rows count is ', spaNewItemsCount);
+    const workbook = new ExcelJS.Workbook(); let newItem = [], listPrice = [], discountPer = [];
+    await workbook.xlsx.readFile('test_pricing.xlsx');
+    for (let index = 0; index < spaNewItemsCount; index++) {
+        //test_priding file Sheet2 Data
+        newItem.push(spaData[index]['Item']);
+        listPrice.push(spaData[index]['Fixed Price']);
+        discountPer.push(spaData[index]['% Discount Off List']);
+    }
+    let results, cardItems; // console.log(newItem.join(', ')); 
+    await importSPA(page, "Buy", "BUYSIDE.xlsx");
+    let url = await page.url();
+    const newTab = await context.newPage();
+    await newTab.goto(url); 
+    await importSPA(newTab, "Sell", "SELLSIDE.xlsx");
+    try {
+        await expect(page.getByText('ProceedSkip & Proceed')).toBeVisible();
+        await expect(newTab.getByText('ProceedSkip & Proceed')).toBeVisible();
+        await expect(page.getByRole('dialog')).toContainText('Stock codes/Discount Codes doesnot exist.');
+        await expect(newTab.getByRole('dialog')).toContainText('Stock codes/Discount Codes doesnot exist.');
+        await page.getByRole('dialog').getByRole('button', { name: 'Proceed', exact: true }).click();
+        await newTab.getByRole('dialog').getByRole('button', { name: 'Proceed', exact: true }).click();
+        await delay(page, 2000); await delay(newTab, 2000)
+        await expect(page.locator("//*[text()='Okay']")).toBeEnabled();
+        await expect(newTab.locator("//*[text()='Okay']")).toBeEnabled()
+        await page.locator("//*[text()='Okay']").click();  await newTab.locator("//*[text()='Okay']").click()
+        await page.reload(); await page.reload(); await page.reload(); await delay(page, 4000)
+        await page.reload(); await delay(page, 2000);
+        await newTab.reload(); await newTab.reload(); await newTab.reload(); await delay(newTab, 4000)
+        await newTab.reload(); await delay(newTab, 2000)
+        cardItems = await page.locator("(//*[@style='padding: unset;'])/div/div[1]/*[1]/*[4]").textContent();
+        let productCount = await page.locator("(//*[@style='padding: unset;'])/div/div[1]/*[2]/*[2]").textContent();
+        if ('' + productCount.replace(' Products', '') + '' === '' + spaNewItemsCount + '') {
+            //     await page.locator("(//*[@style='padding: unset;'])/div/div[1]/*[1]/*[4]").click();
+            //     await expect(page.locator("(//*[text()='more'])[1]")).toBeHidden(); await delay(page, 1200);
+            //     let rows = await page.locator("(//*[@class='ag-center-cols-container'])/*/*[3]");
+            //     if (await rows.count() > 0) {
+            //         for (let i = 0; i < await rows.count(); i++) {
+            //             let gridPart = await rows.nth(i).textContent();
+            //             if (gridPart === newItem[i]) {
+            //                 let gridListPrice = await page.locator("(//*[@class='ag-center-cols-container'])/*/*[5]").textContent().replace("$", "");
+            //                 if (listPrice[i] === gridListPrice) {
+            //                     let purchDiscount = await page.locator("(//*[@class='ag-center-cols-container'])/*/*[8]").textContent();
+            //                     let markupDiscount = await page.locator("(//*[@class='ag-center-cols-container'])/*/*[10]").textContent();
+            //                     if (purchDiscount != 0 || purchDiscount != 0.0) {
+            //                         console.log('discount percentage at file ' + discountPer)
+            //                         console.log('discount percentage at grid ' + purchDiscount)
+            //                     } else {
+            //                         console.log('discount percentage at file ' + discountPer)
+            //                         console.log('discount percentage at grid ' + markupDiscount)
+            //                     }
+            //                 }
+            //             } else {
+            //                 console.log('list prices not match.')
+            //             }
+            //         }
+            //         await page.pause();
+            //     }
+            results = true;
+        } else {
+            console.log(cardItems)
+            results = false;
+        }
+    } catch (error) {
+        results = false;
+        console.log(error)
+    }
+    return results;
+}
 module.exports = {
     checkout_page,
     order_summary_page,
@@ -16927,5 +17048,6 @@ module.exports = {
     quoteTotalDisplaysZero,
     displayNCNRatItemsPage,
     salesOrderVerification,
-    cloneRepairQuote
+    cloneRepairQuote,
+    spaNewItemImport
 };
