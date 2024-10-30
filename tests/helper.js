@@ -2875,7 +2875,7 @@ async function pos_report(page) {
     let testResults;
     try {
         let vendor_name = [
-            'ABB', 'Omron', 'Omron STI', 'Parker', 'Rethink Robotics', 'Schmersal', 'SMC', 'Wago', 'Wago Rebate', 'Yaskawa Motion', 'Yaskawa VFD', 'Omron SFSAC', 'ABB SFSAC'
+            'ABB','ABB Drives', 'ABB SFSAC', 'Omron', 'Omron SFSAC', 'Omron STI', 'Parker', 'Rethink Robotics', 'SMC', 'Schmersal', 'Wago POS', 'Wago S/D','Yaskawa Motion', 'Yaskawa VFD' 
         ];
         let dates = [];
         await page.waitForTimeout(600);
@@ -2888,7 +2888,7 @@ async function pos_report(page) {
                 dates.push('06'), dates.push('2017')
             } else {
                 dates = []
-                dates.push('07'), dates.push('2024')
+                dates.push('09'), dates.push('2024')
             }
             //selecting month
             await page.locator("(//*[contains(@class, 'react-select__indicator')])[1]").click();
@@ -2912,7 +2912,7 @@ async function pos_report(page) {
                 if (grid_text.length > 38) {
                     console.log(ANSI_GREEN + vendor_name[index] + ' POS report list is displayed' + ANSI_RESET + " for " + dates[0] + '/' + dates[1]);
                     console.log(ANSI_GREEN + vendor_name[index] + ' POS reports Count is ' + totalRowsCount + ANSI_RESET);
-                    await page.click("//*[text()='Export']");
+                    // await page.click("//*[text()='Export']"); //File Export is completed as file download
                     await delay(page, 1500);
                 } else {
                     console.log(ANSI_RED + vendor_name[index] + ' POS report list is Empty at selected dates.' + ANSI_RESET);
@@ -16885,7 +16885,20 @@ async function salesOrderVerification(page) {
         }
     }
 }
-async function spaNewItemImport(page, fileName, b_s_Side) {
+async function spaNewItemImport(page, fileName, b_s_Side, context) {
+    async function importSPA(page, b_s_Side, fileName) {
+        await page.click("(//*[contains(text(), 'Pricing')])[1]")
+        await page.getByRole('menuitem', { name: 'Non Standard Pricing' }).click();
+        await expect(page.locator('.spa-delete').first()).toBeVisible();
+        await page.locator('div').filter({ hasText: /^Configure$/ }).getByRole('button').nth(2).click();
+        await page.getByRole('menuitem', { name: 'Import ' + b_s_Side + ' Side Data' }).click();
+        await expect(page.getByText('Sample File')).toBeVisible();
+        await page.setInputFiles("//*[contains(@type, 'file')]", '/home/enterpi/Downloads/' + fileName + '')
+        await page.waitForTimeout(1200)
+        await expect(page.getByRole('dialog')).toContainText(fileName);
+        await expect(page.getByText('File Uploaded')).toBeVisible();
+        await page.getByRole('dialog').getByRole('button', { name: 'Proceed' }).click();
+    }
     let spaData = await read_excel_data('/home/enterpi/Downloads/' + fileName + '', 0);// read import file
     let spaNewItemsCount = spaData.length;
     console.log('test pricing list rows count is ', spaNewItemsCount);
@@ -16898,26 +16911,26 @@ async function spaNewItemImport(page, fileName, b_s_Side) {
         discountPer.push(spaData[index]['% Discount Off List']);
     }
     let results, cardItems; // console.log(newItem.join(', ')); 
-    await page.click("(//*[contains(text(), 'Pricing')])[1]")
-    await page.getByRole('menuitem', { name: 'Non Standard Pricing' }).click();
-    await expect(page.locator('.spa-delete').first()).toBeVisible();
-    await page.locator('div').filter({ hasText: /^Configure$/ }).getByRole('button').nth(2).click();
-    await page.getByRole('menuitem', { name: 'Import ' + b_s_Side + ' Side Data' }).click();
-    await expect(page.getByText('Sample File')).toBeVisible();
-    await page.setInputFiles("//*[contains(@type, 'file')]", '/home/enterpi/Downloads/' + fileName + '')
-    await page.waitForTimeout(1200)
-    await expect(page.getByRole('dialog')).toContainText(fileName);
-    await expect(page.getByText('File Uploaded')).toBeVisible();
-    await page.getByRole('dialog').getByRole('button', { name: 'Proceed' }).click();
+    await importSPA(page, "Buy", "BUYSIDE.xlsx");
+    let url = await page.url();
+    const newTab = await context.newPage();
+    await newTab.goto(url); 
+    await importSPA(newTab, "Sell", "SELLSIDE.xlsx");
     try {
         await expect(page.getByText('ProceedSkip & Proceed')).toBeVisible();
+        await expect(newTab.getByText('ProceedSkip & Proceed')).toBeVisible();
         await expect(page.getByRole('dialog')).toContainText('Stock codes/Discount Codes doesnot exist.');
+        await expect(newTab.getByRole('dialog')).toContainText('Stock codes/Discount Codes doesnot exist.');
         await page.getByRole('dialog').getByRole('button', { name: 'Proceed', exact: true }).click();
-        await delay(page, 2000)
-        await expect(page.locator("//*[text()='Okay']")).toBeEnabled()
-        await page.locator("//*[text()='Okay']").click()
+        await newTab.getByRole('dialog').getByRole('button', { name: 'Proceed', exact: true }).click();
+        await delay(page, 2000); await delay(newTab, 2000)
+        await expect(page.locator("//*[text()='Okay']")).toBeEnabled();
+        await expect(newTab.locator("//*[text()='Okay']")).toBeEnabled()
+        await page.locator("//*[text()='Okay']").click();  await newTab.locator("//*[text()='Okay']").click()
         await page.reload(); await page.reload(); await page.reload(); await delay(page, 4000)
-        await page.reload(); await delay(page, 2000)
+        await page.reload(); await delay(page, 2000);
+        await newTab.reload(); await newTab.reload(); await newTab.reload(); await delay(newTab, 4000)
+        await newTab.reload(); await delay(newTab, 2000)
         cardItems = await page.locator("(//*[@style='padding: unset;'])/div/div[1]/*[1]/*[4]").textContent();
         let productCount = await page.locator("(//*[@style='padding: unset;'])/div/div[1]/*[2]/*[2]").textContent();
         if ('' + productCount.replace(' Products', '') + '' === '' + spaNewItemsCount + '') {
