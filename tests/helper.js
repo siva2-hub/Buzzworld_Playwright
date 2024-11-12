@@ -1363,6 +1363,61 @@ async function filters_pricing(page) {
     await page.waitForTimeout(1500);
     console.log('filter is applied for ', testdata.dc_new);
 }
+async function filters_quotes_cust(page, acc_num, custName) {
+    try {
+        await expect(page.locator("//*[text()='Clear']")).toBeVisible({ timeout: 2000 });
+        await page.click("//*[text()='Clear']")
+        await delay(page, 1200); await expect(allPages.profileIconListView).toBeVisible();
+    } catch (error) { }
+    await page.getByText('Filters').click();
+    await page.getByText('Search By Company Name').click();
+    await page.getByLabel('Items').fill(acc_num);
+    await expect(page.locator("//*[text()='Loading...']")).toBeHidden();
+    await page.locator('//*[@class="account_no"][text()="' + acc_num + '"]').click();
+    await page.getByRole('button', { name: 'Apply' }).click();
+    await delay(page, 1400); await expect(allPages.profileIconListView).toBeVisible();
+    let results = false;
+    let colCount = await page.locator('(//*[contains(@class, "ag-center-cols-container")]/div/div[2])');
+    let dataCount = await page.locator('(//*[text()="' + custName + '"])');
+    console.log("grid column count " + await colCount.count());
+    console.log("data count in grid " + await dataCount.count());
+    if (await colCount.count() === await dataCount.count()) { results = true; }
+    else { results = false; }
+    return results;
+}
+async function filters_quotes_sales_person(page, salesPerson, selectCount, cCount) {
+    try {
+        await expect(page.locator("//*[text()='Clear']")).toBeVisible({ timeout: 2000 });
+        await page.click("//*[text()='Clear']")
+        await delay(page, 1200); await expect(allPages.profileIconListView).toBeVisible();
+    } catch (error) { }
+    await page.getByText('Filters').click();
+    if (selectCount != 3) { await page.getByText('Select').nth(selectCount).click(); }
+    else { await page.getByText('Search By Items').nth(0).click(); }
+    await page.keyboard.insertText(salesPerson);
+    if (selectCount === 3) {
+        await expect(page.locator("//*[text()='Loading...']")).toBeHidden();
+        await page.locator('//*[@tabindex="-1"][text()="' + salesPerson + '"]').click();
+    }
+    else { await page.keyboard.press('Enter'); }
+    await page.getByRole('button', { name: 'Apply' }).click();
+    await delay(page, 1400); await expect(allPages.profileIconListView).toBeVisible(); let results = false;
+    if (selectCount != 3) {
+        let colCount = await page.locator('(//*[contains(@class, "ag-center-cols-container")]/div/div[' + cCount + '])');
+        let dataCount = await page.locator('(//*[text()="' + salesPerson + '"])');
+        console.log("grid column count " + await colCount.count());
+        console.log("data count in grid " + await dataCount.count());
+        if (await colCount.count() === await dataCount.count()) { results = true; }
+        else { results = false; }
+    } else {
+        await page.locator('(//*[contains(@class, "ag-center-cols-container")]/div/div[1])').click();
+        await expect(page.locator("(//*[text()='GP'])[1]")).toBeVisible();
+        console.log('filter applied item is: ' + salesPerson);
+        try { await expect(page.locator("(//*[text()='" + salesPerson + "'])[1]")).toBeVisible(); results = true; }
+        catch (error) { results = false; }
+    }
+    return results;
+}
 async function spinner(page) {
     try {
         await expect(await page.locator("//*[contains(@style, 'stroke:')]")).toBeVisible();
@@ -2875,7 +2930,7 @@ async function pos_report(page) {
     let testResults;
     try {
         let vendor_name = [
-            'ABB','ABB Drives', 'ABB SFSAC', 'Omron', 'Omron SFSAC', 'Omron STI', 'Parker', 'Rethink Robotics', 'SMC', 'Schmersal', 'Wago POS', 'Wago S/D','Yaskawa Motion', 'Yaskawa VFD' 
+            'ABB', 'ABB Drives', 'ABB SFSAC', 'Omron', 'Omron SFSAC', 'Omron STI', 'Parker', 'Rethink Robotics', 'SMC', 'Schmersal', 'Wago POS', 'Wago S/D', 'Yaskawa Motion', 'Yaskawa VFD'
         ];
         let dates = [];
         await page.waitForTimeout(600);
@@ -16914,7 +16969,7 @@ async function spaNewItemImport(page, fileName, b_s_Side, context) {
     await importSPA(page, "Buy", "BUYSIDE.xlsx");
     let url = await page.url();
     const newTab = await context.newPage();
-    await newTab.goto(url); 
+    await newTab.goto(url);
     await importSPA(newTab, "Sell", "SELLSIDE.xlsx");
     try {
         await expect(page.getByText('ProceedSkip & Proceed')).toBeVisible();
@@ -16926,7 +16981,7 @@ async function spaNewItemImport(page, fileName, b_s_Side, context) {
         await delay(page, 2000); await delay(newTab, 2000)
         await expect(page.locator("//*[text()='Okay']")).toBeEnabled();
         await expect(newTab.locator("//*[text()='Okay']")).toBeEnabled()
-        await page.locator("//*[text()='Okay']").click();  await newTab.locator("//*[text()='Okay']").click()
+        await page.locator("//*[text()='Okay']").click(); await newTab.locator("//*[text()='Okay']").click()
         await page.reload(); await page.reload(); await page.reload(); await delay(page, 4000)
         await page.reload(); await delay(page, 2000);
         await newTab.reload(); await newTab.reload(); await newTab.reload(); await delay(newTab, 4000)
@@ -17002,6 +17057,8 @@ module.exports = {
     functional_flow,
     inventory_search,
     filters_pricing,
+    filters_quotes_cust,
+    filters_quotes_sales_person,
     setScreenSize,
     sync_jobs,
     fetch_jobs_list,
