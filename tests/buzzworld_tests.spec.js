@@ -3,7 +3,7 @@ const ExcelJS = require('exceljs');
 
 import { start } from 'repl';
 import { timeout } from '../playwright.config';
-import { add_dc, add_sc, admin1, admin2, admin3, admin4, api_data, create_job_manually, create_job_quotes, create_job_repairs, create_parts_purchase, dcAddUpdate, fetchData, fetch_jobs_Data, fetch_jobs_Detail, fetch_jobs_list, fetch_orders_Data, fetch_orders_Detail, fetch_order_list, fetch_pp_status, filters_pricing, functional_flow, import_pricing, inventory_search, leftMenuSearch, login, login_buzz, logout, multi_edit, parts_purchase_left_menu_filter, productAddUpdate, quotesRepairs, setScreenSize, spinner, sync_jobs, update_dc, update_sc, pos_report, reports, parts_import, add_parts, past_repair_prices, edit_PO_pp, returnResult, admin_permissions, pricing_permissions, addDiscountCodeValidations, addFunctionInAdminTabs, getProductWriteIntoExecl, verifyTwoExcelData, nonSPAPrice, addSPAItemsToQuote, validationsAtCreateRMAandQuotePages, read_excel_data, addCustomerToSysPro, websitePaddingTesting, verifyingCharacterLenght, addCustomerToSyspro, addCustomerToSysProValidations, addCustomerPermissions, bomImporter, allValidationsBOMImporter, verifySPAExpiryMails, delay, itemNotesLineBreaks, stockCodes, uploadBOMFiles, readExcelHeaders, fetchZipcodes, addStockInventorySearch } from './helper';
+import { add_dc, add_sc, admin1, admin2, admin3, admin4, api_data, create_job_manually, create_job_quotes, create_job_repairs, create_parts_purchase, dcAddUpdate, fetchData, fetch_jobs_Data, fetch_jobs_Detail, fetch_jobs_list, fetch_orders_Data, fetch_orders_Detail, fetch_order_list, fetch_pp_status, filters_pricing, functional_flow, import_pricing, inventory_search, leftMenuSearch, login, login_buzz, logout, multi_edit, parts_purchase_left_menu_filter, productAddUpdate, quotesRepairs, setScreenSize, spinner, sync_jobs, update_dc, update_sc, pos_report, reports, parts_import, add_parts, past_repair_prices, edit_PO_pp, returnResult, admin_permissions, pricing_permissions, addDiscountCodeValidations, addFunctionInAdminTabs, getProductWriteIntoExecl, verifyTwoExcelData, nonSPAPrice, addSPAItemsToQuote, validationsAtCreateRMAandQuotePages, read_excel_data, addCustomerToSysPro, websitePaddingTesting, verifyingCharacterLenght, addCustomerToSyspro, addCustomerToSysProValidations, addCustomerPermissions, bomImporter, allValidationsBOMImporter, verifySPAExpiryMails, delay, itemNotesLineBreaks, stockCodes, uploadBOMFiles, readExcelHeaders, fetchZipcodes, addStockInventorySearch, filters_quotes, filters_quotes_cust, filters_quotes_sales_person } from './helper';
 import AllPages from './PageObjects';
 
 const testdata = JSON.parse(JSON.stringify(require("../testdata.json")));
@@ -340,6 +340,36 @@ test.describe('all tests', async () => {
     await parts_purchase_left_menu_filter(page);
   });
 
+  test('verify filters in quotes with customer name', async ({ }, testInfo) => {
+    let acc_num = "ZUMMO00", custName = 'Zummo Meat Co Inc';
+    results = await filters_quotes_cust(page, acc_num, custName);
+    let testName = testInfo.title;
+    await returnResult(page, testName, results);
+  });
+  test('verify filters in quotes with sales person', async ({ }, testInfo) => {
+    let salesPerson = 'Frontier';
+    results = await filters_quotes_sales_person(page, salesPerson, 0, 7);
+    let testName = testInfo.title;
+    await returnResult(page, testName, results);
+  });
+  test('verify filters in quotes with status', async ({ }, testInfo) => {
+    let status = 'Won';
+    results = await filters_quotes_sales_person(page, status, 1, 8);
+    let testName = testInfo.title;
+    await returnResult(page, testName, results);
+  });
+  test('verify filters in quotes with quoted by', async ({ }, testInfo) => {
+    let quoted_by = 'Annita Torres';
+    results = await filters_quotes_sales_person(page, quoted_by, 2, 4);
+    let testName = testInfo.title;
+    await returnResult(page, testName, results);
+  });
+  test('verify filters in quotes with item filters', async ({ }, testInfo) => {
+    let quoted_by = 'S8VS-18024B';
+    results = await filters_quotes_sales_person(page, quoted_by, 3, 4);
+    let testName = testInfo.title;
+    await returnResult(page, testName, results);
+  });
   test('POS Reports Lists', async ({ }, testInfo) => {
     results = await pos_report(page);
     let testName = testInfo.title;
