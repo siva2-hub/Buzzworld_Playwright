@@ -3721,6 +3721,55 @@ async function write_data_into_excel(data) {
     // Write the workbook to a file
     await workbook.xlsx.writeFile('logs.xlsx');
 }
+async function verifying_pull_data_from_syspro(page, newPart) {
+    //go to inventory
+    await page.getByText('Inventory').click(); await page.getByText('Search by Stock Code').click();
+    await page.keyboard.insertText(newPart);
+    await delay(page, 1300); await expect(page.locator("//*[text()='Loading...']")).toBeHidden();
+    await page.locator("//*[@tabindex='-1'][text()='" + newPart + "']").click();
+    await expect(page.locator("//*[text()='Stock Code Information']")).toBeVisible()
+    let supplierCode = await page.locator("(//*[@class='description-container'])[4]").textContent();
+    await page.goto(await page.url().replace("inventory", "pricing"))//go to pricing
+    await expect(page.locator("(//*[contains(@src,'editicon')])[1]")).toBeVisible()
+    await page.fill("(//*[contains(@placeholder,'Search')])[1]", supplierCode)
+    await delay(page, 3500); await expect(page.locator("(//*[contains(@src,'editicon')])[1]")).toBeVisible();
+    await page.click("//*[contains(@aria-label,'open')]"); await page.click("//*[text()='Default']")
+    await delay(page, 3500); await expect(page.locator("(//*[contains(@src,'editicon')])[1]")).toBeVisible();
+    await page.getByPlaceholder('Stock Code / Description').fill(newPart);
+    await page.getByPlaceholder('Stock Code / Description').press('Enter');
+    try {
+        await delay(page, 3500); await expect(page.locator("(//*[contains(@src,'editicon')])[1]")).toBeVisible({ timeout: 1000 });
+    } catch (error) {
+        await expect(page.locator("//*[text()='For the searched term, no product(s) are available']")).toBeVisible()
+    } let statuses = [];
+    //go to quotes
+    await page.click("//*[text()='Quotes']"); await expect(allPages.profileIconListView).toBeVisible();
+    let quoteTypes = ['quote_for_parts', 'system_quotes', 'repair-request'], results = false, urlPath = 'all_quotes';
+    for (let index = 0; index < quoteTypes.length; index++) {
+        // await page.click("//*[text()='" + quoteTypes[index] + "']");
+        await page.goto(await page.url().replace(urlPath, quoteTypes[index]))
+        await expect(allPages.profileIconListView).toBeVisible();
+        try {
+            await expect(page.locator("//*[text()='Clear']")).toBeVisible({ timeout: 3500 });
+            await page.click("//*[text()='Clear']")
+            await delay(page, 1200); await expect(allPages.profileIconListView).toBeVisible();
+        } catch (error) { }
+        await page.getByText('Filters').click(); await page.getByText('Select').nth(1).click();
+        if (quoteTypes[index] === 'repair-request') { await page.keyboard.insertText('Checked-in'); await page.keyboard.press('Enter'); }
+        else { await page.keyboard.insertText('Open'); await page.keyboard.press('Enter'); }
+        await page.getByRole('button', { name: 'Apply' }).click();
+        await delay(page, 1400); await expect(allPages.profileIconListView).toBeVisible();
+        await allPages.profileIconListView.click(); await page.click("//*[text()='Add Items']");
+        await page.getByPlaceholder('Search By Part Number').fill(newPart); await spinner(page);
+        try { await expect(page.locator("//*[text()='" + newPart + "']")).toBeVisible({ timeout: 5000 }); statuses.push(true); }
+        catch (error) { statuses.push(false); console.log(newPart + "is not displayed in items search"); }
+        await page.click("//*[contains(@src,'cross')]"); await page.goBack(); urlPath = quoteTypes[index];
+    }
+    let actualResult = statuses.join(", ").toString(); console.log(actualResult);
+    if (actualResult === 'true, true, true') { results = true; }
+    else { results = false }
+    return results
+}
 async function read_excel_data(file, sheetIndex) {
     const workbook = xlsx.readFile(file);
     // Choose the first sheet (you can specify the sheet name or index)
@@ -17106,5 +17155,6 @@ module.exports = {
     displayNCNRatItemsPage,
     salesOrderVerification,
     cloneRepairQuote,
-    spaNewItemImport
+    spaNewItemImport,
+    verifying_pull_data_from_syspro
 };
