@@ -3770,6 +3770,24 @@ async function verifying_pull_data_from_syspro(page, newPart) {
     else { results = false }
     return results
 }
+async function verify_quote_clone_archived_quotes(page, status, colStatus) {
+    await page.click("//*[text()='" + status + "']"); await expect(allPages.profileIconListView).toBeVisible();
+    try {
+        await expect(page.locator("//*[text()='Clear']")).toBeVisible({ timeout: 2000 });
+        await page.click("//*[text()='Clear']")
+        await delay(page, 1200); await expect(allPages.profileIconListView).toBeVisible();
+    } catch (error) { }; let results = false; await allPages.profileIconListView.click();
+    await expect(page.locator("(//*[text()='GP'])[1]")).toBeVisible();
+    await expect(page.getByText(colStatus, { exact: true }).first()).toBeVisible();
+    try {
+        await expect(page.locator("(//*[contains(@class, 'dropdown')])[3]")).toBeVisible({ timeout: 2300 });
+        await page.click("(//*[contains(@class, 'dropdown')])[3]");
+    } catch (error) { }
+    await expect(page.getByRole('menuitem', { name: 'Download' })).toBeVisible();
+    try { await expect(page.getByRole('menuitem', { name: 'Clone' })).toBeVisible({ timeout: 2300 }); results = true; }
+    catch (error) { console.log("Clone is not display for " + status); results = false; }
+    return results;
+}
 async function read_excel_data(file, sheetIndex) {
     const workbook = xlsx.readFile(file);
     // Choose the first sheet (you can specify the sheet name or index)
@@ -17156,5 +17174,6 @@ module.exports = {
     salesOrderVerification,
     cloneRepairQuote,
     spaNewItemImport,
-    verifying_pull_data_from_syspro
+    verifying_pull_data_from_syspro,
+    verify_quote_clone_archived_quotes
 };
