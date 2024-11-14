@@ -3,7 +3,7 @@ const ExcelJS = require('exceljs');
 
 import { start } from 'repl';
 import { timeout } from '../playwright.config';
-import { add_dc, add_sc, admin1, admin2, admin3, admin4, api_data, create_job_manually, create_job_quotes, create_job_repairs, create_parts_purchase, dcAddUpdate, fetchData, fetch_jobs_Data, fetch_jobs_Detail, fetch_jobs_list, fetch_orders_Data, fetch_orders_Detail, fetch_order_list, fetch_pp_status, filters_pricing, functional_flow, import_pricing, inventory_search, leftMenuSearch, login, login_buzz, logout, multi_edit, parts_purchase_left_menu_filter, productAddUpdate, quotesRepairs, setScreenSize, spinner, sync_jobs, update_dc, update_sc, pos_report, reports, parts_import, add_parts, past_repair_prices, edit_PO_pp, returnResult, admin_permissions, pricing_permissions, addDiscountCodeValidations, addFunctionInAdminTabs, getProductWriteIntoExecl, verifyTwoExcelData, nonSPAPrice, addSPAItemsToQuote, validationsAtCreateRMAandQuotePages, read_excel_data, addCustomerToSysPro, websitePaddingTesting, verifyingCharacterLenght, addCustomerToSyspro, addCustomerToSysProValidations, addCustomerPermissions, bomImporter, allValidationsBOMImporter, verifySPAExpiryMails, delay, itemNotesLineBreaks, stockCodes, uploadBOMFiles, readExcelHeaders, fetchZipcodes, addStockInventorySearch, filters_quotes, filters_quotes_cust, filters_quotes_sales_person, verifying_pull_data_from_syspro } from './helper';
+import { add_dc, add_sc, admin1, admin2, admin3, admin4, api_data, create_job_manually, create_job_quotes, create_job_repairs, create_parts_purchase, dcAddUpdate, fetchData, fetch_jobs_Data, fetch_jobs_Detail, fetch_jobs_list, fetch_orders_Data, fetch_orders_Detail, fetch_order_list, fetch_pp_status, filters_pricing, functional_flow, import_pricing, inventory_search, leftMenuSearch, login, login_buzz, logout, multi_edit, parts_purchase_left_menu_filter, productAddUpdate, quotesRepairs, setScreenSize, spinner, sync_jobs, update_dc, update_sc, pos_report, reports, parts_import, add_parts, past_repair_prices, edit_PO_pp, returnResult, admin_permissions, pricing_permissions, addDiscountCodeValidations, addFunctionInAdminTabs, getProductWriteIntoExecl, verifyTwoExcelData, nonSPAPrice, addSPAItemsToQuote, validationsAtCreateRMAandQuotePages, read_excel_data, addCustomerToSysPro, websitePaddingTesting, verifyingCharacterLenght, addCustomerToSyspro, addCustomerToSysProValidations, addCustomerPermissions, bomImporter, allValidationsBOMImporter, verifySPAExpiryMails, delay, itemNotesLineBreaks, stockCodes, uploadBOMFiles, readExcelHeaders, fetchZipcodes, addStockInventorySearch, filters_quotes, filters_quotes_cust, filters_quotes_sales_person, verifying_pull_data_from_syspro, verify_quote_clone_archived_quotes } from './helper';
 import AllPages from './PageObjects';
 
 const testdata = JSON.parse(JSON.stringify(require("../testdata.json")));
@@ -454,14 +454,22 @@ test.describe('all tests', async () => {
       await returnResult(page, testName, results);
     });
   });
-
   test('New Item Data pull fron syspro', async ({ }, testInfo) => {
     let newPart = '2423534-TEST';
     results = await verifying_pull_data_from_syspro(page, newPart);
     let testName = testInfo.title;
     await returnResult(page, testName, results);
   });
-
+  test('Verify Quote Clone for Archived quotes', async ({ }, testInfo) => {
+    results = await verify_quote_clone_archived_quotes(page, 'Archived Quotes', 'Archived');
+    let testName = testInfo.title;
+    await returnResult(page, testName, results);
+  });
+  test('Verify Quote Clone for Expired quotes', async ({ }, testInfo) => {
+    results = await verify_quote_clone_archived_quotes(page, 'Expired Quotes', 'Expired');
+    let testName = testInfo.title;
+    await returnResult(page, testName, results);
+  });
   test.skip('functional_flow', async () => {
     await functional_flow(page);
   });
