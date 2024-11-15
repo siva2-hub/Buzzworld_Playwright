@@ -3788,6 +3788,44 @@ async function verify_quote_clone_archived_quotes(page, status, colStatus) {
     catch (error) { console.log("Clone is not display for " + status); results = false; }
     return results;
 }
+async function vendor_website_field_validation_slash(page) {
+    async function verify_website_validation() {
+        await page.click("(//*[text()='Select Technician'])[1]"); await page.keyboard.press('Enter');
+        await page.click("(//*[text()='Select Urgency'])[1]"); await page.keyboard.press('Enter');
+        await page.click("(//*[text()='Next'])[1]"); let cpu = await page.url().replace("part-purchase", "");
+        await page.getByPlaceholder('Enter Vendor Website').fill(cpu); //cpu --> current page url
+        await page.getByRole('button', { name: 'Next', exact: true }).click(); await delay(page, 2000);
+    }
+    await page.click("//*[text()='Parts Purchase']");; let results = false;
+    await expect(page.locator("(//*[@col-id='technician_name'])[2]")).toBeVisible()
+    await page.click("(//*[text()='Create Parts Purchase'])[1]");
+    await verify_website_validation();
+    try {
+        await expect(page.getByText('Enter valid Website')).toBeHidden({ timeout: 2500 });
+        await page.getByTitle('close').getByRole('img').click();
+        await page.click("(//*[text()='Create'])[1]");
+        await page.click("(//*[contains(@src,'partsPurchase')])[2]");
+        await verify_website_validation();
+        try {
+            await expect(page.getByText('Enter valid Website')).toBeHidden({ timeout: 2500 });
+            await page.getByTitle('close').getByRole('img').click(); results = true;
+        } catch (error) { results = false; }
+    } catch (error) { results = false; console.log("display validation for slash") }
+    return results;
+}
+async function verify_default_branch_pricing(page) {
+    await page.goto(await page.url().replace("all_quotes", "pricing"))//go to pricing
+    await expect(page.locator("(//*[contains(@src,'editicon')])[1]")).toBeVisible()
+    await page.fill("(//*[contains(@placeholder,'Search')])[1]", "YASK001");
+    await delay(page, 3500); await expect(page.locator("(//*[contains(@src,'editicon')])[1]")).toBeVisible();
+    let selectBranch = await page.locator("(//*[contains(@class,'select-branch-button')])[1]");
+    await selectBranch.click(); await page.click("//*[text()='Default']"); let results = false
+    await page.fill("(//*[contains(@placeholder,'Search')])[1]", "BACO001");
+    await delay(page, 3500); await expect(page.locator("(//*[contains(@src,'editicon')])[1]")).toBeVisible();
+    try { await expect(page.locator("//*[text()='Default']")).toBeVisible({ timeout: 2500 }); results = true; }
+    catch (error) { results = false; console.log("displaying branch is " + await selectBranch.textContent()) }
+    return results;
+}
 async function read_excel_data(file, sheetIndex) {
     const workbook = xlsx.readFile(file);
     // Choose the first sheet (you can specify the sheet name or index)
@@ -17175,5 +17213,7 @@ module.exports = {
     cloneRepairQuote,
     spaNewItemImport,
     verifying_pull_data_from_syspro,
-    verify_quote_clone_archived_quotes
+    verify_quote_clone_archived_quotes,
+    vendor_website_field_validation_slash,
+    verify_default_branch_pricing
 };
