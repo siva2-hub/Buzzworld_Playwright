@@ -3731,7 +3731,8 @@ async function verifying_pull_data_from_syspro(page, newPart) {
     let supplierCode = await page.locator("(//*[@class='description-container'])[4]").textContent();
     await page.goto(await page.url().replace("inventory", "pricing"))//go to pricing
     await expect(page.locator("(//*[contains(@src,'editicon')])[1]")).toBeVisible()
-    await page.fill("(//*[contains(@placeholder,'Search')])[1]", supplierCode)
+    await page.fill("(//*[contains(@placeholder,'Search')])[1]", supplierCode); await delay(page, 2000)
+    await page.click("//*[contains(@aria-label,'open')]"); await page.click("//*[text()='Default']")
     await delay(page, 3500); await expect(page.locator("(//*[contains(@src,'editicon')])[1]")).toBeVisible();
     await page.click("//*[contains(@aria-label,'open')]"); await page.click("//*[text()='Default']")
     await delay(page, 3500); await expect(page.locator("(//*[contains(@src,'editicon')])[1]")).toBeVisible();
@@ -3769,6 +3770,16 @@ async function verifying_pull_data_from_syspro(page, newPart) {
     if (actualResult === 'true, true, true') { results = true; }
     else { results = false }
     return results
+}
+async function verify_storage_location_repair_quotes(page) {
+    await page.locator('#root div').filter({ hasText: /^Repair Quotes$/ }).first().click();
+    await expect(allPages.profileIconListView).toBeVisible();
+    await page.locator('.ag-header-icon > .ag-icon').first().click();
+    await page.getByLabel('columns').locator('span').click();
+    await page.getByPlaceholder('Search...').fill('locaton'); let results = false;
+    try { await expect(page.locator("//*[contains(text(),'location')]")).toBeVisible({ timeout: 3000 }); results = true; }
+    catch (error) { results = false }
+    return results;
 }
 async function verify_quote_clone_archived_quotes(page, status, colStatus) {
     await page.click("//*[text()='" + status + "']"); await expect(allPages.profileIconListView).toBeVisible();
@@ -17215,5 +17226,6 @@ module.exports = {
     verifying_pull_data_from_syspro,
     verify_quote_clone_archived_quotes,
     vendor_website_field_validation_slash,
-    verify_default_branch_pricing
+    verify_default_branch_pricing,
+    verify_storage_location_repair_quotes
 };
