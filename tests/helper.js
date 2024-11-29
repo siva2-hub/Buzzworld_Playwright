@@ -10,10 +10,11 @@ const xlsx = require('xlsx');
 const { url } = require('inspector');
 const { default: AllPages } = require('./PageObjects');
 const { threadId } = require('worker_threads');
+const { count } = require('console');
 const currentDate = new Date().toDateString();
 let date = currentDate.split(" ")[2];
 let vendor = testdata.vendor;
-let apiKey = testdata.api_key;
+let apiKey = testdata.api_key; const stage_url = process.env.BASE_URL_BUZZ;
 let allPages;
 const currentDateTime = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
 const ANSI_RESET = "\x1b[0m";
@@ -1418,6 +1419,62 @@ async function filters_quotes_sales_person(page, salesPerson, selectCount, cCoun
     }
     return results;
 }
+async function warranty_repair_parts_purchase(page, is_manually) {
+    async function update_urgency_status(edit_count, text_click, text_enter, click_count) {
+        await delay(page, 1500); await page.click("(//*[@title='Edit'])[" + edit_count + "]");
+        await page.click("(//*[text()='" + text_click + "'])[" + click_count + "]"); await page.keyboard.insertText(text_enter);
+        await page.keyboard.press("Enter"); await page.getByTitle('Save Changes').getByRole('img').click();
+    }
+    let results = false;
+    if (is_manually) {
+        results = await create_parts_purchase(page, is_manually, '');
+    } else {
+        await page.goto(stage_url + 'jobs/44f5299e-109f-4532-b4fe-aad42c62f399');
+        results = await create_parts_purchase(page, is_manually, '314997');
+    }
+    // let results = [true, ''];
+    // await page.goto(stage_url + 'parts-purchase-detail-view/d65413e4-3342-4b80-8f45-05139da7f834');
+    // await expect(page.getByRole('heading', { name: 'Purchase Order Information' })).toBeVisible();
+    let item_notes_text = '', status = false;
+    if (results[0]) {
+        item_notes_text = await page.locator("(//*[contains(text(),'TEST ITEM NOTES')])[1]").textContent();
+        if (item_notes_text.includes("**WARRANTY**")) {
+            let item_notes = await page.locator("(//*[starts-with(text(),'**WARRANTY**')])[1]");
+            await expect(item_notes).toBeVisible();
+            console.log("after creating pp text at detailed view is : " + item_notes_text)
+            await update_urgency_status('2', 'Warranty Repair', 'Rush', 1);
+            await expect(page.locator("//*[text()='Urgency Changed Successfully']")).toBeVisible();
+            await delay(page, 2000); item_notes_text = '';
+            item_notes_text = await page.locator("(//*[contains(text(),'TEST ITEM NOTES')])[1]").textContent();
+            if (!item_notes_text.includes("**WARRANTY**")) {
+                console.log("after updating pp urgency to rush text at detailed view is : " + item_notes_text);
+                await update_urgency_status(2, 'Rush', 'Warranty Repair', 1);
+                await expect(page.locator("//*[text()='Urgency Changed Successfully']")).toBeVisible();
+                await delay(page, 2000); item_notes_text = '';
+                item_notes_text = await page.locator("(//*[contains(text(),'TEST ITEM NOTES')])[1]").textContent();
+                if (item_notes_text.includes("**WARRANTY**")) {
+                    let item_notes = await page.locator("(//*[starts-with(text(),'**WARRANTY**')])[1]");
+                    await expect(item_notes).toBeVisible();
+                    console.log("after updating pp urgency to warranty repair text at detailed view is : " + item_notes_text);
+                    status = true;
+                } else { status = false }
+            } else { status = false; }
+        } else { status = false; }
+    } else { status = false; }
+    let res = false;
+    if (status) {
+        await update_urgency_status('1', 'Requested', 'Ordered', 2);
+        try {
+            await expect(page.locator("//*[text()='Status Changed Successfully']")).toBeVisible({ timeout: 19000 });
+            item_notes_text = await page.locator("(//*[contains(text(),'TEST ITEM NOTES')])[1]").textContent();
+            if (item_notes_text.includes("**WARRANTY**")) {
+                console.log("after updating pp status to Ordered text at detailed view is : " + item_notes_text);
+                res = true;
+            } else { res = false; }
+        } catch (error) { res = false; }
+    } else { res = false; }
+    return res;
+}
 async function spinner(page) {
     try {
         await expect(await page.locator("//*[contains(@style, 'stroke:')]")).toBeVisible();
@@ -2160,10 +2217,10 @@ async function create_job_quotes(page, is_create_job, quoteType, acc_num, cont_n
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     // let acc_num = 'TESTC02', cont_name = 'Test CompanyTwo', stock_code = '832-1204',
     quote_type = quoteType;
-    await page.goto('http://192.168.1.115:3000/system_quotes/8e6916b7-1574-4d9f-9b68-df411a9b1942');
+    // await page.goto('https://www.staging-buzzworld.iidm.com/quote_for_parts/33d44aad-2f9e-4b92-b938-e41f96b1fe4b');
     let testResult; let quote_id
     try {
-        // await createQuote(page, acc_num, quoteType);
+        await createQuote(page, acc_num, quoteType);
         await spinner(page);
         let quote = await page.locator('(//*[@class = "id-num"])[1]').textContent();
         quote_id = quote.replace("#", "");
@@ -2411,7 +2468,7 @@ async function create_parts_purchase(page, is_manually, repair_id) {
     let results; let pp_id
     try {
         let job_id = testdata.job_id; let tech = testdata.tech; let urgency = testdata.urgency;
-        // await page.goto('https://www.staging-buzzworld.iidm.com/jobs/5bac8fae-41b4-42c5-9344-99e94d13325a');
+        // await page.goto('https://www.staging-buzzworld.iidm.com/parts-purchase-detail-view/9d70393c-4508-4810-9b88-1b7f9bb9b385');
         if (is_manually) {
             await page.getByText('Parts Purchase').click();
             await expect(page.locator("(//*[contains(@src, 'new_avatar')])[1]")).toBeVisible();
@@ -2426,6 +2483,8 @@ async function create_parts_purchase(page, is_manually, repair_id) {
             await expect(page.locator("(//*[contains(@src, 'partspurchase')])[1]")).toBeVisible();
             job_id = await page.locator("(//*[contains(@class, 'm-0 item-value')])[6]").textContent();
             await page.locator("(//*[contains(@src, 'partspurchase')])[1]").click();
+            await delay(page, 1500); await page.click("(//*[@aria-label='open'])[2]");
+            await page.keyboard.insertText(urgency); await page.keyboard.press('Enter');
         }
         await page.waitForTimeout(2000);
         await page.getByRole('button', { name: 'Next', exact: true }).click();
@@ -2438,7 +2497,7 @@ async function create_parts_purchase(page, is_manually, repair_id) {
         await page.getByPlaceholder('Enter Vendor Contact Name').press('CapsLock');
         await page.getByPlaceholder('Enter Vendor Contact Name').fill('VENDORCONTACTNAME');
         await page.getByPlaceholder('Enter Vendor Website').press('CapsLock');
-        await page.getByPlaceholder('Enter Vendor Website').fill('vendorwebsite.com');
+        await page.getByPlaceholder('Enter Vendor Website').fill(stage_url);
         await page.getByPlaceholder('Enter Vendor Quote Number').fill('VENDORQUOTENUMBER');
         await page.getByRole('button', { name: 'Next', exact: true }).click();
         await expect(page.locator('form')).toContainText('Vendor Part Number');
@@ -3780,6 +3839,100 @@ async function verify_storage_location_repair_quotes(page) {
     try { await expect(page.locator("//*[contains(text(),'location')]")).toBeVisible({ timeout: 3000 }); results = true; }
     catch (error) { results = false }
     return results;
+}
+async function verify_stocked_location_parts_system_quotes(page) {
+    let quoteTypes = ['quote_for_parts', 'system_quotes', 'quote_for_repair'], results = false, urlPath = 'all_quotes';
+    for (let index = 0; index < quoteTypes.length; index++) {
+        await page.goto(await page.url().replace(urlPath, quoteTypes[index]));
+        await expect(allPages.profileIconListView).toBeVisible();
+        try {
+            await expect(page.locator("//*[text()='Clear']")).toBeVisible({ timeout: 3500 });
+            await page.click("//*[text()='Clear']")
+            await delay(page, 1200); await expect(allPages.profileIconListView).toBeVisible();
+        } catch (error) { }
+        await delay(page, 1400); await expect(allPages.profileIconListView).toBeVisible();
+        await allPages.profileIconListView.click(); let statuses = [];
+        let gp = page.locator("//*[starts-with(text(),'GP')]");
+        await expect(gp.first()).toBeVisible(); let items_count = await gp.count();
+        for (let index = 0; index < items_count; index++) {
+            try {
+                let stocked_location = await page.locator("(//*[starts-with(text(),'Stocked Location')])[" + (index + 1) + "]");
+                await expect(stocked_location).toBeVisible({ timeout: 4000 });
+                console.log(await stocked_location.textContent() + " is displayed for " + quoteTypes[index]);
+                statuses.push(true);
+            } catch (error) {
+                console.log("Stocked Location not displayed for " + quoteTypes[index]);
+                statuses.push(false);
+            } console.log(statuses);
+        }
+        await page.goBack(); await expect(allPages.profileIconListView).toBeVisible();
+    }
+}
+async function api_responses(page, api_url) {
+    // Make a GET request to the API endpoint
+    const response = await page.evaluate(async (url) => {
+        const fetchData = await fetch(url, {
+            headers: {
+                'Authorization': `Bearer ${'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiOWQ3ZjcyNjM2NWIyZTQwYmEwYTE2N2M4MzE0OWUyODRmYmMwYjhiZDM1NGMxNGI3YmJmM2EwN2M4YTZmMzhhOWFmZDEwNjEyZGViMTQ4YWEiLCJpYXQiOjE3MzI4NTYxNDMuNTMyMDE2LCJuYmYiOjE3MzI4NTYxNDMuNTMyMDE5LCJleHAiOjE3MzQxNTIxNDMuNTE4MzkyLCJzdWIiOiI2NzE0YTkyNC03YmZhLTQ5NjktODUzOC1iZjg0MTk1YjU0MWEiLCJzY29wZXMiOltdfQ.iccvw94V6-6DKraXLLIxJLc5olu-tsRWArW4Trl315u3IMfJxtqeC-LlgsU10-U_DghJwEaJH_ghlbKf69gW436y88gBMRDxno1okcIge0jtLrAcOqkXqs7ONkfHK3V2vsxxdm86CMqHnIqdSxgyXykqbGo-yiV1mNuAaJZ6v5kGhZVq76GTNzzrYypeFh4K0ObNS8iKOZZJnmT8AX7T30C8mlLNEScDJV3Iln3fXdt3hLE-rFjKI6B2NZg5geDfiOSEughrVddEIZRS4hr-mguznMnbMOBbvx7QrnOOkRalwM0qZn69H6Aj9y9ZgETqIAd9BBqnjNg7_k1lQBMqw-SC8dxxG9ijQqstYXO9oEYQvw7oSGY8aNre_cTwS4ic7B7DpPbPkj6xqAmcQWz6hSwVL1-Qq4M4pSHAkxcGPC8IQlbz-GVoFn2X37M6LwuCvSB5x08VSxy6iKr5KcBDf-HWu_pfgKCtvCoXV7wx__dn5pzw0ouel8ZMUBky01WzB-o4sHcwma3IPy7LmjKEVrPBSN4n3MR6qvGRBRaVgGavxsCmsDnnesY9wSd0Set3iJ7mytRusXpyVCP_BKodFOg6qnUk6hd4k7VchOWTcsB_Wqorwc4o59XHIYR8fCHDYu9IMNzrxu8HyNSKEfurNAm7Q6yC-aGiAWGS4kwh3NM'}` // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
+            }
+        });
+        return fetchData.json();
+    }, api_url);
+    // Output the API response
+    return response;
+}
+async function i_icon_for_verifying_warehouses(page, quote_type, quote_id) {
+    await page.goto(stage_url + quote_type + '/' + quote_id)
+    let create_so = await page.locator("//*[text()='Create Sales Order']");
+    await expect(page.locator("(//*[starts-with(text(),'GP')])[1]")).toBeVisible();
+    let item = await page.locator("//*[contains(@class,'align-center with-border-bottom')]/div[2]/h4");
+    let items = [];
+    for (let i = 0; i < await item.count(); i++) {
+        items.push(await item.nth(i).textContent())
+    }
+    console.log(items);
+    await expect(create_so).toBeVisible(); await create_so.click();
+    await expect(page.locator("//*[@placeholder='Enter PO Number']")).toBeVisible();
+    let quote_api_url = 'https://staging-buzzworld-api.iidm.com/v1/getQuoteWonItems?quote_id=' + quote_id;
+    const quote_api_data = await api_responses(page, quote_api_url); let i_icon_count = 0;
+    let cust_warehouse = quote_api_data.result.data.stockItemInfo[0].warehouse;
+    for (let n = 0; n < items.length; n++) {
+        let inv_api_url = 'https://staging-buzzworld-api.iidm.com/v1/getInventoryQuery?stockCode=' + items[n];
+        const inv_api_data = await api_responses(page, inv_api_url);
+        let warehouse_count = inv_api_data.result.data.stockItemInfo.warehouse.length;
+        for (let w = 0; w < warehouse_count; w++) {
+            let item_warehouse = inv_api_data.result.data.stockItemInfo.warehouse[w].warehouse
+                + ' - ' + inv_api_data.result.data.stockItemInfo.warehouse[w].description;
+            if (item_warehouse === cust_warehouse) {
+                console.log(items[n] + ' item_warehouse: ' + item_warehouse);
+                console.log('customer_warehouse: ' + cust_warehouse);
+            } else {
+                i_icon_count++;
+                console.log(items[n] + ' item_warehouse: ' + item_warehouse);
+                console.log('customer_warehouse: ' + cust_warehouse);
+                break;
+            }
+        }
+    } let result = false;
+    if (i_icon_count >= 1) {
+        try {
+            let i_icon = await page.locator("//*[contains(@style,'margin: 3px -12px;')]");
+            await i_icon.scrollIntoViewIfNeeded(); await delay(page, 2000);
+            let tool_tip = await page.locator("//*[contains(@class, 'Tooltip')]");
+            let warehouse_text = 'Customer warehouse 03, Stockcode exists in warehouse(s) 01, 30';
+            await expect(i_icon).toBeVisible(); await i_icon.hover();
+            await expect(tool_tip).toBeVisible();
+            let tool_tip_text = await tool_tip.textContent();
+            if (tool_tip_text === warehouse_text) {
+                result = true;
+            } else {
+                result = false;
+            }
+            console.log(tool_tip_text)
+        } catch (error) { result = false; }
+    } else { result = false; console.log('customer warehouse and stockcode warehouse are matched i.e No Icon') }
+
+    return result;
 }
 async function verify_quote_clone_archived_quotes(page, status, colStatus) {
     await page.click("//*[text()='" + status + "']"); await expect(allPages.profileIconListView).toBeVisible();
@@ -17227,5 +17380,8 @@ module.exports = {
     verify_quote_clone_archived_quotes,
     vendor_website_field_validation_slash,
     verify_default_branch_pricing,
-    verify_storage_location_repair_quotes
+    verify_storage_location_repair_quotes,
+    warranty_repair_parts_purchase,
+    verify_stocked_location_parts_system_quotes,
+    i_icon_for_verifying_warehouses
 };
