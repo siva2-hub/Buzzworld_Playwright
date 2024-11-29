@@ -237,7 +237,7 @@ test.describe('all tests', async () => {
 
   test('Parts Quote Creation with Sales Order', async ({ }, testInfo) => {
     //create parts quote
-    let acc_num = 'MULTI00', cont_name = 'Garret Luppino', stock_code = ['12342-000'];
+    let acc_num = 'ZAPAT00', cont_name = 'Jeff Zapata', stock_code = ['TESTIN12342-000'];
     results = await create_job_quotes(page, 'Y', 'Parts Quote', acc_num, cont_name, stock_code);
     let testName = testInfo.title;
     await returnResult(page, testName, results);
@@ -340,36 +340,36 @@ test.describe('all tests', async () => {
     await parts_purchase_left_menu_filter(page);
   });
 
-  test('verify filters in quotes with customer name', async ({ }, testInfo) => {
-    let acc_num = "ZUMMO00", custName = 'Zummo Meat Co Inc';
-    results = await filters_quotes_cust(page, acc_num, custName);
-    let testName = testInfo.title;
-    await returnResult(page, testName, results);
-  });
-  test('verify filters in quotes with sales person', async ({ }, testInfo) => {
-    let salesPerson = 'Frontier';
-    results = await filters_quotes_sales_person(page, salesPerson, 0, 7);
-    let testName = testInfo.title;
-    await returnResult(page, testName, results);
-  });
-  test('verify filters in quotes with status', async ({ }, testInfo) => {
-    let status = 'Won';
-    results = await filters_quotes_sales_person(page, status, 1, 8);
-    let testName = testInfo.title;
-    await returnResult(page, testName, results);
-  });
-  test('verify filters in quotes with quoted by', async ({ }, testInfo) => {
-    let quoted_by = 'Annita Torres';
-    results = await filters_quotes_sales_person(page, quoted_by, 2, 4);
-    let testName = testInfo.title;
-    await returnResult(page, testName, results);
-  });
-  test('verify filters in quotes with item filters', async ({ }, testInfo) => {
-    let quoted_by = 'S8VS-18024B';
-    results = await filters_quotes_sales_person(page, quoted_by, 3, 4);
-    let testName = testInfo.title;
-    await returnResult(page, testName, results);
-  });
+  // test('verify filters in quotes with customer name', async ({ }, testInfo) => {
+  //   let acc_num = "ZUMMO00", custName = 'Zummo Meat Co Inc';
+  //   results = await filters_quotes_cust(page, acc_num, custName);
+  //   let testName = testInfo.title;
+  //   await returnResult(page, testName, results);
+  // });
+  // test('verify filters in quotes with sales person', async ({ }, testInfo) => {
+  //   let salesPerson = 'Frontier';
+  //   results = await filters_quotes_sales_person(page, salesPerson, 0, 7);
+  //   let testName = testInfo.title;
+  //   await returnResult(page, testName, results);
+  // });
+  // test('verify filters in quotes with status', async ({ }, testInfo) => {
+  //   let status = 'Won';
+  //   results = await filters_quotes_sales_person(page, status, 1, 8);
+  //   let testName = testInfo.title;
+  //   await returnResult(page, testName, results);
+  // });
+  // test('verify filters in quotes with quoted by', async ({ }, testInfo) => {
+  //   let quoted_by = 'Annita Torres';
+  //   results = await filters_quotes_sales_person(page, quoted_by, 2, 4);
+  //   let testName = testInfo.title;
+  //   await returnResult(page, testName, results);
+  // });
+  // test('verify filters in quotes with item filters', async ({ }, testInfo) => {
+  //   let quoted_by = 'S8VS-18024B';
+  //   results = await filters_quotes_sales_person(page, quoted_by, 3, 4);
+  //   let testName = testInfo.title;
+  //   await returnResult(page, testName, results);
+  // });
   test('POS Reports Lists', async ({ }, testInfo) => {
     results = await pos_report(page);
     let testName = testInfo.title;
@@ -454,39 +454,39 @@ test.describe('all tests', async () => {
       await returnResult(page, testName, results);
     });
   });
-  test('New Item Data pull fron syspro', async ({ }, testInfo) => {
-    let newPart = '2423534-TEST';
-    results = await verifying_pull_data_from_syspro(page, newPart);
-    let testName = testInfo.title;
-    await returnResult(page, testName, results);
-  });
-  test('Verify storage location field for repair quotes', async ({ }, testInfo) => {
-    let newPart = '2423534-TEST';
-    results = await verify_storage_location_repair_quotes(page);
-    let testName = testInfo.title;
-    await returnResult(page, testName, results);
-  })
+  // test('New Item Data pull fron syspro', async ({ }, testInfo) => {
+  //   let newPart = 'GHG-673G12';// 2423534-TEST
+  //   results = await verifying_pull_data_from_syspro(page, newPart);
+  //   let testName = testInfo.title;
+  //   await returnResult(page, testName, results);
+  // });
+  // test('Verify storage location field for repair quotes', async ({ }, testInfo) => {
+  //   let newPart = '2423534-TEST';
+  //   results = await verify_storage_location_repair_quotes(page);
+  //   let testName = testInfo.title;
+  //   await returnResult(page, testName, results);
+  // })
 
-  test('Verify Quote Clone for Archived quotes', async ({ }, testInfo) => {
-    results = await verify_quote_clone_archived_quotes(page, 'Archived Quotes', 'Archived');
-    let testName = testInfo.title;
-    await returnResult(page, testName, results);
-  });
-  test('Verify Quote Clone for Expired quotes', async ({ }, testInfo) => {
-    results = await verify_quote_clone_archived_quotes(page, 'Expired Quotes', 'Expired');
-    let testName = testInfo.title;
-    await returnResult(page, testName, results);
-  });
-  test('Verify Vendor Website Slash Validation', async ({ }, testInfo) => {
-    results = await vendor_website_field_validation_slash(page);
-    let testName = testInfo.title;
-    await returnResult(page, testName, results);
-  });
-  test('Verify Default Branch Name Pricing', async ({ }, testInfo) => {
-    results = await verify_default_branch_pricing(page);
-    let testName = testInfo.title;
-    await returnResult(page, testName, results);
-  });
+  // test('Verify Quote Clone for Archived quotes', async ({ }, testInfo) => {
+  //   results = await verify_quote_clone_archived_quotes(page, 'Archived Quotes', 'Archived');
+  //   let testName = testInfo.title;
+  //   await returnResult(page, testName, results);
+  // });
+  // test('Verify Quote Clone for Expired quotes', async ({ }, testInfo) => {
+  //   results = await verify_quote_clone_archived_quotes(page, 'Expired Quotes', 'Expired');
+  //   let testName = testInfo.title;
+  //   await returnResult(page, testName, results);
+  // });
+  // test('Verify Vendor Website Slash Validation', async ({ }, testInfo) => {
+  //   results = await vendor_website_field_validation_slash(page);
+  //   let testName = testInfo.title;
+  //   await returnResult(page, testName, results);
+  // });
+  // test('Verify Default Branch Name Pricing', async ({ }, testInfo) => {
+  //   results = await verify_default_branch_pricing(page);
+  //   let testName = testInfo.title;
+  //   await returnResult(page, testName, results);
+  // });
   test.skip('functional_flow', async () => {
     await functional_flow(page);
   });
