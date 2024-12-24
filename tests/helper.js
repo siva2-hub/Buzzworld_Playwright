@@ -3823,11 +3823,21 @@ async function verifying_pull_data_from_syspro(page, newPart) {
         await page.getByPlaceholder('Search By Part Number').fill(newPart); await spinner(page);
         try { await expect(page.locator("//*[text()='" + newPart + "']")).toBeVisible({ timeout: 5000 }); statuses.push(true); }
         catch (error) { statuses.push(false); console.log(newPart + "is not displayed in items search"); }
-        await page.click("//*[contains(@src,'cross')]"); await page.goBack(); urlPath = quoteTypes[index];
+        await page.click("//*[contains(@src,'cross')]");
+        await page.goBack(); urlPath = quoteTypes[index];
     }
     let actualResult = statuses.join(", ").toString(); console.log(actualResult);
-    if (actualResult === 'true, true, true') { results = true; }
-    else { results = false }
+    if (actualResult === 'true, true, true') {
+        await page.goto(stage_url + 'all_quotes');
+        await expect(allPages.profileIconListView).toBeVisible();
+        await page.getByText('Filters').click(); await page.getByText('Search By Items').nth(0).click();
+        await page.keyboard.insertText(newPart);
+        await expect(page.locator("//*[text()='Loading...']")).toBeHidden();
+        let drop_text = await page.locator("//*[contains(@class,'css-4mp3pp-menu')]").textContent();
+        console.log('drop down text is ' + drop_text);
+        if (drop_text.includes('Item Not Found')) { results = true; }
+        else { results = false; }
+    } else { results = false }
     return results
 }
 async function verify_storage_location_repair_quotes(page) {
@@ -3887,17 +3897,22 @@ async function i_icon_for_verifying_warehouses(page, quote_type, quote_id) {
     await expect(page.locator("(//*[starts-with(text(),'GP')])[1]")).toBeVisible();
     let item = await page.locator("//*[contains(@class,'align-center with-border-bottom')]/div[2]/h4");
     let items = [];
-    for (let i = 0; i < await item.count(); i++) {
-        items.push(await item.nth(i).textContent())
-    }
-    console.log(items);
     await expect(create_so).toBeVisible(); await create_so.click();
     await expect(page.locator("//*[@placeholder='Enter PO Number']")).toBeVisible();
     let quote_api_url = 'https://staging-buzzworld-api.iidm.com/v1/getQuoteWonItems?quote_id=' + quote_id;
     const quote_api_data = await api_responses(page, quote_api_url); let i_icon_count = 0;
     let cust_warehouse = quote_api_data.result.data.stockItemInfo[0].warehouse;
+    let error_message = [];
+    let itemss = quote_api_data.result.data.stockItemInfo;
+    for (let k = 0; k < itemss.length; k++) {
+        let item = quote_api_data.result.data.stockItemInfo[k].stockCode;
+        items.push(item);
+        let warning = quote_api_data.result.data.stockItemInfo[k].warehouse_warning_info;
+        error_message.push(warning);
+    }
+    console.log(items);
     for (let n = 0; n < items.length; n++) {
-        let inv_api_url = 'https://staging-buzzworld-api.iidm.com/v1/getInventoryQuery?stockCode=' + items[n];
+        let inv_api_url = 'https://staging-buzzworld-api.iidm.com/v1/getInventoryQuery?stockCode=' + items[n].replace("+", "%2B") + '&stockCodeId=' + items[n];
         const inv_api_data = await api_responses(page, inv_api_url);
         let warehouse_count = inv_api_data.result.data.stockItemInfo.warehouse.length;
         for (let w = 0; w < warehouse_count; w++) {
@@ -3913,26 +3928,36 @@ async function i_icon_for_verifying_warehouses(page, quote_type, quote_id) {
                 break;
             }
         }
-    } let result = false;
+    } let result = [], status = false;
     if (i_icon_count >= 1) {
-        try {
-            let i_icon = await page.locator("//*[contains(@style,'margin: 3px -12px;')]");
-            await i_icon.scrollIntoViewIfNeeded(); await delay(page, 2000);
-            let tool_tip = await page.locator("//*[contains(@class, 'Tooltip')]");
-            let warehouse_text = 'Customer warehouse 03, Stockcode exists in warehouse(s) 01, 30';
-            await expect(i_icon).toBeVisible(); await i_icon.hover();
-            await expect(tool_tip).toBeVisible();
-            let tool_tip_text = await tool_tip.textContent();
-            if (tool_tip_text === warehouse_text) {
-                result = true;
-            } else {
-                result = false;
-            }
-            console.log(tool_tip_text)
-        } catch (error) { result = false; }
-    } else { result = false; console.log('customer warehouse and stockcode warehouse are matched i.e No Icon') }
-
-    return result;
+        for (let c = 0; c < i_icon_count; c++) {
+            try {
+                let i_icon = await page.locator("(//*[contains(@style,'margin: 3px -12px;')])[" + (c + 1) + "]");
+                await i_icon.scrollIntoViewIfNeeded();
+                let tool_tip = await page.locator("(//*[contains(@class, 'Tooltip')])[1]");
+                let warehouse_text = error_message[c];
+                await expect(i_icon).toBeVisible();
+                await page.locator("(//*[text()='Order Quantity'])[" + (c + 1) + "]").hover(); await i_icon.hover();
+                await expect(tool_tip).toBeVisible();
+                let tool_tip_text = await tool_tip.textContent();
+                if (tool_tip_text === warehouse_text) {
+                    result.push(true);
+                } else {
+                    result.push(false);
+                }
+                console.log('tool tip text ' + tool_tip_text)
+                console.log('warehouse text ' + warehouse_text);
+            } catch (error) { result.push(false); console.log(error); }
+        }
+        console.log(result.join(", ").toString());
+        console.log('true, true, true');
+        if (result.join(", ").toString() === "true, true, true") {
+            status = true;
+        } else {
+            status = false;
+        }
+    } else { status = false; console.log('customer warehouse and stockcode warehouse are matched i.e No Icon') }
+    return status;
 }
 async function verify_quote_clone_archived_quotes(page, status, colStatus) {
     await page.click("//*[text()='" + status + "']"); await expect(allPages.profileIconListView).toBeVisible();
@@ -3986,8 +4011,17 @@ async function verify_default_branch_pricing(page) {
     await selectBranch.click(); await page.click("//*[text()='Default']"); let results = false
     await page.fill("(//*[contains(@placeholder,'Search')])[1]", "BACO001");
     await delay(page, 3500); await expect(page.locator("(//*[contains(@src,'editicon')])[1]")).toBeVisible();
-    try { await expect(page.locator("//*[text()='Default']")).toBeVisible({ timeout: 2500 }); results = true; }
-    catch (error) { results = false; console.log("displaying branch is " + await selectBranch.textContent()) }
+    try {
+        let dis_branch = await page.textContent();
+        await page.click();
+        console.log("display barnch is " + dis_branch);
+        let drop_branch = await page.textContent("//*[contains(@class,'css-4mp3pp-menul')]");
+        console.log("dropdowns barnch is " + drop_branch);
+        await expect(page.locator("//*[text()='Default']")).toBeVisible({ timeout: 2500 });
+        results = true;
+    } catch (error) {
+        results = false; console.log("displaying branch is " + await selectBranch.textContent())
+    }
     return results;
 }
 async function read_excel_data(file, sheetIndex) {
