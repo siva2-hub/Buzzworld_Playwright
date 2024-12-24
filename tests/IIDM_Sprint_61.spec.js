@@ -5,11 +5,8 @@ const testdata = JSON.parse(JSON.stringify(require("../testdata.json")));
 const stage_url = process.env.BASE_URL_BUZZ;
 let page, results, context;
 test.beforeAll(async ({ browser }) => {
-  // await reports('First Test', 'Passed');
-  let w = 1920, h = 910;
   context = await browser.newContext()
   page = await context.newPage()
-  // await setScreenSize(page, w, h);
   await login_buzz(page, stage_url);
 });
 test('Item notes line breaks at Quotes', async ({ }, testInfo) => {

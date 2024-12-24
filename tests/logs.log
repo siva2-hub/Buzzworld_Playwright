@@ -55,3 +55,220 @@ data count in grid 19
 [33m  Consider splitting slow test files to speed up parallel execution[39m
 [32m  1 passed[39m[2m (50.0s)[22m
 
+
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+[31m  1) [chromium] › subscribe_button_website.spec.js:4:1 › verifying subscribe button at website [2m─────[22m[39m
+
+    Error: [31mTimed out 2300ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+    Locator: locator('//*[text()=\'please enter first name\']')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      [2m- expect.toBeVisible with timeout 2300ms[22m
+    [2m  - waiting for locator('//*[text()=\'please enter first name\']')[22m
+
+
+    [0m [90m 33 |[39m                 [36mlet[39m last_name_valds [33m=[39m page[33m.[39mlocator([32m"//*[text()='please enter last name']"[39m)[33m;[39m
+     [90m 34 |[39m                 [36mlet[39m email_valds [33m=[39m page[33m.[39mlocator([32m"//*[text()='please email']"[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 35 |[39m                 [36mawait[39m expect(first_name_valds)[33m.[39mtoBeVisible({ timeout[33m:[39m [35m2300[39m })[33m;[39m
+     [90m    |[39m                                                [31m[1m^[22m[39m
+     [90m 36 |[39m                 [36mawait[39m expect(last_name_valds)[33m.[39mtoBeVisible({ timeout[33m:[39m [35m2300[39m })[33m;[39m 
+     [90m 37 |[39m                 [36mawait[39m expect(email_valds)[33m.[39mtoBeVisible({ timeout[33m:[39m [35m2300[39m })[33m;[39m
+     [90m 38 |[39m                 isValidationSuccessfull [33m=[39m [36mtrue[39m[33m;[39m[0m
+
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/subscribe_button_website.spec.js:35:48[22m
+
+[36m    attachment #1: video (video/webm) [2m──────────────────────────────────────────────────────────────[22m[39m
+[36m    test-results/subscribe_button_website-v-1128e-subscribe-button-at-website-chromium/video.webm[39m
+[36m    [2m────────────────────────────────────────────────────────────────────────────────────────────────[22m[39m
+
+
+[33m  Slow test file: [39m[chromium] › subscribe_button_website.spec.js[33m (25.3s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[31m  1 failed[39m
+[31m    [chromium] › subscribe_button_website.spec.js:4:1 › verifying subscribe button at website [2m──────[22m[39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+[31m  1) [chromium] › subscribe_button_website.spec.js:4:1 › verifying subscribe button at website [2m─────[22m[39m
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+    Locator: locator('//*[text()=\'please enter first name\']')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      [2m- expect.toBeVisible with timeout 2300ms[22m
+    [2m  - waiting for locator('//*[text()=\'please enter first name\']')[22m
+
+
+    [0m [90m 33 |[39m                 [36mconst[39m lastNameValidation [33m=[39m page[33m.[39mlocator([32m"//*[text()='please enter last name']"[39m)[33m;[39m
+     [90m 34 |[39m                 [36mconst[39m emailValidation [33m=[39m page[33m.[39mlocator([32m"//*[text()='please email']"[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 35 |[39m                 [36mawait[39m expect(firstNameValidation)[33m.[39mtoBeVisible({ timeout[33m:[39m [35m2300[39m })[33m;[39m
+     [90m    |[39m                                                   [31m[1m^[22m[39m
+     [90m 36 |[39m                 [36mawait[39m expect(lastNameValidation)[33m.[39mtoBeVisible({ timeout[33m:[39m [35m2300[39m })[33m;[39m 
+     [90m 37 |[39m                 [36mawait[39m expect(emailValidation)[33m.[39mtoBeVisible({ timeout[33m:[39m [35m2300[39m })[33m;[39m
+     [90m 38 |[39m                 isValidationSuccessfull [33m=[39m [36mtrue[39m[33m;[39m[0m
+
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/subscribe_button_website.spec.js:35:51[22m
+
+[36m    attachment #1: video (video/webm) [2m──────────────────────────────────────────────────────────────[22m[39m
+[36m    test-results/subscribe_button_website-v-1128e-subscribe-button-at-website-chromium/video.webm[39m
+[36m    [2m────────────────────────────────────────────────────────────────────────────────────────────────[22m[39m
+
+
+[33m  Slow test file: [39m[chromium] › subscribe_button_website.spec.js[33m (29.3s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[31m  1 failed[39m
+[31m    [chromium] › subscribe_button_website.spec.js:4:1 › verifying subscribe button at website [2m──────[22m[39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+[31m  1) [chromium] › subscribe_button_website.spec.js:4:1 › verifying subscribe button at website [2m─────[22m[39m
+
+    Error: [31mTimed out 2300ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+    Locator: locator('//*[text()=\'please enter first name\']')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      [2m- expect.toBeVisible with timeout 2300ms[22m
+    [2m  - waiting for locator('//*[text()=\'please enter first name\']')[22m
+
+
+    [0m [90m 40 |[39m                 [36mconst[39m lastNameValidation [33m=[39m page[33m.[39mlocator([32m"//*[text()='please enter last name']"[39m)[33m;[39m
+     [90m 41 |[39m                 [36mconst[39m emailValidation [33m=[39m page[33m.[39mlocator([32m"//*[text()='please email']"[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 42 |[39m                 [36mawait[39m expect(firstNameValidation)[33m.[39mtoBeVisible({ timeout[33m:[39m [35m2300[39m })[33m;[39m
+     [90m    |[39m                                                   [31m[1m^[22m[39m
+     [90m 43 |[39m                 [36mawait[39m expect(lastNameValidation)[33m.[39mtoBeVisible({ timeout[33m:[39m [35m2300[39m })[33m;[39m 
+     [90m 44 |[39m                 [36mawait[39m expect(emailValidation)[33m.[39mtoBeVisible({ timeout[33m:[39m [35m2300[39m })[33m;[39m
+     [90m 45 |[39m                 isValidationSuccessfull [33m=[39m [36mtrue[39m[33m;[39m[0m
+
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/subscribe_button_website.spec.js:42:51[22m
+
+[36m    attachment #1: video (video/webm) [2m──────────────────────────────────────────────────────────────[22m[39m
+[36m    test-results/subscribe_button_website-v-1128e-subscribe-button-at-website-chromium/video.webm[39m
+[36m    [2m────────────────────────────────────────────────────────────────────────────────────────────────[22m[39m
+
+
+[33m  Slow test file: [39m[chromium] › subscribe_button_website.spec.js[33m (30.6s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[31m  1 failed[39m
+[31m    [chromium] › subscribe_button_website.spec.js:4:1 › verifying subscribe button at website [2m──────[22m[39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+[31m  1) [chromium] › subscribe_button_website.spec.js:57:1 › verifying subscribe button at website positive scenarios [39m
+
+    Error: [31mTimed out 30000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+    Locator: locator('//*[text()=\'Your information has been submitted\']')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      [2m- expect.toBeVisible with timeout 30000ms[22m
+    [2m  - waiting for locator('//*[text()=\'Your information has been submitted\']')[22m
+
+
+    [0m [90m 84 |[39m         [36mtry[39m {
+     [90m 85 |[39m             [36mconst[39m successValidation [33m=[39m page[33m.[39mlocator([32m"//*[text()='Your information has been submitted']"[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 86 |[39m             [36mawait[39m expect(successValidation)[33m.[39mtoBeVisible()[33m;[39m
+     [90m    |[39m                                             [31m[1m^[22m[39m
+     [90m 87 |[39m             isSuccessValidationVisible [33m=[39m [36mtrue[39m[33m;[39m
+     [90m 88 |[39m         } [36mcatch[39m (error) {
+     [90m 89 |[39m             isSuccessValidationVisible [33m=[39m [36mfalse[39m[33m;[39m[0m
+
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/subscribe_button_website.spec.js:86:45[22m
+
+[36m    attachment #1: video (video/webm) [2m──────────────────────────────────────────────────────────────[22m[39m
+[36m    test-results/subscribe_button_website-v-77926--website-positive-scenarios-chromium/video.webm[39m
+[36m    [2m────────────────────────────────────────────────────────────────────────────────────────────────[22m[39m
+
+
+[33m  Slow test file: [39m[chromium] › subscribe_button_website.spec.js[33m (49.3s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[31m  1 failed[39m
+[31m    [chromium] › subscribe_button_website.spec.js:57:1 › verifying subscribe button at website positive scenarios [39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+[31m  1) [chromium] › subscribe_button_website.spec.js:57:1 › verifying subscribe button at website positive scenarios [39m
+
+    Error: [31mTimed out 60000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+    Locator: locator('//*[text()=\'Your information has been submitted\']')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      [2m- expect.toBeVisible with timeout 60000ms[22m
+    [2m  - waiting for locator('//*[text()=\'Your information has been submitted\']')[22m
+
+
+    [0m [90m 85 |[39m         [36mtry[39m {
+     [90m 86 |[39m             [36mconst[39m successValidation [33m=[39m page[33m.[39mlocator([32m"//*[text()='Your information has been submitted']"[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 87 |[39m             [36mawait[39m expect(successValidation)[33m.[39mtoBeVisible({ timeout[33m:[39m [35m60000[39m })[33m;[39m
+     [90m    |[39m                                             [31m[1m^[22m[39m
+     [90m 88 |[39m             isSuccessValidationVisible [33m=[39m [36mtrue[39m[33m;[39m
+     [90m 89 |[39m         } [36mcatch[39m (error) {
+     [90m 90 |[39m             isSuccessValidationVisible [33m=[39m [36mfalse[39m[33m;[39m[0m
+
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/subscribe_button_website.spec.js:87:45[22m
+
+[36m    attachment #1: video (video/webm) [2m──────────────────────────────────────────────────────────────[22m[39m
+[36m    test-results/subscribe_button_website-v-77926--website-positive-scenarios-chromium/video.webm[39m
+[36m    [2m────────────────────────────────────────────────────────────────────────────────────────────────[22m[39m
+
+
+[33m  Slow test file: [39m[chromium] › subscribe_button_website.spec.js[33m (1.4m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[31m  1 failed[39m
+[31m    [chromium] › subscribe_button_website.spec.js:57:1 › verifying subscribe button at website positive scenarios [39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+[31m  1) [chromium] › subscribe_button_website.spec.js:57:1 › verifying subscribe button at website positive scenarios [39m
+
+    ReferenceError: isValidationSuccessfull is not defined
+
+    [0m [90m 91 |[39m             [36mthrow[39m error[33m;[39m
+     [90m 92 |[39m         }
+    [31m[1m>[22m[39m[90m 93 |[39m         [36mif[39m (isValidationSuccessfull) { [36mawait[39m page[33m.[39mclick([32m"//*[@aria-label='Close']"[39m)[33m;[39m }
+     [90m    |[39m         [31m[1m^[22m[39m
+     [90m 94 |[39m         [36melse[39m { }
+     [90m 95 |[39m     } [36melse[39m { }
+     [90m 96 |[39m })[33m;[39m[0m
+
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/subscribe_button_website.spec.js:93:9[22m
+
+[36m    attachment #1: video (video/webm) [2m──────────────────────────────────────────────────────────────[22m[39m
+[36m    test-results/subscribe_button_website-v-77926--website-positive-scenarios-chromium/video.webm[39m
+[36m    [2m────────────────────────────────────────────────────────────────────────────────────────────────[22m[39m
+
+
+[33m  Slow test file: [39m[chromium] › subscribe_button_website.spec.js[33m (25.1s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[31m  1 failed[39m
+[31m    [chromium] › subscribe_button_website.spec.js:57:1 › verifying subscribe button at website positive scenarios [39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+[33m  Slow test file: [39m[chromium] › subscribe_button_website.spec.js[33m (23.2s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[32m  1 passed[39m[2m (25.5s)[22m
+
