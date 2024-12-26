@@ -38,7 +38,18 @@ test("POS reports prefil previous month and current", async () => {
   if (results) { } else { throw errors }
 });
 test("display the project name at send to customer page", async () => {
-
+  const urlPath = 'all_quotes/a18057a7-04aa-426a-a494-7c76e0a243a5';
+  await page.goto(stage_url + urlPath);
+  let iidmCost = 0;
+  await expect(page.locator("(//*[text()='IIDM Cost:'])[1]")).toBeVisible();
+  const iCost = await page.locator('//*[@id="repair-items"]/div[2]/div[1]/div/div/div[2]/div[3]/div[3]/h4');
+  console.log("count is: " + await iCost.count());
+  for (let index = 0; index < await iCost.count(); index++) {
+    let ic = await iCost.nth(index).textContent();
+    iidmCost = iidmCost + (ic.replace("$", "")).replace(",","");
+  }
+  console.log(iidmCost);
+  await page.pause();
 });
 test("Revice the old version also", async () => {
 
