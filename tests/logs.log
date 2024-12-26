@@ -272,3 +272,180 @@ data count in grid 19
 [33m  Consider splitting slow test files to speed up parallel execution[39m
 [32m  1 passed[39m[2m (25.5s)[22m
 
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+
+locator('//*[@id="repair-items"]/div[2]/div[1]/div/div/div[2]/div[3]/div[3]/h4')
+[31m  1) [chromium] › 66.spec.js:40:1 › display the project name at send to customer page [2m──────────────[22m[39m
+
+    [31mTest was interrupted.[39m
+
+
+[33m  Slow test file: [39m[chromium] › 66.spec.js[33m (58.8s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[33m  1 interrupted[39m
+[33m    [chromium] › 66.spec.js:40:1 › display the project name at send to customer page [2m───────────────[22m[39m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+locator('//*[@id="repair-items"]/div[2]/div[1]/div/div/div[2]/div[3]/div[3]/h4')
+
+[31m  1) [chromium] › 66.spec.js:40:1 › display the project name at send to customer page [2m──────────────[22m[39m
+
+    [31mTest was interrupted.[39m
+
+
+[33m  Slow test file: [39m[chromium] › 66.spec.js[33m (1.2m)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[33m  1 interrupted[39m
+[33m    [chromium] › 66.spec.js:40:1 › display the project name at send to customer page [2m───────────────[22m[39m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+locator('//*[@id="repair-items"]/div[2]/div[1]/div/div/div[2]/div[3]/div[3]/h4')
+
+[31m  1) [chromium] › 66.spec.js:40:1 › display the project name at send to customer page [2m──────────────[22m[39m
+
+    [31mTest was interrupted.[39m
+
+
+[33m  Slow test file: [39m[chromium] › 66.spec.js[33m (42.7s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[33m  1 interrupted[39m
+[33m    [chromium] › 66.spec.js:40:1 › display the project name at send to customer page [2m───────────────[22m[39m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+count is: [object Promise]
+
+
+locator('//*[@id="repair-items"]/div[2]/div[1]/div/div/div[2]/div[3]/div[3]/h4')
+[31m  1) [chromium] › 66.spec.js:40:1 › display the project name at send to customer page [2m──────────────[22m[39m
+
+    [31mTest was interrupted.[39m
+
+
+[33m  Slow test file: [39m[chromium] › 66.spec.js[33m (24.8s)[39m
+[33m  Consider splitting slow test files to speed up parallel execution[39m
+[33m  1 interrupted[39m
+[33m    [chromium] › 66.spec.js:40:1 › display the project name at send to customer page [2m───────────────[22m[39m
+
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+[31m  1) [chromium] › 66.spec.js:40:1 › display the project name at send to customer page [2m──────────────[22m[39m
+
+    Error: page.goto: Target page, context or browser has been closed
+    Call log:
+      [2m- navigating to "https://www.staging-buzzworld.iidm.com/all_quotes", waiting until "load"[22m
+
+
+    [90m   at [39mhelper.js:222
+
+    [0m [90m 220 |[39m [36masync[39m [36mfunction[39m login_buzz(page[33m,[39m stage_url) {
+     [90m 221 |[39m     allPages [33m=[39m [36mnew[39m [33mAllPages[39m(page)[33m;[39m
+    [31m[1m>[22m[39m[90m 222 |[39m     [36mawait[39m page[33m.[39mgoto(stage_url [33m+[39m [32m"all_quotes"[39m)[33m;[39m
+     [90m     |[39m                [31m[1m^[22m[39m
+     [90m 223 |[39m     [90m// if (await page.url().includes('sso')) {[39m
+     [90m 224 |[39m     [36mlet[39m userName[33m,[39m password[33m;[39m
+     [90m 225 |[39m     [36mif[39m (stage_url[33m.[39mincludes([32m'192.168'[39m)) {[0m
+
+    [2m    at login_buzz (/home/enterpi/git/Buzzworld/Playwright/tests/helper.js:222:16)[22m
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/66.spec.js:14:9[22m
+
+
+[31m  1 failed[39m
+[31m    [chromium] › 66.spec.js:40:1 › display the project name at send to customer page [2m───────────────[22m[39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+count is: [object Promise]
+
+[31m  1) [chromium] › 66.spec.js:40:1 › display the project name at send to customer page [2m──────────────[22m[39m
+
+    TypeError: iCost.replace is not a function
+
+    [0m [90m 46 |[39m   console[33m.[39mlog([32m"count is: "[39m [33m+[39m iCost[33m.[39mcount())[33m;[39m
+     [90m 47 |[39m   [36mfor[39m ([36mlet[39m index [33m=[39m [35m0[39m[33m;[39m index [33m<[39m [36mawait[39m iCost[33m.[39mcount()[33m;[39m index[33m++[39m) {
+    [31m[1m>[22m[39m[90m 48 |[39m     iCost [33m=[39m [36mawait[39m iCost[33m.[39mnth(index)[33m.[39mtextContent() [33m+[39m iCost[33m.[39mreplace([32m"$"[39m[33m,[39m [32m""[39m)[33m.[39mreplace([32m","[39m[33m,[39m [32m""[39m)[33m;[39m
+     [90m    |[39m                                                          [31m[1m^[22m[39m
+     [90m 49 |[39m   }
+     [90m 50 |[39m   console[33m.[39mlog(iCost)[33m;[39m
+     [90m 51 |[39m   [36mawait[39m page[33m.[39mpause()[33m;[39m[0m
+
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/66.spec.js:48:58[22m
+
+
+[31m  1 failed[39m
+[31m    [chromium] › 66.spec.js:40:1 › display the project name at send to customer page [2m───────────────[22m[39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+count is: 10
+
+[31m  1) [chromium] › 66.spec.js:40:1 › display the project name at send to customer page [2m──────────────[22m[39m
+
+    TypeError: iCost.replace is not a function
+
+    [0m [90m 46 |[39m   console[33m.[39mlog([32m"count is: "[39m [33m+[39m [36mawait[39m iCost[33m.[39mcount())[33m;[39m
+     [90m 47 |[39m   [36mfor[39m ([36mlet[39m index [33m=[39m [35m0[39m[33m;[39m index [33m<[39m [36mawait[39m iCost[33m.[39mcount()[33m;[39m index[33m++[39m) {
+    [31m[1m>[22m[39m[90m 48 |[39m     iidmCost [33m=[39m iidmCost [33m+[39m [36mawait[39m iCost[33m.[39mnth(index)[33m.[39mtextContent() [33m+[39m iCost[33m.[39mreplace([32m"$"[39m[33m,[39m [32m""[39m)[33m.[39mreplace([32m","[39m[33m,[39m [32m""[39m)[33m;[39m
+     [90m    |[39m                                                                        [31m[1m^[22m[39m
+     [90m 49 |[39m   }
+     [90m 50 |[39m   console[33m.[39mlog(iidmCost)[33m;[39m
+     [90m 51 |[39m   [36mawait[39m page[33m.[39mpause()[33m;[39m[0m
+
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/66.spec.js:48:72[22m
+
+
+[31m  1 failed[39m
+[31m    [chromium] › 66.spec.js:40:1 › display the project name at send to customer page [2m───────────────[22m[39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
+
+[2mRunning [22m1[2m test using [22m1[2m worker[22m
+
+
+count is: 10
+[31m  1) [chromium] › 66.spec.js:40:1 › display the project name at send to customer page [2m──────────────[22m[39m
+
+    TypeError: iCost.nth(...).textContent(...).replace is not a function
+
+    [0m [90m 46 |[39m   console[33m.[39mlog([32m"count is: "[39m [33m+[39m [36mawait[39m iCost[33m.[39mcount())[33m;[39m
+     [90m 47 |[39m   [36mfor[39m ([36mlet[39m index [33m=[39m [35m0[39m[33m;[39m index [33m<[39m [36mawait[39m iCost[33m.[39mcount()[33m;[39m index[33m++[39m) {
+    [31m[1m>[22m[39m[90m 48 |[39m     iidmCost [33m=[39m iidmCost [33m+[39m [36mawait[39m iCost[33m.[39mnth(index)[33m.[39mtextContent()[33m.[39mreplace([32m"$"[39m[33m,[39m [32m""[39m)[33m.[39mreplace([32m","[39m[33m,[39m [32m""[39m)[33m;[39m
+     [90m    |[39m                                                                [31m[1m^[22m[39m
+     [90m 49 |[39m   }
+     [90m 50 |[39m   console[33m.[39mlog(iidmCost)[33m;[39m
+     [90m 51 |[39m   [36mawait[39m page[33m.[39mpause()[33m;[39m[0m
+
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/66.spec.js:48:64[22m
+
+    Error: locator.textContent: Test ended.
+    Call log:
+      [2m- waiting for locator('//*[@id="repair-items"]/div[2]/div[1]/div/div/div[2]/div[3]/div[3]/h4').first()[22m
+
+
+    [0m [90m 46 |[39m   console[33m.[39mlog([32m"count is: "[39m [33m+[39m [36mawait[39m iCost[33m.[39mcount())[33m;[39m
+     [90m 47 |[39m   [36mfor[39m ([36mlet[39m index [33m=[39m [35m0[39m[33m;[39m index [33m<[39m [36mawait[39m iCost[33m.[39mcount()[33m;[39m index[33m++[39m) {
+    [31m[1m>[22m[39m[90m 48 |[39m     iidmCost [33m=[39m iidmCost [33m+[39m [36mawait[39m iCost[33m.[39mnth(index)[33m.[39mtextContent()[33m.[39mreplace([32m"$"[39m[33m,[39m [32m""[39m)[33m.[39mreplace([32m","[39m[33m,[39m [32m""[39m)[33m;[39m
+     [90m    |[39m                                                  [31m[1m^[22m[39m
+     [90m 49 |[39m   }
+     [90m 50 |[39m   console[33m.[39mlog(iidmCost)[33m;[39m
+     [90m 51 |[39m   [36mawait[39m page[33m.[39mpause()[33m;[39m[0m
+
+    [2m    at /home/enterpi/git/Buzzworld/Playwright/tests/66.spec.js:48:50[22m
+
+
+[31m  1 failed[39m
+[31m    [chromium] › 66.spec.js:40:1 › display the project name at send to customer page [2m───────────────[22m[39m
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
