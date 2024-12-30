@@ -1,14 +1,17 @@
 const { test, expect, errors } = require("@playwright/test");
-const { login_buzz } = require("./helper");
+const { login_buzz, selectStartEndDates } = require("./helper");
 const { throws } = require("assert");
 const { error } = require("console");
+const { testDir } = require("../playwright.config");
 
 const stage_url = process.env.BASE_URL_BUZZ;
 const date = new Date().toDateString(); let results = false;
 const currentDate = new Date(date);
-const day = currentDate.getDate();
+let day = currentDate.getDate();
 const previuosMonth = currentDate.getMonth();
 const year = currentDate.getFullYear();
+const startDate = (previuosMonth + 1) + '/' + day + '/' + year;
+const endDate = (previuosMonth + 1) + '/' + day + '/' + (year + 1);
 let page, context;
 test.beforeAll(async ({ browser }) => {
   context = await browser.newContext()
@@ -82,7 +85,9 @@ test('verifying the vendor part number not accepting the space', async () => {
     await page.getByRole('button', { name: 'Next', exact: true }).click();
     await page.getByText('Search Vendor').click();
     await page.keyboard.insertText('enterpi');
-    await page.getByText('ENTERPI SOFTWARE SOLUTIONS', { exact: true }).click();
+    await expect(page.locator("//*[text()='Loading...']")).toBeVisible();
+    await expect(page.locator("//*[text()='Loading...']")).toBeHidden();
+    await page.keyboard.press('Enter');
     await page.getByRole('button', { name: 'Next', exact: true }).click();
     await page.getByPlaceholder('Enter Vendor Part Number').fill('VENDOR PART  NUMBER');
     await page.locator("//*[@id='tab-2-tab']/div/div/button").click();
@@ -91,12 +96,15 @@ test('verifying the vendor part number not accepting the space', async () => {
     await page.getByText('Parts Purchase').click();
     await page.getByText('Create Parts Purchase').click();
     await page.getByText('Select Technician').click();
-    await page.keyboard.insertText('aaron hanning');
     await page.keyboard.press('Enter');
-    await page.getByText('Select Date Requested').click();
-    await page.getByRole('gridcell', { name: day }).click();
+    try {
+      await expect(page.locator("(//*[contains(@class,'singleValue')])[2]")).toBeVisible({ timeout: 2000 });
+    } catch (error) {
+      await page.getByText('Select Date Requested').click();
+      await page.getByRole('gridcell', { name: day }).click();
+    }
     await page.getByText('Select Urgency').click();
-    await page.getByText('Warranty Repair', { exact: true }).click();
+    await page.keyboard.press('Enter');
     await addDataIntoPartsPurchase(page);
     await expect(page.locator("//*[text()='Vendor Part Number not valid']")).toBeHidden({ timeout: 2300 });
     await page.getByTitle('close').getByRole('img').click();
@@ -110,22 +118,86 @@ test('verifying the vendor part number not accepting the space', async () => {
     await expect(partsPurchaseIcon).toBeVisible();
     await partsPurchaseIcon.click();
     await addDataIntoPartsPurchase(page);
-  } catch (error) { throw new Error("vendor part number not accepting spaces: " + error); }
-}
+  } catch (error) {
+    throw new Error("vendor part number not accepting spaces: " + error);
+  }
 })
 
-test("Need to able to type start date and end dates at non SPA add and edit page", async () => {
-  const startDate = (previuosMonth + 1) + '/' + day + '/' + year;
-  const endDate = (previuosMonth + 1) + '/' + day + '/' + (year + 1);
+test("Need to able to type start date and end dates at non SPA configure", async () => {
+  const expectedDates = startDate + ' - ' + endDate;
   await page.getByRole('button', { name: 'Pricing expand' }).click();
   await page.getByRole('menuitem', { name: 'Non Standard Pricing' }).click();
   const configureButton = page.getByRole('button', { name: 'Configure' });
   await expect(configureButton).toBeVisible();
   await configureButton.click();
-  await page.getByPlaceholder('MM/DD/YYYY-MM/DD/YYYY').fill(startDate + '-' + endDate);
-  await page.locator("//*[contains(@class,'day--0" + (day) + "')]");
-  console.log('kdhfiudshfudskc');
+  await page.getByPlaceholder('MM/DD/YYYY-MM/DD/YYYY').click();
+  const actualDates = await selectStartEndDates(page, startDate, '-', endDate, day, true);
+  if (actualDates[1].backgroundColor === 'rgb(25, 118, 210)') {
+    try {
+      await expect(page.locator("//*[text()='Please select Date Range']")).toBeHidden({ timeout: 2000 });
+      if (actualDates[0] === expectedDates) {
+        await page.getByLabel('Close').click();
+        const actualDates = await selectStartEndDates(page, startDate, ' - ', endDate, day, true);
+        if (actualDates[1].backgroundColor === 'rgb(25, 118, 210)') {
+          if (actualDates[0] === expectedDates) { await page.getByLabel('Close').click(); }
+          else { throw new Error("keyboard typing not accepting for start and end dates at SPA"); }
+        } else { throw new Error("displaying background colour is: " + actualDates[1].backgroundColor + ' but expected is: rgb(25, 118, 210)'); }
+      } else { throw new Error("keyboard typing not accepting for start and end dates at SPA"); }
+    } catch (error) {
+      throw new Error("keyboard typing not accepting for start and end dates at SPA: " + error);
+    }
+  } else { throw new Error("displaying background colour is: " + actualDates[1].backgroundColor + ' but expected is: rgb(25, 118, 210)'); }
 });
-test('should ', async() => {
-  
+test("Need to able to type start date and end dates at non SPA Filters", async () => {
+  const expectedDates = startDate + ' - ' + endDate;
+  await page.getByRole('button', { name: 'Pricing expand' }).click();
+  await page.getByRole('menuitem', { name: 'Non Standard Pricing' }).click();
+  const startEndDates = page.locator("//*[@placeholder='Start & End Date']");
+  await expect(startEndDates).toBeVisible();
+  await startEndDates.click();
+  const actualDates = await selectStartEndDates(page, startDate, '-', endDate, day, false);
+  if (actualDates[1].backgroundColor === 'rgb(25, 118, 210)') {
+    try {
+      await expect(page.locator("//*[text()='Please select Date Range']")).toBeHidden({ timeout: 2000 });
+      if (actualDates[0] === expectedDates) {
+        await page.getByLabel('Close').click();
+        const actualDates = await selectStartEndDates(page, startDate, ' - ', endDate, day, true);
+        if (actualDates[1].backgroundColor === 'rgb(25, 118, 210)') {
+          if (actualDates[0] === expectedDates) { await page.getByLabel('Close').click(); }
+          else { throw new Error("keyboard typing not accepting for start and end dates at SPA"); }
+        } else { throw new Error("displaying background colour is: " + actualDates[1].backgroundColor + ' but expected is: rgb(25, 118, 210)'); }
+      } else { throw new Error("keyboard typing not accepting for start and end dates at SPA"); }
+    } catch (error) {
+      throw new Error("keyboard typing not accepting for start and end dates at SPA: " + error);
+    }
+  } else { throw new Error("displaying background colour is: " + actualDates[1].backgroundColor + ' but expected is: rgb(25, 118, 210)'); }
+});
+test('need to type start and end date at non spa edit grids', async () => {
+  const expectedDates = startDate + ' - ' + endDate;
+  await page.getByRole('button', { name: 'Pricing expand' }).click();
+  await page.getByRole('menuitem', { name: 'Non Standard Pricing' }).click();
+  const editIcon = await page.locator("(//*[@class='edit-del-divs'])[1]");
+  await editIcon.scrollIntoViewIfNeeded();
+  await editIcon.click();
+  await page.getByLabel('Close').click();
+  await page.locator('[id="pricing_rules\\.0\\.buy_side_discount"]').fill('');
+  await page.getByLabel('clear').click();
+  await page.getByPlaceholder('MM/DD/YYYY-MM/DD/YYYY').click();
+  const actualDates = await selectStartEndDates(page, startDate, '-', endDate, day, true);
+  if (actualDates[1].backgroundColor === 'rgb(25, 118, 210)') {
+    try {
+      await expect(page.locator("//*[text()='Please select Date Range']")).toBeHidden({ timeout: 2000 });
+      if (actualDates[0] === expectedDates) {
+        await page.getByLabel('Close').click();
+        const actualDates = await selectStartEndDates(page, startDate, ' - ', endDate, day, true);
+        if (actualDates[1].backgroundColor === 'rgb(25, 118, 210)') {
+          if (actualDates[0] === expectedDates) { await page.getByLabel('Close').click(); }
+          else { throw new Error("keyboard typing not accepting for start and end dates at SPA"); }
+        } else { throw new Error("displaying background colour is: " + actualDates[1].backgroundColor + ' but expected is: rgb(25, 118, 210)'); }
+      } else { throw new Error("keyboard typing not accepting for start and end dates at SPA"); }
+    } catch (error) {
+      throw new Error("keyboard typing not accepting for start and end dates at SPA: " + error);
+    }
+  } else { throw new Error("displaying background colour is: " + actualDates[1].backgroundColor + ' but expected is: rgb(25, 118, 210)'); }
+  await page.pause();
 })
