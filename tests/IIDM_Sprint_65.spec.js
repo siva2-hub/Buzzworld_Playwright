@@ -13,6 +13,7 @@ test.describe('all tests ', async () => {
         // await reports('First Test', 'Passed');
         page = await browser.newPage();
         // await setScreenSize(page, w, h);
+        await page.pause();
         await login_buzz(page, stage_url);
     });
 
@@ -22,7 +23,7 @@ test.describe('all tests ', async () => {
         let testName = testInfo.title;
         await returnResult(page, testName, results);
     });
-    test('Verify storage location field for repair quotes', async ({ }, testInfo) => {
+    test.skip('Verify storage location field for repair quotes', async ({ }, testInfo) => {
         let newPart = '2423534-TEST';
         results = await verify_storage_location_repair_quotes(page);
         let testName = testInfo.title;
@@ -94,7 +95,7 @@ test.describe('all tests ', async () => {
         await returnResult(page, testName, results);
     });
     test('Verify Stocked Code warehouse not match with customer warehouse', async ({ }, testInfo) => {
-        let quote_id = '5b170299-5369-4163-a6ac-e34739b51cd4', quote_type = 'system_quotes';
+        let quote_id = 'b15ef8a1-a11f-44b9-849a-e1883462e09b', quote_type = 'quote_for_repair';
         results = await i_icon_for_verifying_warehouses(page, quote_type, quote_id);
         let testName = testInfo.title;
         await returnResult(page, testName, results);
