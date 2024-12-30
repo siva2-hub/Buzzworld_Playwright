@@ -110,9 +110,8 @@ test('verifying the vendor part number not accepting the space', async () => {
     await expect(partsPurchaseIcon).toBeVisible();
     await partsPurchaseIcon.click();
     await addDataIntoPartsPurchase(page);
-  } catch (error) {
-    throw new Error("vendor part number not accepting spaces: " + error);
-  }
+  } catch (error) { throw new Error("vendor part number not accepting spaces: " + error); }
+}
 })
 
 test("Need to able to type start date and end dates at non SPA add and edit page", async () => {
