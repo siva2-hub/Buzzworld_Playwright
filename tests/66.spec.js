@@ -124,4 +124,5 @@ test("Need to able to type start date and end dates at non SPA add and edit page
   await configureButton.click();
   await page.getByPlaceholder('MM/DD/YYYY-MM/DD/YYYY').fill(startDate + '-' + endDate);
   await page.locator("//*[contains(@class,'day--0" + (day) + "')]");
+  console.log('kdhfiudshfudskc');
 });
