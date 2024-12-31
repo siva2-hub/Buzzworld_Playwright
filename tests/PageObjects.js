@@ -1,3 +1,5 @@
+import { time } from 'console';
+
 const { expect } = require('@playwright/test');
 
 export default class AllPages {
@@ -23,6 +25,21 @@ export default class AllPages {
         this.addItemsBtn = this.page.locator("//*[text()='Add Items']");
         this.itemsNotAvailText = this.page.getByText('Quote item(s) Not Available');
         this.submitForCustomerDropdown = this.page.locator('//*[@id="root"]/div/div[3]/div[1]/div[1]/div/div[2]/div[1]/div[3]/div/button');
+        this.reviseQuoteButton = this.page.locator("//*[contains(text(),'Revise Quote')]");
+        this.allItemsAtDetailView = this.page.locator("//*[@id='repair-items']");
+        this.iidmCostLabel = this.page.locator("(//*[text()='IIDM Cost:'])[1]");
+        this.iidmCost = this.page.locator('//*[@id="repair-items"]/div[2]/div[1]/div/div/div[2]/div[3]/div[3]/h4');
+        this.quotePrice = this.page.locator('//*[@id="repair-items"]/div[2]/div[1]/div/div/div[2]/div[3]/div[1]/h4');
+        this.totalGP = this.page.locator('//*[@id="repair-items"]/div[3]/div/div[1]/div/h4');
+        this.versionDropdown = this.page.locator("(//*[contains(text(),'V')])[1]");
+        this.projectNameRepQuote = this.page.locator("(//*[@class='field-details'])[1]/div[4]/div/div[2]");
+        this.projectNamePartsQuote = this.page.locator("(//*[@class='field-details'])[1]/div[5]/div/div[2]");
+        this.subject = this.page.locator("//*[@name='quote_mail_subject']");
+        this.sendToCustomerButton = this.page.locator("//*[text()='Submit for Customer Approval']");
+        this.quoteOrRMANumber = this.page.locator("//*[@class='id-num']");
+        this.pricingDropDown = this.page.getByRole('button', { name: 'Pricing expand' });
+        this.nonSPAButtonAtDropDown = this.page.getByRole('menuitem', { name: 'Non Standard Pricing' });
+        this.startDateEndDateByPlaceholder = this.page.getByPlaceholder('MM/DD/YYYY-MM/DD/YYYY');
     }
     //Page Objects
     // get userNameInput() { return this.page.getByLabel('Email'); }

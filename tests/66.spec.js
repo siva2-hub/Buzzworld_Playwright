@@ -1,10 +1,12 @@
 const { test, expect, errors } = require("@playwright/test");
-const { login_buzz, selectStartEndDates } = require("./helper");
+const { login_buzz, selectStartEndDates, createQuote, addItesms, approve } = require("./helper");
 const { throws } = require("assert");
 const { error } = require("console");
 const { testDir } = require("../playwright.config");
+const { default: AllPages } = require("./PageObjects");
 
 const stage_url = process.env.BASE_URL_BUZZ;
+let allPages;
 const date = new Date().toDateString(); let results = false;
 const currentDate = new Date(date);
 let day = currentDate.getDate();
@@ -16,40 +18,34 @@ let page, context;
 test.beforeAll(async ({ browser }) => {
   context = await browser.newContext()
   page = await context.newPage()
+  allPages = new AllPages(page);
   await login_buzz(page, stage_url);
 });
-
-test("POS reports prefil previous month and current", async () => {
+test("Prefil the previous month and current year at POS reports", async () => {
   await page.getByRole('button', { name: 'Reports expand' }).click();
   await page.getByRole('menuitem', { name: 'Point of Sales' }).click();
   await expect(page.getByText('Select Report')).toBeVisible();
   const actualMonth = await page.textContent("(//*[contains(@class,'react-select__control')])[1]");
   const actualYear = await page.textContent("(//*[contains(@class,'react-select__control')])[2]");
   if (previuosMonth === 1) {
-    if (actualMonth === 12 && actualYear === (year - 1)) {
-      results = true;
-    } else {
-      results = false;
-    }
+    if (actualMonth === 12 && actualYear === (year - 1)) { results = true; }
+    else { results = false; }
   } else {
-    if (previuosMonth === actualMonth && year === actualYear) {
-      results = true;
-    } else {
-      results = false;
-    }
+    if (previuosMonth === actualMonth && year === actualYear) { results = true; }
+    else { results = false; }
   }
   console.log('expected month: ' + previuosMonth + ' actual month: ' + actualMonth);
   console.log('expected year: ' + year + ' actual year: ' + actualYear);
   if (results) { } else { throw errors }
 });
-test("display the GP for grand total", async () => {
+test("Display the GP as weighted average of sell price & IIDM cost", async () => {
   const urlPath = 'all_quotes/09630d01-f674-449b-9ed6-576e27656f3f';
   await page.goto(stage_url + urlPath);
   let totalIidmCost = 0.0, totalQuotePrice = 0.0;
-  await expect(page.locator("(//*[text()='IIDM Cost:'])[1]")).toBeVisible();
-  const iCost = await page.locator('//*[@id="repair-items"]/div[2]/div[1]/div/div/div[2]/div[3]/div[3]/h4');
-  const qPrice = await page.locator('//*[@id="repair-items"]/div[2]/div[1]/div/div/div[2]/div[3]/div[1]/h4');
-  const tAGP = await page.locator('//*[@id="repair-items"]/div[3]/div/div[1]/div/h4').textContent();
+  await expect(allPages.iidmCostLabel).toBeVisible();
+  const iCost = allPages.iidmCost;
+  const qPrice = allPages.quotePrice;
+  const tAGP = await allPages.totalGP.textContent();
   for (let index = 0; index < await iCost.count(); index++) {
     let ic = await iCost.nth(index).textContent();
     let qp = await qPrice.nth(index).textContent();
@@ -60,27 +56,58 @@ test("display the GP for grand total", async () => {
   const totalActualGP = Number((tAGP.replace("$", "")).replace("%", "")).toFixed(2);
   if (totalActualGP === totalExpectedGP) {
     console.log('actual gp: ' + totalActualGP + ' expected gp: ' + totalExpectedGP);
-  } else {
-    throw new Error('actual gp: ' + totalActualGP + ' expected gp: ' + totalExpectedGP);
-  }
+  } else { throw new Error('actual gp: ' + totalActualGP + ' expected gp: ' + totalExpectedGP); }
 });
 test("Revice the old version also", async () => {
-
+  const urlPath = '991d63bd-39fc-4412-9762-2dac4c227ed0';
+  await page.goto(stage_url + 'all_quotes/' + urlPath);
+  const iidmCostText = allPages.iidmCostLabel;
+  const reviseQuoteButton = allPages.reviseQuoteButton;
+  await expect(iidmCostText).toBeVisible();
+  const itemsDataInLatestVersion = await allPages.allItemsAtDetailView.textContent();
+  try {
+    await expect(reviseQuoteButton).toBeVisible({ timeout: 2000 });
+    const versionDropdown = allPages.versionDropdown;
+    await versionDropdown.click();
+    await page.click("//*[text()='V2']");
+    await expect(iidmCostText).toBeVisible();
+    const itemsDataInOldVersion = await allPages.allItemsAtDetailView.textContent();
+    if (itemsDataInLatestVersion === itemsDataInOldVersion) {
+      await expect(reviseQuoteButton).toBeVisible({ timeout: 2000 });
+    } else { throw new Error("items data at latest and old version are not matched."); }
+  } catch (error) { throw new Error('Error is: ' + error); }
 });
-test("display the project name at send to customer page", async () => {
-
+test("Display the project name at send to customer page", async () => {
+  let accoutNumber = 'ZUMMO00', contactName = 'Austin Zummo', quoteType = 'Parts Quote', items = ['01230.9-00'];
+  // await page.goto('https://www.staging-buzzworld.iidm.com/quote_for_parts/189534fb-4592-43ea-9ad9-9d468ec119a6')
+  await createQuote(page, accoutNumber, quoteType);
+  const quoteNumber = await allPages.quoteOrRMANumber.textContent();
+  const projectName = await allPages.projectNamePartsQuote.textContent();
+  await addItesms(page, items, quoteType);
+  await approve(page, contactName);
+  await expect(allPages.iidmCostLabel).toBeVisible();
+  await allPages.sendToCustomerButton.click();
+  const expectedSubject = projectName + ' - ' + 'IIDM Quote ' + quoteNumber;
+  const actaualSuobject = await allPages.subject.getAttribute('value');
+  if (actaualSuobject === expectedSubject) {
+  } else { throw new Error("actual subject is: " + actaualSuobject + ' but expected subject is: ' + expectedSubject); }
 });
 test('sysproID, branch and email fields are editable at edit user page', async () => {
-  await page.getByText('Admin').click();
+  await page.getByText('Admin').nth(0).click();
   await page.locator('#root').getByText('Users').click();
   await page.getByPlaceholder('Search').fill('defaultuser');
   await expect(page.locator("(//*[@title='Default User'])[1]")).toBeVisible();
   await page.getByText('Edit').click();
   await expect(page.getByText('First Name')).toBeVisible();
-  await page.pause();
-})
-
-test('verifying the vendor part number not accepting the space', async () => {
+  const isEmailEnable = await page.locator("//*[@name='email']").isEnabled();
+  const isSysproIDEnable = await page.locator("//*[@name='syspro_id']").isEnabled();
+  if (isEmailEnable) {
+    if (isSysproIDEnable) {
+      await page.pause();
+    } else { throw new Error('syspro id field is disabled at edit users page'); }
+  } else { throw new Error('email filed is disabled at edit users page'); }
+});
+test('Verifying the vendor part number not accepting the space', async () => {
   async function addDataIntoPartsPurchase(page) {
     await page.getByRole('button', { name: 'Next', exact: true }).click();
     await page.getByText('Search Vendor').click();
@@ -121,16 +148,15 @@ test('verifying the vendor part number not accepting the space', async () => {
   } catch (error) {
     throw new Error("vendor part number not accepting spaces: " + error);
   }
-})
-
+});
 test("Need to able to type start date and end dates at non SPA configure", async () => {
   const expectedDates = startDate + ' - ' + endDate;
-  await page.getByRole('button', { name: 'Pricing expand' }).click();
-  await page.getByRole('menuitem', { name: 'Non Standard Pricing' }).click();
+  await allPages.pricingDropDown.click();
+  await allPages.nonSPAButtonAtDropDown.click();
   const configureButton = page.getByRole('button', { name: 'Configure' });
   await expect(configureButton).toBeVisible();
   await configureButton.click();
-  await page.getByPlaceholder('MM/DD/YYYY-MM/DD/YYYY').click();
+  await allPages.startDateEndDateByPlaceholder.click();
   const actualDates = await selectStartEndDates(page, startDate, '-', endDate, day, true);
   if (actualDates[1].backgroundColor === 'rgb(25, 118, 210)') {
     try {
@@ -150,8 +176,8 @@ test("Need to able to type start date and end dates at non SPA configure", async
 });
 test("Need to able to type start date and end dates at non SPA Filters", async () => {
   const expectedDates = startDate + ' - ' + endDate;
-  await page.getByRole('button', { name: 'Pricing expand' }).click();
-  await page.getByRole('menuitem', { name: 'Non Standard Pricing' }).click();
+  await allPages.pricingDropDown.click();
+  await allPages.nonSPAButtonAtDropDown.click();
   const startEndDates = page.locator("//*[@placeholder='Start & End Date']");
   await expect(startEndDates).toBeVisible();
   await startEndDates.click();
@@ -172,17 +198,17 @@ test("Need to able to type start date and end dates at non SPA Filters", async (
     }
   } else { throw new Error("displaying background colour is: " + actualDates[1].backgroundColor + ' but expected is: rgb(25, 118, 210)'); }
 });
-test('need to type start and end date at non spa edit grids', async () => {
+test('Need to type start and end date at non spa edit grids', async () => {
   const expectedDates = startDate + ' - ' + endDate;
-  await page.getByRole('button', { name: 'Pricing expand' }).click();
-  await page.getByRole('menuitem', { name: 'Non Standard Pricing' }).click();
+  await allPages.pricingDropDown.click();
+  await allPages.nonSPAButtonAtDropDown.click();
   const editIcon = await page.locator("(//*[@class='edit-del-divs'])[1]");
   await editIcon.scrollIntoViewIfNeeded();
   await editIcon.click();
   await page.getByLabel('Close').click();
   await page.locator('[id="pricing_rules\\.0\\.buy_side_discount"]').fill('');
   await page.getByLabel('clear').click();
-  await page.getByPlaceholder('MM/DD/YYYY-MM/DD/YYYY').click();
+  await allPages.startDateEndDateByPlaceholder.click();
   const actualDates = await selectStartEndDates(page, startDate, '-', endDate, day, true);
   if (actualDates[1].backgroundColor === 'rgb(25, 118, 210)') {
     try {
@@ -199,5 +225,4 @@ test('need to type start and end date at non spa edit grids', async () => {
       throw new Error("keyboard typing not accepting for start and end dates at SPA: " + error);
     }
   } else { throw new Error("displaying background colour is: " + actualDates[1].backgroundColor + ' but expected is: rgb(25, 118, 210)'); }
-  await page.pause();
-})
+});

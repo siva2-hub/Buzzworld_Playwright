@@ -2066,11 +2066,10 @@ async function createQuote(page, acc_num, quote_type) {
     await page.getByText(acc_num, { exact: true }).nth(1).click();
     await page.getByText('Quote Type').nth(1).click();
     await page.getByText(quote_type, { exact: true }).click();
-    await page.getByPlaceholder('Enter Project Name').click();
-    await page.getByPlaceholder('Enter Project Name').fill('for testing');
+    await page.getByPlaceholder('Enter Project Name').fill('TESTPN1002');
     await page.locator('div').filter({ hasText: /^Create Quote$/ }).nth(4).click();
     await page.getByRole('button', { name: 'Create Quote' }).click();
-    await expect(page.locator('#repair-items')).toContainText('Add Items');
+    await expect(allPages.allItemsAtDetailView).toContainText('Add Items');
 }
 async function selectRFQDateandQuoteRequestedBy(page, cont_name) {
     await page.locator('(//*[@class = "pi-label-edit-icon"])[2]').click();
@@ -17434,6 +17433,9 @@ module.exports = {
     uploadBOMFiles,
     readExcelHeaders,
     fetchZipcodes,
+    createQuote,
+    addItesms,
+    approve,
     getZips,
     addStockInventorySearch,
     addTerritoryToZipcodes,
