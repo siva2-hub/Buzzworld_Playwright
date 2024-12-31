@@ -150,7 +150,7 @@ test('Verifying the vendor part number not accepting the space', async () => {
   }
 });
 test("Need to able to type start date and end dates at non SPA configure", async () => {
-  const expectedDates = startDate + ' - ' + endDate;
+  const expectedDates = `${startDate} - ${endDate}`;
   await allPages.pricingDropDown.click();
   await allPages.nonSPAButtonAtDropDown.click();
   const configureButton = page.getByRole('button', { name: 'Configure' });
@@ -175,7 +175,7 @@ test("Need to able to type start date and end dates at non SPA configure", async
   } else { throw new Error("displaying background colour is: " + actualDates[1].backgroundColor + ' but expected is: rgb(25, 118, 210)'); }
 });
 test("Need to able to type start date and end dates at non SPA Filters", async () => {
-  const expectedDates = startDate + ' - ' + endDate;
+  const expectedDates = `${startDate} - ${endDate}`;
   await allPages.pricingDropDown.click();
   await allPages.nonSPAButtonAtDropDown.click();
   const startEndDates = page.locator("//*[@placeholder='Start & End Date']");
@@ -199,16 +199,20 @@ test("Need to able to type start date and end dates at non SPA Filters", async (
   } else { throw new Error("displaying background colour is: " + actualDates[1].backgroundColor + ' but expected is: rgb(25, 118, 210)'); }
 });
 test('Need to type start and end date at non spa edit grids', async () => {
-  const expectedDates = startDate + ' - ' + endDate;
+  const expectedDates = `${startDate} - ${endDate}`;
+  console.log(expectedDates); await page.pause();
+  //Click on Pricing dropdown and Go to Non Standard Pricing Applier
   await allPages.pricingDropDown.click();
   await allPages.nonSPAButtonAtDropDown.click();
   const editIcon = await page.locator("(//*[@class='edit-del-divs'])[1]");
   await editIcon.scrollIntoViewIfNeeded();
   await editIcon.click();
   await page.getByLabel('Close').click();
+  //Clear the existing data from some of the required field
   await page.locator('[id="pricing_rules\\.0\\.buy_side_discount"]').fill('');
   await page.getByLabel('clear').click();
   await allPages.startDateEndDateByPlaceholder.click();
+  // Select and validate start and end dates
   const actualDates = await selectStartEndDates(page, startDate, '-', endDate, day, true);
   if (actualDates[1].backgroundColor === 'rgb(25, 118, 210)') {
     try {
