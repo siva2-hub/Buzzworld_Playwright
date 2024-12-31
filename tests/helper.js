@@ -2066,11 +2066,10 @@ async function createQuote(page, acc_num, quote_type) {
     await page.getByText(acc_num, { exact: true }).nth(1).click();
     await page.getByText('Quote Type').nth(1).click();
     await page.getByText(quote_type, { exact: true }).click();
-    await page.getByPlaceholder('Enter Project Name').click();
-    await page.getByPlaceholder('Enter Project Name').fill('for testing');
+    await page.getByPlaceholder('Enter Project Name').fill('TESTPN1002');
     await page.locator('div').filter({ hasText: /^Create Quote$/ }).nth(4).click();
     await page.getByRole('button', { name: 'Create Quote' }).click();
-    await expect(page.locator('#repair-items')).toContainText('Add Items');
+    await expect(allPages.allItemsAtDetailView).toContainText('Add Items');
 }
 async function selectRFQDateandQuoteRequestedBy(page, cont_name) {
     await page.locator('(//*[@class = "pi-label-edit-icon"])[2]').click();
@@ -17328,6 +17327,42 @@ async function spaNewItemImport(page, fileName, b_s_Side, context) {
     }
     return results;
 }
+async function selectStartEndDates(page, startDate, operator, endDate, day, isConfigure) {
+    await page.keyboard.insertText(startDate + operator + endDate);
+    await page.locator("//*[contains(@class,'day--0" + (day) + "')]");
+    const stylesVals = await getStyles(page, day); let values = [];
+    // console.log('Element backgorund colour: ', stylesVals.backgroundColor);
+    if (isConfigure) {
+        await page.keyboard.press('Enter');
+        await page.locator("//*[text()='Apply Rule']").click();
+    } else { 
+        await page.keyboard.press('Enter');
+        await page.locator("//*[text()='Apply']").click(); }
+    const actualDates = await page.locator("//*[contains(@class,'date-range-input')]").getAttribute('value');
+    values.push(actualDates); values.push(stylesVals);
+    return values;
+}
+async function getStyles(page, day) {
+    let path;
+    if (day === 30 || day === 31) {
+        day = 1
+        path = "(//*[contains(@aria-label,'20')][text()='" + (day + 1) + "'])[2]"
+    } else {
+        path = "(//*[contains(@aria-label,'20')][text()='" + (day + 1) + "'])[1]"
+    }
+    const elementHandle = await page.locator(path).elementHandle();
+    if (elementHandle) {
+        const styles = await elementHandle.evaluate((element) => {
+            const computedStyles = window.getComputedStyle(element);
+            return {
+                color: computedStyles.color,
+                fontSize: computedStyles.fontSize,
+                backgroundColor: computedStyles.backgroundColor,
+            };
+        });
+        return styles;
+    } else { console.log('element not found!') }
+}
 module.exports = {
     checkout_page,
     order_summary_page,
@@ -17398,6 +17433,9 @@ module.exports = {
     uploadBOMFiles,
     readExcelHeaders,
     fetchZipcodes,
+    createQuote,
+    addItesms,
+    approve,
     getZips,
     addStockInventorySearch,
     addTerritoryToZipcodes,
@@ -17417,5 +17455,6 @@ module.exports = {
     verify_storage_location_repair_quotes,
     warranty_repair_parts_purchase,
     verify_stocked_location_parts_system_quotes,
-    i_icon_for_verifying_warehouses
+    i_icon_for_verifying_warehouses,
+    selectStartEndDates
 };
