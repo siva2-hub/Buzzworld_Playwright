@@ -17344,10 +17344,11 @@ async function selectStartEndDates(page, startDate, operator, endDate, day, isCo
 }
 async function getStyles(page, day) {
     let path;
-    if (day === 30 || day === 31) {
+    if (day === '30' || day === '31') {
         day = 1
         path = "(//*[contains(@aria-label,'20')][text()='" + (day + 1) + "'])[2]"
     } else {
+        day = Number(day);
         path = "(//*[contains(@aria-label,'20')][text()='" + (day + 1) + "'])[1]"
     }
     const elementHandle = await page.locator(path).elementHandle();
