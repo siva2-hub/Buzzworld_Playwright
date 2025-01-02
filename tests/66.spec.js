@@ -192,9 +192,9 @@ test("Need to able to type start date and end dates at non SPA Filters", async (
   const expectedDates = `${startDate} - ${endDate}`;
   await allPages.pricingDropDown.click();
   await allPages.nonSPAButtonAtDropDown.click();
-  const startEndDates = page.locator("//*[@placeholder='Start & End Date']");
-  await expect(startEndDates).toBeVisible();
-  await startEndDates.click();
+  const startEndDate = page.locator("//*[@placeholder='Start & End Date']");
+  await expect(startEndDate).toBeVisible();
+  await startEndDate.click();
   const actualDates = await selectStartEndDates(page, startDate, '-', endDate, day, false);
   if (actualDates[1].backgroundColor === 'rgb(25, 118, 210)') {
     try {
@@ -246,3 +246,30 @@ test('Need to type start and end date at non spa edit grids', async () => {
     }
   } else { throw new Error("displaying background colour is: " + actualDates[1].backgroundColor + ' but expected is: rgb(25, 118, 210)'); }
 });
+test('Verifying GP < 23 permission', async () => {
+  //Go to Admin Section
+  await page.getByText('Admin').nth(0).click();
+  //Go to Users tab
+  await page.locator('#root').getByText('Users').click();
+  //Search for default user
+  await page.getByPlaceholder('Search').fill('defaultuser');
+  //Check the default user is visible in users list or not
+  await expect(page.locator("(//*[@title='Default User'])[1]")).toBeVisible();
+  //Go to the default user's permissions
+  await page.getByRole('tab', { name: 'Permissions' }).click();
+  //check the GP < 23% permissin is
+  const childPermissions = await page.locator("(//*[@class='child-permissions'])");
+  console.log(await childPermissions.toString().replace("locator('xpath=", ""));
+  for (let index = 0; index < await childPermissions.count(); index++) {
+    const text = await childPermissions.nth(index).textContent();
+    if (text.includes('GP < 23% Approval')) {
+      await childPermissions.nth(index).scrollIntoViewIfNeeded();
+      const gpYes = await page.locator("" + await childPermissions.toString().replace("locator('xpath=", "") + "" + "[" + (index + 1) + "]" + "/span[2]/div/div/div/label[1]/input");
+      console.log("yes status: " + await gpYes.isChecked());
+    } else {
+    }
+  }
+  await expect(page.getByText('GP < 23% ApprovalYesNo')).toBeVisible();
+  await page.pause();
+  await page.pause();
+})
