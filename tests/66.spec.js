@@ -10,10 +10,8 @@ let allPages;
 const date = new Date().toDateString(); let results = false;
 const currentDate = new Date(date);
 let day = currentDate.getDate();
-const previuosMonth = currentDate.getMonth();
+let previuosMonth = currentDate.getMonth();
 const year = currentDate.getFullYear();
-const startDate = (previuosMonth + 1) + '/' + day + '/' + year;
-const endDate = (previuosMonth + 1) + '/' + day + '/' + (year + 1);
 let page, context;
 test.beforeAll(async ({ browser }) => {
   context = await browser.newContext()
@@ -21,6 +19,15 @@ test.beforeAll(async ({ browser }) => {
   allPages = new AllPages(page);
   await login_buzz(page, stage_url);
 });
+async function startEndDates() {
+  if (day < 10) { day = '0' + day.toString().replace("0", ""); }
+  else { }
+  if (previuosMonth < 10) { previuosMonth = '0' + previuosMonth.toString().replace("0", ""); }
+  else { }
+  const startDate = (previuosMonth + 1) + '/' + day + '/' + year;
+  const endDate = (previuosMonth + 1) + '/' + day + '/' + (year + 1);
+  return [startDate, endDate, day];
+}
 test("Prefil the previous month and current year at POS reports", async () => {
   await page.getByRole('button', { name: 'Reports expand' }).click();
   await page.getByRole('menuitem', { name: 'Point of Sales' }).click();
@@ -128,7 +135,10 @@ test('Verifying the vendor part number not accepting the space', async () => {
       await expect(page.locator("(//*[contains(@class,'singleValue')])[2]")).toBeVisible({ timeout: 2000 });
     } catch (error) {
       await page.getByText('Select Date Requested').click();
-      await page.getByRole('gridcell', { name: day }).click();
+      // await page.getByRole('gridcell', { name: day }).click();
+      await page.keyboard.press('ArrowRight');
+      await page.keyboard.press('Enter');
+      await page.keyboard.press('ArrowLeft');
     }
     await page.getByText('Select Urgency').click();
     await page.keyboard.press('Enter');
@@ -150,6 +160,8 @@ test('Verifying the vendor part number not accepting the space', async () => {
   }
 });
 test("Need to able to type start date and end dates at non SPA configure", async () => {
+  const dates = await startEndDates();
+  const startDate = dates[0]; const endDate = dates[1]; day = dates[2];
   const expectedDates = `${startDate} - ${endDate}`;
   await allPages.pricingDropDown.click();
   await allPages.nonSPAButtonAtDropDown.click();
@@ -175,6 +187,8 @@ test("Need to able to type start date and end dates at non SPA configure", async
   } else { throw new Error("displaying background colour is: " + actualDates[1].backgroundColor + ' but expected is: rgb(25, 118, 210)'); }
 });
 test("Need to able to type start date and end dates at non SPA Filters", async () => {
+  const dates = await startEndDates();
+  const startDate = dates[0]; const endDate = dates[1]; day = dates[2];
   const expectedDates = `${startDate} - ${endDate}`;
   await allPages.pricingDropDown.click();
   await allPages.nonSPAButtonAtDropDown.click();
@@ -199,8 +213,10 @@ test("Need to able to type start date and end dates at non SPA Filters", async (
   } else { throw new Error("displaying background colour is: " + actualDates[1].backgroundColor + ' but expected is: rgb(25, 118, 210)'); }
 });
 test('Need to type start and end date at non spa edit grids', async () => {
+  const dates = await startEndDates();
+  const startDate = dates[0]; const endDate = dates[1]; day = dates[2];
   const expectedDates = `${startDate} - ${endDate}`;
-  console.log(expectedDates); await page.pause();
+  // console.log(expectedDates);
   //Click on Pricing dropdown and Go to Non Standard Pricing Applier
   await allPages.pricingDropDown.click();
   await allPages.nonSPAButtonAtDropDown.click();
@@ -210,7 +226,7 @@ test('Need to type start and end date at non spa edit grids', async () => {
   await page.getByLabel('Close').click();
   //Clear the existing data from some of the required field
   await page.locator('[id="pricing_rules\\.0\\.buy_side_discount"]').fill('');
-  await page.getByLabel('clear').click();
+  await page.locator("//*[@id='pricing_rules.0.type_value']").fill('')
   await allPages.startDateEndDateByPlaceholder.click();
   // Select and validate start and end dates
   const actualDates = await selectStartEndDates(page, startDate, '-', endDate, day, true);

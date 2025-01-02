@@ -37,7 +37,7 @@ export default class AllPages {
         this.subject = this.page.locator("//*[@name='quote_mail_subject']");
         this.sendToCustomerButton = this.page.locator("//*[text()='Submit for Customer Approval']");
         this.quoteOrRMANumber = this.page.locator("//*[@class='id-num']");
-        this.pricingDropDown = this.page.getByRole('button', { name: 'Pricing expand' });
+        this.pricingDropDown = this.page.locator("(//*[text()='Pricing'])[1]");
         this.nonSPAButtonAtDropDown = this.page.getByRole('menuitem', { name: 'Non Standard Pricing' });
         this.startDateEndDateByPlaceholder = this.page.getByPlaceholder('MM/DD/YYYY-MM/DD/YYYY');
     }
