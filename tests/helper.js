@@ -3882,7 +3882,7 @@ async function api_responses(page, api_url) {
     const response = await page.evaluate(async (url) => {
         const fetchData = await fetch(url, {
             headers: {
-                'Authorization': `Bearer ${'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiOWQ3ZjcyNjM2NWIyZTQwYmEwYTE2N2M4MzE0OWUyODRmYmMwYjhiZDM1NGMxNGI3YmJmM2EwN2M4YTZmMzhhOWFmZDEwNjEyZGViMTQ4YWEiLCJpYXQiOjE3MzI4NTYxNDMuNTMyMDE2LCJuYmYiOjE3MzI4NTYxNDMuNTMyMDE5LCJleHAiOjE3MzQxNTIxNDMuNTE4MzkyLCJzdWIiOiI2NzE0YTkyNC03YmZhLTQ5NjktODUzOC1iZjg0MTk1YjU0MWEiLCJzY29wZXMiOltdfQ.iccvw94V6-6DKraXLLIxJLc5olu-tsRWArW4Trl315u3IMfJxtqeC-LlgsU10-U_DghJwEaJH_ghlbKf69gW436y88gBMRDxno1okcIge0jtLrAcOqkXqs7ONkfHK3V2vsxxdm86CMqHnIqdSxgyXykqbGo-yiV1mNuAaJZ6v5kGhZVq76GTNzzrYypeFh4K0ObNS8iKOZZJnmT8AX7T30C8mlLNEScDJV3Iln3fXdt3hLE-rFjKI6B2NZg5geDfiOSEughrVddEIZRS4hr-mguznMnbMOBbvx7QrnOOkRalwM0qZn69H6Aj9y9ZgETqIAd9BBqnjNg7_k1lQBMqw-SC8dxxG9ijQqstYXO9oEYQvw7oSGY8aNre_cTwS4ic7B7DpPbPkj6xqAmcQWz6hSwVL1-Qq4M4pSHAkxcGPC8IQlbz-GVoFn2X37M6LwuCvSB5x08VSxy6iKr5KcBDf-HWu_pfgKCtvCoXV7wx__dn5pzw0ouel8ZMUBky01WzB-o4sHcwma3IPy7LmjKEVrPBSN4n3MR6qvGRBRaVgGavxsCmsDnnesY9wSd0Set3iJ7mytRusXpyVCP_BKodFOg6qnUk6hd4k7VchOWTcsB_Wqorwc4o59XHIYR8fCHDYu9IMNzrxu8HyNSKEfurNAm7Q6yC-aGiAWGS4kwh3NM'}` // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
+                'Authorization': `Bearer ${'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiNmVlNWIzOTZhYjI1MzYzNjUzMjY2OTVkYWFiNDBhZTU2ZDQzN2E4MmNjM2JkYWU0ODA5ZDYzZDA3ZjcxZTM1NzY5M2RiOWJlNmQ0N2M2NjQiLCJpYXQiOjE3MzU4MDIzNDkuMDY3NDk5LCJuYmYiOjE3MzU4MDIzNDkuMDY3NTAzLCJleHAiOjE3MzcwOTgzNDkuMDM1NjgxLCJzdWIiOiI2NzE0YTkyNC03YmZhLTQ5NjktODUzOC1iZjg0MTk1YjU0MWEiLCJzY29wZXMiOltdfQ.DVGpRMAYxSTWcwp4EhTlWYDM2bbIJOQJyea_Bs5qJLuVgcC_O2XUWdbShYHUpLYUaYNdpgJM6Tkd1fyNByiV_EnchR6GfGCKv2_Y3otlyljG19vPbDuhRN1G5ak4nOJh-7iFXXzwDDFNcMJpQAafLG1QiKwc_g6ZNW7vnbUdluAXYCq-zCau9AZp5xY-kZbrgBuigam4l1BVnsopUC0gClHS6pfnLKSdK2UjHgpr1sI_k1FDTxjdTAy5cz9dBLz0cCPg16-lZcWf1y_74kuy2yLlPbDxYMf0qKTfLDuE0n77kH_F8Lfm1AW4v4NlMqJA5pZxJOobDbvVtCtImPcI9HbkcbGeI-KqroKKL-75LeEiyILCRgtJHgllhYpzbhFUcdzGCKutViRqnWYLKLx6mz4MCs4bDaD9sNXA-Ki5i7OPkrMqDP4AuF-tA5z_oxKpyabXkwwwFqO9P9BArVc-cj89YkAI4oU6eO4Vm02dSp6IOrhG-z6exCCI8u58eEVtiMhpHVgW8uJ-bGuRW7uwfq88-bXoLneKwAGr2-7ENFXYvAn45WiZSlutKgyDA1dTZ9WSQjVwi2MkyhqD3kTzf66wtcPgaS8nHdrBaW04UKqrrypMmJVR6tiU-sZ8h-rrlBPYB-ghRbxpuj5cytMNKqtJ09mTV1YQVe6Wj6YBLuY'}` // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
             }
         });
         return fetchData.json();
@@ -17335,9 +17335,10 @@ async function selectStartEndDates(page, startDate, operator, endDate, day, isCo
     if (isConfigure) {
         await page.keyboard.press('Enter');
         await page.locator("//*[text()='Apply Rule']").click();
-    } else { 
+    } else {
         await page.keyboard.press('Enter');
-        await page.locator("//*[text()='Apply']").click(); }
+        await page.locator("//*[text()='Apply']").click();
+    }
     const actualDates = await page.locator("//*[contains(@class,'date-range-input')]").getAttribute('value');
     values.push(actualDates); values.push(stylesVals);
     return values;
@@ -17363,6 +17364,17 @@ async function getStyles(page, day) {
         });
         return styles;
     } else { console.log('element not found!') }
+}
+async function selectReactDropdowns(page, selectingText) {
+    const drops = await page.locator("//*[contains(@class,'react-select__option')]"); let isSelected = false;
+    // console.log('dropdowns count is: ' + await drops.count());
+    for (let index = 0; index < await drops.count(); index++) {
+        const dropdownText = await drops.nth(index).textContent();
+        if (dropdownText === selectingText) { await drops.nth(index).click(); isSelected = true; break; }
+        else { isSelected = false; }
+    }
+    if (isSelected) { }
+    else { throw new Error(selectingText + " not found in dropdown"); }
 }
 module.exports = {
     checkout_page,
@@ -17457,5 +17469,7 @@ module.exports = {
     warranty_repair_parts_purchase,
     verify_stocked_location_parts_system_quotes,
     i_icon_for_verifying_warehouses,
-    selectStartEndDates
+    selectStartEndDates,
+    api_responses,
+    selectReactDropdowns
 };
