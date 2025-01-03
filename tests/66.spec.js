@@ -1,9 +1,11 @@
 const { test, expect, errors } = require("@playwright/test");
-const { login_buzz, selectStartEndDates, createQuote, addItesms, approve } = require("./helper");
+const ExcelJS = require('exceljs');
+const { login_buzz, selectStartEndDates, createQuote, addItesms, approve, read_excel_data, api_responses, delay, selectReactDropdowns } = require("./helper");
 const { throws } = require("assert");
 const { error } = require("console");
 const { testDir } = require("../playwright.config");
 const { default: AllPages } = require("./PageObjects");
+const { platform } = require("os");
 
 const stage_url = process.env.BASE_URL_BUZZ;
 let allPages;
@@ -116,12 +118,12 @@ test('sysproID, branch and email fields are editable at edit user page', async (
 });
 test('Verifying the vendor part number not accepting the space', async () => {
   async function addDataIntoPartsPurchase(page) {
+    const vendorName = 'ENTERPI SOFTWARE SOLUTIONS';
     await page.getByRole('button', { name: 'Next', exact: true }).click();
     await page.getByText('Search Vendor').click();
-    await page.keyboard.insertText('enterpi');
-    await expect(page.locator("//*[text()='Loading...']")).toBeVisible();
-    await expect(page.locator("//*[text()='Loading...']")).toBeHidden();
-    await page.keyboard.press('Enter');
+    await page.keyboard.insertText(vendorName);
+    await expect(allPages.loading).toBeVisible(); await expect(allPages.loading).toBeHidden();
+    await selectReactDropdowns(page, vendorName);
     await page.getByRole('button', { name: 'Next', exact: true }).click();
     await page.getByPlaceholder('Enter Vendor Part Number').fill('VENDOR PART  NUMBER');
     await page.locator("//*[@id='tab-2-tab']/div/div/button").click();
@@ -141,17 +143,17 @@ test('Verifying the vendor part number not accepting the space', async () => {
       await page.keyboard.press('ArrowLeft');
     }
     await page.getByText('Select Urgency').click();
-    await page.keyboard.press('Enter');
+    await selectReactDropdowns(page, 'Standard');
     await addDataIntoPartsPurchase(page);
     await expect(page.locator("//*[text()='Vendor Part Number not valid']")).toBeHidden({ timeout: 2300 });
     await page.getByTitle('close').getByRole('img').click();
     await page.getByText('Repairs').click();
     await page.locator('#root').getByText('Repair in progress').click();
-    const source = page.locator("//*[@class='ag-body-horizontal-scroll-viewport']")
-    const target = page.locator("//*[@class='ag-horizontal-right-spacer ag-scroller-corner']")
+    const source = allPages.horzScrollView;
+    const target = allPages.horzScrollToRight;
     await source.dragTo(target);
     await page.locator("(//*[text()='In Progress'])[1]").click();
-    const partsPurchaseIcon = page.locator("(//*[contains(@src,'partspurchase')])[1]");
+    const partsPurchaseIcon = allPages.ppIconRepairs;
     await expect(partsPurchaseIcon).toBeVisible();
     await partsPurchaseIcon.click();
     await addDataIntoPartsPurchase(page);
@@ -259,17 +261,65 @@ test('Verifying GP < 23 permission', async () => {
   await page.getByRole('tab', { name: 'Permissions' }).click();
   //check the GP < 23% permissin is
   const childPermissions = await page.locator("(//*[@class='child-permissions'])");
-  console.log(await childPermissions.toString().replace("locator('xpath=", ""));
   for (let index = 0; index < await childPermissions.count(); index++) {
     const text = await childPermissions.nth(index).textContent();
+    //Check the child element contains this text GP < 23% Approval
     if (text.includes('GP < 23% Approval')) {
       await childPermissions.nth(index).scrollIntoViewIfNeeded();
-      const gpYes = await page.locator("" + await childPermissions.toString().replace("locator('xpath=", "") + "" + "[" + (index + 1) + "]" + "/span[2]/div/div/div/label[1]/input");
-      console.log("yes status: " + await gpYes.isChecked());
-    } else {
-    }
+      const gpYes = await page.locator("(//*[@class='child-permissions'])[" + (index + 1) + "]/span[2]/div/div/div/label[1]/input");
+      //Verify the  GP < 23% Approval permission is Yes or No
+      const btnStatus = await gpYes.isChecked();
+      console.log('GP < 23% Approval is: ' + btnStatus);
+      await page.goto("https://www.staging-buzzworld.iidm.com/all_quotes/8bd38f42-fb1d-4b35-a22a-f611cab4d86e");
+      await expect(allPages.iidmCostLabel).toBeVisible();
+      if (btnStatus) {
+        //If yes, then verify the Approve button is Visible or not
+        try { await expect(page.locator("//*[text()='Approve']")).toBeVisible({ timeout: 2000 }); }
+        catch (error) { throw new Error("" + error); }
+      } else {
+        //If No, then verify the Approve button is Hidden or not
+        try { await expect(page.locator("//*[text()='Approve']")).toBeHidden({ timeout: 2300 }); }
+        catch (error) { throw new Error("" + error); }
+      }
+      break;
+    } else { }
   }
-  await expect(page.getByText('GP < 23% ApprovalYesNo')).toBeVisible();
-  await page.pause();
-  await page.pause();
-})
+});
+test('verifying pricing', async () => {
+  let yask_data = await read_excel_data('/home/enterpi/Downloads/WAGO001 2025 sample_pricing_file (26).csv', 0);// our db
+  console.log('test pricing list rows count is ', yask_data.length);
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.readFile('test_pricing.xlsx'); let linesCount = 1;
+  for (let index = 0; index < yask_data.length; index++) {
+    //test_priding file Sheet2 Data
+    let code = yask_data[index]['VendorStockCode(30)'];
+    if (code.length > 29) {
+      const api_url = 'https://staging-buzzworld-api.iidm.com//v1/Products?page=1&perPage=25&sort=asc&sort_key=stock_code&branch_id=385411d3-ddc8-4029-9719-e89698446c24&vendor_id=6c7da9c6-5860-4b96-b1d5-ff28ba734b9c&vendor_name=WAGO+CORPORATION&serverFilterOptions=%5Bobject+Object%5D&search=' + code;
+      console.log((index + 1) + " --> " + code);
+      const pricingList = await api_responses(page, api_url);
+      const list = await pricingList.result.data.list;
+      console.log(JSON.stringify(list, null, 2));
+      linesCount = +1;
+      console.log('=======================================================================');
+    } else { }
+  }
+  console.log('lines count which are >29: ' + linesCount);
+  //
+});
+test('Allow 31 charcaters for stock code at imports', async () => {
+  const vendorCode = 'WAGO001'; const vendorName = 'WAGO CORPORATION';
+  await allPages.pricingDropDown.click();
+  await allPages.pricingDropDown.nth(1).click();
+  await page.getByPlaceholder('Search').fill(vendorCode);
+  await delay(page, 5000);
+  await page.getByText('Import').click();
+  await page.getByLabel('Vendor').fill(vendorCode);
+  await expect(allPages.loading).toBeVisible(); await expect(allPages.loading).toBeHidden();
+  await selectReactDropdowns(page, (vendorName + vendorCode));
+  await allPages.isAppendCheckbox.nth(1).click();
+  await allPages.pricingUploader.setInputFiles('characters_check.xlsx');
+  await expect(page.getByText('Pricing File Uploaded')).toBeVisible();
+  await page.getByRole('button', { name: 'Import' }).click();
+  await expect(page.locator("(//*[contains(text(),'Error in pricing file')])")).toBeVisible();
+  await expect(allPages.sc31Limit).toBeVisible({ timeout: 2000 });
+});
