@@ -37,9 +37,17 @@ export default class AllPages {
         this.subject = this.page.locator("//*[@name='quote_mail_subject']");
         this.sendToCustomerButton = this.page.locator("//*[text()='Submit for Customer Approval']");
         this.quoteOrRMANumber = this.page.locator("//*[@class='id-num']");
-        this.pricingDropDown = this.page.getByRole('button', { name: 'Pricing expand' });
+        this.pricingDropDown = this.page.locator("(//*[text()='Pricing'])");
         this.nonSPAButtonAtDropDown = this.page.getByRole('menuitem', { name: 'Non Standard Pricing' });
         this.startDateEndDateByPlaceholder = this.page.getByPlaceholder('MM/DD/YYYY-MM/DD/YYYY');
+        this.loading = this.page.locator("//*[text()='Loading...']");
+        this.discountCodeUploader = this.page.locator("(//*[@type = 'file'])[1]");
+        this.pricingUploader = this.page.locator("(//*[@type = 'file'])[2]");
+        this.isAppendCheckbox = this.page.getByText('Append to Existing List');
+        this.sc31Limit = this.page.locator("//*[contains(text(),'Stock Code(s) has more than 31 characters')]");
+        this.ppIconRepairs = this.page.locator("(//*[contains(@src,'partspurchase')])[1]");
+        this.horzScrollView = this.page.locator("//*[@class='ag-body-horizontal-scroll-viewport']");
+        this.horzScrollToRight = this.page.locator("//*[@class='ag-horizontal-right-spacer ag-scroller-corner']");
     }
     //Page Objects
     // get userNameInput() { return this.page.getByLabel('Email'); }
