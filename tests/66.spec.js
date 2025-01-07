@@ -1,9 +1,9 @@
 const { test, expect, errors } = require("@playwright/test");
 const ExcelJS = require('exceljs');
-const { login_buzz, selectStartEndDates, createQuote, addItesms, approve, read_excel_data, api_responses, delay, selectReactDropdowns } = require("./helper");
+const { login_buzz, selectStartEndDates, createQuote, addItesms, approve, read_excel_data, api_responses, delay, selectReactDropdowns, selectRFQDateandQuoteRequestedBy, soucreSelection } = require("./helper");
 const { throws } = require("assert");
 const { error } = require("console");
-const { testDir } = require("../playwright.config");
+const { testDir, timeout } = require("../playwright.config");
 const { default: AllPages } = require("./PageObjects");
 const { platform } = require("os");
 
@@ -31,13 +31,14 @@ async function startEndDates() {
   return [startDate, endDate, day];
 }
 test("Prefil the previous month and current year at POS reports", async () => {
-  await page.getByRole('button', { name: 'Reports expand' }).click();
+  previuosMonth = (previuosMonth + 1); let results = false;
+  await page.locator("//*[text()='Reports']").click();
   await page.getByRole('menuitem', { name: 'Point of Sales' }).click();
   await expect(page.getByText('Select Report')).toBeVisible();
   const actualMonth = await page.textContent("(//*[contains(@class,'react-select__control')])[1]");
   const actualYear = await page.textContent("(//*[contains(@class,'react-select__control')])[2]");
   if (previuosMonth === 1) {
-    if (actualMonth === 12 && actualYear === (year - 1)) { results = true; }
+    if ((Number(actualMonth) === 12) && (Number(actualYear) === (year - 1))) { results = true; }
     else { results = false; }
   } else {
     if (previuosMonth === actualMonth && year === actualYear) { results = true; }
@@ -45,10 +46,10 @@ test("Prefil the previous month and current year at POS reports", async () => {
   }
   console.log('expected month: ' + previuosMonth + ' actual month: ' + actualMonth);
   console.log('expected year: ' + year + ' actual year: ' + actualYear);
-  if (results) { } else { throw errors }
+  if (results) { } else { throw new Error("getting error"); }
 });
 test("Display the GP as weighted average of sell price & IIDM cost", async () => {
-  const urlPath = 'all_quotes/09630d01-f674-449b-9ed6-576e27656f3f';
+  const urlPath = 'all_quotes/4707d1cf-2064-45b5-bbe9-b17e3f981548';
   await page.goto(stage_url + urlPath);
   let totalIidmCost = 0.0, totalQuotePrice = 0.0;
   await expect(allPages.iidmCostLabel).toBeVisible();
@@ -68,8 +69,15 @@ test("Display the GP as weighted average of sell price & IIDM cost", async () =>
   } else { throw new Error('actual gp: ' + totalActualGP + ' expected gp: ' + totalExpectedGP); }
 });
 test("Revice the old version also", async () => {
-  const urlPath = '991d63bd-39fc-4412-9762-2dac4c227ed0';
-  await page.goto(stage_url + 'all_quotes/' + urlPath);
+  const urlPath = '57553498-e84d-410c-89d7-3e1989f7022e'; let isCreateNew = false;
+  let accoutNumber = 'ZUMMO00', contactName = 'Austin Zummo', quoteType = 'Parts Quote', items = ['01230.9-00'];
+  if (isCreateNew) {
+    await createQuote(page, accoutNumber, quoteType);
+    await addItesms(page, items, quoteType);
+    await selectRFQDateandQuoteRequestedBy(page, contactName);
+    await soucreSelection(page, items[0]);
+    await approve(page, contactName);
+  } else { await page.goto(stage_url + 'all_quotes/' + urlPath); }
   const iidmCostText = allPages.iidmCostLabel;
   const reviseQuoteButton = allPages.reviseQuoteButton;
   await expect(iidmCostText).toBeVisible();
@@ -78,7 +86,7 @@ test("Revice the old version also", async () => {
     await expect(reviseQuoteButton).toBeVisible({ timeout: 2000 });
     const versionDropdown = allPages.versionDropdown;
     await versionDropdown.click();
-    await page.click("//*[text()='V2']");
+    await page.click("//*[text()='V1']");
     await expect(iidmCostText).toBeVisible();
     const itemsDataInOldVersion = await allPages.allItemsAtDetailView.textContent();
     if (itemsDataInLatestVersion === itemsDataInOldVersion) {
@@ -149,9 +157,14 @@ test('Verifying the vendor part number not accepting the space', async () => {
     await page.getByTitle('close').getByRole('img').click();
     await page.getByText('Repairs').click();
     await page.locator('#root').getByText('Repair in progress').click();
+    await expect(allPages.profileIconListView).toBeVisible();
     const source = allPages.horzScrollView;
     const target = allPages.horzScrollToRight;
-    await source.dragTo(target);
+    try {
+      await expect(page.locator("(//*[text()='In Progress'])[1]")).toBeVisible({ timeout: 2000 })
+    } catch (error) {
+      await source.dragTo(target);
+    }
     await page.locator("(//*[text()='In Progress'])[1]").click();
     const partsPurchaseIcon = allPages.ppIconRepairs;
     await expect(partsPurchaseIcon).toBeVisible();
@@ -249,6 +262,7 @@ test('Need to type start and end date at non spa edit grids', async () => {
   } else { throw new Error("displaying background colour is: " + actualDates[1].backgroundColor + ' but expected is: rgb(25, 118, 210)'); }
 });
 test('Verifying GP < 23 permission', async () => {
+  let quoteId = '8bd38f42-fb1d-4b35-a22a-f611cab4d86e';
   //Go to Admin Section
   await page.getByText('Admin').nth(0).click();
   //Go to Users tab
@@ -270,7 +284,7 @@ test('Verifying GP < 23 permission', async () => {
       //Verify the  GP < 23% Approval permission is Yes or No
       const btnStatus = await gpYes.isChecked();
       console.log('GP < 23% Approval is: ' + btnStatus);
-      await page.goto("https://www.staging-buzzworld.iidm.com/all_quotes/8bd38f42-fb1d-4b35-a22a-f611cab4d86e");
+      await page.goto(stage_url + "all_quotes/" + quoteId);
       await expect(allPages.iidmCostLabel).toBeVisible();
       if (btnStatus) {
         //If yes, then verify the Approve button is Visible or not

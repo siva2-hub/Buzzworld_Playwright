@@ -2077,8 +2077,7 @@ async function selectRFQDateandQuoteRequestedBy(page, cont_name) {
     await page.getByTitle('Save Changes').click();
     await page.locator('(//*[@class = "pi-label-edit-icon"])[4]').click();
     await page.getByLabel('open').click();
-    await page.keyboard.insertText(cont_name);
-    await spinner(page);
+    await selectReactDropdowns(page, cont_name);
     await page.keyboard.press("Enter");
     await page.getByTitle('Save Changes').click();
     await delay(page, 1200);
@@ -2134,9 +2133,9 @@ async function soucreSelection(page, stock_code) {
         await expect(page.locator("(//*[text()='GP'])[" + (index + 1) + "]")).toBeVisible();
         await page.locator("(//*[contains(@class, 'highlight check_box')]/div[5]/div/div[1])[" + (index + 1) + "]").click();
         await expect(page.locator("//*[@name='part_number']")).toBeVisible();
+        await page.pause();
         await page.getByLabel('Open').nth(1).click();
-        await page.keyboard.insertText('Field Service');
-        await page.keyboard.press('Enter');
+        await selectReactDropdowns(page, 'Field Service');
         await await page.locator('#repair-items').getByRole('paragraph').nth(1).scrollIntoViewIfNeeded();
         await await page.locator("//*[@class='ql-editor ql-blank']").fill('Test Item Notes 1\nTest Item Notes 2\nTest Item Notes 3\nTest Item Notes 4'); ``
         await page.getByRole('button', { name: 'Save' }).click();
@@ -17471,5 +17470,7 @@ module.exports = {
     i_icon_for_verifying_warehouses,
     selectStartEndDates,
     api_responses,
-    selectReactDropdowns
+    selectReactDropdowns,
+    selectRFQDateandQuoteRequestedBy,
+    soucreSelection
 };
