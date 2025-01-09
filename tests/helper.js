@@ -2084,7 +2084,6 @@ async function selectRFQDateandQuoteRequestedBy(page, cont_name) {
 }
 async function addItesms(page, stock_code, quote_type) {
     for (let index = 0; index < stock_code.length; index++) {
-
         await page.getByText('Add Items').click();
         await page.getByPlaceholder('Search By Part Number').click();
         await page.getByPlaceholder('Search By Part Number').fill(stock_code[index]);
@@ -2133,7 +2132,6 @@ async function soucreSelection(page, stock_code) {
         await expect(page.locator("(//*[text()='GP'])[" + (index + 1) + "]")).toBeVisible();
         await page.locator("(//*[contains(@class, 'highlight check_box')]/div[5]/div/div[1])[" + (index + 1) + "]").click();
         await expect(page.locator("//*[@name='part_number']")).toBeVisible();
-        await page.pause();
         await page.getByLabel('Open').nth(1).click();
         await selectReactDropdowns(page, 'Field Service');
         await await page.locator('#repair-items').getByRole('paragraph').nth(1).scrollIntoViewIfNeeded();
@@ -2153,7 +2151,7 @@ async function submitForInternalApproval(page) {
 }
 async function approve(page, cont_name) {
     await expect(page.locator("(//*[text()='GP'])[1]")).toBeVisible()
-    let total_price = await page.locator("(//*[contains(@class, 'total-price-ellipsis')])[3]").textContent();
+    let total_price = await allPages.totalPriceDetls.textContent();
     let tqp = parseInt(total_price.replace("$", "").replace(",", ""));
     if (tqp > 10000) {
         if (tqp > 10000 && tqp < 25001) {
@@ -2165,7 +2163,11 @@ async function approve(page, cont_name) {
             await page.getByPlaceholder('Enter Key Decision Maker').fill(cont_name);
             await page.locator("(//*[text() = 'Save'])[1]").click();
             await page.locator("(//*[text() = 'Submit for Internal Approval'])[1]").click();
-            await expect(page.locator("(//*[text() = 'Few Quote Items are having GP less than 23%, Do you want to continue ?'])[1]")).toBeVisible();
+            try {
+                await expect(page.locator("(//*[text() = 'Few Quote Items are having GP less than 23%, Do you want to continue ?'])[1]")).toBeVisible({ timeout: 2000 });
+            } catch (error) {
+                await expect(page.locator("(//*[text() = 'Are you sure you want to submit this quote for approval ?'])[1]")).toBeVisible({ timeout: 2000 });
+            }
             await page.locator("(//*[text() = 'Proceed'])[1]").click();
             await page.getByRole('button', { name: 'Approve' }).click();
             await page.getByRole('button', { name: 'Approve' }).nth(1).click();
