@@ -1,4 +1,4 @@
-const { test, expect, errors } = require("@playwright/test");
+const { test, expect, errors, request } = require("@playwright/test");
 const ExcelJS = require('exceljs');
 const { login_buzz, selectStartEndDates, createQuote, addItesms, approve, read_excel_data, api_responses, delay, selectReactDropdowns, selectRFQDateandQuoteRequestedBy, soucreSelection } = require("./helper");
 const { throws } = require("assert");
@@ -38,7 +38,10 @@ test("Prefil the previous month and current year at POS reports", async () => {
   const actualMonth = await page.textContent("(//*[contains(@class,'react-select__control')])[1]");
   const actualYear = await page.textContent("(//*[contains(@class,'react-select__control')])[2]");
   if (previuosMonth === 1) {
-    if ((Number(actualMonth) === 12) && (Number(actualYear) === (year - 1))) { results = true; }
+    if ((Number(actualMonth) === 12) && (Number(actualYear) === (year - 1))) {
+      console.log('this is first month of the year so we displaying last year last month');
+      results = true;
+    }
     else { results = false; }
   } else {
     if (previuosMonth === actualMonth && year === actualYear) { results = true; }
@@ -49,7 +52,7 @@ test("Prefil the previous month and current year at POS reports", async () => {
   if (results) { } else { throw new Error("getting error"); }
 });
 test("Display the GP as weighted average of sell price & IIDM cost", async () => {
-  const urlPath = 'all_quotes/4707d1cf-2064-45b5-bbe9-b17e3f981548';
+  const urlPath = 'all_quotes/af8552a1-4a65-4339-a28d-3415f95d9b51';
   await page.goto(stage_url + urlPath);
   let totalIidmCost = 0.0, totalQuotePrice = 0.0;
   await expect(allPages.iidmCostLabel).toBeVisible();
@@ -69,42 +72,65 @@ test("Display the GP as weighted average of sell price & IIDM cost", async () =>
   } else { throw new Error('actual gp: ' + totalActualGP + ' expected gp: ' + totalExpectedGP); }
 });
 test("Revice the old version also", async () => {
-  const urlPath = '57553498-e84d-410c-89d7-3e1989f7022e'; let isCreateNew = false;
-  let accoutNumber = 'ZUMMO00', contactName = 'Austin Zummo', quoteType = 'Parts Quote', items = ['01230.9-00'];
+  async function reviseQuote(page) {
+    const reviseQuoteButton = allPages.reviseQuoteButton;
+    await expect(reviseQuoteButton).toBeVisible({ timeout: 2000 });
+    await reviseQuoteButton.click();
+    await expect(page.locator("(//*[text()='This will move the quote to Open, Do you want to continue ?'])[1]")).toBeVisible();
+    await page.locator("(//*[text()='Proceed'])[1]").click();
+    await expect(iidmCostText).toBeVisible();
+  }
+  const urlPath = '48197ae4-0e83-435d-8bc3-3c3be59c7eff'; let isCreateNew = false;
+  let accoutNumber = 'ZUMMO00', contactName = 'James K', quoteType = 'System Quote', items = ['01230.9-00'];
+  if (isCreateNew) {
+    await createQuote(page, accoutNumber, quoteType);
+    await addItesms(page, items, quoteType);
+    await selectRFQDateandQuoteRequestedBy(page, contactName);
+    await soucreSelection(page, items);
+    await approve(page, contactName);
+  } else { await page.goto(stage_url + 'all_quotes/' + urlPath); }
+  const iidmCostText = allPages.iidmCostLabel;
+  await expect(iidmCostText).toBeVisible();
+  const itemsDataInLatestVersion = await allPages.allItemsAtDetailView.textContent();
+  try {
+    await expect(allPages.reviseQuoteButton).toBeVisible({ timeout: 2000 });
+    try {
+      await expect(allPages.versionDropdown).toBeVisible({ timeout: 2000 });
+    } catch (error) { await reviseQuote(page); }
+    const versionDropdown = allPages.versionDropdown;
+    await versionDropdown.click();
+    await page.locator("//*[text()='V1']").click();
+    await expect(iidmCostText).toBeVisible();
+    const itemsDataInOldVersion = await allPages.allItemsAtDetailView.textContent();
+    if (itemsDataInLatestVersion === itemsDataInOldVersion) {
+      await expect(allPages.reviseQuoteButton).toBeVisible({ timeout: 2000 });
+      const itemsDataInLatestVersion = await allPages.allItemsAtDetailView.textContent();
+      await reviseQuote(page);
+      await allPages.versionDropdown.click();
+      await page.locator("//*[text()='V1']").click();
+      await expect(iidmCostText).toBeVisible();
+      const itemsDataInOldVersion = await allPages.allItemsAtDetailView.textContent();
+      if (itemsDataInLatestVersion === itemsDataInOldVersion) {
+        await expect(allPages.reviseQuoteButton).toBeVisible({ timeout: 2000 });
+      } else { }
+    } else { throw new Error("items data at latest and old version are not matched."); }
+  } catch (error) { throw new Error('Error is: ' + error); }
+});
+test("Display the project name at send to customer page", async () => {
+  let isCreateNew = false;
+  let accoutNumber = 'ZUMMO00', contactName = 'Austin Zummo', quoteType = 'Parts Quote', items = ['1234-T1234'];//01230.9-00
   if (isCreateNew) {
     await createQuote(page, accoutNumber, quoteType);
     await addItesms(page, items, quoteType);
     await selectRFQDateandQuoteRequestedBy(page, contactName);
     await soucreSelection(page, items[0]);
-    await approve(page, contactName);
-  } else { await page.goto(stage_url + 'all_quotes/' + urlPath); }
-  const iidmCostText = allPages.iidmCostLabel;
-  const reviseQuoteButton = allPages.reviseQuoteButton;
-  await expect(iidmCostText).toBeVisible();
-  const itemsDataInLatestVersion = await allPages.allItemsAtDetailView.textContent();
-  try {
-    await expect(reviseQuoteButton).toBeVisible({ timeout: 2000 });
-    const versionDropdown = allPages.versionDropdown;
-    await versionDropdown.click();
-    await page.click("//*[text()='V1']");
-    await expect(iidmCostText).toBeVisible();
-    const itemsDataInOldVersion = await allPages.allItemsAtDetailView.textContent();
-    if (itemsDataInLatestVersion === itemsDataInOldVersion) {
-      await expect(reviseQuoteButton).toBeVisible({ timeout: 2000 });
-    } else { throw new Error("items data at latest and old version are not matched."); }
-  } catch (error) { throw new Error('Error is: ' + error); }
-});
-test("Display the project name at send to customer page", async () => {
-  let accoutNumber = 'ZUMMO00', contactName = 'Austin Zummo', quoteType = 'Parts Quote', items = ['01230.9-00'];
-  // await page.goto('https://www.staging-buzzworld.iidm.com/quote_for_parts/189534fb-4592-43ea-9ad9-9d468ec119a6')
-  await createQuote(page, accoutNumber, quoteType);
+  } else { await page.goto(stage_url + 'all_quotes/5e952a0b-503a-447a-8d0c-37a7600c5af9') }
   const quoteNumber = await allPages.quoteOrRMANumber.textContent();
   const projectName = await allPages.projectNamePartsQuote.textContent();
-  await addItesms(page, items, quoteType);
   await approve(page, contactName);
   await expect(allPages.iidmCostLabel).toBeVisible();
   await allPages.sendToCustomerButton.click();
-  const expectedSubject = projectName + ' - ' + 'IIDM Quote ' + quoteNumber;
+  const expectedSubject = projectName + ' - ' + 'IIDM Quote - ' + quoteNumber;
   const actaualSuobject = await allPages.subject.getAttribute('value');
   if (actaualSuobject === expectedSubject) {
   } else { throw new Error("actual subject is: " + actaualSuobject + ' but expected subject is: ' + expectedSubject); }
@@ -120,7 +146,7 @@ test('sysproID, branch and email fields are editable at edit user page', async (
   const isSysproIDEnable = await page.locator("//*[@name='syspro_id']").isEnabled();
   if (isEmailEnable) {
     if (isSysproIDEnable) {
-      await page.pause();
+      
     } else { throw new Error('syspro id field is disabled at edit users page'); }
   } else { throw new Error('email filed is disabled at edit users page'); }
 });
@@ -299,7 +325,7 @@ test('Verifying GP < 23 permission', async () => {
     } else { }
   }
 });
-test('verifying pricing', async () => {
+test('Verifying pricing', async () => {
   let yask_data = await read_excel_data('/home/enterpi/Downloads/WAGO001 2025 sample_pricing_file (26).csv', 0);// our db
   console.log('test pricing list rows count is ', yask_data.length);
   const workbook = new ExcelJS.Workbook();
@@ -336,4 +362,28 @@ test('Allow 31 charcaters for stock code at imports', async () => {
   await page.getByRole('button', { name: 'Import' }).click();
   await expect(page.locator("(//*[contains(text(),'Error in pricing file')])")).toBeVisible();
   await expect(allPages.sc31Limit).toBeVisible({ timeout: 2000 });
+});
+test('api response items search', async () => {
+  const apiURL = 'https://buzzworldqa-iidm.enterpi.com:8446/v1/QuoteSearchItems?page=1&perPage=25&search=331EABH&quote_id=f64f36e2-e952-4f05-b830-35a85b5f5e61';
+  const bearerToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiOTBlNWM2NTExYTE5ZTZkOTQ2ZjI3NmZlMzFkM2ZlY2RkYzUxNGEyNWRhNDhjMmNjZWVlYzExNTMzZDdkZDcwNDBiMTAxOWI4M2I3OWFhZjQiLCJpYXQiOjE3MzYxNTk2NTIuMzQ4MTE1LCJuYmYiOjE3MzYxNTk2NTIuMzQ4MTIxLCJleHAiOjE3Mzc0NTU2NTIuMzM2MDg1LCJzdWIiOiI5MWEzNWI0ZC0wMGZhLTQ5NGYtOTNjYS02NDZkYjJmY2I2MWMiLCJzY29wZXMiOltdfQ.kz4rt9oGEqDl3m8VyvFK4YcTKhlXwHvRy8-bND85uR_qVjaF-Zc8RL0_mdTQ0-4BI2eQjQVqSAg8R0en0UUYor9V6aMSorFm961dRvxrOmBIiPG30GVgtbw0Ph8RfVevyxsyo-tSm892TmLpXfrL-6nxd_Ng1FD9C3Zu-74nvyXr8fJL-oJR8r4m5fmbcvqJ91EZIOSXiL_rSNpigGH5oVaxilABO3kUnnsM__BUAAQZYY0YAXozu680c-naepp7x0c2Ikd1htdnlIoN25Zv1B0i0CEzPF7k6H7hMIk0RjIMU7qLxuNxrNAvzrQ00fDQAw25KtTMuWITxIecFDXONWLh-EH6H6GTwWiCx1O0hCVr5ubEPKwysNgj0FOCqzHKbBumWiKJ3sCwLDMTLxUlRkK2dpZWAKBpRXaMtDu0PpQuPUi1I7NTj6TxzCRVPzFGH-BDQX1s7Qun1MrdvBfBS0ENkfBmKSbNmvMXxhX6RXA1WcOPIG3h6b5P63NW7FHpV74WjYon0DeX8PS4FXrEaF491G9sQr_md_n-xOHxFPruOB66LmhLdkaFCDrx-7ji-W_nOQsPlI2EtT8swA9U5H2qcYyctuOBVnzWSPS9lSRdxdQFIk9FKGVhY0ICSNmp2BCt05TKvvPW-04ZB2P4g9b5anqsKDmKcoxiJxOn-WM';
+  const apiContext = await request.newContext({
+    extraHTTPHeaders: {
+      'Authorization': `Bearer ${bearerToken}`,
+      'Content-Type': 'application/json',
+    }
+  });
+  const apiResponse = await (await apiContext.get(apiURL)).json();
+  console.log(await apiResponse.result.data);
+});
+test('Verifying the warehouse for new part at Inventory', async () => {
+  let newPart = '002-2123-01';
+  await page.getByText('Inventory').click();
+  await page.locator("//*[text()='Add Stock Code']").click();
+  await page.getByRole('menuitem', { name: 'Single Stock Code' }).click();
+  await page.getByText('Search By Stock Code', { exact: true }).click();
+  await page.keyboard.insertText(newPart);
+  await expect(allPages.loading).toBeVisible(); await expect(allPages.loading).toBeHidden();
+  await selectReactDropdowns(page, newPart);
+  await page.getByRole('dialog').getByLabel('open').nth(4).scrollIntoViewIfNeeded();
+  await page.pause();
 });

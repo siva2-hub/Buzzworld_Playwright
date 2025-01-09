@@ -31,7 +31,8 @@ export default class AllPages {
         this.iidmCost = this.page.locator('//*[@id="repair-items"]/div[2]/div[1]/div/div/div[2]/div[3]/div[3]/h4');
         this.quotePrice = this.page.locator('//*[@id="repair-items"]/div[2]/div[1]/div/div/div[2]/div[3]/div[1]/h4');
         this.totalGP = this.page.locator('//*[@id="repair-items"]/div[3]/div/div[1]/div/h4');
-        this.versionDropdown = this.page.locator("(//*[contains(text(),'V')])[1]");
+        this.totalPriceDetls = this.page.locator('//*[@id="repair-items"]/div[3]/div/div[4]/div/h4');
+        this.versionDropdown = this.page.locator("//*[@class='quote-num-and-status']/div[2]");
         this.projectNameRepQuote = this.page.locator("(//*[@class='field-details'])[1]/div[4]/div/div[2]");
         this.projectNamePartsQuote = this.page.locator("(//*[@class='field-details'])[1]/div[5]/div/div[2]");
         this.subject = this.page.locator("//*[@name='quote_mail_subject']");
@@ -48,6 +49,8 @@ export default class AllPages {
         this.ppIconRepairs = this.page.locator("(//*[contains(@src,'partspurchase')])[1]");
         this.horzScrollView = this.page.locator("//*[@class='ag-body-horizontal-scroll-viewport']");
         this.horzScrollToRight = this.page.locator("//*[@class='ag-horizontal-right-spacer ag-scroller-corner']");
+        this.sysproIdAtUserEdit = this.page.locator("//*[@name='syspro_id']");
+        this.emailAtUserEdit = this.
     }
     //Page Objects
     // get userNameInput() { return this.page.getByLabel('Email'); }
