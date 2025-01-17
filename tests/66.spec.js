@@ -1,6 +1,6 @@
 const { test, expect, errors, request } = require("@playwright/test");
 const ExcelJS = require('exceljs');
-const { login_buzz, selectStartEndDates, createQuote, addItesms, approve, read_excel_data, api_responses, delay, selectReactDropdowns, selectRFQDateandQuoteRequestedBy, soucreSelection } = require("./helper");
+const { login_buzz, selectStartEndDates, createQuote, addItesms, approve, read_excel_data, api_responses, delay, selectReactDropdowns, selectRFQDateandQuoteRequestedBy, soucreSelection, filters_quotes_sales_person } = require("./helper");
 const { throws } = require("assert");
 const { error } = require("console");
 const { testDir, timeout } = require("../playwright.config");
@@ -52,7 +52,7 @@ test("Prefil the previous month and current year at POS reports", async () => {
   if (results) { } else { throw new Error("getting error"); }
 });
 test("Display the GP as weighted average of sell price & IIDM cost", async () => {
-  const urlPath = 'all_quotes/af8552a1-4a65-4339-a28d-3415f95d9b51';
+  const urlPath = 'all_quotes/9cb41be7-8260-4231-aa10-cb111afb3d8b';
   await page.goto(stage_url + urlPath);
   let totalIidmCost = 0.0, totalQuotePrice = 0.0;
   await expect(allPages.iidmCostLabel).toBeVisible();
@@ -80,7 +80,7 @@ test("Revice the old version also", async () => {
     await page.locator("(//*[text()='Proceed'])[1]").click();
     await expect(iidmCostText).toBeVisible();
   }
-  const urlPath = '48197ae4-0e83-435d-8bc3-3c3be59c7eff'; let isCreateNew = false;
+  const urlPath = '151d6ea7-8263-44f9-9ee4-c251ac0ebb0a'; let isCreateNew = false;
   let accoutNumber = 'ZUMMO00', contactName = 'James K', quoteType = 'System Quote', items = ['01230.9-00'];
   if (isCreateNew) {
     await createQuote(page, accoutNumber, quoteType);
@@ -109,6 +109,7 @@ test("Revice the old version also", async () => {
       await allPages.versionDropdown.click();
       await page.locator("//*[text()='V1']").click();
       await expect(iidmCostText).toBeVisible();
+      await allPages.allItemsAtDetailView.scrollIntoViewIfNeeded();
       const itemsDataInOldVersion = await allPages.allItemsAtDetailView.textContent();
       if (itemsDataInLatestVersion === itemsDataInOldVersion) {
         await expect(allPages.reviseQuoteButton).toBeVisible({ timeout: 2000 });
@@ -146,7 +147,7 @@ test('sysproID, branch and email fields are editable at edit user page', async (
   const isSysproIDEnable = await page.locator("//*[@name='syspro_id']").isEnabled();
   if (isEmailEnable) {
     if (isSysproIDEnable) {
-      
+
     } else { throw new Error('syspro id field is disabled at edit users page'); }
   } else { throw new Error('email filed is disabled at edit users page'); }
 });
@@ -201,6 +202,7 @@ test('Verifying the vendor part number not accepting the space', async () => {
   }
 });
 test("Need to able to type start date and end dates at non SPA configure", async () => {
+  await page.pause();
   const dates = await startEndDates();
   const startDate = dates[0]; const endDate = dates[1]; day = dates[2];
   const expectedDates = `${startDate} - ${endDate}`;
@@ -387,3 +389,33 @@ test('Verifying the warehouse for new part at Inventory', async () => {
   await page.getByRole('dialog').getByLabel('open').nth(4).scrollIntoViewIfNeeded();
   await page.pause();
 });
+test('Revise Quote button displaying statuses', async () => {
+  async function selectStatusAtQuoteFilters(page, status) {
+    await page.getByText('Select').nth(1).click();
+    await selectReactDropdowns(page, status);
+    await page.getByRole('button', { name: 'Apply' }).click();
+    await delay(page, 1400); await expect(allPages.profileIconListView).toBeVisible();
+  }
+  await page.locator('#root').getByText('Expired Quotes').click();
+  await expect(allPages.profileIconListView).toBeVisible();
+  await allPages.profileIconListView.click();
+  await expect(allPages.iidmCostLabel).toBeVisible();
+  await expect(allPages.reviseQuoteButton).toBeVisible();
+  await allPages.leftBack.click();
+  await page.locator('#root').getByText('Archived Quotes').click();
+  await expect(allPages.profileIconListView).toBeVisible();
+  await allPages.profileIconListView.click();
+  await expect(allPages.iidmCostLabel).toBeVisible();
+  await expect(allPages.reviseQuoteButton).toBeHidden({ timeout: 2000 });
+  await allPages.headerQuotesTab.click();
+  await expect(allPages.profileIconListView).toBeVisible();
+  await selectStatusAtQuoteFilters(page, 'Open');
+  await allPages.profileIconListView.click();
+  await expect(allPages.reviseQuoteButton).toBeHidden({ timeout: 2000 });
+  await allPages.leftBack.click();
+  await selectStatusAtQuoteFilters(page, 'Pending Approval');
+  await allPages.profileIconListView.click();
+  await expect(allPages.reviseQuoteButton).toBeVisible();
+  await allPages.leftBack.click();
+  await page.pause();
+})
