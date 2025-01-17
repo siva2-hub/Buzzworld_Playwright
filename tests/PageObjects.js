@@ -20,7 +20,7 @@ export default class AllPages {
         // this.clickAdmin = this.page.getByText('Admin').first().click();
         //First row in grid list
         this.gridFirstRow = this.page.locator("//*[@class='ag-center-cols-container']/div[1]");
-        this.headerQuotesTab = this.page.getByText('Quotes', { exact: true }).first();
+        this.headerQuotesTab = this.page.locator("//*[text()='Quotes']").first();
         this.createQuoteAtQuotesLV = this.page.locator('div').filter({ hasText: /^Create Quote$/ }).nth(1);
         this.addItemsBtn = this.page.locator("//*[text()='Add Items']");
         this.itemsNotAvailText = this.page.getByText('Quote item(s) Not Available');
@@ -32,7 +32,7 @@ export default class AllPages {
         this.quotePrice = this.page.locator('//*[@id="repair-items"]/div[2]/div[1]/div/div/div[2]/div[3]/div[1]/h4');
         this.totalGP = this.page.locator('//*[@id="repair-items"]/div[3]/div/div[1]/div/h4');
         this.totalPriceDetls = this.page.locator('//*[@id="repair-items"]/div[3]/div/div[4]/div/h4');
-        this.versionDropdown = this.page.locator("//*[@class='quote-num-and-status']/div[2]");
+        this.versionDropdown = this.page.locator("(//*[@class='quote-num-and-status']/div[2])[contains(text(),'V')]");
         this.projectNameRepQuote = this.page.locator("(//*[@class='field-details'])[1]/div[4]/div/div[2]");
         this.projectNamePartsQuote = this.page.locator("(//*[@class='field-details'])[1]/div[5]/div/div[2]");
         this.subject = this.page.locator("//*[@name='quote_mail_subject']");
@@ -50,7 +50,8 @@ export default class AllPages {
         this.horzScrollView = this.page.locator("//*[@class='ag-body-horizontal-scroll-viewport']");
         this.horzScrollToRight = this.page.locator("//*[@class='ag-horizontal-right-spacer ag-scroller-corner']");
         this.sysproIdAtUserEdit = this.page.locator("//*[@name='syspro_id']");
-        this.emailAtUserEdit = this.
+        // this.emailAtUserEdit = this.
+        this.leftBack = this.page.locator("//*[contains(@src,'chevron_left')]");
     }
     //Page Objects
     // get userNameInput() { return this.page.getByLabel('Email'); }
