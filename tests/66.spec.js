@@ -52,7 +52,7 @@ test("Prefil the previous month and current year at POS reports", async () => {
   if (results) { } else { throw new Error("getting error"); }
 });
 test("Display the GP as weighted average of sell price & IIDM cost", async () => {
-  const urlPath = 'all_quotes/9cb41be7-8260-4231-aa10-cb111afb3d8b';
+  const quoteId = '551f393a-e788-4aa5-9501-2790cb3f7f44'; const urlPath = 'all_quotes/' + quoteId;
   await page.goto(stage_url + urlPath);
   let totalIidmCost = 0.0, totalQuotePrice = 0.0;
   await expect(allPages.iidmCostLabel).toBeVisible();
@@ -65,11 +65,12 @@ test("Display the GP as weighted average of sell price & IIDM cost", async () =>
     totalIidmCost = totalIidmCost + Number((ic.replace("$", "")).replace(",", ""));
     totalQuotePrice = totalQuotePrice + Number((qp.replace("$", "")).replace(",", ""));
   }
-  const totalExpectedGP = (totalIidmCost / totalQuotePrice).toFixed(2);
-  const totalActualGP = Number((tAGP.replace("$", "")).replace("%", "")).toFixed(2);
+  const totalExpectedGP = ((((totalQuotePrice - totalIidmCost) / totalQuotePrice) * 100).toFixed(2)) + ' %';
+  const totalActualGP = (Number((tAGP.replace("$", "")).replace("%", "")).toFixed(2)) + ' %';
   if (totalActualGP === totalExpectedGP) {
     console.log('actual gp: ' + totalActualGP + ' expected gp: ' + totalExpectedGP);
   } else { throw new Error('actual gp: ' + totalActualGP + ' expected gp: ' + totalExpectedGP); }
+  console.log('Quote Number: ' + await allPages.quoteOrRMANumber.textContent());
 });
 test("Revice the old version also", async () => {
   async function reviseQuote(page) {
@@ -80,7 +81,7 @@ test("Revice the old version also", async () => {
     await page.locator("(//*[text()='Proceed'])[1]").click();
     await expect(iidmCostText).toBeVisible();
   }
-  const urlPath = '151d6ea7-8263-44f9-9ee4-c251ac0ebb0a'; let isCreateNew = false;
+  const urlPath = '92b89a84-4058-417b-9676-e2d0c1af6494'; let isCreateNew = false;
   let accoutNumber = 'ZUMMO00', contactName = 'James K', quoteType = 'System Quote', items = ['01230.9-00'];
   if (isCreateNew) {
     await createQuote(page, accoutNumber, quoteType);
@@ -119,19 +120,25 @@ test("Revice the old version also", async () => {
 });
 test("Display the project name at send to customer page", async () => {
   let isCreateNew = false;
-  let accoutNumber = 'ZUMMO00', contactName = 'Austin Zummo', quoteType = 'Parts Quote', items = ['1234-T1234'];//01230.9-00
+  let accoutNumber = 'ZUMMO00', contactName = 'Austin Zummo', quoteType = 'System Quote', items = ['1234-T1234'];//01230.9-00
   if (isCreateNew) {
     await createQuote(page, accoutNumber, quoteType);
     await addItesms(page, items, quoteType);
     await selectRFQDateandQuoteRequestedBy(page, contactName);
     await soucreSelection(page, items[0]);
-  } else { await page.goto(stage_url + 'all_quotes/5e952a0b-503a-447a-8d0c-37a7600c5af9') }
+  } else { await page.goto(stage_url + 'all_quotes/f3d6f549-185a-4efe-8c6e-99bddce76175') }
   const quoteNumber = await allPages.quoteOrRMANumber.textContent();
-  const projectName = await allPages.projectNamePartsQuote.textContent();
-  await approve(page, contactName);
+  let projectName = await allPages.projectNamePartsQuote.textContent();
+  // await approve(page, contactName);
   await expect(allPages.iidmCostLabel).toBeVisible();
   await allPages.sendToCustomerButton.click();
-  const expectedSubject = projectName + ' - ' + 'IIDM Quote - ' + quoteNumber;
+  let expectedSubject;
+  if (projectName === '-') {
+    expectedSubject = 'IIDM Quote - ' + quoteNumber;
+  } else {
+    projectName = projectName.charAt(0).toUpperCase() + projectName.slice(1);
+    expectedSubject = projectName + ' - ' + 'IIDM Quote - ' + quoteNumber;
+  }
   const actaualSuobject = await allPages.subject.getAttribute('value');
   if (actaualSuobject === expectedSubject) {
   } else { throw new Error("actual subject is: " + actaualSuobject + ' but expected subject is: ' + expectedSubject); }
@@ -202,7 +209,7 @@ test('Verifying the vendor part number not accepting the space', async () => {
   }
 });
 test("Need to able to type start date and end dates at non SPA configure", async () => {
-  await page.pause();
+  // await page.pause();
   const dates = await startEndDates();
   const startDate = dates[0]; const endDate = dates[1]; day = dates[2];
   const expectedDates = `${startDate} - ${endDate}`;
