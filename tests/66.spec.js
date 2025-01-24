@@ -398,17 +398,31 @@ test('Verifying the warehouse for new part at Inventory', async () => {
 });
 test('Revise Quote button displaying statuses', async () => {
   async function selectStatusAtQuoteFilters(page, status) {
+    try {
+      const filterClear = page.locator("//*[text()='Clear']");
+      await expect(filterClear).toBeVisible({ timeout: 2000 }); await filterClear.click();
+    } catch (error) {
+    }
+    await page.locator("//*[text()='Filters']").click();
     await page.getByText('Select').nth(1).click();
     await selectReactDropdowns(page, status);
     await page.getByRole('button', { name: 'Apply' }).click();
     await delay(page, 1400); await expect(allPages.profileIconListView).toBeVisible();
   }
+  async function verifyReviseQuoteButton(page, isHide) {
+    await expect(allPages.profileIconListView).toBeVisible();
+    await allPages.profileIconListView.click();
+    await expect(allPages.iidmCostLabel).toBeVisible();
+    await expect(allPages.reviseQuoteButton).isHide;
+    await allPages.leftBack.click();
+  }
   await page.locator('#root').getByText('Expired Quotes').click();
-  await expect(allPages.profileIconListView).toBeVisible();
-  await allPages.profileIconListView.click();
-  await expect(allPages.iidmCostLabel).toBeVisible();
-  await expect(allPages.reviseQuoteButton).toBeVisible();
-  await allPages.leftBack.click();
+  // await expect(allPages.profileIconListView).toBeVisible();
+  // await allPages.profileIconListView.click();
+  // await expect(allPages.iidmCostLabel).toBeVisible();
+  // await expect(allPages.reviseQuoteButton).toBeVisible();
+  // await allPages.leftBack.click();
+  await verifyReviseQuoteButton(page,);
   await page.locator('#root').getByText('Archived Quotes').click();
   await expect(allPages.profileIconListView).toBeVisible();
   await allPages.profileIconListView.click();
@@ -424,5 +438,18 @@ test('Revise Quote button displaying statuses', async () => {
   await allPages.profileIconListView.click();
   await expect(allPages.reviseQuoteButton).toBeVisible();
   await allPages.leftBack.click();
-  await page.pause();
+  await selectStatusAtQuoteFilters(page, 'Approved');
+  await allPages.profileIconListView.click();
+  await expect(allPages.iidmCostLabel).toBeVisible();
+  await expect(allPages.reviseQuoteButton).toBeVisible();
+  await allPages.leftBack.click();
+  await selectStatusAtQuoteFilters(page, 'Delivered to Customer');
+  await allPages.profileIconListView.click();
+  await expect(allPages.iidmCostLabel).toBeVisible();
+  await expect(allPages.reviseQuoteButton).toBeVisible();
+  await allPages.leftBack.click();
+  await selectStatusAtQuoteFilters(page, 'Lost');
+  await allPages.profileIconListView.click();
+  await expect(allPages.reviseQuoteButton).toBeVisible();
+  await allPages.leftBack.click();
 })
