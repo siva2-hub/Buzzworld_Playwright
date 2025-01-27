@@ -7,11 +7,11 @@ const { websitePaddingTesting, returnResult } = require('./helper');
 const testdata = JSON.parse(JSON.stringify(require("../testdata.json")))
 
 let page, context;
-test.describe('Groupped into all tests', ()=>{
+
   // let pay_type = '1% 10 NET 30';
   let pay_type = 'Credit Card';
   
-  test.only('Credit Card Payment as Logged In', async ({ page }) => {
+test.only('Credit Card Payment as Logged In', async ({ page }) => {
     let card_type = testdata.card_details.american;
     // let card_type = testdata.card_details.visa;
     let cardDetails = [
@@ -21,15 +21,21 @@ test.describe('Groupped into all tests', ()=>{
     ];
     let userName = await storeLogin(page);
     await cartCheckout(page, false);
+
     if (pay_type === 'Credit Card') {
       await page.getByLabel('Credit Card').click({timeout: 10000})
-      await page.getByRole('button', { name: 'Proceed' }).click()
-      await creditCardPayment(page, userName, cardDetails);
+      const status = await grandTotalForCreditCard(page);
+      if (status) {
+        await page.getByRole('button', { name: 'Proceed' }).click();
+        await creditCardPayment(page, userName, cardDetails);
+      } else {
+        throw new Error("prices not matched");
+      }
     } else {
       await page.getByPlaceholder('Enter PO Number').fill('TESTPO1234');
       await page.click("//*[text() = 'Approve']");
     }
-  })
+  });
   test('Declined the Credit Card Payment as Logged In', async ({ page }, testInfo) => {
     let card_type = testdata.card_details.american;
     // let card_type = testdata.card_details.visa;
@@ -60,7 +66,6 @@ test.describe('Groupped into all tests', ()=>{
     await returnResult(page, testInfo.title, testResult);
     await page.waitForTimeout(2000);
   });
-});
 
 //Logics
 async function storeLogin(page) {
@@ -121,8 +126,31 @@ async function creditCardPayment(page, userName, cardDetails) {
   await page.getByPlaceholder('Enter Card Number').fill(cardDetails[0]);
   await page.getByPlaceholder('MM / YY').fill(cardDetails[1]);
   await page.getByPlaceholder('Enter CVC').fill(cardDetails[2]);
-  await page.pause()
   await page.getByRole('button', { name: 'Proceed To Payment' }).click();
+}
+async function grandTotalForCreditCard(page) {
+  let st = await page.locator("(//*[contains(@class,'Total_container')])[1]/div/div[2]").textContent();
+  const subTotal = Number(Number(st.replace("$","").replace(",","")).toFixed(2));
+  const exp_tax = Number((subTotal*0.085).toFixed(2));
+  const exp_convFee = Number((subTotal*0.04).toFixed(2));
+  const exp_grandTotal = subTotal+exp_tax+exp_convFee;
+  // console.log('exp sub total: '+typeof(subTotal));
+  // console.log('exp tax: '+typeof(exp_tax));
+  // console.log('exp con feee: '+typeof(exp_convFee));
+  // console.log('exp grand total: '+exp_grandTotal);
+  let at = await page.locator("(//*[contains(@class,'Total_container')])[1]/div/div[4]").textContent();
+  const actual_tax = Number(at.replace("$","").replace(",",""));
+  let ac = await page.locator("(//*[contains(@class,'Total_container')])[1]/div/div[6]").textContent();
+  const actual_convFee = Number(ac.replace("$","").replace(",",""));
+  const actualGrandTotal = (subTotal+actual_tax+actual_convFee);
+  // console.log('actual sub total: '+subTotal);
+  // console.log('actual tax: '+actual_tax);
+  // console.log('actual con feee: '+actual_convFee);
+  // console.log('actual grand total: '+actualGrandTotal);
+   let getResults = false;
+  if (exp_grandTotal===actualGrandTotal && exp_tax===actual_tax && exp_convFee===actual_convFee) {getResults=true}
+   else {getResults=false;}
+   return getResults;
 }
 //   test('request payterms', async () => {
 //     const browser = await chromium.launch();
