@@ -2,11 +2,12 @@
 // import { checkout_page, order_summary_page, guest_checkout_form, guest_add_products, request_payterms, login } from './helper';
 
 const { test, expect, chromium } = require('@playwright/test');
-const { retries } = require('../playwright.config');
-const { websitePaddingTesting, returnResult } = require('./helper');
+const { retries, timeout } = require('../playwright.config');
+const { websitePaddingTesting, returnResult, delay, selectReactDropdowns } = require('./helper');
+const { default: AllPages } = require('./PageObjects');
 const testdata = JSON.parse(JSON.stringify(require("../testdata.json")))
 
-let page, context;
+let page, context, allPages;
 
   // let pay_type = '1% 10 NET 30';
   let pay_type = 'Credit Card';
@@ -25,7 +26,9 @@ test.only('Credit Card Payment as Logged In', async ({ page }) => {
     if (pay_type === 'Credit Card') {
       await page.getByLabel('Credit Card').click({timeout: 10000})
       const status = await grandTotalForCreditCard(page);
+      console.log('status is: '+status);
       if (status) {
+        await page.pause();
         await page.getByRole('button', { name: 'Proceed' }).click();
         await creditCardPayment(page, userName, cardDetails);
       } else {
@@ -35,8 +38,69 @@ test.only('Credit Card Payment as Logged In', async ({ page }) => {
       await page.getByPlaceholder('Enter PO Number').fill('TESTPO1234');
       await page.click("//*[text() = 'Approve']");
     }
-  });
-  test('Declined the Credit Card Payment as Logged In', async ({ page }, testInfo) => {
+});
+test.only('Credit Card Payment as without Logged In', async ({ page }) => {
+  let customerName = 'Chump Chnage Automation Espi 1234',fName = 'Test123',lName='ChumpEspi1234',email='testchump1234@espi123.co';
+  let card_type = testdata.card_details.american;
+  let url = process.env.BASE_URL_STORE;
+  // let card_type = testdata.card_details.visa;
+  let cardDetails = [
+    card_type.card_number,
+    card_type.exp_date,
+    card_type.cvv
+  ];
+  await page.goto(url);
+  await page.locator("(//*[text() = 'Manufacturers'])[1]").hover();
+  await page.click("(//*[text() = 'Yaskawa'])[1]");
+  await page.locator('div.product-thumb-top').first().hover();
+  await page.locator('.product-action > button').first().click();
+  await page.getByRole('link', { name: 'Cart' }).first().click();
+  await page.getByRole('link', { name: 'Checkout' }).click();
+  await selectCustomerWithoutLogin(page, customerName, fName, lName, email, true);
+  //select billing address
+  await selectBillingDetails(page);
+  //select shipping address
+  await selectShippingDetails(page);
+  await page.getByRole('textbox').fill('Test\nNotes');
+  if (pay_type === 'Credit Card') {
+    await page.getByLabel('Credit Card').click({timeout: 10000})
+    await page.pause();
+    const status = await grandTotalForCreditCard(page);
+    if (status) {
+      await page.getByRole('button', { name: 'Proceed' }).click();
+      await creditCardPayment(page, userName, cardDetails);
+    } else {
+      throw new Error("price not matched");
+    }
+  } else {
+    await page.getByPlaceholder('Enter PO Number').fill('TESTPO1234');
+    await page.click("//*[text() = 'Approve']");
+  }
+});
+test('Request Quote For Price', async({page})=> {
+  let customerName = 'Chump Change Automation Espi 12',fName = 'Chump',lName='ChangeEspi12',email='chumpchange@espi12.co';
+  let card_type = testdata.card_details.american;
+  let url = process.env.BASE_URL_STORE;
+  await page.goto(url);
+  const productImage = page.locator("//*[@class='product-thumb image-top']");
+  const addToCart = page.locator("//*[@title='Add to Cart']");
+  await productImage.nth(2).hover();
+  await addToCart.nth(2).click();
+  await page.getByRole('link', { name: 'Cart' }).first().click();
+  await page.getByRole('link', { name: 'Checkout' }).click();
+  await selectCustomerWithoutLogin(page, customerName, fName, lName, email, false);
+  //select billing address
+  await selectBillingDetails(page);
+  //select shipping address
+  await selectShippingDetails(page);
+  //enter item notes
+  await page.getByRole('textbox').fill('Test\nNotes');
+  await page.keyboard.press('F12');
+  await page.pause();
+  // await page.getByRole('button', { name: 'Request Quote For Price' });.click();
+  await page.pause();
+});
+test.skip('Declined the Credit Card Payment as Logged In', async ({ page }, testInfo) => {
     let card_type = testdata.card_details.american;
     // let card_type = testdata.card_details.visa;
     let cardDetails = [
@@ -65,9 +129,49 @@ test.only('Credit Card Payment as Logged In', async ({ page }) => {
     }
     await returnResult(page, testInfo.title, testResult);
     await page.waitForTimeout(2000);
-  });
+});
 
 //Logics
+async function selectCustomerWithoutLogin(page, customerName, fName, lName, email, isExist) {
+  await page.getByLabel('open').click();
+  await page.getByLabel('Company Name*').fill(customerName);
+  if (isExist) {
+    await page.getByRole('option', { name: customerName, exact: true }).click();
+  } else {
+    try {
+      allPages = new AllPages(page);
+      await expect(allPages.loading).toBeVisible();
+      await expect(allPages.loading).toBeHidden();
+      await page.locator("//*[text()='Add Company Name']").toBeVisible();
+      await page.getByRole('option', { name: customerName, exact: true }).toBeVisible({timeout:2000});
+    } catch (error) {await page.locator("//*[text()='Add Company Name']").click();}
+  }
+  await page.getByPlaceholder('Enter First Name').fill(fName);
+  await page.getByPlaceholder('Enter Last Name').fill(lName);
+  await page.getByPlaceholder('Enter Email ID').fill(email);
+  await delay(page, 2000); await page.getByPlaceholder('Enter Phone Number').fill('');
+  await page.getByPlaceholder('Enter Phone Number').fill('(565) 465-46544');
+  await page.getByRole('button', { name: 'Next' }).click();
+}
+async function selectBillingDetails(page) {
+  await page.getByPlaceholder('Enter Address1').fill('Test Address');
+  await page.getByPlaceholder('Enter City').fill('Test City');
+  await page.getByText('Select State').click();
+  await page.getByText('Arizona', { exact: true }).click();
+  await page.getByLabel('Postal Code').click();
+  await page.keyboard.insertText('75067');
+  await page.getByRole('option', { name: '75067' }).click();
+  await page.getByRole('button', { name: 'Next' }).click();
+  await page.getByPlaceholder('Enter Ship To Name').fill('Test Ship To Name');
+  await page.getByRole('button', { name: 'Next' }).click();
+}
+async function selectShippingDetails(page) {
+  await page.getByText('Select Shipping Method').click();
+  await page.getByText('Over Night', { exact: true }).click();
+  await page.getByLabel('', { exact: true }).check();
+  await page.getByPlaceholder('Enter Collect Number').fill('123456ON');
+  await page.getByRole('button', { name: 'Next' }).click();
+}
 async function storeLogin(page) {
   
   let w = 1920, h = 910;
@@ -92,7 +196,6 @@ async function storeLogin(page) {
   await expect(page.locator('#main-header')).toContainText(userName);
   return userName;
 }
-
 async function cartCheckout(page, isDecline) {
   await page.locator("(//*[text() = 'Manufacturers'])[1]").hover();
   await page.click("(//*[text() = 'Yaskawa'])[1]");
@@ -120,8 +223,8 @@ async function cartCheckout(page, isDecline) {
   await page.getByRole('button', { name: 'Next' }).click();
   await page.getByRole('textbox').fill('Test\nNotes');
 }
-
 async function creditCardPayment(page, userName, cardDetails) {
+  await page.pause();
   await page.getByPlaceholder('Enter Name on the Card').fill(userName);
   await page.getByPlaceholder('Enter Card Number').fill(cardDetails[0]);
   await page.getByPlaceholder('MM / YY').fill(cardDetails[1]);
@@ -134,19 +237,19 @@ async function grandTotalForCreditCard(page) {
   const exp_tax = Number((subTotal*0.085).toFixed(2));
   const exp_convFee = Number((subTotal*0.04).toFixed(2));
   const exp_grandTotal = subTotal+exp_tax+exp_convFee;
-  // console.log('exp sub total: '+typeof(subTotal));
-  // console.log('exp tax: '+typeof(exp_tax));
-  // console.log('exp con feee: '+typeof(exp_convFee));
-  // console.log('exp grand total: '+exp_grandTotal);
+  console.log('exp sub total: '+subTotal);
+  console.log('exp tax: '+exp_tax);
+  console.log('exp con feee: '+exp_convFee);
+  console.log('exp grand total: '+exp_grandTotal);
   let at = await page.locator("(//*[contains(@class,'Total_container')])[1]/div/div[4]").textContent();
   const actual_tax = Number(at.replace("$","").replace(",",""));
   let ac = await page.locator("(//*[contains(@class,'Total_container')])[1]/div/div[6]").textContent();
   const actual_convFee = Number(ac.replace("$","").replace(",",""));
   const actualGrandTotal = (subTotal+actual_tax+actual_convFee);
-  // console.log('actual sub total: '+subTotal);
-  // console.log('actual tax: '+actual_tax);
-  // console.log('actual con feee: '+actual_convFee);
-  // console.log('actual grand total: '+actualGrandTotal);
+  console.log('actual sub total: '+subTotal);
+  console.log('actual tax: '+actual_tax);
+  console.log('actual con feee: '+actual_convFee);
+  console.log('actual grand total: '+actualGrandTotal);
    let getResults = false;
   if (exp_grandTotal===actualGrandTotal && exp_tax===actual_tax && exp_convFee===actual_convFee) {getResults=true}
    else {getResults=false;}
