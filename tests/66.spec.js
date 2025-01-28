@@ -1,11 +1,12 @@
 const { test, expect, errors, request } = require("@playwright/test");
 const ExcelJS = require('exceljs');
-const { login_buzz, selectStartEndDates, createQuote, addItesms, approve, read_excel_data, api_responses, delay, selectReactDropdowns, selectRFQDateandQuoteRequestedBy, soucreSelection, filters_quotes_sales_person } = require("./helper");
+const { login_buzz, selectStartEndDates, createQuote, addItesms, approve, read_excel_data, api_responses, delay, selectReactDropdowns, selectRFQDateandQuoteRequestedBy, soucreSelection, filters_quotes_sales_person, listenAPIResponsed } = require("./helper");
 const { throws } = require("assert");
 const { error } = require("console");
 const { testDir, timeout } = require("../playwright.config");
 const { default: AllPages } = require("./PageObjects");
 const { platform } = require("os");
+const { populate } = require("dotenv");
 
 const stage_url = process.env.BASE_URL_BUZZ;
 let allPages;
@@ -394,6 +395,30 @@ test('Verifying the warehouse for new part at Inventory', async () => {
   await expect(allPages.loading).toBeVisible(); await expect(allPages.loading).toBeHidden();
   await selectReactDropdowns(page, newPart);
   await page.getByRole('dialog').getByLabel('open').nth(4).scrollIntoViewIfNeeded();
+  const apiResponse = await api_responses(page, 'https://staging-buzzworld-api.iidm.com/v1/getInventoryQuery?stockCode=' + newPart + '&stockCodeId=' + newPart);
+  const warehouseData = apiResponse.result.data.stockItemInfo.warehouse;
+  let displayingWarehouse = [];
+  for (let index = 0; index < warehouseData.length; index++) {
+    displayingWarehouse.push(warehouseData[index]['warehouse']);
+  }
+  const actualDisplayingInfo = await page.locator("//*[@class='info']").textContent();
+  const expDisplayingInfo = newPart + ' exists in warehouse ' + displayingWarehouse.join(', ');
+  if (expDisplayingInfo === actualDisplayingInfo) {
+    await page.getByRole('dialog').getByLabel('open').nth(4).click();
+    await page.keyboard.insertText(warehouseData[0]['warehouse'])
+    await page.keyboard.press('Enter');
+    await page.getByRole('button', { name: 'Add', exact: true }).click();
+    try {
+      await expect(page.getByText('Please Select Product Class')).toBeVisible({ timeout: 2000 });
+      await page.getByRole('dialog').getByLabel('open').nth(1).click();
+      await page.getByText('AB01', { exact: true }).click();
+    } catch (error) { }
+    await page.getByRole('button', { name: 'Add', exact: true }).click();
+    await expect(page.getByText('stock code exists')).toBeVisible();
+  } else {
+    console.log('expected displaying warehouse info: ' + expDisplayingInfo);
+    console.log('actual displaying warehouse info: ' + actualDisplayingInfo);
+  }
   await page.pause();
 });
 test('Revise Quote button displaying statuses', async () => {
@@ -417,7 +442,6 @@ test('Revise Quote button displaying statuses', async () => {
     else { await expect(allPages.reviseQuoteButton).toBeHidden({ timeout: 2000 }); }
     await allPages.leftBack.click();
   }
-  await page.pause();
   await page.locator('#root').getByText('Expired Quotes').click();
   await verifyReviseQuoteButton(page, true);
   await page.locator('#root').getByText('Archived Quotes').click();
