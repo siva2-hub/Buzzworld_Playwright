@@ -50,7 +50,7 @@ export default class AllPages {
         this.horzScrollView = this.page.locator("//*[@class='ag-body-horizontal-scroll-viewport']");
         this.horzScrollToRight = this.page.locator("//*[@class='ag-horizontal-right-spacer ag-scroller-corner']");
         this.sysproIdAtUserEdit = this.page.locator("//*[@name='syspro_id']");
-        // this.emailAtUserEdit = this.
+        this.emailAtUserEdit = this.page.locator("//*[@name='email']");
         this.leftBack = this.page.locator("//*[contains(@src,'chevron_left')]");
     }
     //Page Objects

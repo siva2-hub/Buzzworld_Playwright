@@ -40,7 +40,7 @@ test.only('Credit Card Payment as Logged In', async ({ page }) => {
     }
 });
 test.only('Credit Card Payment as without Logged In', async ({ page }) => {
-  let customerName = 'Chump Chnage Automation Espi 1234',fName = 'Test123',lName='ChumpEspi1234',email='testchump1234@espi123.co';
+  let customerName = 'Chump Change Automation',fName = 'Test',lName='Chump1',email='testchump1@espi.co';
   let card_type = testdata.card_details.american;
   let url = process.env.BASE_URL_STORE;
   // let card_type = testdata.card_details.visa;
@@ -78,7 +78,7 @@ test.only('Credit Card Payment as without Logged In', async ({ page }) => {
   }
 });
 test('Request Quote For Price', async({page})=> {
-  let customerName = 'Chump Change Automation Espi 12',fName = 'Chump',lName='ChangeEspi12',email='chumpchange@espi12.co';
+  let customerName = 'Chump Change Automation Espi 123',fName = 'Chump',lName='ChangeEspi123',email='chumpchange@espi123.co';
   let card_type = testdata.card_details.american;
   let url = process.env.BASE_URL_STORE;
   await page.goto(url);
