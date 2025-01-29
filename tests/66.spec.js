@@ -53,7 +53,7 @@ test("Prefil the previous month and current year at POS reports", async () => {
   if (results) { } else { throw new Error("getting error"); }
 });
 test("Display the GP as weighted average of sell price & IIDM cost", async () => {
-  const quoteId = '551f393a-e788-4aa5-9501-2790cb3f7f44'; const urlPath = 'all_quotes/' + quoteId;
+  const quoteId = '9b31c9d9-661e-4314-b41d-c2cdae3ab124'; const urlPath = 'all_quotes/' + quoteId;
   await page.goto(stage_url + urlPath);
   let totalIidmCost = 0.0, totalQuotePrice = 0.0;
   await expect(allPages.iidmCostLabel).toBeVisible();
@@ -151,11 +151,23 @@ test('sysproID, branch and email fields are editable at edit user page', async (
   await expect(page.locator("(//*[@title='Default User'])[1]")).toBeVisible();
   await page.getByText('Edit').click();
   await expect(page.getByText('First Name')).toBeVisible();
-  const isEmailEnable = await page.locator("//*[@name='email']").isEnabled();
-  const isSysproIDEnable = await page.locator("//*[@name='syspro_id']").isEnabled();
+  const isEmailEnable = await allPages.emailAtUserEdit.isEnabled();
+  const isSysproIDEnable = await allPages.sysproIdAtUserEdit.isEnabled();
   if (isEmailEnable) {
     if (isSysproIDEnable) {
-
+      await allPages.emailAtUserEdit.fill('');
+      await allPages.sysproIdAtUserEdit.fill('');
+      await page.getByRole('button', { name: 'Update' }).click();
+      await expect(page.getByText('Please Enter Email ID')).toBeVisible();
+      await expect(page.getByText('Syspro ID can\'t be empty')).toBeVisible();
+      await page.getByRole('dialog').getByRole('button', { name: 'Cancel' }).click();
+      //checking syspro ID with existing syspro ID
+      await page.getByText('Edit').click();
+      await expect(page.getByText('First Name')).toBeVisible();
+      await allPages.sysproIdAtUserEdit.fill('AHH');
+      await page.getByRole('button', { name: 'Update' }).click();
+      await expect(page.getByText('Syspro Id already exists.')).toBeVisible();
+      await page.pause();
     } else { throw new Error('syspro id field is disabled at edit users page'); }
   } else { throw new Error('email filed is disabled at edit users page'); }
 });
