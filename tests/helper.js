@@ -1673,7 +1673,8 @@ async function create_job_repairs(page, is_create_job, repTypes, acc_num, cont_n
         // RMA creation
         await createRMA(page, acc_num, cont_name);
         await expect(page.locator('#repair-items')).toContainText('Repair item(s) Not Available');
-        let rep = await page.locator('(//*[@class = "id-num"])[1]').textContent();
+        // let rep = await page.locator('(//*[@class = "id-num"])[1]').textContent();
+        let rep = await allPages.quoteOrRMANumber.textContent();
         let repair_id = rep.replace("#", "");
         console.log('repair is created with id ', repair_id);
         console.log('repair url is ', await page.url());
@@ -1685,38 +1686,18 @@ async function create_job_repairs(page, is_create_job, repTypes, acc_num, cont_n
         }
         //Add Repair Items to Quote
         await addItemsToQuote(page)
-        let quote = await page.locator('(//*[@class = "id-num"])[1]').textContent();
+        // let quote = await page.locator('(//*[@class = "id-num"])[1]').textContent();
+        let quote = await allPages.quoteOrRMANumber.textContent();
         let quote_id = quote.replace("#", "");
         console.log('quote is created with id ', quote_id);
         let quote_url = await page.url();
         console.log('quote url is ', quote_url);
-        await approve(page, cont_name)
-        // let total_price = await page.locator("(//*[contains(@class, 'total-price-ellipsis')])[3]").textContent();
-        // let tqp = parseInt(total_price.replace("$", "").replace(",", ""));
-        // if (tqp > 10000) {
-        //     if (tqp > 10000 && tqp < 25001) {
-        //         await page.locator("//*[text() = 'Approval Questions']").click();
-        //         await page.locator("(//*[text() = 'Type'])[2]").click();
-        //         await page.keyboard.press('Enter');
-        //         await page.getByPlaceholder('Enter Competition').fill('Test Competition');
-        //         await page.getByPlaceholder('Enter Budgetary Amount').fill('9999.01');
-        //         await page.getByPlaceholder('Enter Key Decision Maker').fill(cont_name);
-        //         await page.locator("(//*[text() = 'Save'])[1]").click();
-        //         await page.locator("(//*[text() = 'Submit for Internal Approval'])[1]").click();
-        //         await expect(page.locator("(//*[text() = 'Are you sure you want to submit this quote for approval ?'])[1]")).toBeVisible();
-        //         await page.locator("(//*[text() = 'Proceed'])[1]").click();
-        //         await page.getByRole('button', { name: 'Approve' }).click();
-        //         await page.getByRole('button', { name: 'Approve' }).nth(1).click();
-        //     } else {
-
-        //     }
-        // } else {
-        //     await page.getByRole('button', { name: 'Approve' }).click();
-        //     await page.getByRole('button', { name: 'Approve' }).nth(1).click();
-        // }
-        //Approve the Quote
+        //Submit for internal approval or Approve the quote
+        await approve(page, cont_name);
+        //Send Quote to the Customer For Approval
         await expect(page.locator('#root')).toContainText('Submit for Customer Approval');
-        await page.locator('//*[@id="root"]/div/div[3]/div[1]/div[1]/div/div[2]/div[1]/div[3]/div/button').click();
+        // await page.locator('//*[@id="root"]/div/div[3]/div[1]/div[1]/div/div[2]/div[1]/div[3]/div/button').click();
+        await allPages.submitForCustomerDropdown.click();
         await expect(page.getByRole('menuitem')).toContainText('Delivered to Customer');
         await page.getByRole('menuitem', { name: 'Delivered to Customer' }).click();
         //Won the Quote
@@ -4131,31 +4112,34 @@ async function getProductWriteIntoExecl(page) {
     //
 }
 async function verifyTwoExcelData(page) {
-    let excel_data = await read_excel_data('/home/enterpi/Downloads/so-db-salesperson.csv', 0);//so db
-    let yask_data = await read_excel_data('/home/enterpi/Downloads/live-syspro-users.csv', 0);// our db
-    console.log('yaskawa price list rows count is ', yask_data.length);
-    console.log('test pricing list rows count is ', excel_data.length);
+    let omron_data = await read_excel_data('/home/enterpi/Downloads/OMRON-Export-ecommerce_initiative_January2025.xlsx', 0);// our db
+    let excel_data = await read_excel_data('/home/enterpi/Downloads/omron-30-01-2025.csv', 0);//so db
+    console.log('omron list rows count at sheet is ', omron_data.length);
+    console.log('omron list rows count at store is ', excel_data.length);
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.readFile('test_pricing.xlsx');
-    for (let index = 0; index < excel_data.length; index++) {
+    for (let index = 0; index < omron_data.length; index++) {
         //test_priding file Sheet2 Data
-        let supplT = excel_data[index]['Code'];
-        let name = excel_data[index]['Name'];
-        let descT = excel_data[index]['VendorDescription(30)'];
-        let lpT = excel_data[index].ListPrice;
-        let dcT = excel_data[index].DiscountCode;
-        let prodT = excel_data[index]['ProductClass(4)'];
+        let supplT = omron_data[index]['Catalog Description'];
+        // console.log('at sheet: ' + supplT);
+        // let name = omron_data[index]['Name'];
+        // let descT = omron_data[index]['VendorDescription(30)'];
+        // let lpT = omron_data[index].ListPrice;
+        // let dcT = omron_data[index].DiscountCode;
+        // let prodT = omron_data[index]['ProductClass(4)'];
         let message;
-        for (let index1 = 0; index1 < yask_data.length; index1++) {
+        // await page.pause();
+        for (let index1 = 0; index1 < excel_data.length; index1++) {
             //YASKAWA Pricing 2024 file Sheet1 Data
-            let supplY = yask_data[index1]['syspro_id'];
-            let stockY = yask_data[index1]['VendorStockCode(30)'];
-            let descY = yask_data[index1]['VendorDescription(30)'];
-            let lpY = yask_data[index1].ListPrice;
-            let dcY = yask_data[index1].DiscountCode;
-            let prodY = yask_data[index1]['ProductClass(4)'];
+            let supplY = excel_data[index1]['model'];
+            // console.log('at store: ' + supplY);
+            // let stockY = excel_data[index1]['VendorStockCode(30)'];
+            // let descY = excel_data[index1]['VendorDescription(30)'];
+            // let lpY = excel_data[index1].ListPrice;
+            // let dcY = excel_data[index1].DiscountCode;
+            // let prodY = excel_data[index1]['ProductClass(4)'];
             if (supplT === supplY) {
-                message = supplT + ' found in our bd';
+                message = supplT + ' sheet item found in our store';
                 // console.log(supplT+' found in our bd')
                 // console.log(stockT, ' ', stockY);
                 // console.log('test file row no ', (index + 1));
@@ -4170,19 +4154,17 @@ async function verifyTwoExcelData(page) {
                 // });
                 break;
             } else {
-                message = supplT + ' not found in our bd ' + name;
+                message = supplT + ' not found in our store ';
                 // console.log()
             }
             // return message;
         }
         const data = [];
-        if (message.includes('not found in our bd')) {
-            data.push(message)
-        }
+        data.push(message)
         console.log(data)
     }
     // Write the workbook to a file
-    await workbook.xlsx.writeFile('test_pricing.xlsx');
+    // await workbook.xlsx.writeFile('test_pricing.xlsx');
 }
 async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPrice, discountType, discountValue, testCount, qurl, fp) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');

@@ -29,7 +29,7 @@ test.describe('all tests', async () => {
     // await reports('First Test', 'Passed');
     page = await browser.newPage();
     // await setScreenSize(page, w, h);
-    await login_buzz(page, stage_url);
+    // await login_buzz(page, stage_url);
   });
 
   test('First Test Login', async ({ }, testInfo) => {
@@ -216,7 +216,7 @@ test.describe('all tests', async () => {
     await returnResult(page, testName, results);
   });
 
-  test('Create Job and Sales Order From Repair Quotes', async ({ }, testInfo) => {
+  test('Create Job and Sales Order For Repair Quotes', async ({ }, testInfo) => {
     //Repairable = 1, Not Repairable = 2, Repairable-Outsource = 3
     let acc_num = 'MULTI00', cont_name = 'Garret Luppino', stock_code = ['B880502B2'];
     // repairType '1' is Repairable, repairType '2' is Non Repairable and repairType '3' is Outsource Repairable
@@ -227,7 +227,7 @@ test.describe('all tests', async () => {
     await returnResult(page, testName, results);
   })
 
-  test('System Quote Creation with Sales Order and Job', async ({ }, testInfo) => {
+  test('Create Job and Sales Order For System Quotes', async ({ }, testInfo) => {
     //create system quote
     let acc_num = 'MULTI00', cont_name = 'Garret Luppino', stock_code = ['12342-00012'];
     results = await create_job_quotes(page, 'Y', 'System Quote', acc_num, cont_name, stock_code);
@@ -235,19 +235,19 @@ test.describe('all tests', async () => {
     await returnResult(page, testName, results);
   });
 
-  test('Parts Quote Creation with Sales Order', async ({ }, testInfo) => {
+  test('Create SO For Parts Quotes', async ({ }, testInfo) => {
     //create parts quote
     let acc_num = 'ZAPAT00', cont_name = 'Jeff Zapata', stock_code = ['TESTIN12342-000'];
     results = await create_job_quotes(page, 'Y', 'Parts Quote', acc_num, cont_name, stock_code);
     let testName = testInfo.title;
     await returnResult(page, testName, results);
-  })
+  });
 
   test('Create Job Manually', async ({ }, testInfo) => {
     results = await create_job_manually(page, testdata.order_id)
     let testName = testInfo.title;
     await returnResult(page, testName, results);
-  })
+  });
 
   test('Create Parts Purchase Manually', async ({ }, testInfo) => {
     results = await create_parts_purchase(page, true, '');
