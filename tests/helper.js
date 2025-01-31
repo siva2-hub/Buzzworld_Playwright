@@ -14,7 +14,14 @@ const { count } = require('console');
 const currentDate = new Date().toDateString();
 let date = currentDate.split(" ")[2];
 let vendor = testdata.vendor;
-let apiKey = testdata.api_key; const stage_url = process.env.BASE_URL_BUZZ;
+let apiKey = testdata.api_key;
+const stage_url = process.env.BASE_URL_BUZZ;
+const stage_api_url = process.env.BASE_API_BUZZ;
+const date1 = new Date().toDateString(); let results = false;
+const currentDate1 = new Date(date1);
+let day = currentDate1.getDate();
+let previuosMonth = currentDate1.getMonth();
+const year = currentDate1.getFullYear();
 let allPages;
 const currentDateTime = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
 const ANSI_RESET = "\x1b[0m";
@@ -3864,7 +3871,7 @@ async function api_responses(page, api_url) {
     const response = await page.evaluate(async (url) => {
         const fetchData = await fetch(url, {
             headers: {
-                'Authorization': `Bearer ${'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiNmI2M2NhNWY5ZTQ4MWZiMjc2MTVkMTE0NWVmYjg2MmZkNmJhMzJmMDdhNjAyNjg1MTQyNGNlOGFjMDA3MTg5Y2U2ZmYxYjUxZTg1NzZmZDAiLCJpYXQiOjE3MzgwNDM1NjYuNjYyNzE5LCJuYmYiOjE3MzgwNDM1NjYuNjYyNzIzLCJleHAiOjE3MzkzMzk1NjYuNjI4NDkyLCJzdWIiOiI2NzE0YTkyNC03YmZhLTQ5NjktODUzOC1iZjg0MTk1YjU0MWEiLCJzY29wZXMiOltdfQ.eEdJ5TA0PjDpzCtZLVsYW4mG2eQx4hAO6rmfpuK_WssbAo7ZBilK3_H7tI4J037UIxrzJ5ung63n3UU4vtaKtCQ3oVTihFazMDLSX2pkKkSXxceut_bYC42-NEGYLezduG4Y4cSbVqnsZ4bouD88yMKp3Msc6rOTPuG_X4gmnLwD7uVn_X4UfVNAE3YA369AMKjOAnvJBquZ5-M9HCrqQICng3tbRYlUtdCTO_rupC_IbjDhDn57eHE-_Xk09qU0lf1ZtNx0fZ85eF8rLyDk99sr9GnWpPs1oHMF3xYWAQJDWuDFXS_ELZreeJhH-2V1O5k9Bcl-kzSvsKj9f2Al18lOhC8uD4zNtFupGQjdu7EmNNDtuE6p8kFAIEtPhZ6vVQeBtTPfe8009gypAtsujPskdwCvo3I9ReXcxuY7oxTTutRvgjhnyIBZa9GpXXpYAdpZtNJPDLkyRCRzrgIVw9QhVtu2q9idKskYUf-FLhobQeoS-UD46PFIOn9SWMBcJJmH7M4icrlEdTXolhc8Xxjbe8da92I1wneqesEjYGrkbK89Ne_0If9uPFP15BcSZXLemTnAddiC53Uks6l8UNbgzhae3WkgKSnc_OhrIlhzPV1vgluNIo5GInPVUQC_Ale2yGFqfzW5vJzgsUs1G4ekmcmXKxpd6dWUSDWuuIw'}` // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
+                'Authorization': `Bearer ${'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiMjliMmU4YWEyNzlkMDIwMWJlN2Q3NjU0YThkNjliODg5ZDk1ZTBiYjc1ZjcyNTg5YzgzODA0ZGEzNjExYzE0ZjIxNTVlNmI3ZWZjODhjNGUiLCJpYXQiOjE3MzgzMjcyMzEuMzQ3NjMsIm5iZiI6MTczODMyNzIzMS4zNDc2MzQsImV4cCI6MTczOTYyMzIzMS4zMzM4NDQsInN1YiI6IjY3MTRhOTI0LTdiZmEtNDk2OS04NTM4LWJmODQxOTViNTQxYSIsInNjb3BlcyI6W119.nBjxObYKnB6MQ_U6N0IpkLA9IMaro_SzPQGDVGRqufVO77j-oOy3-9f6M6yKKkD6iiW3e2gKqzngO9Fo7F51aTrPf2w2mfu81QWqhQdiLLgVUChdHSec6Dm6UGYhpY8uaNszE57yeJCCxgpFlTuh3gxABX9cmRb-ofhpcUzD3Aai4tbHlainsoAgKMLkJa0lHIaIOWOO9cVHjfGtLP_c34q-N4Fqh02cWaQJY_7O23Hiwcr-h4hi_hwI4wiYhgGOeHK4jYhZj1uN6VSUYwo40lqmSfqMDi_6bvJIIH45laQ1_wZC2gSiIeXERU_5p-evHCHZRnVWdNZv5EGTXFQ-mz_6IH3C1Szxb_5uYQY-rpfCSBPcpaV0FvtjIh53Bt_UlnvsuEDn1PiJesDCUjzolLnKM7YKybytwg1FSNn0ZpRyaj4jrJG-50Npt_27LVoxaFhPF-7DDXkNxcgccU8pVsBsDzRTYFcCrw5RqbDkyFVUjVC4hH2uSMM4f83clr7vwdgSZ-N0u1f-qUXSPtikT7AtBhOrKXIximhZnubiYqPb2rSN_f9gV5c33M-lsyb7rdDrx4fGinXsykvsyINcJwZD_adqyLZQxIs0_techMdFxqoqxImry45KgiXtU04rlmQlGvhqPMNK0Fj5NB3LoLmTttMVO-tfEr3cTMI0sD4'}` // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
             }
         });
         return fetchData.json();
@@ -4112,15 +4119,15 @@ async function getProductWriteIntoExecl(page) {
     //
 }
 async function verifyTwoExcelData(page) {
-    let omron_data = await read_excel_data('/home/enterpi/Downloads/OMRON-Export-ecommerce_initiative_January2025.xlsx', 0);// our db
-    let excel_data = await read_excel_data('/home/enterpi/Downloads/omron-30-01-2025.csv', 0);//so db
-    console.log('omron list rows count at sheet is ', omron_data.length);
+    let omron_data = await read_excel_data('/home/enterpi/Downloads/omron-31-01-2025-01.csv', 0);// our db
+    let excel_data = await read_excel_data('/home/enterpi/Documents/omron missing siva.xlsx', 0);//so db  
+    console.log('omron siva list rows count at sheet is ', omron_data.length);
     console.log('omron list rows count at store is ', excel_data.length);
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.readFile('test_pricing.xlsx');
     for (let index = 0; index < omron_data.length; index++) {
         //test_priding file Sheet2 Data
-        let supplT = omron_data[index]['Catalog Description'];
+        let supplT = omron_data[index]['stockcode'];
         // console.log('at sheet: ' + supplT);
         // let name = omron_data[index]['Name'];
         // let descT = omron_data[index]['VendorDescription(30)'];
@@ -4131,7 +4138,7 @@ async function verifyTwoExcelData(page) {
         // await page.pause();
         for (let index1 = 0; index1 < excel_data.length; index1++) {
             //YASKAWA Pricing 2024 file Sheet1 Data
-            let supplY = excel_data[index1]['model'];
+            let supplY = excel_data[index1]['missing part'];
             // console.log('at store: ' + supplY);
             // let stockY = excel_data[index1]['VendorStockCode(30)'];
             // let descY = excel_data[index1]['VendorDescription(30)'];
@@ -17359,8 +17366,103 @@ async function selectReactDropdowns(page, selectingText) {
     if (isSelected) { }
     else { throw new Error(selectingText + " not found in dropdown"); }
 }
+async function clearFilters_TopSearch(page) {
+    try {
+        await expect(allPages.clearTopSearch).toBeVisible({ timeout: 2000 });
+        await allPages.clearTopSearch.click();
+        await allPages.statusAtGrid.toBeVisible();
+    } catch (error) { }
+    try {
+        await expect(allPages.clearFilters).toBeVisible({ timeout: 2000 });
+        await allPages.clearFilters.click();
+        await allPages.statusAtGrid.toBeVisible();
+    } catch (error) { }
+}
+async function getGridColumn(page, columnCount) {
+    const column = page.locator("//*[@class='ag-center-cols-container']/div/div[" + columnCount + "]");
+    return column;
+}
+async function getAccountTypePrice(page, atMapping, vendor, branch, stockCode) {
+    const response = await api_responses(page, stage_api_url + 'Pricing-Branches?vendor_id=' + vendor);
+    console.log('branches count is: ' + (response.result.data.list).length); let isExist = false;
+    for (let index = 0; index < (response.result.data.list).length; index++) {
+        const branch_id = response.result.data.list[index]['id'];
+        console.log('pricing branch id: ' + branch_id);
+        if (branch === branch_id) {
+            isExist = false; break;
+        } else { isExist = false; }
+    } let response1;
+    if (isExist) {
+        response1 = await api_responses(page, stage_api_url + 'Products?page=1&perPage=25&sort=asc&sort_key=stock_code&branch_id=' + branch_id + '&vendor_id=' + vendor + '&search=' + stockCode)
+    } else {
+        console.log("customer branch does't exist in pricing");
+        const def_branch_id = '385411d3-ddc8-4029-9719-e89698446c24';
+        response1 = await api_responses(page, stage_api_url + 'Products?page=1&perPage=25&sort=asc&sort_key=stock_code&branch_id=' + def_branch_id + '&vendor_id=' + vendor + '&search=' + stockCode)
+    }
+    const api_stockcode = response1.result.data.list[0]['stock_code']; let mplValue;
+    if (api_stockcode === stockCode) {
+        console.log('parts are matched');
+        switch (atMapping) {
+            case 'PO':
+                mplValue = response1.result.data.list[0]['PO'];;
+                break;
+            case 'MRO':
+                mplValue = response1.result.data.list[0]['MRO'];;
+                break;
+            case 'OEM':
+                mplValue = response1.result.data.list[0]['OEM'];;
+                break;
+            case 'RS':
+                mplValue = response1.result.data.list[0]['RS'];;
+                break;
+            default:
+                break;
+        }
+    } else {
+        console.log('parts are not matched');
+    }
+    return mplValue;
+}
+async function startEndDates() {
+    if (day < 10) { day = '0' + day.toString().replace("0", ""); }
+    else { }
+    if (previuosMonth < 10) { previuosMonth = '0' + previuosMonth.toString().replace("0", ""); }
+    else { }
+    const startDate = (previuosMonth + 1) + '/' + day + '/' + year;
+    const endDate = (previuosMonth + 1) + '/' + day + '/' + (year + 1);
+    return [startDate, endDate, day];
+}
+async function storeLogin(page) {
+  
+    // let w = 1920, h = 910;
+    // // let w = 1280, h = 551;
+    // await page.setViewportSize({
+    //   width: w,
+    //   height: h
+    // });
+    let url = process.env.BASE_URL_STORE,
+    logEmail, logPword, userName, path;
+    await page.goto(url);
+    await page.getByRole('link', { name: ' Login' }).click();
+    await expect(page.getByRole('img', { name: 'IIDM' }).first()).toBeVisible();
+    if (url.includes('dev')) {
+      logEmail='cathy@bigmanwashes.com', logPword='Enter@4321', userName='Cathy'
+    } else {
+      logEmail='multicam@testuser.com', logPword='Enter@4321', userName='test'
+    }
+    await page.getByPlaceholder('Enter Email ID').fill(logEmail);
+    await page.getByPlaceholder('Enter Password').fill(logPword);
+    await page.click("(//*[@type='submit'])[1]");
+    await expect(page.locator('#main-header')).toContainText(userName);
+    return userName;
+  }
 module.exports = {
     checkout_page,
+    storeLogin,
+    startEndDates,
+    getGridColumn,
+    getAccountTypePrice,
+    clearFilters_TopSearch,
     order_summary_page,
     guest_checkout_form,
     guest_add_products,

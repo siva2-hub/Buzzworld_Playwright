@@ -29,7 +29,7 @@ test.describe('all tests', async () => {
     // await reports('First Test', 'Passed');
     page = await browser.newPage();
     // await setScreenSize(page, w, h);
-    // await login_buzz(page, stage_url);
+    await login_buzz(page, stage_url);
   });
 
   test('First Test Login', async ({ }, testInfo) => {
@@ -482,11 +482,11 @@ test.describe('all tests', async () => {
   //   let testName = testInfo.title;
   //   await returnResult(page, testName, results);
   // });
-  // test('Verify Default Branch Name Pricing', async ({ }, testInfo) => {
-  //   results = await verify_default_branch_pricing(page);
-  //   let testName = testInfo.title;
-  //   await returnResult(page, testName, results);
-  // });
+  test('Verify Default Branch Name Pricing', async ({ }, testInfo) => {
+    results = await verify_default_branch_pricing(page);
+    let testName = testInfo.title;
+    await returnResult(page, testName, results);
+  });
   test.skip('functional_flow', async () => {
     await functional_flow(page);
   });
