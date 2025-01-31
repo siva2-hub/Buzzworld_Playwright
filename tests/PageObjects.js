@@ -24,6 +24,7 @@ export default class AllPages {
         this.createQuoteAtQuotesLV = this.page.locator('div').filter({ hasText: /^Create Quote$/ }).nth(1);
         this.addItemsBtn = this.page.locator("//*[text()='Add Items']");
         this.itemsNotAvailText = this.page.getByText('Quote item(s) Not Available');
+        this.clearTopSearch = this.page.locator('div:nth-child(3) > svg');
         this.submitForCustomerDropdown = this.page.locator('//*[@id="root"]/div/div[3]/div[1]/div[1]/div/div[2]/div[1]/div[3]/div/button');
         this.reviseQuoteButton = this.page.locator("//*[contains(text(),'Revise Quote')]");
         this.allItemsAtDetailView = this.page.locator("//*[@id='repair-items']");
@@ -39,6 +40,7 @@ export default class AllPages {
         this.sendToCustomerButton = this.page.locator("//*[text()='Submit for Customer Approval']");
         this.quoteOrRMANumber = this.page.locator("(//*[@class='id-num'])[1]");
         this.pricingDropDown = this.page.locator("(//*[text()='Pricing'])");
+        this.organizations = this.page.locator("//*[text()='Organizations']");
         this.nonSPAButtonAtDropDown = this.page.getByRole('menuitem', { name: 'Non Standard Pricing' });
         this.startDateEndDateByPlaceholder = this.page.getByPlaceholder('MM/DD/YYYY-MM/DD/YYYY');
         this.loading = this.page.locator("//*[text()='Loading...']");
@@ -52,6 +54,11 @@ export default class AllPages {
         this.sysproIdAtUserEdit = this.page.locator("//*[@name='syspro_id']");
         this.emailAtUserEdit = this.page.locator("//*[@name='email']");
         this.leftBack = this.page.locator("//*[contains(@src,'chevron_left')]");
+        this.clearFilters = this.page.locator("//*[text()='Clear']");
+        this.statusAtGrid = this.page.locator("//*[@class='ag-react-container']");
+        this.orgsSearch = this.page.locator("//*[@placeholder='Name / Company Name / Account Number / Owner']");
+        this.firstSearchProduct = this.page.locator("(//*[@class='product-name'])[1]/p[1]");
+        this.loadAtStoreSeach = this.page.locator("//*[text()='Searching...']");
     }
     //Page Objects
     // get userNameInput() { return this.page.getByLabel('Email'); }
