@@ -436,7 +436,7 @@ test('Verifying the warehouse for new part at Inventory', async () => {
 test('Revise Quote button displaying statuses', async () => {
   async function selectStatusAtQuoteFilters(page, status) {
     try {
-      const filterClear = page.locator("//*[text()='Clear']");
+      const filterClear = allPages.clearFilters;
       await expect(filterClear).toBeVisible({ timeout: 2000 }); await filterClear.click();
     } catch (error) {
     }

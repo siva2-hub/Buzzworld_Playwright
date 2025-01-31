@@ -3,7 +3,7 @@
 
 const { test, expect, chromium } = require('@playwright/test');
 const { retries, timeout } = require('../playwright.config');
-const { websitePaddingTesting, returnResult, delay, selectReactDropdowns } = require('./helper');
+const { websitePaddingTesting, returnResult, delay, selectReactDropdowns, storeLogin } = require('./helper');
 const { default: AllPages } = require('./PageObjects');
 const testdata = JSON.parse(JSON.stringify(require("../testdata.json")))
 
@@ -172,30 +172,30 @@ async function selectShippingDetails(page) {
   await page.getByPlaceholder('Enter Collect Number').fill('123456ON');
   await page.getByRole('button', { name: 'Next' }).click();
 }
-async function storeLogin(page) {
+// async function storeLogin(page) {
   
-  let w = 1920, h = 910;
-  // let w = 1280, h = 551;
-  await page.setViewportSize({
-    width: w,
-    height: h
-  });
-  let url = process.env.BASE_URL_STORE,
-  logEmail, logPword, userName, path;
-  await page.goto(url);
-  await page.getByRole('link', { name: ' Login' }).click();
-  await expect(page.getByRole('img', { name: 'IIDM' }).first()).toBeVisible();
-  if (url.includes('dev')) {
-    logEmail='cathy@bigmanwashes.com', logPword='Enter@4321', userName='Cathy'
-  } else {
-    logEmail='multicam@testuser.com', logPword='Enter@4321', userName='test'
-  }
-  await page.getByPlaceholder('Enter Email ID').fill(logEmail);
-  await page.getByPlaceholder('Enter Password').fill(logPword);
-  await page.click("(//*[@type='submit'])[1]");
-  await expect(page.locator('#main-header')).toContainText(userName);
-  return userName;
-}
+//   let w = 1920, h = 910;
+//   // let w = 1280, h = 551;
+//   await page.setViewportSize({
+//     width: w,
+//     height: h
+//   });
+//   let url = process.env.BASE_URL_STORE,
+//   logEmail, logPword, userName, path;
+//   await page.goto(url);
+//   await page.getByRole('link', { name: ' Login' }).click();
+//   await expect(page.getByRole('img', { name: 'IIDM' }).first()).toBeVisible();
+//   if (url.includes('dev')) {
+//     logEmail='cathy@bigmanwashes.com', logPword='Enter@4321', userName='Cathy'
+//   } else {
+//     logEmail='multicam@testuser.com', logPword='Enter@4321', userName='test'
+//   }
+//   await page.getByPlaceholder('Enter Email ID').fill(logEmail);
+//   await page.getByPlaceholder('Enter Password').fill(logPword);
+//   await page.click("(//*[@type='submit'])[1]");
+//   await expect(page.locator('#main-header')).toContainText(userName);
+//   return userName;
+// }
 async function cartCheckout(page, isDecline) {
   await page.locator("(//*[text() = 'Manufacturers'])[1]").hover();
   await page.click("(//*[text() = 'Yaskawa'])[1]");
