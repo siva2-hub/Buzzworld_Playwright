@@ -59,6 +59,10 @@ export default class AllPages {
         this.orgsSearch = this.page.locator("//*[@placeholder='Name / Company Name / Account Number / Owner']");
         this.firstSearchProduct = this.page.locator("(//*[@class='product-name'])[1]/p[1]");
         this.loadAtStoreSeach = this.page.locator("//*[text()='Searching...']");
+        this.serialNumaberLabel = this.page.locator("//*[text()='Serial No:']");
+        this.datePromisedLabel = this.page.locator("//*[@id='repair-items']/div[2]/div[1]/div/div[2]/div[4]/div[3]/span");
+        this.datePromisedValue = this.page.locator("//*[@id='repair-items']/div[2]/div[1]/div/div[2]/div[4]/div[3]/h4");
+        this.gridStatus = this.page.locator("//*[@class='ag-react-container']");
     }
     //Page Objects
     // get userNameInput() { return this.page.getByLabel('Email'); }
