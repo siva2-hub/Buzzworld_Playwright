@@ -43,9 +43,10 @@ test('verify account type base pricing at store', async ({ page }) => {
             await expect(page.locator("//*[text()='Available Quantity: ']")).toBeVisible();
             const price_store = await page.locator("//*[@data-update='price']").textContent();
             if (price_store === actTypeAtPricing) {
+                console.log('prices are matched at store and buzzworld');
                 console.log('price at price list: ' + actTypeAtPricing + '\nprice at store: ' + price_store);
             } else {
-                console.log('prices are not matched at staore and buzzworld');
+                console.log('prices are not matched at store and buzzworld');
                 console.log('price at price list: ' + actTypeAtPricing + '\nprice at store: ' + price_store);
             }
             // console.log('price at store: ' + price_store);

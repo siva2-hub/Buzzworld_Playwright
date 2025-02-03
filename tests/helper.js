@@ -10,7 +10,7 @@ const xlsx = require('xlsx');
 const { url } = require('inspector');
 const { default: AllPages } = require('./PageObjects');
 const { threadId } = require('worker_threads');
-const { count } = require('console');
+const { count, log } = require('console');
 const currentDate = new Date().toDateString();
 let date = currentDate.split(" ")[2];
 let vendor = testdata.vendor;
@@ -17433,7 +17433,7 @@ async function startEndDates() {
     return [startDate, endDate, day];
 }
 async function storeLogin(page) {
-  
+
     // let w = 1920, h = 910;
     // // let w = 1280, h = 551;
     // await page.setViewportSize({
@@ -17441,23 +17441,41 @@ async function storeLogin(page) {
     //   height: h
     // });
     let url = process.env.BASE_URL_STORE,
-    logEmail, logPword, userName, path;
+        logEmail, logPword, userName, path;
     await page.goto(url);
     await page.getByRole('link', { name: ' Login' }).click();
     await expect(page.getByRole('img', { name: 'IIDM' }).first()).toBeVisible();
     if (url.includes('dev')) {
-      logEmail='cathy@bigmanwashes.com', logPword='Enter@4321', userName='Cathy'
+        logEmail = 'cathy@bigmanwashes.com', logPword = 'Enter@4321', userName = 'Cathy'
     } else {
-      logEmail='multicam@testuser.com', logPword='Enter@4321', userName='test'
+        logEmail = 'multicam@testuser.com', logPword = 'Enter@4321', userName = 'test'
     }
     await page.getByPlaceholder('Enter Email ID').fill(logEmail);
     await page.getByPlaceholder('Enter Password').fill(logPword);
     await page.click("(//*[@type='submit'])[1]");
     await expect(page.locator('#main-header')).toContainText(userName);
     return userName;
-  }
+}
+async function getRMAItemStatus(page) {
+    const items = await page.locator("//*[@id='repair-items']/div[2]/div");
+    console.log('items count: ' + await items.count()); let path; let datePromisedValue;
+    for (let index = 0; index < await items.count(); index++) {
+        path = "//*[@id='repair-items']/div[2]/div[" + (index + 1) + "]";
+        const itemStatus = await page.locator("" + path + "/div/div[2]/div[5]").textContent();
+        // console.log('item status ' + itemStatus);
+        if (itemStatus === ' Receiving') {
+            datePromisedValue = await page.locator("" + path + "/div/div[2]/div[4]/div[3]/h4");
+            break;
+        }
+        else { path = ""; }
+    }
+    const editIcon = await page.locator("" + path + "/div/div[1]/div[3]/div/div[3]");
+    await editIcon.click();
+    return datePromisedValue;
+}
 module.exports = {
     checkout_page,
+    getRMAItemStatus,
     storeLogin,
     startEndDates,
     getGridColumn,
