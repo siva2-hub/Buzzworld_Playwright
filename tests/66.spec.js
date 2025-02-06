@@ -32,25 +32,32 @@ async function startEndDates() {
   return [startDate, endDate, day];
 }
 test("Prefil the previous month and current year at POS reports", async () => {
-  previuosMonth = (previuosMonth + 1); let results = false;
+  if (previuosMonth === 0) {
+    previuosMonth = '0';
+  }
+  let results = false;
+  if (previuosMonth.toString().length < 2) {
+    previuosMonth = '0' + previuosMonth;
+  }
+  console.log('previous month: ' + previuosMonth);
   await page.locator("//*[text()='Reports']").click();
   await page.getByRole('menuitem', { name: 'Point of Sales' }).click();
   await expect(page.getByText('Select Report')).toBeVisible();
   const actualMonth = await page.textContent("(//*[contains(@class,'react-select__control')])[1]");
   const actualYear = await page.textContent("(//*[contains(@class,'react-select__control')])[2]");
-  if (previuosMonth === 1) {
-    if ((Number(actualMonth) === 12) && (Number(actualYear) === (year - 1))) {
+  if (previuosMonth === '0') {
+    if ((actualMonth === '12') && (Number(actualYear) === (year - 1))) {
       console.log('this is first month of the year so we displaying last year last month');
       results = true;
     }
     else { results = false; }
   } else {
-    if (previuosMonth === actualMonth && year === actualYear) { results = true; }
+    if (previuosMonth === actualMonth && year === Number(actualYear)) { results = true; }
     else { results = false; }
   }
   console.log('expected month: ' + previuosMonth + ' actual month: ' + actualMonth);
   console.log('expected year: ' + year + ' actual year: ' + actualYear);
-  if (results) { } else { throw new Error("getting error"); }
+  if (results) { } else { throw new Error("getting error while prefilling the POS dates"); }
 });
 test("Display the GP as weighted average of sell price & IIDM cost", async () => {
   const quoteId = '9b31c9d9-661e-4314-b41d-c2cdae3ab124'; const urlPath = 'all_quotes/' + quoteId;
@@ -431,7 +438,7 @@ test('Verifying the warehouse for new part at Inventory', async () => {
     console.log('expected displaying warehouse info: ' + expDisplayingInfo);
     console.log('actual displaying warehouse info: ' + actualDisplayingInfo);
   }
-  await page.pause();
+  // await page.pause();
 });
 test('Revise Quote button displaying statuses', async () => {
   async function selectStatusAtQuoteFilters(page, status) {
