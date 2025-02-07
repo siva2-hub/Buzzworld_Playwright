@@ -5,8 +5,11 @@ const { throws } = require("assert");
 const { error } = require("console");
 const { testDir, timeout } = require("../playwright.config");
 const { default: AllPages } = require("./PageObjects");
-const { platform } = require("os");
+const { platform, userInfo } = require("os");
 const { populate } = require("dotenv");
+const { navigateToPOSReports, checkPrviousMonthandCurrentYearPrefil } = require("../pages/POSReportsPages");
+const { checkGPGrandTotalAtQuoteDetails, checkReviseForOldVersions, displayProjectNameAtSendToCustomerApprovals } = require("../pages/QuotesPage");
+const { checkEmailSysProEditStatus } = require("../pages/UsersPage");
 
 const stage_url = process.env.BASE_URL_BUZZ;
 let allPages;
@@ -16,6 +19,7 @@ let day = currentDate.getDate();
 let previuosMonth = currentDate.getMonth();
 const year = currentDate.getFullYear();
 let page, context;
+
 test.beforeAll(async ({ browser }) => {
   context = await browser.newContext()
   page = await context.newPage()
@@ -32,151 +36,30 @@ async function startEndDates() {
   return [startDate, endDate, day];
 }
 test("Prefil the previous month and current year at POS reports", async () => {
-  if (previuosMonth === 0) {
-    previuosMonth = '0';
-  }
-  let results = false;
-  if (previuosMonth.toString().length < 2) {
-    previuosMonth = '0' + previuosMonth;
-  }
-  console.log('previous month: ' + previuosMonth);
-  await page.locator("//*[text()='Reports']").click();
-  await page.getByRole('menuitem', { name: 'Point of Sales' }).click();
-  await expect(page.getByText('Select Report')).toBeVisible();
-  const actualMonth = await page.textContent("(//*[contains(@class,'react-select__control')])[1]");
-  const actualYear = await page.textContent("(//*[contains(@class,'react-select__control')])[2]");
-  if (previuosMonth === '0') {
-    if ((actualMonth === '12') && (Number(actualYear) === (year - 1))) {
-      console.log('this is first month of the year so we displaying last year last month');
-      results = true;
-    }
-    else { results = false; }
-  } else {
-    if (previuosMonth === actualMonth && year === Number(actualYear)) { results = true; }
-    else { results = false; }
-  }
-  console.log('expected month: ' + previuosMonth + ' actual month: ' + actualMonth);
-  console.log('expected year: ' + year + ' actual year: ' + actualYear);
-  if (results) { } else { throw new Error("getting error while prefilling the POS dates"); }
+  await checkPrviousMonthandCurrentYearPrefil(page);
 });
 test("Display the GP as weighted average of sell price & IIDM cost", async () => {
-  const quoteId = '9b31c9d9-661e-4314-b41d-c2cdae3ab124'; const urlPath = 'all_quotes/' + quoteId;
-  await page.goto(stage_url + urlPath);
-  let totalIidmCost = 0.0, totalQuotePrice = 0.0;
-  await expect(allPages.iidmCostLabel).toBeVisible();
-  const iCost = allPages.iidmCost;
-  const qPrice = allPages.quotePrice;
-  const tAGP = await allPages.totalGP.textContent();
-  for (let index = 0; index < await iCost.count(); index++) {
-    let ic = await iCost.nth(index).textContent();
-    let qp = await qPrice.nth(index).textContent();
-    totalIidmCost = totalIidmCost + Number((ic.replace("$", "")).replace(",", ""));
-    totalQuotePrice = totalQuotePrice + Number((qp.replace("$", "")).replace(",", ""));
-  }
-  const totalExpectedGP = ((((totalQuotePrice - totalIidmCost) / totalQuotePrice) * 100).toFixed(2)) + ' %';
-  const totalActualGP = (Number((tAGP.replace("$", "")).replace("%", "")).toFixed(2)) + ' %';
-  if (totalActualGP === totalExpectedGP) {
-    console.log('actual gp: ' + totalActualGP + ' expected gp: ' + totalExpectedGP);
-  } else { throw new Error('actual gp: ' + totalActualGP + ' expected gp: ' + totalExpectedGP); }
-  console.log('Quote Number: ' + await allPages.quoteOrRMANumber.textContent());
+  let quote_id = '586d717d-a89a-49bb-a32b-f39e1aec5e55';
+  await checkGPGrandTotalAtQuoteDetails(page, quote_id);
 });
 test("Revice the old version also", async () => {
-  async function reviseQuote(page) {
-    const reviseQuoteButton = allPages.reviseQuoteButton;
-    await expect(reviseQuoteButton).toBeVisible({ timeout: 2000 });
-    await reviseQuoteButton.click();
-    await expect(page.locator("(//*[text()='This will move the quote to Open, Do you want to continue ?'])[1]")).toBeVisible();
-    await page.locator("(//*[text()='Proceed'])[1]").click();
-    await expect(iidmCostText).toBeVisible();
-  }
-  const urlPath = '92b89a84-4058-417b-9676-e2d0c1af6494'; let isCreateNew = false;
+  let quote_id = '92b89a84-4058-417b-9676-e2d0c1af6494';
+  let isCreateNew = false;
   let accoutNumber = 'ZUMMO00', contactName = 'James K', quoteType = 'System Quote', items = ['01230.9-00'];
-  if (isCreateNew) {
-    await createQuote(page, accoutNumber, quoteType);
-    await addItesms(page, items, quoteType);
-    await selectRFQDateandQuoteRequestedBy(page, contactName);
-    await soucreSelection(page, items);
-    await approve(page, contactName);
-  } else { await page.goto(stage_url + 'all_quotes/' + urlPath); }
-  const iidmCostText = allPages.iidmCostLabel;
-  await expect(iidmCostText).toBeVisible();
-  const itemsDataInLatestVersion = await allPages.allItemsAtDetailView.textContent();
-  try {
-    await expect(allPages.reviseQuoteButton).toBeVisible({ timeout: 2000 });
-    try {
-      await expect(allPages.versionDropdown).toBeVisible({ timeout: 2000 });
-    } catch (error) { await reviseQuote(page); }
-    const versionDropdown = allPages.versionDropdown;
-    await versionDropdown.click();
-    await page.locator("//*[text()='V1']").click();
-    await expect(iidmCostText).toBeVisible();
-    const itemsDataInOldVersion = await allPages.allItemsAtDetailView.textContent();
-    if (itemsDataInLatestVersion === itemsDataInOldVersion) {
-      await expect(allPages.reviseQuoteButton).toBeVisible({ timeout: 2000 });
-      const itemsDataInLatestVersion = await allPages.allItemsAtDetailView.textContent();
-      await reviseQuote(page);
-      await allPages.versionDropdown.click();
-      await page.locator("//*[text()='V1']").click();
-      await expect(iidmCostText).toBeVisible();
-      await allPages.allItemsAtDetailView.scrollIntoViewIfNeeded();
-      const itemsDataInOldVersion = await allPages.allItemsAtDetailView.textContent();
-      if (itemsDataInLatestVersion === itemsDataInOldVersion) {
-        await expect(allPages.reviseQuoteButton).toBeVisible({ timeout: 2000 });
-      } else { }
-    } else { throw new Error("items data at latest and old version are not matched."); }
-  } catch (error) { throw new Error('Error is: ' + error); }
+  await checkReviseForOldVersions(
+    page, quote_id, isCreateNew, accoutNumber, contactName, quoteType, items
+  );
 });
 test("Display the project name at send to customer page", async () => {
-  let isCreateNew = false;
+  let isCreateNew = false; let quoteId = 'f3d6f549-185a-4efe-8c6e-99bddce76175';
   let accoutNumber = 'ZUMMO00', contactName = 'Austin Zummo', quoteType = 'System Quote', items = ['1234-T1234'];//01230.9-00
-  if (isCreateNew) {
-    await createQuote(page, accoutNumber, quoteType);
-    await addItesms(page, items, quoteType);
-    await selectRFQDateandQuoteRequestedBy(page, contactName);
-    await soucreSelection(page, items[0]);
-  } else { await page.goto(stage_url + 'all_quotes/f3d6f549-185a-4efe-8c6e-99bddce76175') }
-  const quoteNumber = await allPages.quoteOrRMANumber.textContent();
-  let projectName = await allPages.projectNamePartsQuote.textContent();
-  // await approve(page, contactName);
-  await expect(allPages.iidmCostLabel).toBeVisible();
-  await allPages.sendToCustomerButton.click();
-  let expectedSubject;
-  if (projectName === '-') {
-    expectedSubject = 'IIDM Quote - ' + quoteNumber;
-  } else {
-    projectName = projectName.charAt(0).toUpperCase() + projectName.slice(1);
-    expectedSubject = projectName + ' - ' + 'IIDM Quote - ' + quoteNumber;
-  }
-  const actaualSuobject = await allPages.subject.getAttribute('value');
-  if (actaualSuobject === expectedSubject) {
-  } else { throw new Error("actual subject is: " + actaualSuobject + ' but expected subject is: ' + expectedSubject); }
+  await displayProjectNameAtSendToCustomerApprovals(
+    page, quoteId, isCreateNew, accoutNumber, contactName, quoteType, items
+  );
 });
 test('sysproID, branch and email fields are editable at edit user page', async () => {
-  await page.getByText('Admin').nth(0).click();
-  await page.locator('#root').getByText('Users').click();
-  await page.getByPlaceholder('Search').fill('defaultuser');
-  await expect(page.locator("(//*[@title='Default User'])[1]")).toBeVisible();
-  await page.getByText('Edit').click();
-  await expect(page.getByText('First Name')).toBeVisible();
-  const isEmailEnable = await allPages.emailAtUserEdit.isEnabled();
-  const isSysproIDEnable = await allPages.sysproIdAtUserEdit.isEnabled();
-  if (isEmailEnable) {
-    if (isSysproIDEnable) {
-      await allPages.emailAtUserEdit.fill('');
-      await allPages.sysproIdAtUserEdit.fill('');
-      await page.getByRole('button', { name: 'Update' }).click();
-      await expect(page.getByText('Please Enter Email ID')).toBeVisible();
-      await expect(page.getByText('Syspro ID can\'t be empty')).toBeVisible();
-      await page.getByRole('dialog').getByRole('button', { name: 'Cancel' }).click();
-      //checking syspro ID with existing syspro ID
-      await page.getByText('Edit').click();
-      await expect(page.getByText('First Name')).toBeVisible();
-      await allPages.sysproIdAtUserEdit.fill('AHH');
-      await page.getByRole('button', { name: 'Update' }).click();
-      await expect(page.getByText('Syspro Id already exists.')).toBeVisible();
-      await page.pause();
-    } else { throw new Error('syspro id field is disabled at edit users page'); }
-  } else { throw new Error('email filed is disabled at edit users page'); }
+  let userFullName = 'Default User', sys_pro_id = 'AHH';
+  await checkEmailSysProEditStatus(page, userFullName, sys_pro_id);
 });
 test('Verifying the vendor part number not accepting the space', async () => {
   async function addDataIntoPartsPurchase(page) {
