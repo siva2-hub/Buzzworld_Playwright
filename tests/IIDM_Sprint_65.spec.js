@@ -13,7 +13,6 @@ test.describe('all tests ', async () => {
         // await reports('First Test', 'Passed');
         page = await browser.newPage();
         // await setScreenSize(page, w, h);
-        await page.pause();
         await login_buzz(page, stage_url);
     });
 
@@ -95,7 +94,7 @@ test.describe('all tests ', async () => {
         await returnResult(page, testName, results);
     });
     test('Verify Stocked Code warehouse not match with customer warehouse', async ({ }, testInfo) => {
-        let quote_id = 'b15ef8a1-a11f-44b9-849a-e1883462e09b', quote_type = 'quote_for_repair';
+        let quote_id = '65e2278d-2dfd-4ce4-9492-cfff7b647b06', quote_type = 'quote_for_repair';
         results = await i_icon_for_verifying_warehouses(page, quote_type, quote_id);
         let testName = testInfo.title;
         await returnResult(page, testName, results);
