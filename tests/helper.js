@@ -17465,6 +17465,7 @@ async function selectReactDropdowns(page, selectingText) {
     // console.log('dropdowns count is: ' + await drops.count());
     for (let index = 0; index < await drops.count(); index++) {
         const dropdownText = await drops.nth(index).textContent();
+        console.log(dropdownText);
         if (dropdownText === selectingText) { await drops.nth(index).click(); isSelected = true; break; }
         else { isSelected = false; }
     }

@@ -2,6 +2,7 @@ import test, { expect } from "@playwright/test";
 import { addItemsToQuote, addItesms, approve, assignToQC, createRMA, createSO, delay, getRMAItemStatus, itemsAddToEvaluation, login, login_buzz, loginAsClientFromBuzzworld, markAsInProgress, repSummary, selectReactDropdowns, submitForCustomerApprovals, updateQCStatus, wonQuote } from "./helper";
 import AllPages from "./PageObjects";
 import { allowedNodeEnvironmentFlags } from "process";
+import { checkDueLabelChangeToPromisedDate } from "../pages/RepairPages";
 
 let page, pob;
 const stage_url = process.env.BASE_URL_BUZZ;
@@ -22,50 +23,8 @@ test.beforeAll(async ({ browser }) => {
     await login_buzz(page, stage_url);
 });
 test('Verify the Due Date label to be Promised Date and Prefill the same', async () => {
-    const expText = 'Date Promised';
-    //Navigate to Repairs > Receiving
-    try {
-        await page.getByText('Repairs').click();
-        await page.locator('#root').getByText('Receiving').click();
-        await expect(pob.profileIconListView).toBeVisible();
-        await pob.profileIconListView.click();
-        await expect(pob.serialNumaberLabel.first()).toBeVisible();
-        const actText = await pob.datePromisedLabel.textContent();
-        // const actText = 'Promised Date';
-        if (actText === expText) {
-            console.log('labels are matched');
-            console.log('displaying label: ' + actText + ' expecetd label: ' + expText);
-            const datePromisedValue = await getRMAItemStatus(page);
-            console.log('before update date promised value: ' + await datePromisedValue.textContent());
-            let dateValue = await page.locator("//*[contains(@class,'control')]").nth(3).textContent();
-            if (dateValue === 'MM/DD/YYYY') {
-                await page.locator("//*[contains(@class,'control')]").nth(3).click();
-                await page.keyboard.press('ArrowRight'); await page.keyboard.press('Enter');
-                dateValue = await page.locator("//*[contains(@class,'control')]").nth(3).textContent();
-                await page.locator("//*[@name='serial_number']").fill('SN9378945');
-                await page.locator("//*[text()='Save']").click(); await delay(page, 2000);
-            } else {
-                dateValue = await page.locator("//*[contains(@class,'control')]").nth(3).textContent();
-                await page.locator("//*[@title='close']").click();
-            }
-            // Convert expected format for comparison
-            const expDatePromisedValue = dateValue.replaceAll('/', '-');
-            const actDatePromisedValue = await datePromisedValue.textContent()
-            console.log('after update date promised value: ' + actDatePromisedValue);
-            if (expDatePromisedValue === actDatePromisedValue) {
-                console.log('date promised value macthed...');
-                console.log('actual Date Promised: ' + actDatePromisedValue + ' expected Date Promised: ' + expDatePromisedValue);
-            } else {
-                console.log('date promised value not macthed...');
-                console.log('actual Date Promised: ' + actDatePromisedValue + ' expected Date Promised: ' + expDatePromisedValue);
-            }
-        } else {
-            console.log("labels are't matched");
-            console.log('displaying label: ' + actText + ' expecetd label: ' + expText);
-        }
-    } catch (error) {
-        throw new Error("getting error during, during verifying the Promised Date" + error);
-    }
+    const expText = 'Due Date:'; //'Date Promised'
+    await checkDueLabelChangeToPromisedDate(page, expText)
 });
 test('Verifying Show Line Ship Date in Customer Portal', async () => {
     //Login as specific Client from Buzzworld
