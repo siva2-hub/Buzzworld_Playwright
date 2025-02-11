@@ -2013,6 +2013,9 @@ async function rep_complete(page, rep_id, job_sta, tech, job_num, work_hours, pp
     console.log(rep_id + '- 1 is completed');
 }
 async function markAsInProgress(page) {
+    //naigate to Repairs detailed view
+    await page.locator("(//*[contains(@class,'border-bottom')])/div/div[1]").click();
+    await expect(allPages.serialNumaberLabel).toBeVisible();
     await expect(page.locator('#repair-items')).toContainText('Mark as In Progress');
     await page.getByText('Mark as In Progress').first().click();
     await expect(page.locator('#root')).toContainText('Are you sure you want to move this item to Repair In Progress?');
@@ -2230,8 +2233,8 @@ async function wonQuote(page) {
     console.log('Items Count is ', itemsCount);
     await expect(page.locator('#root')).toContainText('Create Sales Order');
 }
-async function createSO(page, vendor_name, isJobCreate) {
-    // await page.goto('https://www.staging-buzzworld.iidm.com/orders-detail-view/0176b573-fd58-4d0f-aec9-833877b6a46d')
+async function createSO(page, vendor_name, isJobCreate, quote_type) {
+    // await page.goto('https://www.staging-buzzworld.iidm.com/all_quotes/de2de36e-1e9b-44f5-948b-c37652ed634e')
     //Go to create sales order screen
     await page.getByText('Create Sales Order').click();
     await expect(allPages.poNumberAtSO).toBeVisible();
@@ -2247,11 +2250,13 @@ async function createSO(page, vendor_name, isJobCreate) {
     } else { }
     //checking and selecting the Shipping instructions
     let ship_text = await page.locator("(//*[contains(@class, 'react-select__value-container')])[2]").textContent();
-    if (ship_text == 'Select Shipping Instructions') {
+    try {
+        await expect(page.getByText('Select Shipping Instructions')).toBeVisible({ timeout: 2400 })
         await page.getByText('Select Shipping Instructions').click();
         await page.getByLabel('Order Date*').fill('u');
         await page.getByText('UPS GRD COLLECT', { exact: true }).click();
-    } else { } await delay(page, 3000);
+    } catch (error) { }
+    await delay(page, 3000);
     try {
         await expect(allPages.plusIconAtSO.first()).toBeVisible({ timeout: 2000 });
         await addStockLineItesAtSO(page, vendor_name);
@@ -2259,16 +2264,19 @@ async function createSO(page, vendor_name, isJobCreate) {
     } catch (error) {
         await expect(page.locator("(//*[text()='Order UOM'])[1]")).toBeVisible();
     }
-    let isCreateJob = page.locator("//*[text()='Create Job']").nth(0);
-    let isSelectJob = await isCreateJob.isChecked();
-    if (isJobCreate) {
-        if (isSelectJob) { }
-        else { await isCreateJob.click(); }
-    } else {
-        if (isSelectJob) { await isCreateJob.click(); }
-        else { }
+    let isCreateJob = page.locator("//*[text()='Create Job']").nth(0); let isSelectJob;
+    if (quote_type === 'Parts Quote') { isSelectJob = isJobCreate }
+    else {
+        isSelectJob = await isCreateJob.isChecked();
+        if (isJobCreate) {
+            if (isSelectJob) { }
+            else { await isCreateJob.click(); }
+        } else {
+            if (isSelectJob) { await isCreateJob.click(); }
+            else { }
+        }
+        isSelectJob = await isCreateJob.isChecked();
     }
-    isSelectJob = await isCreateJob.isChecked();
     console.log('Create Job status: ' + isSelectJob)
     try {
         await expect(allPages.i_icon_create_SO.nth(0)).toBeVisible({ timeout: 2000 });
@@ -2283,7 +2291,6 @@ async function createSO(page, vendor_name, isJobCreate) {
         } else { }
         console.log(toolText);
     } catch (error) {
-        throw new Error("error: " + error);
     }
     await page.getByRole('button', { name: 'Create', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Sales Order Information' })).toBeVisible();
@@ -2291,12 +2298,14 @@ async function createSO(page, vendor_name, isJobCreate) {
     let order_id = soid.replace("#", "");
     console.log('order created: ', order_id);
     if (isSelectJob) {//isJobCreate
-        await page.locator("(//*[contains(@class,'border-bottom')])[2]/div/div[3]").click();
+        if (quote_type === 'System Quote') {
+            await page.locator('//*[@id="root"]/div/div[4]/div/div/div/div[1]/div[2]/div[1]/div/div[2]/div/div[2]').click();
+        } else {
+            await page.locator('//*[@id="root"]/div/div[4]/div/div/div/div[1]/div[2]/div[1]/div/div[2]/div/div[3]').click();
+        }
         await expect(page.locator("//*[text()='Job Information']")).toBeVisible();
         console.log('Job created: ' + await allPages.quoteOrRMANumber.textContent());
-        await page.locator("(//*[contains(@class,'border-bottom')])/div/div[1]").click();
-        await expect(allPages.serialNumaberLabel).toBeVisible();
-    } else { }
+    } else { console.log('Job not created for ' + quote_type) }
 }
 async function createVersion(page, quote_id) {
     await page.locator("//*[text()='Revise Quote']").click();
@@ -3971,7 +3980,7 @@ async function verify_stocked_location_parts_system_quotes(page) {
     }
 }
 async function api_responses(page, api_url) {
-    
+
     // Make a GET request to the API endpoint
     const response = await page.evaluate(async (url) => {
         const fetchData = await fetch(url, {
@@ -17465,7 +17474,7 @@ async function selectReactDropdowns(page, selectingText) {
     // console.log('dropdowns count is: ' + await drops.count());
     for (let index = 0; index < await drops.count(); index++) {
         const dropdownText = await drops.nth(index).textContent();
-        console.log(dropdownText);
+        // console.log(dropdownText);
         if (dropdownText === selectingText) { await drops.nth(index).click(); isSelected = true; break; }
         else { isSelected = false; }
     }
