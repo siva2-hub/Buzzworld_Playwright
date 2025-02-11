@@ -28,7 +28,7 @@ test.only('Credit Card Payment as Logged In', async ({ page }) => {
       const status = await grandTotalForCreditCard(page);
       console.log('status is: '+status);
       if (status) {
-        await page.pause();
+        // await page.pause();
         await page.getByRole('button', { name: 'Proceed' }).click();
         await creditCardPayment(page, userName, cardDetails);
       } else {
@@ -224,12 +224,22 @@ async function cartCheckout(page, isDecline) {
   await page.getByRole('textbox').fill('Test\nNotes');
 }
 async function creditCardPayment(page, userName, cardDetails) {
-  await page.pause();
   await page.getByPlaceholder('Enter Name on the Card').fill(userName);
   await page.getByPlaceholder('Enter Card Number').fill(cardDetails[0]);
   await page.getByPlaceholder('MM / YY').fill(cardDetails[1]);
   await page.getByPlaceholder('Enter CVC').fill(cardDetails[2]);
-  await page.getByRole('button', { name: 'Proceed To Payment' }).click();
+  for (let index = 0; index < 15; index++) {
+    await page.pause();
+    await page.getByRole('button', { name: 'Proceed To Payment' }).click();
+    await expect(page.locator("//*[@viewBox='0 0 16 16']").nth(1)).toBeVisible();
+    await expect(page.locator("//*[@viewBox='0 0 16 16']").nth(1)).toBeHidden();
+    try {
+      await page.locator("//*[text()='Something went wrong!!']").toBeHidden({timeout:2000});
+      await page.screenshot({ path: 'pages/screenshot'+(index+1)+'.png', fullPage: true });
+    } catch (error) {
+      
+    }
+  }
 }
 async function grandTotalForCreditCard(page) {
   let st = await page.locator("(//*[contains(@class,'Total_container')])[1]/div/div[2]").textContent();

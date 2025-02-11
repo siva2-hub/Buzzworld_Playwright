@@ -2,7 +2,7 @@ const testdata = JSON.parse(JSON.stringify(require('../testdata.json')));
 const ExcelJS = require('exceljs');
 const fs = require('fs');
 const path = require('path');
-const { test, expect, page, chromium } = require('@playwright/test');
+const { test, expect, page, chromium, request } = require('@playwright/test');
 const exp = require('constants');
 const { timeout } = require('../playwright.config');
 const { AsyncLocalStorage } = require('async_hooks');
@@ -32,6 +32,7 @@ const ANSI_ORANGE = "\x1b[38;2;255;165;0m";
 // Outputs "Mon Aug 31 2020"
 //store the logs 
 const logFilePath = path.join(__dirname, 'logs.log');
+const token = process.env.API_TOKEN;
 redirectConsoleToFile(logFilePath);
 //--------------------------------------------------------------------//----------------------------------------------------------------//
 async function checkout_page(page1, pay_type) {
@@ -1501,6 +1502,8 @@ async function createRMA(page, acc_num, cont_name) {
     await page.keyboard.insertText(cont_name);
     await page.getByText(cont_name, { exact: true }).nth(1).click();
     await page.getByRole('button', { name: 'Create', exact: true }).click();
+    await expect(allPages.quoteOrRMANumber).toBeVisible();
+    console.log('RMA: ' + await allPages.quoteOrRMANumber.textContent());
 }
 async function assignLocation(page) {
 
@@ -1521,69 +1524,69 @@ async function assignLocation(page) {
     }
 }
 async function itemsAddToEvaluation(page, stock_code, tech, repair_type, vendorCode, vendorName) {
-    // for (let index = 0; index < stock_code.length; index++) {
-    await page.getByText('Add Items').click();
-    await page.getByPlaceholder('Search By Part Number').fill(stock_code);
-    await spinner(page)
-    let res = false;
-    try {
-        await expect(page.locator('//*[text() = "? Click here to add them"]')).toBeVisible({ timeout: 4000 });
-        res = true;
-    } catch (error) {
-        // console.log(error)
-        res = false;
-    }
-    if (res) {
-        //Add New Part
-        await add_new_part(page, stock_code, vendorCode, vendorName);
-    } else {
-        await page.locator("//*[contains(@class,'data repair_grid')]/div/div/label").click();
-        await page.getByRole('button', { name: 'Add Selected 1 Parts' }).click();
-    }
-    // Assign Location
-    await expect(page.locator('#repair-items')).toContainText('Assign Location');
-    await page.getByText('Assign Location').click();
-    await page.locator('//*[@class = "side-drawer open"]/div/div[2]/div/div/div[2]/div[2]/div[4]/div/span').click();
-    if (await page.getByPlaceholder('Serial No').getAttribute('value') === '') {
-        await page.getByPlaceholder('Serial No').fill('OU68687GVF');
-        await page.getByTitle('Save Changes').getByRole('img').click();
-    }
-    await page.getByPlaceholder('Storage Location').fill('R2');
-    await page.getByPlaceholder('Type here').fill('Internal Item Notes Assign Location');
-    await page.getByRole('button', { name: 'Update Location' }).click();
-    //Assign Technician
-    await expect(page.locator('#repair-items')).toContainText('Assign Technician');
-    await page.getByText('Assign Technician').click();
-    await page.getByText('Select').click();
-    await page.keyboard.insertText(tech);
-    await page.keyboard.press('Enter');
-    // await page.getByText(tech, { exact: true }).nth(1).click();
-    await page.getByPlaceholder('Type here').fill('Internal Item Notes Assign Technician');
-    await page.getByRole('button', { name: 'Assign' }).click();
-    //Item Evaluation
-    await expect(page.locator('#repair-items')).toContainText('Evaluate Item');
-    await page.getByText('Evaluate Item').click();
-    //select repair type
-    await page.locator("(//*[@class = 'radio'])[" + repair_type + "]").click();
-    if (repair_type == 1) {
-        await page.getByPlaceholder('Estimated Repair Hrs').fill('2');
-        await page.getByPlaceholder('Estimated Parts Cost').fill('123.53');
-        await page.getByPlaceholder('Technician Suggested Price').fill('568.56');
-    } else if (repair_type == 2) {
+    for (let index = 0; index < stock_code.length; index++) {
+        await page.getByText('Add Items').click();
+        await page.getByPlaceholder('Search By Part Number').fill(stock_code[index]);
+        await spinner(page)
+        let res = false;
+        try {
+            await expect(page.locator('//*[text() = "? Click here to add them"]')).toBeVisible({ timeout: 4000 });
+            res = true;
+        } catch (error) {
+            // console.log(error)
+            res = false;
+        }
+        if (res) {
+            //Add New Part
+            await add_new_part(page, stock_code[index], vendorCode, vendorName);
+        } else {
+            await page.locator("//*[contains(@class,'data repair_grid')]/div/div/label").click();
+            await page.getByRole('button', { name: 'Add Selected 1 Parts' }).click();
+        }
+        // Assign Location
+        await expect(page.locator('#repair-items')).toContainText('Assign Location');
+        await page.getByText('Assign Location').click();
+        await page.locator('//*[@class = "side-drawer open"]/div/div[2]/div/div/div[2]/div[2]/div[4]/div/span').click();
+        if (await page.getByPlaceholder('Serial No').getAttribute('value') === '') {
+            await page.getByPlaceholder('Serial No').fill('OU68687GVF');
+            await page.getByTitle('Save Changes').getByRole('img').click();
+        }
+        await page.getByPlaceholder('Storage Location').fill('R2');
+        await page.getByPlaceholder('Type here').fill('Internal Item Notes Assign Location');
+        await page.getByRole('button', { name: 'Update Location' }).click();
+        //Assign Technician
+        await expect(page.locator('#repair-items')).toContainText('Assign Technician');
+        await page.getByText('Assign Technician').click();
+        await page.getByText('Select').click();
+        await page.keyboard.insertText(tech);
+        await page.keyboard.press('Enter');
+        // await page.getByText(tech, { exact: true }).nth(1).click();
+        await page.getByPlaceholder('Type here').fill('Internal Item Notes Assign Technician');
+        await page.getByRole('button', { name: 'Assign' }).click();
+        //Item Evaluation
+        await expect(page.locator('#repair-items')).toContainText('Evaluate Item');
+        await page.getByText('Evaluate Item').click();
+        //select repair type
+        await page.locator("(//*[@class = 'radio'])[" + repair_type + "]").click();
+        if (repair_type == 1) {
+            await page.getByPlaceholder('Estimated Repair Hrs').fill('2');
+            await page.getByPlaceholder('Estimated Parts Cost').fill('123.53');
+            await page.getByPlaceholder('Technician Suggested Price').fill('568.56');
+        } else if (repair_type == 2) {
 
-    } else {
-        await page.getByPlaceholder('Technician Suggested Price').fill('568.56');
+        } else {
+            await page.getByPlaceholder('Technician Suggested Price').fill('568.56');
+        }
+        await page.waitForTimeout(1500);
+        await page.getByText('Select').click();
+        for (let index = 0; index < 3; index++) {
+            await page.keyboard.press('Space');
+            await page.keyboard.press('ArrowDown');
+        }
+        await page.getByPlaceholder('Type here').fill('Internal Item Notes Item Evaluation');
+        await page.getByRole('button', { name: 'Update Evaluation' }).hover();
+        await page.getByRole('button', { name: 'Update Evaluation' }).click();
     }
-    await page.waitForTimeout(1500);
-    await page.getByText('Select').click();
-    for (let index = 0; index < 3; index++) {
-        await page.keyboard.press('Space');
-        await page.keyboard.press('ArrowDown');
-    }
-    await page.getByPlaceholder('Type here').fill('Internal Item Notes Item Evaluation');
-    await page.getByRole('button', { name: 'Update Evaluation' }).hover();
-    await page.getByRole('button', { name: 'Update Evaluation' }).click();
-    // }
     await page.waitForTimeout(1800);
 }
 async function addItemsToQuote(page) {
@@ -1614,6 +1617,7 @@ async function addItemsToQuote(page) {
     await expect(page.locator('#root')).toContainText('Are you sure you want to add these item(s) to quote ?');
     await page.getByRole('button', { name: 'Accept' }).click();
     await expect(page.locator('#repair-items')).toContainText('Quote Items');
+    console.log("Quote ID: " + await allPages.quoteOrRMANumber.textContent());
 }
 async function cloneRepairQuote(page, acc_num, cont_name, tech) {
     await createRMA(page, acc_num, cont_name);
@@ -1990,13 +1994,35 @@ async function rep_complete(page, rep_id, job_sta, tech, job_num, work_hours, pp
 
     }
     //marked as In Progress
+    await markAsInProgress(page);
+    console.log(rep_id + '- 1 is In Progress');
+    //Repair Summary
+    await repSummary(page);
+    //Assign to QC
+    await assignToQC(page, tech);
+    console.log(rep_id + '- 1 is Assign to QC');
+    //Updating QC status
+    await updateQCStatus(page);
+    console.log(rep_id + '- 1 is Pending Invoice');
+    //Changing Repair Item status to Completed
+    await page.getByRole('button', { name: 'loading Change Status' }).click();
+    await page.getByRole('menuitem', { name: 'Completed' }).click();
+    await expect(page.locator('#root')).toContainText('Are you sure you want to mark it as Completed ?');
+    await page.getByRole('button', { name: 'Accept' }).click();
+    await expect(page.locator('#repair-items')).toContainText('Completed');
+    console.log(rep_id + '- 1 is completed');
+}
+async function markAsInProgress(page) {
+    //naigate to Repairs detailed view
+    await page.locator("(//*[contains(@class,'border-bottom')])/div/div[1]").click();
+    await expect(allPages.serialNumaberLabel).toBeVisible();
     await expect(page.locator('#repair-items')).toContainText('Mark as In Progress');
     await page.getByText('Mark as In Progress').first().click();
     await expect(page.locator('#root')).toContainText('Are you sure you want to move this item to Repair In Progress?');
     await page.getByRole('button', { name: 'Accept' }).click();
     await expect(page.locator('#repair-items')).toContainText('In Progress');
-    console.log(rep_id + '- 1 is In Progress');
-    //Repair Summary
+}
+async function repSummary(page) {
     await page.locator("//*[contains(@src, 'repair_summary')]").click();
     await page.getByLabel('open').click();
     await page.getByText('Bench tested', { exact: true }).click();
@@ -2006,7 +2032,8 @@ async function rep_complete(page, rep_id, job_sta, tech, job_num, work_hours, pp
     await page.getByPlaceholder('Enter Repair Summary Notes').fill('Test Repair Summary Notes to Customer');
     await page.getByPlaceholder('Type here').fill('Test Internal Item Notes in Repair Summary Page');
     await page.getByRole('button', { name: 'Save' }).click();
-    //Assign to QC
+}
+async function assignToQC(page, tech) {
     await expect(page.locator('#repair-items')).toContainText('Assign to QC');
     await page.getByText('Assign to QC').click();
     await expect(page.getByRole('dialog')).toContainText('Assign QC');
@@ -2016,32 +2043,28 @@ async function rep_complete(page, rep_id, job_sta, tech, job_num, work_hours, pp
     await page.getByPlaceholder('Type here').fill('Test Internal Item Notes in Assign to QC Page');
     await page.getByRole('button', { name: 'Assign' }).click();
     await expect(page.locator('#repair-items')).toContainText('Pending QC');
-    console.log(rep_id + '- 1 is Assign to QC');
-    //Updating QC status
+}
+async function updateQCStatus(page) {
+    //Go to the QC Checklist Form
     await page.locator('div:nth-child(6) > .action-item').first().click();
     await expect(page.locator('#root')).toContainText('QC Comments to Customer');
+    //Fill the QC Checklist
     await page.getByLabel('open').first().click();
-    await page.locator('.sc-fytwQQ').click();
-    await page.getByLabel('open').first().click();
-    await page.getByText('Drive QC', { exact: true }).click();
+    await selectReactDropdowns(page, 'Drive QC');
+    // Checking appropriate radio buttons
     await page.getByLabel('Yes').first().check();
     await page.getByLabel('No').nth(2).check();
     await page.getByLabel('N/A').nth(2).check();
     await page.getByLabel('Yes').nth(3).check();
+    // Setting status to 'Pass'
     await page.getByText('Status').nth(1).click();
     await page.getByText('Pass', { exact: true }).click();
+    // Filling text areas
     await page.locator('textarea[name="part_notes"]').fill('Test Part Notes');
     await page.locator('textarea[name="qc_comments"]').fill('Test QC Comments to Customer');
+    await page.pause();
     await page.getByRole('button', { name: 'Save' }).click();
     await expect(page.locator('#repair-items')).toContainText('Pending Invoice');
-    console.log(rep_id + '- 1 is Pending Invoice');
-    //Changing Repair Item status to Completed
-    await page.getByRole('button', { name: 'loading Change Status' }).click();
-    await page.getByRole('menuitem', { name: 'Completed' }).click();
-    await expect(page.locator('#root')).toContainText('Are you sure you want to mark it as Completed ?');
-    await page.getByRole('button', { name: 'Accept' }).click();
-    await expect(page.locator('#repair-items')).toContainText('Completed');
-    console.log(rep_id + '- 1 is completed');
 }
 async function createQuote(page, acc_num, quote_type) {
     await allPages.headerQuotesTab.click();
@@ -2192,7 +2215,97 @@ async function approve(page, cont_name) {
         await page.getByRole('button', { name: 'Approve' }).click();
         await page.getByRole('button', { name: 'Approve' }).nth(1).click();
     }
-    await expect(page.locator("//*[text()='Revise Quote']")).toBeVisible();
+    // await expect(page.locator("//*[text()='Revise Quote']")).toBeVisible();
+    await expect(allPages.sendToCustomerButton).toBeVisible();
+}
+async function submitForCustomerApprovals(page) {
+    await allPages.submitForCustomerDropdown.click();
+    await expect(page.getByRole('menuitem')).toContainText('Delivered to Customer');
+    await page.getByRole('menuitem', { name: 'Delivered to Customer' }).click();
+    await expect(page.locator('#root')).toContainText('Won');
+}
+async function wonQuote(page) {
+    await page.getByRole('button', { name: 'Won' }).click();
+    await expect(page.locator('#root')).toContainText('Are you sure you want to mark it as approve ?');
+    await page.getByRole('button', { name: 'Proceed' }).first().click();
+    await expect(page.locator("(//*[text()= 'Quote:'])")).toBeVisible();
+    let itemsCount = await page.locator("(//*[text()= 'Quote:'])").count({ timeout: 2000 });
+    console.log('Items Count is ', itemsCount);
+    await expect(page.locator('#root')).toContainText('Create Sales Order');
+}
+async function createSO(page, vendor_name, isJobCreate, quote_type) {
+    // await page.goto('https://www.staging-buzzworld.iidm.com/all_quotes/de2de36e-1e9b-44f5-948b-c37652ed634e')
+    //Go to create sales order screen
+    await page.getByText('Create Sales Order').click();
+    await expect(allPages.poNumberAtSO).toBeVisible();
+    try { await expect(page.locator("(//*[text() = 'Create'])[2]")).toBeVisible(); }
+    catch (error) { console.log('error diplaying Item or Stock Code test at Create Sales Order Screen', error); }
+    await allPages.poNumberAtSO.fill('543534534');
+    //checking and selecting the FOB dropdown
+    let fobTxt = await page.locator("(//*[contains(@class, 'react-select__value-container')])[2]").textContent();
+    if (fobTxt == 'Select FOB Point') {
+        await page.locator("//*[text()='Select FOB Point']").click();
+        await page.keyboard.insertText('Dest');
+        await page.keyboard.press('Enter');
+    } else { }
+    //checking and selecting the Shipping instructions
+    let ship_text = await page.locator("(//*[contains(@class, 'react-select__value-container')])[2]").textContent();
+    try {
+        await expect(page.getByText('Select Shipping Instructions')).toBeVisible({ timeout: 2400 })
+        await page.getByText('Select Shipping Instructions').click();
+        await page.getByLabel('Order Date*').fill('u');
+        await page.getByText('UPS GRD COLLECT', { exact: true }).click();
+    } catch (error) { }
+    await delay(page, 3000);
+    try {
+        await expect(allPages.plusIconAtSO.first()).toBeVisible({ timeout: 2000 });
+        await addStockLineItesAtSO(page, vendor_name);
+        await expect(page.getByRole('button', { name: 'Create', exact: true })).toBeVisible();
+    } catch (error) {
+        await expect(page.locator("(//*[text()='Order UOM'])[1]")).toBeVisible();
+    }
+    let isCreateJob = page.locator("//*[text()='Create Job']").nth(0); let isSelectJob;
+    if (quote_type === 'Parts Quote') { isSelectJob = isJobCreate }
+    else {
+        isSelectJob = await isCreateJob.isChecked();
+        if (isJobCreate) {
+            if (isSelectJob) { }
+            else { await isCreateJob.click(); }
+        } else {
+            if (isSelectJob) { await isCreateJob.click(); }
+            else { }
+        }
+        isSelectJob = await isCreateJob.isChecked();
+    }
+    console.log('Create Job status: ' + isSelectJob)
+    try {
+        await expect(allPages.i_icon_create_SO.nth(0)).toBeVisible({ timeout: 2000 });
+        await allPages.i_icon_create_SO.nth(0).scrollIntoViewIfNeeded();
+        await allPages.i_icon_create_SO.nth(0).hover();
+        const toolText = await allPages.toolTip.textContent();
+        if (toolText.includes('Stockcode exists in warehouse(s)')) {
+            await page.locator("//*[text()='Warehouse']").nth(0).click();
+            await page.getByLabel('Open').nth(3).click();
+            await page.keyboard.insertText('' + (toolText.charAt(toolText.length - 2)) + (toolText.charAt(toolText.length - 1)) + '');
+            await page.keyboard.press('Enter');
+        } else { }
+        console.log(toolText);
+    } catch (error) {
+    }
+    await page.getByRole('button', { name: 'Create', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Sales Order Information' })).toBeVisible();
+    let soid = await allPages.quoteOrRMANumber.textContent();
+    let order_id = soid.replace("#", "");
+    console.log('order created: ', order_id);
+    if (isSelectJob) {//isJobCreate
+        if (quote_type === 'System Quote') {
+            await page.locator('//*[@id="root"]/div/div[4]/div/div/div/div[1]/div[2]/div[1]/div/div[2]/div/div[2]').click();
+        } else {
+            await page.locator('//*[@id="root"]/div/div[4]/div/div/div/div[1]/div[2]/div[1]/div/div[2]/div/div[3]').click();
+        }
+        await expect(page.locator("//*[text()='Job Information']")).toBeVisible();
+        console.log('Job created: ' + await allPages.quoteOrRMANumber.textContent());
+    } else { console.log('Job not created for ' + quote_type) }
 }
 async function createVersion(page, quote_id) {
     await page.locator("//*[text()='Revise Quote']").click();
@@ -3867,11 +3980,12 @@ async function verify_stocked_location_parts_system_quotes(page) {
     }
 }
 async function api_responses(page, api_url) {
+
     // Make a GET request to the API endpoint
     const response = await page.evaluate(async (url) => {
         const fetchData = await fetch(url, {
             headers: {
-                'Authorization': `Bearer ${'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiMjliMmU4YWEyNzlkMDIwMWJlN2Q3NjU0YThkNjliODg5ZDk1ZTBiYjc1ZjcyNTg5YzgzODA0ZGEzNjExYzE0ZjIxNTVlNmI3ZWZjODhjNGUiLCJpYXQiOjE3MzgzMjcyMzEuMzQ3NjMsIm5iZiI6MTczODMyNzIzMS4zNDc2MzQsImV4cCI6MTczOTYyMzIzMS4zMzM4NDQsInN1YiI6IjY3MTRhOTI0LTdiZmEtNDk2OS04NTM4LWJmODQxOTViNTQxYSIsInNjb3BlcyI6W119.nBjxObYKnB6MQ_U6N0IpkLA9IMaro_SzPQGDVGRqufVO77j-oOy3-9f6M6yKKkD6iiW3e2gKqzngO9Fo7F51aTrPf2w2mfu81QWqhQdiLLgVUChdHSec6Dm6UGYhpY8uaNszE57yeJCCxgpFlTuh3gxABX9cmRb-ofhpcUzD3Aai4tbHlainsoAgKMLkJa0lHIaIOWOO9cVHjfGtLP_c34q-N4Fqh02cWaQJY_7O23Hiwcr-h4hi_hwI4wiYhgGOeHK4jYhZj1uN6VSUYwo40lqmSfqMDi_6bvJIIH45laQ1_wZC2gSiIeXERU_5p-evHCHZRnVWdNZv5EGTXFQ-mz_6IH3C1Szxb_5uYQY-rpfCSBPcpaV0FvtjIh53Bt_UlnvsuEDn1PiJesDCUjzolLnKM7YKybytwg1FSNn0ZpRyaj4jrJG-50Npt_27LVoxaFhPF-7DDXkNxcgccU8pVsBsDzRTYFcCrw5RqbDkyFVUjVC4hH2uSMM4f83clr7vwdgSZ-N0u1f-qUXSPtikT7AtBhOrKXIximhZnubiYqPb2rSN_f9gV5c33M-lsyb7rdDrx4fGinXsykvsyINcJwZD_adqyLZQxIs0_techMdFxqoqxImry45KgiXtU04rlmQlGvhqPMNK0Fj5NB3LoLmTttMVO-tfEr3cTMI0sD4'}` // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
+                'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiZjE1YmRhMTRiZTQzNmNkMzAzMTdhODgxYjMzOGYyODEwZjg0MjFiMjg5YjQzOTAxYTEyYjM3ZjZiZDEyNjY5YWU1OTg2MzFiYTk3ZjVhODAiLCJpYXQiOjE3Mzg3MzgwOTEuMjQwNDA1LCJuYmYiOjE3Mzg3MzgwOTEuMjQwNDEsImV4cCI6MTc0MDAzNDA5MS4xNDc1ODcsInN1YiI6IjY3MTRhOTI0LTdiZmEtNDk2OS04NTM4LWJmODQxOTViNTQxYSIsInNjb3BlcyI6W119.EjcLdRniiKorj61iFF1zYHGGckqAkLr5oXiGx3FWLlACQlEb-0UI9sjJ5ipBxNal5uLbIIOX0C4qYmvgNSxZj-0L0lxg1qQE_Ghgbet71F45fkXxOEwdO73kka__f4apNqQBTaf179CsFVCTeVCYnqIr1gSyqSIbLz2Ba9l1FYZNJSqJXxmsjmjpc8cIxgnbs9lq_uO1cbNPesCEusefa14WZ8KBUEnhF1utZGTteYsQDN415qbBlp-mHT2Yd1gBlIcWf4vwkxz9NJvjnAs0TGCSlNod5EMcUO93hzOuWpaStbKlIr5joILpEujcbRQyE269TXHyEz2rOF2RvtQ1AN_2FXgeFgNVlMWEl0tv3jkaLj3dcG-klmEhbMjDLqDazTky7WQ89g6R3JvHEe4b0OfXvMMpZomNF6QKGPY1Tf2fQ73LLYPvG33DcAohoCdLyVdGi7z1kqdZIhjb3mZoNOhUA4W2BymOcXI6399HMlZKb70tFQlJXkzEOL26C6JuM1GrDyjSz4WV4ht8osm4RWkq7tYl4M-TwQHjFD7x2VgoxIb5uflYcXlOniiPe6-pM2tof5ziw_H6W5bnAZxFw6NN8c-lvq8SBVesC8cE05INCSNTdb_WPJKa5quF8LzKOFp0UlQgBQcK8z_fTjp2K82PdmUUzknWns74Uv5CSC8' // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
             }
         });
         return fetchData.json();
@@ -17360,6 +17474,7 @@ async function selectReactDropdowns(page, selectingText) {
     // console.log('dropdowns count is: ' + await drops.count());
     for (let index = 0; index < await drops.count(); index++) {
         const dropdownText = await drops.nth(index).textContent();
+        // console.log(dropdownText);
         if (dropdownText === selectingText) { await drops.nth(index).click(); isSelected = true; break; }
         else { isSelected = false; }
     }
@@ -17473,9 +17588,56 @@ async function getRMAItemStatus(page) {
     await editIcon.click();
     return datePromisedValue;
 }
+async function addStockLineItesAtSO(page, vendor_name) {
+    await allPages.plusIconAtSO.click();
+    await expect(page.getByRole('dialog')).toContainText('Add Stock Line Items');
+    await page.getByRole('dialog').getByLabel('open').first().click();
+    await page.keyboard.press('Enter');
+    let desc = await page.getByPlaceholder('Enter Stock Description');
+    if (await desc.getAttribute('value') == '') { desc.fill('Manually Added'); }
+    let manfg = await page.locator("(//*[contains(@class, 'react-select__value-container')])[6]").textContent()
+    if (manfg == 'Select supplier') {
+        await page.locator("//*[text()='Select supplier']").click();
+        await page.keyboard.insertText(vendor_name);
+        await page.keyboard.press('Enter');
+    }
+    await page.pause();
+    await page.getByRole('button', { name: 'Add' }).click();
+    await expect(page.locator("(//*[text() = 'Create Job'])[" + (w + 1) + "]")).toBeVisible();
+    await page.waitForTimeout(2000);
+}
+async function loginAsClientFromBuzzworld(page, customer, accountNumber) {
+    try {
+        await page.getByRole('button', { name: 'loading' }).click();
+        await page.getByRole('menuitem', { name: 'Login as Client' }).click();
+        await page.getByLabel('Organization*').fill(customer);
+        // Wait for loading indicator to appear and disappear
+        await expect(allPages.loading).toBeVisible();
+        await expect(allPages.loading).toBeHidden();
+        // Select organization from dropdown
+        await selectReactDropdowns(page, (customer + accountNumber));
+        // Handle new page popup for login
+        const page1Promise = page.waitForEvent('popup');
+        await page.getByText('Login', { exact: true }).click();
+        const page1 = await page1Promise;
+        return page1; // Return the new page reference
+    } catch (error) {
+        console.error("Error during login as Client from Buzzworld: ", error);
+        throw error;
+    }
+}
 module.exports = {
     checkout_page,
     getRMAItemStatus,
+    submitForCustomerApprovals,
+    loginAsClientFromBuzzworld,
+    addStockLineItesAtSO,
+    wonQuote,
+    createSO,
+    markAsInProgress,
+    repSummary,
+    assignToQC,
+    updateQCStatus,
     storeLogin,
     startEndDates,
     getGridColumn,
