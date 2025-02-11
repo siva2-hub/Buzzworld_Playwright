@@ -2,6 +2,7 @@ const { expect } = require("@playwright/test");
 const { selectReactDropdowns, spinner, delay } = require("../tests/helper");
 const { loadingText } = require("./PartsBuyingPages");
 const { testData } = require("./TestData");
+const { timeout } = require("../playwright.config");
 
 const stage_url = () => { return process.env.BASE_URL_BUZZ; }
 //storing locators
@@ -61,11 +62,13 @@ const wonButton = (page) => { return page.getByText('Won') }
 const wonConfMsg = (page) => { expect(page.locator('#root')).toContainText('Are you sure you want to mark it as approve ?') }
 const quotePriceLabel = (page) => { return page.locator("(//*[text()= 'Quote:'])") }
 const createSOButton = (page) => { return page.getByText('Create Sales Order') }
-const printIcon = (page) => { return page.getByRole('button', { name: 'print-icon' }) }
+const printIcon = (page) => { return page.locator("//img[contains(@src,'print')]") }
 const toFieldAtSubCustAprvl = (page) => { return page.locator("//*[@class='side-drawer open']/div/div[2]/div[1]/div/div") }
 const addThisEmailLink = (page) => { return page.locator("//*[contains(text(),'Add this Email?')]") }
 const submitAtSubCustAprvl = (page) => { return page.locator("//span[normalize-space()='Submit']") }
 const closeAtSubCustAprvl = (page) => { return page.locator("//div[@title='close']") }
+const clickOnQuoteNum = (page, quoteNumber) => { return page.getByText(quoteNumber) }
+const threeDots = (page) => { return page.locator("//*[@class='dropdown']") }
 
 async function navigateToQuotesPage(page) {
     await quotesLink(page).click()
@@ -88,10 +91,10 @@ async function createQuote(page, acc_num, quote_type, project_name) {
         await expect(allItemsAtDetailView(page)).toContainText('Add Items');
         quote_number = await quoteOrRMANumber(page).textContent();
         console.log('quote is created: ' + quote_number);
+        return quote_number.replace('#', '');
     } catch (error) {
         throw new Error("getting error while creating quote: " + error)
     }
-    return quote_number;
 }
 async function addItemsToQuote(page, stock_code, quote_type, suppl_name, suppl_code, sourceText, part_desc, qp) {
     for (let index = 0; index < stock_code.length; index++) {
@@ -200,11 +203,18 @@ async function quoteWon(page) {
     console.log('Items Count is ', itemsCount);
     await expect(createSOButton(page)).toBeVisible()
 }
-async function printQuotePDF(page) {
+async function printQuotePDF(page, quote_number) {
     // await page.goto(testData.app_url + 'all_quotes/' + testData.quotes.quote_id);
+    await clickOnQuoteNum(page, quote_number).click();
     const quoteNum = await quoteOrRMANumber(page).textContent();
     const page1Promise = page.waitForEvent('popup');
-    await printIcon(page).click();
+    try {
+        await expect(threeDots(page)).toBeVisible({ timeout: 2400 });
+        await threeDots(page).click();
+        await printIcon(page).nth(1).click();
+    } catch (error) {
+        await printIcon(page).nth(0).click();
+    }
     const page1 = await page1Promise;
     const pdfUrl = page1.url();
     await expect(pdfUrl).toContain('PreviewPdf/' + quoteNum.replace('#', '') + '.pdf');
