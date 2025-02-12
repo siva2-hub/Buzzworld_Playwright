@@ -19,7 +19,8 @@ const testData = {
         user_full_name: 'Default User', sys_pro_id: 'AHH', user_email: 'defaultuser@enterpi.com'
     },
     parts_buy_detls: {
-        ven_part_num: 'Vendor Part||Number|| '
+        ven_part_num: 'Vendor Part||Number|| ',
+        is_from_repair: false
     },
     inventory: {
         new_part: '002-2123-01'
@@ -54,7 +55,10 @@ const testData = {
         serial_number: 'TEST1234SN',
         storage_loc: 'C300',
         tech_sugg_price: '189',
-        item_internal_notes: 'Test Internal Notes at '
+        item_internal_notes: 'Test Internal Notes at ',
+        is_create_job: true,
+        quote_type: 'Repair Quote',
+        is_marked_as_in_progress: false
     }
 }
 module.exports = {

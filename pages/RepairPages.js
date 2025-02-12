@@ -1,6 +1,8 @@
 const { expect } = require("@playwright/test")
 const { customerIconAtGrid, companyField, reactFirstDropdown, addItemsBtn, partsSeach, partNumberField, partDescription, quoteOrRMANumber, rTickIcon } = require("./QuotesPage")
-const { getRMAItemStatus, selectReactDropdowns, spinner } = require("../tests/helper")
+const { getRMAItemStatus, selectReactDropdowns, spinner, approve, createSO, wonQuote, submitForCustomerApprovals, defaultTurnAroundTime } = require("../tests/helper")
+const { checkVendorPartNumberAcceptingSpacesOrNot } = require("./PartsBuyingPages")
+const { testData } = require("./TestData")
 
 const repairsLink = (page) => { return page.getByText('Repairs') }
 const receivingLink = (page) => { return page.locator('#root').getByText('Receiving') }
@@ -37,7 +39,14 @@ const repTypeRadioBtn = (page, repair_type) => { return page.locator("(//*[@clas
 const summaryField = (page) => { return page.getByText('Select') }
 const updtEvaluationBtn = (page) => { return page.getByRole('button', { name: 'Update Evaluation' }) }
 const pendingQuoteStatus = (page) => { return page.getByText('Pending Quote') }
-
+const repItemCheckbox = (page) => { return page.locator('#repair-items label') }
+const addItemsToQuoteBtn = (page) => { return page.getByRole('button', { name: 'Add items to quote' }) }
+const addItemsToQuoteConfPopUp = (page) => { return page.getByText('Are you sure you want to add these item(s) to quote ?') }
+const acceptButton = (page) => { return page.getByRole('button', { name: 'Accept' }) }
+const quoteItemsIsVisible = (page) => { expect(page.locator('#repair-items')).toContainText('Quote Items') }
+const repLinkAtJobDetls = (page) => { return page.locator("(//*[contains(@class,'border-bottom')])/div/div[1]") }
+const markAsInProgressBtn = (page) => { return page.getByText('Mark as In Progress') }
+const repInProgresConfPopUp = (page) => { expect(page.locator('#root')).toContainText('Are you sure you want to move this item to Repair In Progress?') }
 
 async function naviagateToRepairs(page) {
     await repairsLink(page).click();
@@ -46,7 +55,7 @@ async function naviagateToRepairs(page) {
 async function createRepair(page, acc_num, cont_name) {
     try {
         await naviagateToRepairs(page);
-        await page.goto('https://www.staging-buzzworld.iidm.com/receiving/efbb2dd9-1403-40dd-b380-956ba024c17f')
+        await page.goto('https://www.staging-buzzworld.iidm.com/jobs/8820a58c-4dfa-4df8-9f7a-bd6c63ec6e0b')
         // await createRMABtn(page).click();
         // await expect(companyField(page)).toBeVisible();
         // await companyField(page).fill(acc_num);
@@ -147,6 +156,67 @@ async function itemEvaluation(page, repairType, techSuggestedPrice, internalItem
     await updtEvaluationBtn(page).hover();
     await updtEvaluationBtn(page).click();
     await expect(pendingQuoteStatus(page).first()).toBeVisible();
+    console.log('Item evaluation has completed.');
+}
+async function repItemAddedToQuote(page) {
+    // Add Items to Quote
+    await page.reload();
+    await page.waitForTimeout(4000);
+    let checkbox = await repItemCheckbox(page);
+    let checkBoxCount = await checkbox.count();
+    console.log('count is ', checkBoxCount);
+    for (let i = 0; i < checkBoxCount; i++) {
+        let check;
+        if (checkBoxCount > 1) {
+            if (i == 0) {
+                check = await repItemCheckbox(page).first();
+            } else {
+                check = await repItemCheckbox(page).nth(i);
+            }
+        } else {
+            check = await repItemCheckbox(page).first();
+        }
+        if (await check.isChecked()) {
+            console.log('check box already selected');
+        } else {
+            await check.click();
+        }
+    }
+    await addItemsToQuoteBtn(page).click();
+    await expect(addItemsToQuoteConfPopUp(page)).toBeVisible();
+    await acceptButton(page).click();
+    await quoteItemsIsVisible(page);
+    const quoteNumber = await allPages.quoteOrRMANumber.textContent();
+    console.log("RMA quote is created: " + quoteNumber);
+    return quoteNumber.replace('#', '');
+}
+async function createSORepQuote(page, contactName, vendorName, isCreateJob, quoteType) {
+    //Approve the Repair Quote
+    await approve(page, contactName);
+    // Submit for customer approval
+    await submitForCustomerApprovals(page);
+    // Mark the quote as won
+    await wonQuote(page);
+    // Create a Sales Order (SO) for RMA Quote
+    await createSO(page, vendorName, isCreateJob, quoteType);
+}
+async function markAsRepairInProgress(page) {
+    //naigate to Repairs detailed view
+    await repLinkAtJobDetls(page).click();
+    await expect(serialNumaberLabel(page)).toBeVisible();
+    await expect(markAsInProgressBtn(page).first()).toBeVisible();
+    await markAsInProgressBtn(page).first().click();
+    await repInProgresConfPopUp(page);
+    await acceptButton(page).click();
+    await expect(inProgressStatus(page)).toBeVisible();
+    console.log('Repair Item Marked as In Progress');
+}
+async function createPartsPurchase(page, vendorPartNum) {
+    //Navigate to Repairs Details from Jobs Details view
+    await repLinkAtJobDetls(page).click();
+    await expect(serialNumaberLabel(page).first()).toBeVisible();
+    //here verifying Vendor part number accepting spaces or not from repair
+    await checkVendorPartNumberAcceptingSpacesOrNot(page, vendorPartNum, true);
 }
 async function navigateToRepairInProgressTab(page) {
     await naviagateToRepairs(page);
@@ -219,7 +289,11 @@ module.exports = {
     addItemsToRepairs,
     assignLocationFun,
     assignTech,
-    itemEvaluation
-
+    itemEvaluation,
+    repItemAddedToQuote,
+    createSORepQuote,
+    markAsRepairInProgress,
+    createPartsPurchase,
     //exporting locators
+    ppIconRepairs
 }
