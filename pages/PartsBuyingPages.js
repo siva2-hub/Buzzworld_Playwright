@@ -1,6 +1,6 @@
 const { expect } = require("@playwright/test");
 const { selectReactDropdowns } = require("../tests/helper");
-const { navigateToRepairInProgressTab } = require("./RepairPages");
+const { ppIconRepairs } = require("./RepairPages");
 
 const partsPurchaseLink = (page) => { return page.getByText('Parts Purchase') }
 const allRequestsText = (page) => { return page.getByText('All Requests') };
@@ -24,7 +24,6 @@ async function navigateToPartsPurchase(page) {
 }
 async function addDataIntoPartsPurchase(page, vendPartNumText) {
     const vendorName = 'ENTERPI SOFTWARE SOLUTIONS';
-    await nextButton(page).click();
     await searchVendorField(page).click();
     await page.keyboard.insertText(vendorName);
     await expect(loadingText(page)).toBeVisible(); await expect(loadingText(page)).toBeHidden();
@@ -33,41 +32,46 @@ async function addDataIntoPartsPurchase(page, vendPartNumText) {
     await vendorPartNumberField(page).fill(vendPartNumText);
     await createButtonAtPartsPurchForm(page).click();
 }
-async function checkVendorPartNumberAcceptingSpacesOrNot(page, vendPartNumText) {
+async function checkVendorPartNumberAcceptingSpacesOrNot(page, vendPartNumText, is_from_repair) {
     try {
-        //Navigate to Parts Purchase Page
-        await navigateToPartsPurchase(page);
-        //click on create Parts Purchase button
-        await createPartsPurchaseButton(page).click();
-        //select the technician field
-        await selectTechnicianField(page).click();
-        await page.keyboard.press('Enter');
-        //Verifying Date Requested field is prefilled or not with current date
-        try {
-            await expect(textInsideDateReuqested(page)).toBeVisible({ timeout: 2000 });
-        } catch (error) {
-            await dateRequestedField(page).click();
-            await page.keyboard.press('ArrowRight');
+        //verifying is checking vendor part number from repair or parts buyiing module
+        if (is_from_repair) {
+            //this condition checks from RepairTest
+            //navigate to repairs and
+            //verify the parts purchase icon is visible or not
+            await expect(page.locator("(//*[contains(@src,'partspurchase')])[1]")).toBeVisible();
+            await page.locator("(//*[contains(@src,'partspurchase')])[1]").click();
+        } else {
+            //Navigate to Parts Purchase Page
+            await navigateToPartsPurchase(page);
+            //click on create Parts Purchase button
+            await createPartsPurchaseButton(page).click();
+            //select the technician field
+            await selectTechnicianField(page).click();
             await page.keyboard.press('Enter');
-            await page.keyboard.press('ArrowLeft');
+            //Verifying Date Requested field is prefilled or not with current date
+            try {
+                await expect(textInsideDateReuqested(page)).toBeVisible({ timeout: 2000 });
+            } catch (error) {
+                await dateRequestedField(page).click();
+                await page.keyboard.press('ArrowRight');
+                await page.keyboard.press('Enter');
+                await page.keyboard.press('ArrowLeft');
+            }
+            //click on the urgnecy field
+            await urgencyField(page).click();
+            //select the Urgency what ever required
+            await selectReactDropdowns(page, 'Standard');
+            //fill the required data click on save date waiting for validation
         }
-        //click on the urgnecy field
-        await urgencyField(page).click();
-        //select the Urgency what ever required
-        await selectReactDropdowns(page, 'Standard');
-        //fill the required data click on save date waiting for validation
+        await nextButton(page).click();
+        //select vendor
         await addDataIntoPartsPurchase(page, vendPartNumText);
-        //verifying validation is displayed or not
+        //verifying validation is displayed or not at item information
         await expect(vendorPartNumErrorValidatin(page)).toBeHidden({ timeout: 2300 });
+        console.log('Vendor Part Number field accepting the spaces');
         //close the create parts buying form
-        await closeCreatePartsBuyForm(page).click();
-        //navigate to repairs and
-        //read store the parts purchase icon at repairs details view
-        const partsPurchaseIcon = await navigateToRepairInProgressTab(page);
-        //verify the parts purchase icon is visible or not
-        await expect(partsPurchaseIcon).toBeVisible();
-        await partsPurchaseIcon.click();
-        await addDataIntoPartsPurchase(page, vendPartNumText);
+        // await closeCreatePartsBuyForm(page).click();
     } catch (error) {
         throw new Error("vendor part number not accepting spaces: " + error);
     }

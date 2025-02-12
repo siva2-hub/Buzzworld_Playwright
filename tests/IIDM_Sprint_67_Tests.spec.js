@@ -4,6 +4,7 @@ import { addItemsToQuote, addItesms, approve, assignToQC, createRMA, createSO, d
 import AllPages from "./PageObjects";
 import { allowedNodeEnvironmentFlags } from "process";
 import { checkDueLabelChangeToPromisedDate } from "../pages/RepairPages";
+import { testData } from "../pages/TestData";
 
 let page, pob;
 const stage_url = process.env.BASE_URL_BUZZ;
@@ -58,7 +59,7 @@ test('QC Checklist Internal Used Parts', async () => {
     // Step 6: Mark the quote as won
     await wonQuote(page);
     // Step 7: Create a Sales Order (SO)
-    await createSO(page, test_data.vendorName, true);
+    await createSO(page, test_data.vendorName, true, testData.repairs.quote_type);
     // Step 8: Mark as In Progress
     await markAsInProgress(page);
     // Step 9: Generate Repair Summary
