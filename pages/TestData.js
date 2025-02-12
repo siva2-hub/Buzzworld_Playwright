@@ -30,7 +30,7 @@ const testData = {
         quote_type: 'System Quote',// System Quote , Parts Quote
         cont_name: 'chump userOne', //chump userOne --> CHUMP03, Garret Luppino --> multioo
         project_name: 'TEST_1234SS',
-        stock_code: ['12342-00012', '2000-1203'],
+        stock_code: ['12342-00012'], // 2000-1203
         quote_price: '25000',
         part_desc: 'Manually Added From Quotes',
         suppl_name: 'BACO CONTROLS INC',
@@ -40,6 +40,21 @@ const testData = {
         is_create_job: true, // true, false
         quote_id: 'e2727487-5fb9-4289-ad45-2fe7604b8ad0',
         send_email_to_cust: true
+    },
+    repairs: {
+        cust_name: 'Chump Change Automation', // Chump Change Automation , Multicam Inc
+        acc_num: 'CHUMP03', // CHUMP03 , MULTI00
+        cont_name: 'chump userOne', //chump userOne --> CHUMP03, Garret Luppino --> multioo
+        rep_tech: 'Dan Holmes',
+        rep_type: ['1'], // '1' = Repairable, '2' = Non Repairable, '3' = Outsource Repairable
+        stock_code: ['12342-00012'], // 2000-1203
+        part_desc: 'Manually Added From Repairs',
+        suppl_name: 'BACO CONTROLS INC',
+        suppl_code: 'BACO001',
+        serial_number: 'TEST1234SN',
+        storage_loc: 'C300',
+        tech_sugg_price: '189',
+        item_internal_notes: 'Test Internal Notes at '
     }
 }
 module.exports = {
