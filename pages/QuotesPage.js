@@ -86,7 +86,7 @@ async function createQuote(page, acc_num, quote_type, project_name) {
         await page.getByText(acc_num, { exact: true }).nth(1).click();
         await quoteTypeField(page).click();
         await selectReactDropdowns(page, quote_type);
-        await projectName(page).fill(project_name);
+        await projectName(page).fill(project_name);await page.pause();
         await createQuoteBtn(page).nth(2).click();
         await expect(allItemsAtDetailView(page)).toContainText('Add Items');
         quote_number = await quoteOrRMANumber(page).textContent();
@@ -310,5 +310,14 @@ module.exports = {
     checkGPGrandTotalAtQuoteDetails,
     checkReviseForOldVersions,
     displayProjectNameAtSendToCustomerApprovals,
-    customerIconAtGrid
+    //exporting locators
+    companyField,
+    customerIconAtGrid,
+    reactFirstDropdown,
+    addItemsBtn,
+    partsSeach,
+    partNumberField,
+    partDescription,
+    quoteOrRMANumber,
+    rTickIcon
 }
