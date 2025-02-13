@@ -77,7 +77,7 @@ async function navigateToQuotesPage(page) {
 async function createQuote(page, acc_num, quote_type, project_name) {
     let quote_number;
     try {
-        // await page.goto('https://www.staging-buzzworld.iidm.com/all_quotes/de2de36e-1e9b-44f5-948b-c37652ed634e')
+        // await page.goto('https://www.staging-buzzworld.iidm.com/quote_for_parts/2b0687a9-e503-477b-b7b8-980492922347')
         await createQuoteBtn(page).click();
         await expect(companyField(page)).toBeVisible();
         await companyField(page).fill(acc_num);
@@ -86,7 +86,7 @@ async function createQuote(page, acc_num, quote_type, project_name) {
         await page.getByText(acc_num, { exact: true }).nth(1).click();
         await quoteTypeField(page).click();
         await selectReactDropdowns(page, quote_type);
-        await projectName(page).fill(project_name);await page.pause();
+        await projectName(page).fill(project_name);//await page.pause();
         await createQuoteBtn(page).nth(2).click();
         await expect(allItemsAtDetailView(page)).toContainText('Add Items');
         quote_number = await quoteOrRMANumber(page).textContent();
@@ -139,11 +139,12 @@ async function selectRFQDateRequestedBy(page, cont_name) {
     await rqfRecDateEditIcon(page).click();
     await nowButton(page).click();
     await rTickIcon(page).click();
-    await quoteReqByEditIcon(page).click(); await spinner(page);
+    await quoteReqByEditIcon(page).click();
     await reactFirstDropdown(page).click();
-    await expect(loadingText(page)).toBeVisible(); await expect(loadingText(page)).toBeHidden();
+    try {
+        await expect(loadingText(page)).toBeVisible({ timeout: 3000 }); await expect(loadingText(page)).toBeHidden();
+    } catch (error) { }
     await selectReactDropdowns(page, cont_name);
-    await page.keyboard.press("Enter");
     await rTickIcon(page).click();
     await delay(page, 1200);
 }

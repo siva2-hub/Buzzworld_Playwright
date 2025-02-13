@@ -22,10 +22,10 @@ test.beforeAll(async ({ browser }) => {
     const context = await browser.newContext()
     page = await context.newPage()
     pob = new AllPages(page);
-    // await login_buzz(page, stage_url);
+    await login_buzz(page, stage_url);
 });
 test('Verify the Due Date label to be Promised Date and Prefill the same', async () => {
-    const expText = 'Due Date:'; //'Date Promised'
+    const expText = 'Date Promised:'; //'Date Promised:'
     await checkDueLabelChangeToPromisedDate(page, expText)
 });
 test('Verifying Show Line Ship Date in Customer Portal', async () => {
@@ -39,7 +39,7 @@ test('Verifying Show Line Ship Date in Customer Portal', async () => {
     // Verify order details
     await expect(page1.locator("//*[text()='Customer Request Date : ']")).toBeVisible();
     try {
-        await expect(page1.locator("//*[text()='Line Ship Date : ']").first()).toBeVisible({ timeout: 2400 });
+        await expect(page1.locator("//*[text()='Line Ship Date :']").first()).toBeVisible({ timeout: 2400 });
     } catch (error) {
         console.log('Error during the Order verification' + error);
         throw error;

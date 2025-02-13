@@ -99,7 +99,7 @@ test('Repair Item Marked As In Progress or Create Parts Purchase From RMA', asyn
             if (testData.repairs.is_marked_as_in_progress) {
                 await markAsRepairInProgress(page); testStatus = true;
             } else {
-                await createPartsPurchase(page, testData.parts_buy_detls.ven_part_num); testStatus = true;
+                await createPartsPurchase(page, testData.parts_buy_detls.ven_part_num, testData.repairs.suppl_name); testStatus = true;
             }
         } catch (error) {
             testStatus = false; throw new Error(error);
