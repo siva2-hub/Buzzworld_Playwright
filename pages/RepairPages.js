@@ -1,7 +1,7 @@
 const { expect } = require("@playwright/test")
 const { customerIconAtGrid, companyField, reactFirstDropdown, addItemsBtn, partsSeach, partNumberField, partDescription, quoteOrRMANumber, rTickIcon } = require("./QuotesPage")
-const { getRMAItemStatus, selectReactDropdowns, spinner, approve, createSO, wonQuote, submitForCustomerApprovals, defaultTurnAroundTime } = require("../tests/helper")
-const { checkVendorPartNumberAcceptingSpacesOrNot } = require("./PartsBuyingPages")
+const { getRMAItemStatus, selectReactDropdowns, spinner, approve, createSO, wonQuote, submitForCustomerApprovals, defaultTurnAroundTime, delay } = require("../tests/helper")
+const { checkVendorPartNumberAcceptingSpacesOrNot, ppItemQtyField, ppItemCostField, ppItemDescField, ppItemSpclNotesField, ppItemNotesField, createButtonAtPartsPurchForm, jobNumField, vpnFieldText } = require("./PartsBuyingPages")
 const { testData } = require("./TestData")
 
 const repairsLink = (page) => { return page.getByText('Repairs') }
@@ -47,6 +47,9 @@ const quoteItemsIsVisible = (page) => { expect(page.locator('#repair-items')).to
 const repLinkAtJobDetls = (page) => { return page.locator("(//*[contains(@class,'border-bottom')])/div/div[1]") }
 const markAsInProgressBtn = (page) => { return page.getByText('Mark as In Progress') }
 const repInProgresConfPopUp = (page) => { expect(page.locator('#root')).toContainText('Are you sure you want to move this item to Repair In Progress?') }
+const mfgFieldAtPp = (page) => { return page.getByLabel('Manufacturer Name') }
+const poInfoText = (page) => { return page.getByLabel('Manufacturer Name') }
+
 
 async function naviagateToRepairs(page) {
     await repairsLink(page).click();
@@ -211,12 +214,30 @@ async function markAsRepairInProgress(page) {
     await expect(inProgressStatus(page)).toBeVisible();
     console.log('Repair Item Marked as In Progress');
 }
-async function createPartsPurchase(page, vendorPartNum) {
+async function createPartsPurchase(page, vendorPartNum, vendorName) {
     //Navigate to Repairs Details from Jobs Details view
     await repLinkAtJobDetls(page).click();
     await expect(serialNumaberLabel(page).first()).toBeVisible();
     //here verifying Vendor part number accepting spaces or not from repair
     await checkVendorPartNumberAcceptingSpacesOrNot(page, vendorPartNum, true);
+    //
+    await mfgFieldAtPp(page).fill(vendorName);
+    await page.waitForTimeout(3000);
+    await page.keyboard.press('Enter');
+    // await page.getByText('OMRON ELECTRONICS LLC', { exact: true }).click();
+    await ppItemQtyField(page).fill('2');
+    await ppItemCostField(page).fill('1234.987456');
+    await ppItemDescField.fill('TEST DESCRIPTION');
+    await ppItemSpclNotesField(page).fill('TEST ITEM SPECIAL NOTES');
+    await ppItemNotesField.fill('TEST ITEM NOTES'); await page.pause();
+    await createButtonAtPartsPurchForm(page).click();
+    await expect(poInfoText(page)).toBeVisible();
+    //verifying vendor part number updated at or not
+    await expect(vpnFieldText(page, vendorPartNum)).toBeVisible();
+    let pp = quoteOrRMANumber(page).textContent();
+    pp_id = pp.replace("#", "");
+    console.log('used job id is ', await jobNumField(page).textContent());
+    console.log('parts purchase created with id ', pp_id);
 }
 async function navigateToRepairInProgressTab(page) {
     await naviagateToRepairs(page);

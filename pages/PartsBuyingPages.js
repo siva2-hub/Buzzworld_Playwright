@@ -1,6 +1,5 @@
 const { expect } = require("@playwright/test");
-const { selectReactDropdowns } = require("../tests/helper");
-const { ppIconRepairs } = require("./RepairPages");
+const { selectReactDropdowns, delay } = require("../tests/helper");
 
 const partsPurchaseLink = (page) => { return page.getByText('Parts Purchase') }
 const allRequestsText = (page) => { return page.getByText('All Requests') };
@@ -16,6 +15,15 @@ const urgencyField = (page) => { return page.getByText('Select Urgency') }
 const vendorPartNumErrorValidatin = (page) => { return page.locator("//*[text()='Vendor Part Number not valid']") }
 const closeCreatePartsBuyForm = (page) => { return page.getByTitle('close').getByRole('img') }
 const createButtonAtPartsPurchForm = (page) => { return page.locator("//*[@id='tab-2-tab']/div/div/button") }
+const ppIconRepairs = (page) => { return page.locator("(//*[contains(@src,'partspurchase')])[1]"); }
+const dateReqFieldLabelAtPartsp = (page) => { return page.getByText('Date Requested') }
+const ppItemQtyField = (page) => { return page.getByPlaceholder('Enter Quantity') }
+const ppItemCostField = (page) => { return page.getByPlaceholder('Enter Cost') }
+const ppItemDescField = (page) => { return page.getByPlaceholder('Enter Description') }
+const ppItemSpclNotesField = (page) => { return page.getByPlaceholder('Enter Item Special Notes') }
+const ppItemNotesField = (page) => { return page.getByPlaceholder('Enter Item Notes') }
+const jobNumField = (page) => { return page.getByLabel('Job Number') }
+const vpnFieldText = (page, vpnText) => { return page.getByText(vpnText) }
 
 
 async function navigateToPartsPurchase(page) {
@@ -39,8 +47,9 @@ async function checkVendorPartNumberAcceptingSpacesOrNot(page, vendPartNumText, 
             //this condition checks from RepairTest
             //navigate to repairs and
             //verify the parts purchase icon is visible or not
-            await expect(page.locator("(//*[contains(@src,'partspurchase')])[1]")).toBeVisible();
-            await page.locator("(//*[contains(@src,'partspurchase')])[1]").click();
+            await expect(ppIconRepairs(page)).toBeVisible();
+            await ppIconRepairs(page).click(); await delay(page, 2000);
+            await expect(dateReqFieldLabelAtPartsp(page).first()).toBeVisible();
         } else {
             //Navigate to Parts Purchase Page
             await navigateToPartsPurchase(page);
@@ -63,7 +72,7 @@ async function checkVendorPartNumberAcceptingSpacesOrNot(page, vendPartNumText, 
             //select the Urgency what ever required
             await selectReactDropdowns(page, 'Standard');
             //fill the required data click on save date waiting for validation
-        }
+        }; await delay(page, 2000);
         await nextButton(page).click();
         //select vendor
         await addDataIntoPartsPurchase(page, vendPartNumText);
@@ -78,5 +87,14 @@ async function checkVendorPartNumberAcceptingSpacesOrNot(page, vendPartNumText, 
 }
 module.exports = {
     checkVendorPartNumberAcceptingSpacesOrNot,
-    loadingText
+    loadingText,
+    //exporting locstors
+    ppItemQtyField,
+    ppItemCostField,
+    ppItemDescField,
+    ppItemSpclNotesField,
+    ppItemNotesField,
+    createButtonAtPartsPurchForm,
+    jobNumField,
+    vpnFieldText
 }

@@ -26,19 +26,19 @@ const testData = {
         new_part: '002-2123-01'
     },
     quotes: {
-        cust_name: 'Chump Change Automation', // Chump Change Automation , Multicam Inc
-        acc_num: 'CHUMP03', // CHUMP03 , MULTI00
-        quote_type: 'System Quote',// System Quote , Parts Quote
-        cont_name: 'chump userOne', //chump userOne --> CHUMP03, Garret Luppino --> multioo
+        cust_name: 'Multicam Inc', // Chump Change Automation , Multicam Inc
+        acc_num: 'MULTI00', // CHUMP03 , MULTI00
+        quote_type: 'Parts Quote',// System Quote , Parts Quote
+        cont_name: 'Garret Luppino', //chump userOne --> CHUMP03, Garret Luppino --> multioo
         project_name: 'TEST_1234SS',
-        stock_code: ['12342-00012'], // 2000-1203
+        stock_code: ['2000-1203'], // 2000-1203, A1C4B590
         quote_price: '25000',
         part_desc: 'Manually Added From Quotes',
         suppl_name: 'BACO CONTROLS INC',
         suppl_code: 'BACO001',
         source_text: 'I-IDM-Stocked',
         item_notes: 'Test Item Notes 1\nTest Item Notes 2\nTest Item Notes 3\nTest Item Notes 4',
-        is_create_job: true, // true, false
+        is_create_job: false, // true, false
         quote_id: 'e2727487-5fb9-4289-ad45-2fe7604b8ad0',
         send_email_to_cust: true
     },

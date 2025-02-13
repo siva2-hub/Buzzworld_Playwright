@@ -11,6 +11,7 @@ const { url } = require('inspector');
 const { default: AllPages } = require('./PageObjects');
 const { threadId } = require('worker_threads');
 const { count, log } = require('console');
+const { rTickIcon } = require('../pages/QuotesPage');
 const currentDate = new Date().toDateString();
 let date = currentDate.split(" ")[2];
 let vendor = testdata.vendor;
@@ -2234,7 +2235,7 @@ async function wonQuote(page) {
     await expect(page.locator('#root')).toContainText('Create Sales Order');
 }
 async function createSO(page, vendor_name, isJobCreate, quote_type) {
-    // await page.goto('https://www.staging-buzzworld.iidm.com/all_quotes/de2de36e-1e9b-44f5-948b-c37652ed634e')
+    // await page.goto('https://www.staging-buzzworld.iidm.com/all_quotes/9d04fdbd-5a31-42ea-b905-22e0b2b1b2e8')
     //Go to create sales order screen
     await page.getByText('Create Sales Order').click();
     await expect(allPages.poNumberAtSO).toBeVisible();
@@ -2287,11 +2288,13 @@ async function createSO(page, vendor_name, isJobCreate, quote_type) {
             await page.locator("//*[text()='Warehouse']").nth(0).click();
             await page.getByLabel('Open').nth(3).click();
             await page.keyboard.insertText('' + (toolText.charAt(toolText.length - 2)) + (toolText.charAt(toolText.length - 1)) + '');
-            await page.keyboard.press('Enter');
+            await page.keyboard.press('Enter'); await delay(page, 2000);
+            await page.getByTitle('Save Changes').hover(); await page.getByTitle('Save Changes').click();
         } else { }
         console.log(toolText);
     } catch (error) {
-    }
+        //throw new Error(error);
+    } //await page.pause();
     await page.getByRole('button', { name: 'Create', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Sales Order Information' })).toBeVisible();
     let soid = await allPages.quoteOrRMANumber.textContent();
