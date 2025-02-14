@@ -40,6 +40,7 @@ test('Verifying Show Line Ship Date in Customer Portal', async () => {
     await expect(page1.locator("//*[text()='Customer Request Date : ']")).toBeVisible();
     try {
         await expect(page1.locator("//*[text()='Line Ship Date :']").first()).toBeVisible({ timeout: 2400 });
+        console.log('Line Ship Date is visible in customer portal');
     } catch (error) {
         console.log('Error during the Order verification' + error);
         throw error;

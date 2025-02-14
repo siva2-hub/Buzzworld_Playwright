@@ -2,6 +2,8 @@ const { test } = require("@playwright/test");
 const { createRepair, addItemsToRepairs, assignLocationFun, assignTech, itemEvaluation, repItemAddedToQuote, createSORepQuote, markAsRepairInProgress, createPartsPurchase } = require("../pages/RepairPages");
 const { login_buzz } = require("./helper");
 const { testData } = require("../pages/TestData");
+const { changePartsPurchaseStatus, changePartsPurchaseStatusToPartiallyReceived } = require("../pages/PartsBuyingPages");
+const { testIgnore } = require("../playwright.config");
 let page, testStatus, testTitle;
 const testMsg = (currentTestTitle, previousTestTitle) => {
     console.log(currentTestTitle + ' Test has skipped, beacsue of ' + previousTestTitle + ' Test is Failed')
@@ -19,7 +21,7 @@ test('Create Repair', async ({ }, testInfo) => {
         testStatus = false; //throw new Error(error);
     } testTitle = testInfo.title
 })
-test.skip('Add Items To RMA', async ({ }, testInfo) => {
+test('Add Items To RMA', async ({ }, testInfo) => {
     if (testStatus) {
         try {
             await addItemsToRepairs(
@@ -32,7 +34,7 @@ test.skip('Add Items To RMA', async ({ }, testInfo) => {
     } else { testMsg(testInfo.title, testTitle); testStatus = false }
     testTitle = testInfo.title
 })
-test.skip('Assign Location', async ({ }, testInfo) => {
+test('Assign Location', async ({ }, testInfo) => {
     if (testStatus) {
         try {
             await assignLocationFun(
@@ -45,7 +47,7 @@ test.skip('Assign Location', async ({ }, testInfo) => {
     } else { testMsg(testInfo.title, testTitle); testStatus = false }
     testTitle = testInfo.title
 })
-test.skip('Assign Technician', async ({ }, testInfo) => {
+test('Assign Technician', async ({ }, testInfo) => {
     if (testStatus) {
         try {
             await assignTech(
@@ -57,7 +59,7 @@ test.skip('Assign Technician', async ({ }, testInfo) => {
     } else { testMsg(testInfo.title, testTitle); testStatus = false }
     testTitle = testInfo.title
 })
-test.skip('Item Evaluation', async ({ }, testInfo) => {
+test('Item Evaluation', async ({ }, testInfo) => {
     if (testStatus) {
         try {
             await itemEvaluation(
@@ -70,7 +72,7 @@ test.skip('Item Evaluation', async ({ }, testInfo) => {
     } else { testMsg(testInfo.title, testTitle); testStatus = false }
     testTitle = testInfo.title
 })
-test.skip('Add Items To Quote', async ({ }, testInfo) => {
+test('Add Items To Quote', async ({ }, testInfo) => {
     if (testStatus) {
         try {
             await repItemAddedToQuote(page); testStatus = true;
@@ -80,7 +82,7 @@ test.skip('Add Items To Quote', async ({ }, testInfo) => {
     } else { testMsg(testInfo.title, testTitle); testStatus = false }
     testTitle = testInfo.title
 })
-test.skip('Create Sales Order Repair Quote', async ({ }, testInfo) => {
+test('Create Sales Order Repair Quote', async ({ }, testInfo) => {
     if (testStatus) {
         try {
             await createSORepQuote(
@@ -93,20 +95,60 @@ test.skip('Create Sales Order Repair Quote', async ({ }, testInfo) => {
     } else { testMsg(testInfo.title, testTitle); testStatus = false }
     testTitle = testInfo.title
 })
-test('Repair Item Marked As In Progress or Create Parts Purchase From RMA', async ({ }, testInfo) => {
+test('Create Parts Purchase From RMA', async ({ }, testInfo) => {
     if (testStatus) {
         try {
-            if (testData.repairs.is_marked_as_in_progress) {
-                await markAsRepairInProgress(page); testStatus = true;
-            } else {
-                await createPartsPurchase(page, testData.parts_buy_detls.ven_part_num, testData.repairs.suppl_name); testStatus = true;
-            }
+            await createPartsPurchase(
+                page, testData.parts_buy_detls.ven_part_num, testData.repairs.suppl_name, testData.parts_buy_detls.pp_item_qty,
+                testData.parts_buy_detls.pp_item_cost, testData.parts_buy_detls.pp_item_desc, testData.parts_buy_detls.pp_item_spcl_notes,
+                testData.parts_buy_detls.pp_item_item_notes
+            ); testStatus = true;
+
         } catch (error) {
-            testStatus = false; throw new Error(error);
+            testStatus = false; //throw new Error(error);
         }
     } else { testMsg(testInfo.title, testTitle); testStatus = false }
     testTitle = testInfo.title
 })
+test('Change Parts Purchase Status to Partially Recevied', async ({ }, testInfo) => {
+    if (testStatus) {
+        try {
+            await changePartsPurchaseStatusToPartiallyReceived(page); testStatus = true;
+        } catch (error) {
+            testStatus = false; //throw new Error(error);
+        }
+    } else {
+        testMsg(testInfo.title, testTitle); testStatus = false
+    } testTitle = testInfo.title;
+})
+test('Repair Item Marked As In Progress', async ({ }, testInfo) => {
+    if (testStatus) {
+        try {
+            await markAsRepairInProgress(page); testStatus = true;
+        } catch (error) {
+            testStatus = false; //throw new Error(error);
+        }
+    } else { testMsg(testInfo.title, testTitle); testStatus = false }
+    testTitle = testInfo.title
+})
+test('Repair Summary', async ({ }, testInfo) => {
+    if (testStatus) {
+        try {
+            await repSummary(page);
+        } catch (error) {
+            testStatus = false; //throw new Error(error);
+        }
+    } else { testMsg(testInfo.title, testTitle); testStatus = false }
+    testTitle = testInfo.title
+})
+test.skip('Assign To QC', async ({ }, testInfo) => {
+    if (testStatus) {
+        try {
 
-
+        } catch (error) {
+            testStatus = false; //throw new Error(error);
+        }
+    } else { testMsg(testInfo.title, testTitle); testStatus = false }
+    testTitle = testInfo.title
+})
 

@@ -69,6 +69,8 @@ const submitAtSubCustAprvl = (page) => { return page.locator("//span[normalize-s
 const closeAtSubCustAprvl = (page) => { return page.locator("//div[@title='close']") }
 const clickOnQuoteNum = (page, quoteNumber) => { return page.getByText(quoteNumber) }
 const threeDots = (page) => { return page.locator("//*[@class='dropdown']") }
+const relatedData = (page) => { return page.locator("//*[contains(@class,'border-bottom')]/div/div/div/div") };
+const toolTipText = (page) => { return page.locator("//*[contains(@class,'Tooltip')]") }
 
 async function navigateToQuotesPage(page) {
     await quotesLink(page).click()
@@ -298,6 +300,19 @@ async function displayProjectNameAtSendToCustomerApprovals(page, quote_id) {
     } else { throw new Error("actual subject is: " + actaualSuobject + ' but expected subject is: ' + expectedSubject); }
     await closeAtSubCustAprvl(page).click();
 }
+async function clickOnRelatedIds(page, macthedText) {
+    let count = await relatedData(page).count();
+    for (let index = 0; index < count; index++) {
+        const firstId = relatedData(page).nth(index);
+        await firstId.hover();
+        let relatedDataText = await toolTipText(page).textContent();
+        if (relatedDataText === macthedText) {
+            await firstId.click(); break;
+        } else {
+
+        }
+    }
+}
 module.exports = {
     navigateToQuotesPage,
     createQuote,
@@ -311,6 +326,7 @@ module.exports = {
     checkGPGrandTotalAtQuoteDetails,
     checkReviseForOldVersions,
     displayProjectNameAtSendToCustomerApprovals,
+    clickOnRelatedIds,
     //exporting locators
     companyField,
     customerIconAtGrid,
@@ -320,5 +336,6 @@ module.exports = {
     partNumberField,
     partDescription,
     quoteOrRMANumber,
-    rTickIcon
+    rTickIcon,
+    saveButton
 }

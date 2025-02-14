@@ -1,6 +1,7 @@
 const { expect } = require("@playwright/test");
 const { selectReactDropdowns, delay } = require("../tests/helper");
 
+
 const partsPurchaseLink = (page) => { return page.getByText('Parts Purchase') }
 const allRequestsText = (page) => { return page.getByText('All Requests') };
 const createPartsPurchaseButton = (page) => { return page.getByText('Create Parts Purchase') }
@@ -24,6 +25,11 @@ const ppItemSpclNotesField = (page) => { return page.getByPlaceholder('Enter Ite
 const ppItemNotesField = (page) => { return page.getByPlaceholder('Enter Item Notes') }
 const jobNumField = (page) => { return page.getByLabel('Job Number') }
 const vpnFieldText = (page, vpnText) => { return page.getByText(vpnText) }
+const partsBuyStatusEdit = (page, vpnText) => { return page.locator("(//*[name()='svg'])[8]") }
+const submitButtonAtItemInfo = (page) => { return page.locator("//span[normalize-space()='Submit']") }
+const statusUpdateConfPopUp = (page) => { return page.getByText('Status Changed Successfully') }
+const reactFirstDropdown = (page) => { return page.getByLabel('open') }
+const rTickIcon = (page) => { return page.getByTitle('Save Changes') }
 
 
 async function navigateToPartsPurchase(page) {
@@ -85,10 +91,27 @@ async function checkVendorPartNumberAcceptingSpacesOrNot(page, vendPartNumText, 
         throw new Error("vendor part number not accepting spaces: " + error);
     }
 }
+async function changePartsPurchaseStatus(page, statusText) {
+    await partsBuyStatusEdit(page).click();
+    await reactFirstDropdown(page).click();
+    await selectReactDropdowns(page, statusText);
+    await rTickIcon(page).click();
+}
+async function changePartsPurchaseStatusToPartiallyReceived(page) {
+    await changePartsPurchaseStatus(page, 'Ordered');
+    await expect(statusUpdateConfPopUp(page)).toBeVisible();
+    await changePartsPurchaseStatus(page, 'Partially Received');
+    await expect(submitButtonAtItemInfo(page)).toBeVisible();
+    await submitButtonAtItemInfo(page).click();
+    await expect(statusUpdateConfPopUp(page)).toBeVisible();
+    console.log('Parts purchase status has changed to Partially received');
+}
 module.exports = {
     checkVendorPartNumberAcceptingSpacesOrNot,
-    loadingText,
+    changePartsPurchaseStatus,
+    changePartsPurchaseStatusToPartiallyReceived,
     //exporting locstors
+    loadingText,
     ppItemQtyField,
     ppItemCostField,
     ppItemDescField,
@@ -97,4 +120,5 @@ module.exports = {
     createButtonAtPartsPurchForm,
     jobNumField,
     vpnFieldText
+
 }

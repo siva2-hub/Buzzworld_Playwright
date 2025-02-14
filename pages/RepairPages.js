@@ -1,7 +1,7 @@
 const { expect } = require("@playwright/test")
-const { customerIconAtGrid, companyField, reactFirstDropdown, addItemsBtn, partsSeach, partNumberField, partDescription, quoteOrRMANumber, rTickIcon } = require("./QuotesPage")
+const { customerIconAtGrid, companyField, reactFirstDropdown, addItemsBtn, partsSeach, partNumberField, partDescription, quoteOrRMANumber, rTickIcon, clickOnRelatedIds, saveButton } = require("./QuotesPage")
 const { getRMAItemStatus, selectReactDropdowns, spinner, approve, createSO, wonQuote, submitForCustomerApprovals, defaultTurnAroundTime, delay } = require("../tests/helper")
-const { checkVendorPartNumberAcceptingSpacesOrNot, ppItemQtyField, ppItemCostField, ppItemDescField, ppItemSpclNotesField, ppItemNotesField, createButtonAtPartsPurchForm, jobNumField, vpnFieldText } = require("./PartsBuyingPages")
+const { checkVendorPartNumberAcceptingSpacesOrNot, ppItemQtyField, ppItemCostField, ppItemDescField, ppItemSpclNotesField, ppItemNotesField, createButtonAtPartsPurchForm, jobNumField, vpnFieldText, loadingText } = require("./PartsBuyingPages")
 const { testData } = require("./TestData")
 
 const repairsLink = (page) => { return page.getByText('Repairs') }
@@ -47,9 +47,17 @@ const quoteItemsIsVisible = (page) => { expect(page.locator('#repair-items')).to
 const repLinkAtJobDetls = (page) => { return page.locator("(//*[contains(@class,'border-bottom')])/div/div[1]") }
 const markAsInProgressBtn = (page) => { return page.getByText('Mark as In Progress') }
 const repInProgresConfPopUp = (page) => { expect(page.locator('#root')).toContainText('Are you sure you want to move this item to Repair In Progress?') }
-const mfgFieldAtPp = (page) => { return page.getByLabel('Manufacturer Name') }
-const poInfoText = (page) => { return page.getByLabel('Manufacturer Name') }
-
+const mfgFieldAtPp = (page) => { return page.getByText('Search Manufacturer') }
+const poInfoText = (page) => { return page.getByText('Purchase Order Information') }
+const assignToQCButton = (page) => { return page.getByText('Assign to QC') }
+const repSummaryField = (page) => { return page.locator("//*[contains(@src, 'repair_summary')]") }
+const repSummaryData = (page, summaryData) => {
+    page.getByText(summaryData[0], { exact: true }).click();
+    page.getByText(summaryData[1], { exact: true }).click();
+    page.getByText(summaryData[2], { exact: true }).click();
+}
+const repSummaryNotes = (page) => { return page.getByPlaceholder('Enter Repair Summary Notes') }
+const updateSuccMsg = (page) => { return page.getByText('Updated Successfully') };
 
 async function naviagateToRepairs(page) {
     await repairsLink(page).click();
@@ -58,16 +66,16 @@ async function naviagateToRepairs(page) {
 async function createRepair(page, acc_num, cont_name) {
     try {
         await naviagateToRepairs(page);
-        await page.goto('https://www.staging-buzzworld.iidm.com/jobs/8820a58c-4dfa-4df8-9f7a-bd6c63ec6e0b')
-        // await createRMABtn(page).click();
-        // await expect(companyField(page)).toBeVisible();
-        // await companyField(page).fill(acc_num);
-        // await expect(page.getByText(acc_num, { exact: true }).nth(1)).toBeVisible();
-        // await page.getByText(acc_num, { exact: true }).nth(1).click();
-        // await reactFirstDropdown(page).nth(2).click();
-        // await page.keyboard.insertText(cont_name);
-        // await selectReactDropdowns(page, cont_name); //await page.pause();
-        // await createBtnAtRMA(page).click();
+        // await page.goto('https://www.staging-buzzworld.iidm.com/jobs/8820a58c-4dfa-4df8-9f7a-bd6c63ec6e0b')
+        await createRMABtn(page).click();
+        await expect(companyField(page)).toBeVisible();
+        await companyField(page).fill(acc_num);
+        await expect(page.getByText(acc_num, { exact: true }).nth(1)).toBeVisible();
+        await page.getByText(acc_num, { exact: true }).nth(1).click();
+        await reactFirstDropdown(page).nth(2).click();
+        await page.keyboard.insertText(cont_name);
+        await selectReactDropdowns(page, cont_name); //await page.pause();
+        await createBtnAtRMA(page).click();
         await expect(quoteOrRMANumber(page)).toBeVisible();
         const rmaNumber = await quoteOrRMANumber(page).textContent();
         console.log('RMA: ' + rmaNumber);
@@ -205,39 +213,56 @@ async function createSORepQuote(page, contactName, vendorName, isCreateJob, quot
 }
 async function markAsRepairInProgress(page) {
     //naigate to Repairs detailed view
-    await repLinkAtJobDetls(page).click();
-    await expect(serialNumaberLabel(page)).toBeVisible();
+    // await repLinkAtJobDetls(page).click();
+    await clickOnRelatedIds(page, 'Related to Repairs');
+    await expect(serialNumaberLabel(page).first()).toBeVisible();
     await expect(markAsInProgressBtn(page).first()).toBeVisible();
     await markAsInProgressBtn(page).first().click();
     await repInProgresConfPopUp(page);
     await acceptButton(page).click();
-    await expect(inProgressStatus(page)).toBeVisible();
+    await expect(assignToQCButton(page)).toBeVisible();
     console.log('Repair Item Marked as In Progress');
 }
-async function createPartsPurchase(page, vendorPartNum, vendorName) {
+async function createPartsPurchase(page, vendorPartNum, vendorName, ppItemQty, ppItemCost, ppItemDesc, ppItemSpclNotes, ppItemNotes) {
     //Navigate to Repairs Details from Jobs Details view
     await repLinkAtJobDetls(page).click();
     await expect(serialNumaberLabel(page).first()).toBeVisible();
+    // await page.goto('https://www.staging-buzzworld.iidm.com/parts-purchase-detail-view/1d2d727a-50b8-4ae6-ab98-030678563a40')
     //here verifying Vendor part number accepting spaces or not from repair
     await checkVendorPartNumberAcceptingSpacesOrNot(page, vendorPartNum, true);
-    //
-    await mfgFieldAtPp(page).fill(vendorName);
+    //click on search manifacture field
+    await mfgFieldAtPp(page).click();
+    await page.keyboard.insertText(vendorName);
+    await expect(loadingText(page)).toBeVisible(); await expect(loadingText(page)).toBeHidden();
     await page.waitForTimeout(3000);
     await page.keyboard.press('Enter');
     // await page.getByText('OMRON ELECTRONICS LLC', { exact: true }).click();
-    await ppItemQtyField(page).fill('2');
-    await ppItemCostField(page).fill('1234.987456');
-    await ppItemDescField.fill('TEST DESCRIPTION');
-    await ppItemSpclNotesField(page).fill('TEST ITEM SPECIAL NOTES');
-    await ppItemNotesField.fill('TEST ITEM NOTES'); await page.pause();
+    await ppItemQtyField(page).fill(ppItemQty);
+    await ppItemCostField(page).fill(ppItemCost);
+    await ppItemDescField(page).fill(ppItemDesc);
+    await ppItemSpclNotesField(page).fill(ppItemSpclNotes);
+    await ppItemNotesField(page).fill(ppItemNotes); //await page.pause();
     await createButtonAtPartsPurchForm(page).click();
     await expect(poInfoText(page)).toBeVisible();
     //verifying vendor part number updated at or not
     await expect(vpnFieldText(page, vendorPartNum)).toBeVisible();
-    let pp = quoteOrRMANumber(page).textContent();
-    pp_id = pp.replace("#", "");
-    console.log('used job id is ', await jobNumField(page).textContent());
-    console.log('parts purchase created with id ', pp_id);
+    let pp = await quoteOrRMANumber(page).textContent();
+    let pp_id = pp.replace("#", "");
+    // console.log('used job id is ' + await jobNumField(page).textContent());
+    console.log('parts purchase created with id ' + pp_id);
+    await page.pause();
+}
+async function repairSummary(page, sumData, repSumNotes, internalItemNotes) {
+    await repSummaryField(page).click();
+    await page.getByLabel('open').click();
+    await repSummaryData(page, sumData);
+    await page.keyboard.press('Escape');
+    await repSummaryNotes(page).fill(repSumNotes);
+    await irnlItemNotesField(page).fill(internalItemNotes);
+    //click on save button
+    await saveButton(page).click();
+    await expect(updateSuccMsg(page)).toBeVisible();
+    console.log('repair summary has updated');
 }
 async function navigateToRepairInProgressTab(page) {
     await naviagateToRepairs(page);
