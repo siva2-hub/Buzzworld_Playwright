@@ -20,7 +20,12 @@ const testData = {
     },
     parts_buy_detls: {
         ven_part_num: 'Vendor Part||Number|| ',
-        is_from_repair: false
+        is_from_repair: false,
+        pp_item_qty: '2',
+        pp_item_cost: '1234.987456',
+        pp_item_desc: 'TEST DESCRIPTION',
+        pp_item_spcl_notes: 'TEST ITEM SPECIAL NOTES',
+        pp_item_item_notes: 'TEST ITEM NOTES'
     },
     inventory: {
         new_part: '002-2123-01'
@@ -31,7 +36,7 @@ const testData = {
         quote_type: 'Parts Quote',// System Quote , Parts Quote
         cont_name: 'Garret Luppino', //chump userOne --> CHUMP03, Garret Luppino --> multioo
         project_name: 'TEST_1234SS',
-        stock_code: ['2000-1203'], // 2000-1203, A1C4B590
+        stock_code: ['2000-1206'], // 2000-1203, A1C4B590
         quote_price: '25000',
         part_desc: 'Manually Added From Quotes',
         suppl_name: 'BACO CONTROLS INC',
@@ -43,12 +48,12 @@ const testData = {
         send_email_to_cust: true
     },
     repairs: {
-        cust_name: 'Chump Change Automation', // Chump Change Automation , Multicam Inc
-        acc_num: 'CHUMP03', // CHUMP03 , MULTI00
-        cont_name: 'chump userOne', //chump userOne --> CHUMP03, Garret Luppino --> multioo
+        cust_name: 'Multicam Inc', // Chump Change Automation , Multicam Inc
+        acc_num: 'MULTI00', // CHUMP03 , MULTI00
+        cont_name: 'Garret Luppino', //chump userOne --> CHUMP03, Garret Luppino --> multioo
         rep_tech: 'Dan Holmes',
         rep_type: ['1'], // '1' = Repairable, '2' = Non Repairable, '3' = Outsource Repairable
-        stock_code: ['12342-00012'], // 2000-1203
+        stock_code: ['022-1BD70'], // 2000-1203, 12342-00012, 022-1BD70
         part_desc: 'Manually Added From Repairs',
         suppl_name: 'BACO CONTROLS INC',
         suppl_code: 'BACO001',
@@ -58,7 +63,8 @@ const testData = {
         item_internal_notes: 'Test Internal Notes at ',
         is_create_job: true,
         quote_type: 'Repair Quote',
-        is_marked_as_in_progress: false
+        is_marked_as_in_progress: false,
+        res_summary_notes: 'Test Repair Summary Notes to Customer',
     }
 }
 module.exports = {
