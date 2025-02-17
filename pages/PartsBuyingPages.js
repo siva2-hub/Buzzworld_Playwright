@@ -104,7 +104,7 @@ async function changePartsPurchaseStatusToPartiallyReceived(page) {
     await expect(submitButtonAtItemInfo(page)).toBeVisible();
     await submitButtonAtItemInfo(page).click();
     await expect(statusUpdateConfPopUp(page)).toBeVisible();
-    console.log('Parts purchase status has changed to Partially received');
+    console.log('Parts purchase status has changed to Ordered, Partially received');
 }
 module.exports = {
     checkVendorPartNumberAcceptingSpacesOrNot,
