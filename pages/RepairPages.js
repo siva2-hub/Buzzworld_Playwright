@@ -3,6 +3,7 @@ const { customerIconAtGrid, companyField, reactFirstDropdown, addItemsBtn, parts
 const { getRMAItemStatus, selectReactDropdowns, spinner, approve, createSO, wonQuote, submitForCustomerApprovals, defaultTurnAroundTime, delay } = require("../tests/helper")
 const { checkVendorPartNumberAcceptingSpacesOrNot, ppItemQtyField, ppItemCostField, ppItemDescField, ppItemSpclNotesField, ppItemNotesField, createButtonAtPartsPurchForm, jobNumField, vpnFieldText, loadingText } = require("./PartsBuyingPages")
 const { testData } = require("./TestData")
+const { error } = require("console")
 
 const repairsLink = (page) => { return page.getByText('Repairs') }
 const receivingLink = (page) => { return page.locator('#root').getByText('Receiving') }
@@ -51,13 +52,32 @@ const mfgFieldAtPp = (page) => { return page.getByText('Search Manufacturer') }
 const poInfoText = (page) => { return page.getByText('Purchase Order Information') }
 const assignToQCButton = (page) => { return page.getByText('Assign to QC') }
 const repSummaryField = (page) => { return page.locator("//*[contains(@src, 'repair_summary')]") }
-const repSummaryData = (page, summaryData) => {
-    page.getByText(summaryData[0], { exact: true }).click();
-    page.getByText(summaryData[1], { exact: true }).click();
-    page.getByText(summaryData[2], { exact: true }).click();
+const repSummaryData = async (page, summaryData) => {
+    console.log('summary data count: ' + summaryData.length);
+    for (let index = 0; index < summaryData.length; index++) {
+        await page.getByText(summaryData[index], { exact: true }).click();
+    }
 }
 const repSummaryNotes = (page) => { return page.getByPlaceholder('Enter Repair Summary Notes') }
 const updateSuccMsg = (page) => { return page.getByText('Updated Successfully') };
+const assignQCLabel = (page) => { return page.getByText('Assign QC') }
+const pendingQCText = (page) => { return page.getByText('Pending QC') }
+const qcCheckListIcon = (page) => { return page.locator("//*[contains(@src,'qc_checklist')]") }
+const partsNotesQC = (page) => { return page.locator('textarea[name="part_notes"]') }
+const qcComments = (page) => { return page.locator('textarea[name="qc_comments"]') }
+const penInvoiceStatus = (page) => { return page.getByText('Pending Invoice') }
+const intrnlUsedParts = (page) => { return page.getByText('Internal Used Parts') }
+const selectSupplier = async (page, supplCode, supplName) => {
+    await page.getByText('Search').click();
+    await page.keyboard.insertText(supplCode);
+    await expect(loadingText(page)).toBeVisible(); await expect(loadingText(page)).toBeHidden();
+    await selectReactDropdowns(page, supplName + supplCode);
+}
+const intrnlUsedPartsDesc = (page) => { return page.locator('textarea[name="internal_parts\\.0\\.part_description"]') }
+const intrnlUsedPartsNum = (page) => { return page.getByPlaceholder('Enter Part Number') }
+const addNewRowIntrnlUsedPart = (page) => { return page.locator("//p[@class='add-row-text']") }
+const newPartUsedPartNumberValns = (page) => { return page.getByText('Please enter Part Number') }
+
 
 async function naviagateToRepairs(page) {
     await repairsLink(page).click();
@@ -66,7 +86,7 @@ async function naviagateToRepairs(page) {
 async function createRepair(page, acc_num, cont_name) {
     try {
         await naviagateToRepairs(page);
-        // await page.goto('https://www.staging-buzzworld.iidm.com/jobs/8820a58c-4dfa-4df8-9f7a-bd6c63ec6e0b')
+        // await page.goto('https://www.staging-buzzworld.iidm.com/repair-request/22f70d5a-678a-444e-950c-eb1af9b5e4e0')
         await createRMABtn(page).click();
         await expect(companyField(page)).toBeVisible();
         await companyField(page).fill(acc_num);
@@ -197,7 +217,7 @@ async function repItemAddedToQuote(page) {
     await expect(addItemsToQuoteConfPopUp(page)).toBeVisible();
     await acceptButton(page).click();
     await quoteItemsIsVisible(page);
-    const quoteNumber = await allPages.quoteOrRMANumber.textContent();
+    const quoteNumber = await quoteOrRMANumber(page).textContent();
     console.log("RMA quote is created: " + quoteNumber);
     return quoteNumber.replace('#', '');
 }
@@ -213,14 +233,14 @@ async function createSORepQuote(page, contactName, vendorName, isCreateJob, quot
 }
 async function markAsRepairInProgress(page) {
     //naigate to Repairs detailed view
-    // await repLinkAtJobDetls(page).click();
+    await repLinkAtJobDetls(page).click();
     await clickOnRelatedIds(page, 'Related to Repairs');
     await expect(serialNumaberLabel(page).first()).toBeVisible();
     await expect(markAsInProgressBtn(page).first()).toBeVisible();
     await markAsInProgressBtn(page).first().click();
     await repInProgresConfPopUp(page);
     await acceptButton(page).click();
-    await expect(assignToQCButton(page)).toBeVisible();
+    await expect(inProgressStatus(page)).toBeVisible();
     console.log('Repair Item Marked as In Progress');
 }
 async function createPartsPurchase(page, vendorPartNum, vendorName, ppItemQty, ppItemCost, ppItemDesc, ppItemSpclNotes, ppItemNotes) {
@@ -250,7 +270,6 @@ async function createPartsPurchase(page, vendorPartNum, vendorName, ppItemQty, p
     let pp_id = pp.replace("#", "");
     // console.log('used job id is ' + await jobNumField(page).textContent());
     console.log('parts purchase created with id ' + pp_id);
-    await page.pause();
 }
 async function repairSummary(page, sumData, repSumNotes, internalItemNotes) {
     await repSummaryField(page).click();
@@ -261,8 +280,20 @@ async function repairSummary(page, sumData, repSumNotes, internalItemNotes) {
     await irnlItemNotesField(page).fill(internalItemNotes);
     //click on save button
     await saveButton(page).click();
-    await expect(updateSuccMsg(page)).toBeVisible();
-    console.log('repair summary has updated');
+    await expect(updateSuccMsg(page).nth(1)).toBeVisible();
+    console.log('Repair summary has updated');
+}
+async function assignToQC(page, tech, internalNotes) {
+    await expect(assignToQCButton(page)).toBeVisible();
+    await assignToQCButton(page).click();
+    await expect(assignQCLabel(page).nth(1)).toBeVisible();
+    await reactFirstDropdown(page).click();
+    await page.keyboard.insertText(tech);
+    await page.keyboard.press('Enter');
+    await irnlItemNotesField(page).fill(internalNotes);
+    await assignButton(page).click();
+    await expect(pendingQCText(page)).toBeVisible();
+    console.log('QC has Assigned');
 }
 async function navigateToRepairInProgressTab(page) {
     await naviagateToRepairs(page);
@@ -275,6 +306,51 @@ async function navigateToRepairInProgressTab(page) {
     await inProgressStatus(page).click();
     const partsPurchaseIcon = ppIconRepairs(page);
     return partsPurchaseIcon;
+}
+async function saveQCCheckListForm(page, partsNotes, qcCommentsToCust, status, supplCode, supplName, intrnlPartNum, intrnlPartsUsedDesc) {
+    //Go to the QC Checklist Form
+    await qcCheckListIcon(page).scrollIntoViewIfNeeded();
+    await qcCheckListIcon(page).click();
+    await expect(intrnlUsedParts(page)).toBeVisible();
+    //Fill the QC Checklist
+    await reactFirstDropdown(page).first().click();
+    await selectReactDropdowns(page, 'Drive QC');
+    // Checking appropriate radio buttons
+    await page.getByLabel('Yes').first().check();
+    await page.getByLabel('No').nth(2).check();
+    await page.getByLabel('N/A').nth(2).check();
+    await page.getByLabel('Yes').nth(3).check();
+    // Setting status to 'Pass'
+    await page.getByText('Status').nth(1).click();
+    await page.getByText(status, { exact: true }).click();
+    // Filling text areas
+    await partsNotesQC(page).fill(partsNotes);
+    await qcComments(page).fill(qcCommentsToCust);
+    await intrnlUsedPartsNum(page).fill(intrnlPartNum);
+    await selectSupplier(page, supplCode, supplName);
+    await intrnlUsedPartsDesc(page).fill(intrnlPartsUsedDesc);
+    await saveButton(page).first().click(); await page.pause();
+    if (status == 'Pass') {
+        await expect(penInvoiceStatus(page).first()).toBeVisible();
+    } else {
+        //write login here
+    }
+    console.log('QC status has updated to ' + status);
+}
+async function verifyAddRowIssue(page) {
+    await expect(qcCheckListIcon(page)).toBeVisible();
+    await qcCheckListIcon(page).click();
+    await expect(addNewRowIntrnlUsedPart(page)).toBeVisible();
+    await addNewRowIntrnlUsedPart(page).click();
+    await expect(intrnlUsedPartsNum(page).first()).toBeVisible()
+    await saveButton(page).click();
+    const valnCount = await newPartUsedPartNumberValns(page).count();
+    if (valnCount > 1) {
+        console.log('on single click multiple rows are added');
+        throw new Error("" + error)
+    } else {
+        console.log('Add Multiple rows issue has fixed')
+    }
 }
 async function checkDueLabelChangeToPromisedDate(page, expText) {
     try {
@@ -340,6 +416,10 @@ module.exports = {
     createSORepQuote,
     markAsRepairInProgress,
     createPartsPurchase,
+    assignToQC,
+    repairSummary,
+    saveQCCheckListForm,
+    verifyAddRowIssue,
     //exporting locators
     ppIconRepairs
 }

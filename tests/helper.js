@@ -2288,7 +2288,7 @@ async function createSO(page, vendor_name, isJobCreate, quote_type) {
             await page.locator("//*[text()='Warehouse']").nth(0).click();
             await page.getByLabel('Open').nth(3).click();
             await page.keyboard.insertText('' + (toolText.charAt(toolText.length - 2)) + (toolText.charAt(toolText.length - 1)) + '');
-            await page.keyboard.press('Enter'); await delay(page, 2000);
+            await page.keyboard.press('Enter'); //await delay(page, 2000);
             await page.getByTitle('Save Changes').hover(); await page.getByTitle('Save Changes').click();
         } else { }
         console.log(toolText);

@@ -1,5 +1,5 @@
 const { test } = require("@playwright/test");
-const { createRepair, addItemsToRepairs, assignLocationFun, assignTech, itemEvaluation, repItemAddedToQuote, createSORepQuote, markAsRepairInProgress, createPartsPurchase } = require("../pages/RepairPages");
+const { createRepair, addItemsToRepairs, assignLocationFun, assignTech, itemEvaluation, repItemAddedToQuote, createSORepQuote, markAsRepairInProgress, createPartsPurchase, repairSummary, assignToQC, saveQCCheckListForm, verifyAddRowIssue } = require("../pages/RepairPages");
 const { login_buzz } = require("./helper");
 const { testData } = require("../pages/TestData");
 const { changePartsPurchaseStatus, changePartsPurchaseStatusToPartiallyReceived } = require("../pages/PartsBuyingPages");
@@ -134,17 +134,43 @@ test('Repair Item Marked As In Progress', async ({ }, testInfo) => {
 test('Repair Summary', async ({ }, testInfo) => {
     if (testStatus) {
         try {
-            await repSummary(page);
+            await repairSummary(
+                page, testData.repairs.res_summay_data, testData.repairs.rep_sum_notes,
+                testData.repairs.item_internal_notes
+            ); testStatus = true;
         } catch (error) {
             testStatus = false; //throw new Error(error);
         }
     } else { testMsg(testInfo.title, testTitle); testStatus = false }
     testTitle = testInfo.title
 })
-test.skip('Assign To QC', async ({ }, testInfo) => {
+test('Assign To QC', async ({ }, testInfo) => {
     if (testStatus) {
         try {
-
+            await assignToQC(page, testData.repairs.rep_tech, testData.repairs.item_internal_notes + testInfo.title); testStatus = true;
+        } catch (error) {
+            testStatus = false; //throw new Error(error);
+        }
+    } else { testMsg(testInfo.title, testTitle); testStatus = false }
+    testTitle = testInfo.title
+})
+test('Save QC CheckList Form', async ({ }, testInfo) => {
+    if (testStatus) {
+        try {
+            await saveQCCheckListForm(page, testData.repairs.parts_notes, testData.repairs.qc_cmc_cust, testData.repairs.qc_status,
+                testData.repairs.suppl_code, testData.repairs.suppl_name, testData.repairs.intrnl_used_part_num, testData.repairs.intrnl_used_part_desc
+            );
+            testStatus = true;
+        } catch (error) {
+            testStatus = false; //throw new Error(error);
+        }
+    } else { testMsg(testInfo.title, testTitle); testStatus = false }
+    testTitle = testInfo.title
+})
+test('Check Add New Row at Internal Used Parts', async ({ }, testInfo) => {
+    if (testStatus) {
+        try {
+            await verifyAddRowIssue(page); testStatus = true;
         } catch (error) {
             testStatus = false; //throw new Error(error);
         }

@@ -65,6 +65,17 @@ const testData = {
         quote_type: 'Repair Quote',
         is_marked_as_in_progress: false,
         res_summary_notes: 'Test Repair Summary Notes to Customer',
+        parts_notes: 'Test Parts Notes',
+        qc_cmc_cust: 'Test QC Comments To Customer',
+        qc_status: 'Pass',
+        res_summay_data: [
+            'Bench tested',
+            'Installed parameters',
+            'Repaired PCB'
+        ],
+        rep_sum_notes: 'Test Repair Summary Notes to Customer',
+        intrnl_used_part_num: 'TESTPART123',
+        intrnl_used_part_desc: 'Internal Used Part Description'
     }
 }
 module.exports = {
