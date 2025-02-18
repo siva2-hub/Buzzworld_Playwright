@@ -1,5 +1,5 @@
 const { test } = require("@playwright/test");
-const { createRepair, addItemsToRepairs, assignLocationFun, assignTech, itemEvaluation, repItemAddedToQuote, createSORepQuote, markAsRepairInProgress, createPartsPurchase, repairSummary, assignToQC, saveQCCheckListForm, verifyAddRowIssue } = require("../pages/RepairPages");
+const { createRepair, addItemsToRepairs, assignLocationFun, assignTech, itemEvaluation, repItemAddedToQuote, createSORepQuote, markAsRepairInProgress, createPartsPurchase, repairSummary, assignToQC, saveQCCheckListForm, verifyAddRowIssue, updateDatesAtRepairs, approveWonTheRepairQuote, checkDatesAtCreateSO } = require("../pages/RepairPages");
 const { login_buzz } = require("./helper");
 const { testData } = require("../pages/TestData");
 const { changePartsPurchaseStatus, changePartsPurchaseStatusToPartiallyReceived } = require("../pages/PartsBuyingPages");
@@ -8,6 +8,7 @@ let page, testStatus, testTitle;
 const testMsg = (currentTestTitle, previousTestTitle) => {
     console.log(currentTestTitle + ' Test has skipped, beacsue of ' + previousTestTitle + ' Test is Failed')
 }
+let aprDateAtRep, promDateAtRep;
 test.beforeAll(async ({ browser }) => {
     const context = await browser.newContext();
     page = await context.newPage();
@@ -72,6 +73,18 @@ test('Item Evaluation', async ({ }, testInfo) => {
     } else { testMsg(testInfo.title, testTitle); testStatus = false }
     testTitle = testInfo.title
 })
+test('Update and read Approved date and Promised Dates at Repairs', async ({ }, testInfo) => {
+    if (testStatus) {
+        try {
+            const datesAtRepairs = await updateDatesAtRepairs(page, testData.repairs.apr_date_rep, testData.repairs.prom_date_rep);
+            aprDateAtRep = datesAtRepairs[0]; promDateAtRep = datesAtRepairs[1]
+            testStatus = true;
+        } catch (error) {
+            testStatus = false; //throw new Error(error);
+        }
+    } else { testMsg(testInfo.title, testTitle); testStatus = false }
+    testTitle = testInfo.title
+})
 test('Add Items To Quote', async ({ }, testInfo) => {
     if (testStatus) {
         try {
@@ -82,6 +95,26 @@ test('Add Items To Quote', async ({ }, testInfo) => {
     } else { testMsg(testInfo.title, testTitle); testStatus = false }
     testTitle = testInfo.title
 })
+test('Approve and Won the RMA Quote', async ({ }, testInfo) => {
+    if (testStatus) {
+        try {
+            await approveWonTheRepairQuote(page, testData.repairs.cont_name); testStatus = true;
+        } catch (error) {
+            testStatus = false; //throw new Error(error);
+        }
+    } else { testMsg(testInfo.title, testTitle); testStatus = false }
+    testTitle = testInfo.title
+});
+test('Check Line Ship Date, Customer Requested dates', async ({ }, testInfo) => {
+    if (testStatus) {
+        try {
+            await checkDatesAtCreateSO(page, aprDateAtRep, promDateAtRep); testStatus = true;
+        } catch (error) {
+            testStatus = false; //throw new Error(error);
+        }
+    } else { testMsg(testInfo.title, testTitle); testStatus = false }
+    testTitle = testInfo.title
+});
 test('Create Sales Order Repair Quote', async ({ }, testInfo) => {
     if (testStatus) {
         try {
@@ -175,6 +208,6 @@ test('Check Add New Row at Internal Used Parts', async ({ }, testInfo) => {
             testStatus = false; //throw new Error(error);
         }
     } else { testMsg(testInfo.title, testTitle); testStatus = false }
-    testTitle = testInfo.title
+    testTitle = testInfo.title;
 })
 

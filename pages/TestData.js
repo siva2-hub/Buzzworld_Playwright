@@ -36,7 +36,7 @@ const testData = {
         quote_type: 'Parts Quote',// System Quote , Parts Quote
         cont_name: 'Garret Luppino', //chump userOne --> CHUMP03, Garret Luppino --> multioo
         project_name: 'TEST_1234SS',
-        stock_code: ['2000-1206'], // 2000-1203, A1C4B590
+        stock_code: ['EZZ022745C'], // 2000-1203, A1C4B590, 2000-1206
         quote_price: '25000',
         part_desc: 'Manually Added From Quotes',
         suppl_name: 'BACO CONTROLS INC',
@@ -67,7 +67,7 @@ const testData = {
         res_summary_notes: 'Test Repair Summary Notes to Customer',
         parts_notes: 'Test Parts Notes',
         qc_cmc_cust: 'Test QC Comments To Customer',
-        qc_status: 'Pass',
+        qc_status: 'Fail', //Pass , Fail
         res_summay_data: [
             'Bench tested',
             'Installed parameters',
@@ -75,7 +75,9 @@ const testData = {
         ],
         rep_sum_notes: 'Test Repair Summary Notes to Customer',
         intrnl_used_part_num: 'TESTPART123',
-        intrnl_used_part_desc: 'Internal Used Part Description'
+        intrnl_used_part_desc: 'Internal Used Part Description',
+        apr_date_rep:'02/25/2025',
+        prom_date_rep:'02/27/2025'
     }
 }
 module.exports = {

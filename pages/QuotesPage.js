@@ -71,6 +71,7 @@ const clickOnQuoteNum = (page, quoteNumber) => { return page.getByText(quoteNumb
 const threeDots = (page) => { return page.locator("//*[@class='dropdown']") }
 const relatedData = (page) => { return page.locator("//*[contains(@class,'border-bottom')]/div/div/div/div") };
 const toolTipText = (page) => { return page.locator("//*[contains(@class,'Tooltip')]") }
+const createSOBtn = (page) => { return page.getByText('Create Sales Order') }
 
 async function navigateToQuotesPage(page) {
     await quotesLink(page).click()
@@ -301,6 +302,7 @@ async function displayProjectNameAtSendToCustomerApprovals(page, quote_id) {
     await closeAtSubCustAprvl(page).click();
 }
 async function clickOnRelatedIds(page, macthedText) {
+    await delay(page, 2000);
     let count = await relatedData(page).count();
     for (let index = 0; index < count; index++) {
         const firstId = relatedData(page).nth(index);
@@ -337,5 +339,6 @@ module.exports = {
     partDescription,
     quoteOrRMANumber,
     rTickIcon,
-    saveButton
+    saveButton,
+    createSOBtn
 }

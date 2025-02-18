@@ -1,5 +1,5 @@
 const { expect } = require("@playwright/test")
-const { customerIconAtGrid, companyField, reactFirstDropdown, addItemsBtn, partsSeach, partNumberField, partDescription, quoteOrRMANumber, rTickIcon, clickOnRelatedIds, saveButton } = require("./QuotesPage")
+const { customerIconAtGrid, companyField, reactFirstDropdown, addItemsBtn, partsSeach, partNumberField, partDescription, quoteOrRMANumber, rTickIcon, clickOnRelatedIds, saveButton, createSOBtn } = require("./QuotesPage")
 const { getRMAItemStatus, selectReactDropdowns, spinner, approve, createSO, wonQuote, submitForCustomerApprovals, defaultTurnAroundTime, delay } = require("../tests/helper")
 const { checkVendorPartNumberAcceptingSpacesOrNot, ppItemQtyField, ppItemCostField, ppItemDescField, ppItemSpclNotesField, ppItemNotesField, createButtonAtPartsPurchForm, jobNumField, vpnFieldText, loadingText } = require("./PartsBuyingPages")
 const { testData } = require("./TestData")
@@ -77,7 +77,13 @@ const intrnlUsedPartsDesc = (page) => { return page.locator('textarea[name="inte
 const intrnlUsedPartsNum = (page) => { return page.getByPlaceholder('Enter Part Number') }
 const addNewRowIntrnlUsedPart = (page) => { return page.locator("//p[@class='add-row-text']") }
 const newPartUsedPartNumberValns = (page) => { return page.getByText('Please enter Part Number') }
-
+const qcFailedStatus = (page) => { return page.getByText('QC Failed') }
+const repItemStatus = (page) => { return page.locator('//*[@id="repair-items"]/div[2]/div/div/div[2]/div[5]/h4') }
+const pendingQCConfText = (page) => { return page.getByText('Are you sure you want to move this status to Pending QC') }
+const repItemEditIcon = (page) => { return page.locator("//*[contains(@src,'themecolorEdit')]") }
+const lineShipDateAtSO = (page) => { return page.locator("//*[@title='Line Ship Date']") }
+const custReqDateAtSO = (page) => { return page.locator("//*[@title='Customer Request Date']") }
+const poNumAtSOScr = (page) => { return page.getByPlaceholder('Enter PO Number'); }
 
 async function naviagateToRepairs(page) {
     await repairsLink(page).click();
@@ -86,7 +92,7 @@ async function naviagateToRepairs(page) {
 async function createRepair(page, acc_num, cont_name) {
     try {
         await naviagateToRepairs(page);
-        // await page.goto('https://www.staging-buzzworld.iidm.com/repair-request/22f70d5a-678a-444e-950c-eb1af9b5e4e0')
+        // await page.goto('https://www.staging-buzzworld.iidm.com/parts-purchase-detail-view/e81fca37-f0e2-4e3d-b058-33d3fcd89b0a')
         await createRMABtn(page).click();
         await expect(companyField(page)).toBeVisible();
         await companyField(page).fill(acc_num);
@@ -221,19 +227,23 @@ async function repItemAddedToQuote(page) {
     console.log("RMA quote is created: " + quoteNumber);
     return quoteNumber.replace('#', '');
 }
-async function createSORepQuote(page, contactName, vendorName, isCreateJob, quoteType) {
+async function approveWonTheRepairQuote(page, contactName) {
     //Approve the Repair Quote
     await approve(page, contactName);
+    console.log('Repair Quoted has approved');
     // Submit for customer approval
     await submitForCustomerApprovals(page);
+    console.log('Repair Quoted has send to customer for approval');
     // Mark the quote as won
     await wonQuote(page);
+    console.log('Repair Quoted has Won');
+}
+async function createSORepQuote(page, vendorName, isCreateJob, quoteType) {
     // Create a Sales Order (SO) for RMA Quote
     await createSO(page, vendorName, isCreateJob, quoteType);
 }
 async function markAsRepairInProgress(page) {
     //naigate to Repairs detailed view
-    await repLinkAtJobDetls(page).click();
     await clickOnRelatedIds(page, 'Related to Repairs');
     await expect(serialNumaberLabel(page).first()).toBeVisible();
     await expect(markAsInProgressBtn(page).first()).toBeVisible();
@@ -329,15 +339,23 @@ async function saveQCCheckListForm(page, partsNotes, qcCommentsToCust, status, s
     await intrnlUsedPartsNum(page).fill(intrnlPartNum);
     await selectSupplier(page, supplCode, supplName);
     await intrnlUsedPartsDesc(page).fill(intrnlPartsUsedDesc);
-    await saveButton(page).first().click(); await page.pause();
+    await saveButton(page).first().click(); //await page.pause();
     if (status == 'Pass') {
         await expect(penInvoiceStatus(page).first()).toBeVisible();
     } else {
-        //write login here
+        await expect(qcFailedStatus(page).first()).toBeVisible();
     }
     console.log('QC status has updated to ' + status);
 }
 async function verifyAddRowIssue(page) {
+    const repIteStatus = await repItemStatus(page).textContent();
+    console.log('status is:' + repIteStatus); //await page.pause();
+    if (repIteStatus == ' QC Failed') {
+        await pendingQCText(page).first().click();
+        await expect(pendingQCConfText(page)).toBeVisible();
+        await acceptButton(page).click();
+    } else {
+    }
     await expect(qcCheckListIcon(page)).toBeVisible();
     await qcCheckListIcon(page).click();
     await expect(addNewRowIntrnlUsedPart(page)).toBeVisible();
@@ -389,10 +407,10 @@ async function checkDueLabelChangeToPromisedDate(page, expText) {
             const actDatePromisedValue = await datePromisedValue.textContent()
             console.log('after update date promised value: ' + actDatePromisedValue);
             if (expDatePromisedValue === actDatePromisedValue) {
-                console.log('date promised value macthed...');
+                console.log('date promised value matched...');
                 console.log('actual Date Promised: ' + actDatePromisedValue + ' expected Date Promised: ' + expDatePromisedValue);
             } else {
-                console.log('date promised value not macthed...');
+                console.log('date promised value not matched...');
                 console.log('actual Date Promised: ' + actDatePromisedValue + ' expected Date Promised: ' + expDatePromisedValue);
             }
         } else {
@@ -402,6 +420,44 @@ async function checkDueLabelChangeToPromisedDate(page, expText) {
     } catch (error) {
         throw new Error("getting error during, during verifying the Promised Date" + error);
     }
+}
+async function updateDatesAtRepairs(page, aprDateValue, promDateValue) {
+    //click first repair item edit icon
+    await repItemEditIcon(page).first().click();
+    await expect(estimatedRepHrs(page)).toBeVisible();
+    await promisedDateField(page).nth(2).click();
+    await page.keyboard.insertText(aprDateValue);
+    await page.keyboard.press('Enter');
+    await promisedDateField(page).nth(3).click();
+    await page.keyboard.insertText(promDateValue);
+    await page.keyboard.press('Enter');
+    await saveButton(page).click(); await delay(page, 2000);
+    await repItemEditIcon(page).first().click();
+    await expect(estimatedRepHrs(page)).toBeVisible();
+    const approvedDate = await promisedDateField(page).nth(2).textContent();
+    const promicedDate = await promisedDateField(page).nth(3).textContent();
+    if (approvedDate === aprDateValue && promicedDate == promDateValue) {
+        console.log('dates are matched')
+    } else {
+        console.log('dates are not matched')
+    } console.log('expected aproved date: (' + aprDateValue + ') actual aproved date: (' + approvedDate + ')');
+    console.log('expected promised date: (' + promDateValue + ') actual promised date: (' + promicedDate + ')');
+    await closeAtRepItemEdit(page);
+    return [approvedDate, promicedDate];
+}
+async function checkDatesAtCreateSO(page, aprDateRep, promDateRep) {
+    await createSOBtn(page).click();
+    await expect(poNumAtSOScr(page)).toBeVisible();
+    const lsdAtSO = await lineShipDateAtSO(page).textContent();
+    const crdAtSO = await custReqDateAtSO(page).textContent();
+    if (aprDateRep == crdAtSO.replaceAll('-', '/') && promDateRep == lsdAtSO.replaceAll('-', '/')) {
+        console.log('Repairs dates are prefilled at create SO screen')
+    } else {
+        console.log('Repairs dates are not prefilled at create SO screen')
+    }
+    console.log('dates at SO screen: (' + lsdAtSO + ') (' + crdAtSO + ')');
+    console.log('dates from repair: (' + promDateRep + ') (' + promDateValue + ')');
+    await closeAtRepItemEdit(page).click();
 }
 module.exports = {
     //exporting functions
@@ -413,6 +469,7 @@ module.exports = {
     assignTech,
     itemEvaluation,
     repItemAddedToQuote,
+    approveWonTheRepairQuote,
     createSORepQuote,
     markAsRepairInProgress,
     createPartsPurchase,
@@ -420,6 +477,8 @@ module.exports = {
     repairSummary,
     saveQCCheckListForm,
     verifyAddRowIssue,
+    updateDatesAtRepairs,
+    checkDatesAtCreateSO,
     //exporting locators
     ppIconRepairs
 }
