@@ -2258,6 +2258,8 @@ async function createSO(page, vendor_name, isJobCreate, quote_type) {
         await page.getByText('UPS GRD COLLECT', { exact: true }).click();
     } catch (error) { }
     await delay(page, 3000);
+    //change the line ship date and customer requested date if required
+    // await page.pause();
     try {
         await expect(allPages.plusIconAtSO.first()).toBeVisible({ timeout: 2000 });
         await addStockLineItesAtSO(page, vendor_name);
