@@ -76,17 +76,15 @@ async function creditCardPayment(page, userName, cardDetails) {
     await page.getByPlaceholder('Enter Card Number').fill(cardDetails[0]);
     await page.getByPlaceholder('MM / YY').fill(cardDetails[1]);
     await page.getByPlaceholder('Enter CVC').fill(cardDetails[2]);
-    for (let index = 0; index < 15; index++) {
-        await page.pause();
-        await page.getByRole('button', { name: 'Proceed To Payment' }).click();
-        await expect(page.locator("//*[@viewBox='0 0 16 16']").nth(1)).toBeVisible();
-        await expect(page.locator("//*[@viewBox='0 0 16 16']").nth(1)).toBeHidden();
-        try {
-            await page.locator("//*[text()='Something went wrong!!']").toBeHidden({ timeout: 2000 });
-            await page.screenshot({ path: 'pages/screenshot' + (index + 1) + '.png', fullPage: true });
-        } catch (error) {
+    await page.pause();
+    await page.getByRole('button', { name: 'Proceed To Payment' }).click();
+    await expect(page.locator("//*[@viewBox='0 0 16 16']").nth(1)).toBeVisible();
+    await expect(page.locator("//*[@viewBox='0 0 16 16']").nth(1)).toBeHidden();
+    try {
+        await page.locator("//*[text()='Something went wrong!!']").toBeHidden({ timeout: 2000 });
+        await page.screenshot({ path: 'pages/screenshot' + (index + 1) + '.png', fullPage: true });
+    } catch (error) {
 
-        }
     }
 }
 async function searchProdCheckout(page, modelNumber) {

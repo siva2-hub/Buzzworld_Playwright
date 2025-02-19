@@ -2,11 +2,13 @@ const { test, expect } = require('@playwright/test');
 const { returnResult } = require('./helper');
 const { storeLogin, cartCheckout, grandTotalForCreditCard, creditCardPayment, searchProdCheckout, selectCustomerWithoutLogin, selectBillingDetails, selectShippingDetails, request_payterms } = require('../pages/StorePortalPages');
 const { loadingText } = require('../pages/PartsBuyingPages');
+const { storeTestData } = require('../pages/TestData_Store');
+const { reactFirstDropdown } = require('../pages/QuotesPage');
 const testdata = JSON.parse(JSON.stringify(require("../testdata.json")))
 let url = process.env.BASE_URL_STORE;
 
 test('As Logged In Net 30 Payment', async ({ page }) => {
-  let card_type = testdata.card_details.american, modelNumber = '231-2706/026-000', pay_type = 'NET 30';
+  let card_type = testdata.card_details.american, modelNumber = storeTestData.price_product, pay_type = 'NET 30';
   // let card_type = testdata.card_details.visa;
   let cardDetails = [
     card_type.card_number,
@@ -34,7 +36,7 @@ test('As Logged In Net 30 Payment', async ({ page }) => {
   }
 });
 test('As Logged In Credit Card Payment', async ({ page }) => {
-  let card_type = testdata.card_details.american, modelNumber = '231-2706/026-000', pay_type = 'Credit Card';
+  let card_type = testdata.card_details.american, modelNumber = storeTestData.price_product_1, pay_type = 'Credit Card';
   // let card_type = testdata.card_details.visa;
   let cardDetails = [
     card_type.card_number,
@@ -61,8 +63,10 @@ test('As Logged In Credit Card Payment', async ({ page }) => {
     await page.click("//*[text() = 'Approve']");
   }
 });
-test('As a Guest Credit Card Payment', async ({ page }) => {
-  let customerName = 'Multicam Inc', fName = 'Garret', lName = 'Luppino', email = 'chumpchange@espi1234.co', modelNumber = '231-642'
+test('As a Guest Credit Card Payment with Exist Customer New Email', async ({ page }) => {
+  let customerName = storeTestData.exist_cust_detls.customer_name, fName = storeTestData.exist_cust_detls.f_name,
+    lName = storeTestData.exist_cust_detls.l_name, email = storeTestData.new_cust_detls.email,
+    modelNumber = storeTestData.price_product;
   let card_type = testdata.card_details.american;
   let pay_type = 'Credit Card';
   // let card_type = testdata.card_details.visa;
@@ -93,9 +97,44 @@ test('As a Guest Credit Card Payment', async ({ page }) => {
     await page.click("//*[text() = 'Approve']");
   }
 });
+test('As a Guest Credit Card Payment with New Customer New Email', async ({ page }) => {
+  let customerName = storeTestData.new_cust_detls.customer_name, fName = storeTestData.new_cust_detls.f_name,
+    lName = storeTestData.new_cust_detls.l_name, email = storeTestData.new_cust_detls.email,
+    modelNumber = storeTestData.price_product;
+  let card_type = testdata.card_details.american;
+  let pay_type = 'Credit Card';
+  // let card_type = testdata.card_details.visa;
+  let cardDetails = [
+    card_type.card_number,
+    card_type.exp_date,
+    card_type.cvv
+  ];
+  await page.goto(url);
+  await searchProdCheckout(page, modelNumber);
+  await selectCustomerWithoutLogin(page, customerName, fName, lName, email, false);
+  //select billing address
+  await selectBillingDetails(page);
+  //select shipping address
+  await selectShippingDetails(page);
+  await page.getByRole('textbox').fill('Test\nNotes');
+  if (pay_type === 'Credit Card') {
+    await page.getByLabel('Credit Card').click({ timeout: 10000 })
+    const status = await grandTotalForCreditCard(page);
+    if (status) {
+      await page.getByRole('button', { name: 'Proceed' }).click();
+      await creditCardPayment(page, (fName + ' ' + lName), cardDetails);
+    } else {
+      throw new Error("price not matched");
+    }
+  } else {
+    await page.getByPlaceholder('Enter PO Number').fill('TESTPO1234');
+    await page.click("//*[text() = 'Approve']");
+  }
+});
 test('Single Price-less Item Request Quote For Price Exist Customer New Email', async ({ page }) => {
-  let customerName = 'Multicam Inc', fName = 'Garret', lName = 'Luppino', email = 'chumpchange@espi123.co',
-    modelNumber = '760916-45', isCustomerAlreadyExist = true;
+  let customerName = storeTestData.exist_cust_detls.customer_name, fName = storeTestData.exist_cust_detls.f_name,
+    lName = storeTestData.exist_cust_detls.l_name, email = storeTestData.new_cust_detls.email,
+    modelNumber = storeTestData.non_price_product, isCustomerAlreadyExist = true;
   let url = process.env.BASE_URL_STORE;
   await page.goto(url);
   await searchProdCheckout(page, modelNumber);
@@ -110,8 +149,9 @@ test('Single Price-less Item Request Quote For Price Exist Customer New Email', 
   // await page.getByRole('button', { name: 'Request Quote For Price' });.click();
 });
 test('Single Price-less Item Request Quote For Price New Customer New Email', async ({ page }) => {
-  let customerName = 'Multicam Inc', fName = 'Garret', lName = 'Luppino', email = 'chumpchange@espi123.co',
-    modelNumber = '760916-45', isCustomerAlreadyExist = false;
+  let customerName = storeTestData.new_cust_detls.customer_name, fName = storeTestData.new_cust_detls.f_name,
+    lName = storeTestData.new_cust_detls.l_name, email = storeTestData.new_cust_detls.email,
+    modelNumber = storeTestData.non_price_product, isCustomerAlreadyExist = false;
   let url = process.env.BASE_URL_STORE;
   await page.goto(url);
   await searchProdCheckout(page, modelNumber);
@@ -126,8 +166,10 @@ test('Single Price-less Item Request Quote For Price New Customer New Email', as
   // await page.getByRole('button', { name: 'Request Quote For Price' });.click();
 });
 test('For Two Price-less Items Request Quote For Price Exist Customer New Email', async ({ page }) => {
-  let customerName = 'Multicam Inc', fName = 'Garret', lName = 'Luppino', email = 'chumpchange@espi1234.co', modelNumber = '760916-45',
-    isCustomerAlreadyExist = true, modelNumber2 = '376834-1D';// 376834-1D --> No Price , 231-2706/026-000 --> Have Price;
+  let customerName = storeTestData.exist_cust_detls.customer_name, fName = storeTestData.exist_cust_detls.f_name,
+    lName = storeTestData.exist_cust_detls.l_name, email = storeTestData.new_cust_detls.email,
+    modelNumber = storeTestData.non_price_product, isCustomerAlreadyExist = true,
+    modelNumber2 = storeTestData.non_price_product_1;// 376834-1D --> No Price , 231-2706/026-000 --> Have Price;
   await page.goto(url);
   await searchProdCheckout(page, modelNumber);
   await page.goBack(); //again back to shop and add one more item which is having price
@@ -143,8 +185,10 @@ test('For Two Price-less Items Request Quote For Price Exist Customer New Email'
   await page.getByRole('button', { name: 'Request Quote For Price' }).click();
 });
 test('For Two Items Price and Price-less Request Quote For Price Exist Customer New Email', async ({ page }) => {
-  let customerName = 'Multicam Inc', fName = 'Garret', lName = 'Luppino', email = 'chumpchange@espi1234.co', modelNumber = '760916-45',
-    isCustomerAlreadyExist = true, modelNumber2 = '231-2706/026-000';// 376834-1D --> No Price , 231-2706/026-000 --> Have Price;
+  let customerName = storeTestData.exist_cust_detls.customer_name, fName = storeTestData.exist_cust_detls.f_name,
+    lName = storeTestData.exist_cust_detls.l_name, email = storeTestData.new_cust_detls.email,
+    modelNumber = storeTestData.non_price_product, isCustomerAlreadyExist = true,
+    modelNumber2 = storeTestData.price_product_1;// 376834-1D --> No Price , 231-2706/026-000 --> Have Price;
   await page.goto(url);
   await searchProdCheckout(page, modelNumber);
   await page.goBack(); //again back to shop and add one more item which is having price
@@ -160,8 +204,10 @@ test('For Two Items Price and Price-less Request Quote For Price Exist Customer 
   await page.getByRole('button', { name: 'Request Quote For Price' }).click();
 });
 test('For Two Price-less Items Request Quote For Price New Customer New Email', async ({ page }) => {
-  let customerName = 'Chump Change Multi2', fName = 'Chump', lName = 'Multi2', email = 'chumpmulti2@espi.co', modelNumber = '760916-45',
-    isCustomerAlreadyExist = false, modelNumber2 = '376834-1D';// 376834-1D --> No Price , 231-2706/026-000 --> Have Price;
+  let customerName = storeTestData.new_cust_detls.customer_name, fName = storeTestData.new_cust_detls.f_name,
+    lName = storeTestData.new_cust_detls.l_name, email = storeTestData.new_cust_detls.email,
+    modelNumber = storeTestData.non_price_product, isCustomerAlreadyExist = false,
+    modelNumber2 = storeTestData.non_price_product_1;
   await page.goto(url);
   await searchProdCheckout(page, modelNumber);
   await page.goBack(); //again back to shop and add one more item which is having price
@@ -177,8 +223,10 @@ test('For Two Price-less Items Request Quote For Price New Customer New Email', 
   await page.getByRole('button', { name: 'Request Quote For Price' }).click();
 });
 test('For Two Items Price and Price-less Request Quote For Price New Customer New Email', async ({ page }) => {
-  let customerName = 'Chump Change Multi2', fName = 'Chump', lName = 'Multi2', email = 'chumpmulti2@espi.co', modelNumber = '760916-45',
-    isCustomerAlreadyExist = false, modelNumber2 = '231-2706/026-000';// 376834-1D --> No Price , 231-2706/026-000 --> Have Price;
+  let customerName = storeTestData.new_cust_detls.customer_name, fName = storeTestData.new_cust_detls.f_name,
+    lName = storeTestData.new_cust_detls.l_name, email = storeTestData.new_cust_detls.email,
+    modelNumber = storeTestData.non_price_product, isCustomerAlreadyExist = false,
+    modelNumber2 = storeTestData.price_product_1;
   await page.goto(url);
   await searchProdCheckout(page, modelNumber);
   await page.goBack(); //again back to shop and add one more item which is having price
@@ -195,8 +243,9 @@ test('For Two Items Price and Price-less Request Quote For Price New Customer Ne
 });
 test('Request For Pay Terms', async ({ page }) => {
   const pay_type = 'Request for Pay Terms';
-  let customerName = 'Chump Change Multi2', fName = 'Chump', lName = 'Multi2', email = 'chumpmulti2@espi.co',
-    modelNumber = '000-0261-02', isCustomerAlreadyExist = false;
+  let customerName = storeTestData.new_cust_detls.customer_name, fName = storeTestData.new_cust_detls.f_name,
+    lName = storeTestData.new_cust_detls.l_name, email = storeTestData.new_cust_detls.email,
+    modelNumber = storeTestData.non_price_product, isCustomerAlreadyExist = false;
   await page.goto(url);
   await searchProdCheckout(page, modelNumber);
   //selecting customer details
@@ -359,7 +408,7 @@ test('New Customer Registration', async ({ page }) => {
   await expect(page.getByRole('img', { name: 'IIDM' }).first()).toBeVisible();
   await page.getByRole('button', { name: 'Register' }).click();
   await page.locator('.react-select__input-container').first().click();
-  await page.getByLabel('Company Name*').fill('Chump Change Multi1');
+  await page.getByLabel('Company Name*').fill(storeTestData.new_cust_detls.customer_name);
   try {
     await expect(loadingText(page)).toBeVisible(); await expect(loadingText(page)).toBeHidden();
     await expect(page.locator("//*[contains(text(), 'Add Company Name')]")).toBeVisible({ timeout: 2400 });
@@ -367,16 +416,16 @@ test('New Customer Registration', async ({ page }) => {
     throw new Error("Customer Already Exist" + error);
   }
   await page.locator("//*[contains(text(), 'Add Company Name')]").click();
-  await page.getByPlaceholder('Enter First Name').fill('Chump');
-  await page.getByPlaceholder('Enter Last Name').fill('Multi2');
-  await page.getByPlaceholder('Enter Email ID').fill('chumpmulti2@espi.co');
+  await page.getByPlaceholder('Enter First Name').fill(storeTestData.new_cust_detls.f_name);
+  await page.getByPlaceholder('Enter Last Name').fill(storeTestData.new_cust_detls.l_name);
+  await page.getByPlaceholder('Enter Email ID').fill(storeTestData.new_cust_detls.email);
   await page.getByPlaceholder('Enter Phone Number').fill('(764) 723-64833');
   await page.getByPlaceholder('Enter Address1').fill('1620 E. State Highway 121');
   await page.getByPlaceholder('Enter City').fill('Lewisville');
   await page.locator('div').filter({ hasText: /^Select State$/ }).nth(2).click();
   await page.keyboard.insertText('Texas');
   await page.keyboard.press('Enter');
-  await page.locator("//*[text() = 'Search By Postal Code']").click();
+  await reactFirstDropdown(page).nth(2).click();
   await page.keyboard.insertText('75001');
   await page.getByRole('option', { name: '75001' }).first().click(); await page.pause();
   await page.locator("//*[text() = 'Register']").click();
