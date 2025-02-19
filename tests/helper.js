@@ -156,76 +156,6 @@ async function guest_add_products(page, product1, product2, count) {
     await page.goto(testdata.urls.cart_page_url);
     await page.getByRole('link', { name: 'Checkout' }).click();
 }
-async function request_payterms(page) {
-    await page.getByLabel('Request for Pay Terms').click();
-    await page.getByRole('button', { name: 'Proceed' }).click();
-    await page.getByPlaceholder('Enter Legal Name of Company').fill('Test legal company');
-    await page.getByPlaceholder('Enter Federal Tax ID').fill('test federal tax');
-    await page.getByPlaceholder('Enter Years in Business').fill('17');
-    await page.getByPlaceholder('Enter Main Number').fill('(354) 832-64834');
-    await page.locator('input[name="fax"]').fill('testfax123');
-    await page.getByPlaceholder('Enter Shipping Agency').click();
-    await page.getByPlaceholder('Enter Shipping Agency').fill('shipping agency');
-    await page.getByPlaceholder('Enter Billing Address....').click();
-    await page.getByPlaceholder('Enter Billing Address....').fill('billing adrs');
-    await page.getByPlaceholder('Enter Shipping Address... ').click();
-    await page.getByPlaceholder('Enter Shipping Address... ').fill('shipping adrs');
-    await page.locator('input[name="blling_address1"]').fill('bill city');
-    await page.locator('input[name="blling_address2"]').fill('bill state');
-    await page.locator('input[name="billing_zip_code"]').fill('322323');
-    await page.locator('input[name="shipping_address1"]').fill('ship city');
-    await page.locator('input[name="shipping_address2"]').fill('ship state');
-    await page.locator('input[name="shipping_zip_code"]').fill('343754');
-    await page.getByPlaceholder('Enter All DBA\'s').fill('all dba are here');
-    await page.locator('input[name="name"]').scrollIntoViewIfNeeded()
-    await page.locator('input[name="name"]').fill('name1');
-    await page.waitForTimeout(1500);
-    await page.locator('(//*[@placeholder = "Enter Phone Number"])[1]').fill('(473) 856-34785');
-    await page.waitForTimeout(1400);
-    await page.getByText('Select Invoice delivery method').click();
-    await page.waitForTimeout(1400);
-    await page.getByText('Select Invoice delivery method').press('Enter');
-    // await page.getByText('Email').click();
-    await page.getByPlaceholder('Email address or Fax Number').fill('test@test.com');
-    await page.locator("//*[@name = 'name_of_company1']").fill('name1');
-    await page.locator('input[name="contact_name1"]').fill('tc1');
-    await page.locator('input[name="trade_ref_contact1"]').fill('(478) 538-34855');
-    await page.locator('input[name="trade_ref_email1"]').fill('test@test1.com');
-    await page.locator('input[name="trade_ref_city1"]').fill('cityone');
-    await page.locator('input[name="trade_ref_state1"]').fill('stateone');
-    await page.locator('input[name="trade_ref_zip_code1"]').fill('675654');
-    await page.locator('textarea[name="trade_ref_address1"]').fill('adrs 1');
-    await page.locator('input[name="name_of_company2"]').fill('name2');
-    await page.locator('input[name="contact_name2"]').fill('tc2');
-    await page.locator('input[name="trade_ref_contact2"]').fill('(658) 687-67787');
-    await page.locator('input[name="trade_ref_email2"]').fill('test@test2.com');
-    await page.locator('input[name="trade_ref_city2"]').fill('citytwo');
-    await page.locator('input[name="trade_ref_state2"]').fill('statetwo');
-    await page.locator('input[name="trade_ref_zip_code2"]').fill('673356');
-    await page.locator('textarea[name="trade_ref_address2"]').fill('adrs2');
-    await page.locator('input[name="name_of_company3"]').fill('name3');
-    await page.locator('input[name="contact_name3"]').fill('tc3');
-    await page.locator('input[name="trade_ref_contact3"]').fill('(437) 583-45835');
-    await page.locator('input[name="trade_ref_email3"]').fill('test@test3.com');
-    await page.locator('input[name="trade_ref_city3"]').fill('citythree');
-    await page.locator('input[name="trade_ref_state3"]').fill('statethree');
-    await page.locator('input[name="trade_ref_zip_code3"]').fill('768678');
-    await page.locator('textarea[name="trade_ref_address3"]').fill('adrs3');
-    await page.getByPlaceholder('Enter Name of Bank').fill('nameb');
-    await page.locator('input[name="bank_ref_contact"]').fill('tcb');
-    await page.locator('input[name="bank_ref_email"]').fill('test@testb.com');
-    // await page.locator('div:nth-child(25) > div > .css-1p1fgsa > .css-1s25hsw').first().click();
-    await page.getByPlaceholder('Enter Street Address').fill('street adrs');
-    await page.locator('input[name="bank_ref_phone"]').fill('(485) 475-98735');
-    await page.locator('input[name="bank_ref_fax"]').fill('test fac bank');
-    await page.locator('input[name="bank_ref_city"]').fill('citybank');
-    await page.locator('input[name="bank_ref_state"]').fill('statebank');
-    await page.locator('input[name="bank_ref_zip_code"]').fill('768768');
-    await page.getByLabel('', { exact: true }).check();
-    await page.locator('input[name="authorization_name"]').click();
-    await page.getByRole('button', { name: 'Request' }).click();
-    await page.pause();
-}
 async function login_buzz(page, stage_url) {
     allPages = new AllPages(page);
     await page.goto(stage_url + "all_quotes");
@@ -17552,30 +17482,6 @@ async function startEndDates() {
     const endDate = (previuosMonth + 1) + '/' + day + '/' + (year + 1);
     return [startDate, endDate, day];
 }
-async function storeLogin(page) {
-
-    // let w = 1920, h = 910;
-    // // let w = 1280, h = 551;
-    // await page.setViewportSize({
-    //   width: w,
-    //   height: h
-    // });
-    let url = process.env.BASE_URL_STORE,
-        logEmail, logPword, userName, path;
-    await page.goto(url);
-    await page.getByRole('link', { name: ' Login' }).click();
-    await expect(page.getByRole('img', { name: 'IIDM' }).first()).toBeVisible();
-    if (url.includes('dev')) {
-        logEmail = 'cathy@bigmanwashes.com', logPword = 'Enter@4321', userName = 'Cathy'
-    } else {
-        logEmail = 'multicam@testuser.com', logPword = 'Enter@4321', userName = 'test'
-    }
-    await page.getByPlaceholder('Enter Email ID').fill(logEmail);
-    await page.getByPlaceholder('Enter Password').fill(logPword);
-    await page.click("(//*[@type='submit'])[1]");
-    await expect(page.locator('#main-header')).toContainText(userName);
-    return userName;
-}
 async function getRMAItemStatus(page) {
     const items = await page.locator("//*[@id='repair-items']/div[2]/div");
     console.log('items count: ' + await items.count()); let path; let datePromisedValue;
@@ -17643,7 +17549,6 @@ module.exports = {
     repSummary,
     assignToQC,
     updateQCStatus,
-    storeLogin,
     startEndDates,
     getGridColumn,
     getAccountTypePrice,
@@ -17651,7 +17556,6 @@ module.exports = {
     order_summary_page,
     guest_checkout_form,
     guest_add_products,
-    request_payterms,
     login,
     login_buzz,
     logout,
