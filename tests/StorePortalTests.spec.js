@@ -1,9 +1,10 @@
 const { test, expect } = require('@playwright/test');
-const { returnResult } = require('./helper');
+const { returnResult, approve, login_buzz } = require('./helper');
 const { storeLogin, cartCheckout, grandTotalForCreditCard, creditCardPayment, searchProdCheckout, selectCustomerWithoutLogin, selectBillingDetails, selectShippingDetails, request_payterms } = require('../pages/StorePortalPages');
 const { loadingText } = require('../pages/PartsBuyingPages');
 const { storeTestData } = require('../pages/TestData_Store');
-const { reactFirstDropdown } = require('../pages/QuotesPage');
+const { reactFirstDropdown, createQuote, addItemsToQuote, selectRFQDateRequestedBy, selectSource } = require('../pages/QuotesPage');
+const { testData } = require('../pages/TestData');
 const testdata = JSON.parse(JSON.stringify(require("../testdata.json")))
 let url = process.env.BASE_URL_STORE;
 
@@ -245,7 +246,7 @@ test('Request For Pay Terms', async ({ page }) => {
   const pay_type = 'Request for Pay Terms';
   let customerName = storeTestData.new_cust_detls.customer_name, fName = storeTestData.new_cust_detls.f_name,
     lName = storeTestData.new_cust_detls.l_name, email = storeTestData.new_cust_detls.email,
-    modelNumber = storeTestData.non_price_product, isCustomerAlreadyExist = false;
+    modelNumber = storeTestData.price_product_1, isCustomerAlreadyExist = false;
   await page.goto(url);
   await searchProdCheckout(page, modelNumber);
   //selecting customer details
@@ -262,6 +263,31 @@ test('Request For Pay Terms', async ({ page }) => {
   } else {
     await request_payterms(page);
   }
+})
+test('Quote From Buzzworld and Aprove from Portal', async ({ page, browser }) => {
+  //login into buzzworld
+  await login_buzz(page, testData.app_url);
+  //create Quote from buzzworld
+  let quoteNumber = await createQuote(page, testData.quotes.acc_num, testData.quotes.quote_type, testData.quotes.project_name);
+  //Add Items to Quote
+  await addItemsToQuote(
+    page, storeTestData.price_product_1, testData.quotes.quote_type, testData.quotes.suppl_name,
+    testData.quotes.suppl_code, testData.quotes.source_text, testData.quotes.part_desc, testData.quotes.quote_price
+  );
+  //Selecting the RFDate and QuotedBy
+  await selectRFQDateRequestedBy(page, testData.quotes.cont_name);
+  //Selecting the Source
+  await selectSource(page, testData.quotes.stock_code, testData.quotes.source_text, testData.quotes.item_notes);
+  //Approve the Quote
+  await approve(page, testData.quotes.cont_name);
+  //Send to Customer 
+  await sendForCustomerApprovals(page);
+  //Creating one more page for Portal
+  const context = await browser.newContext();
+  const newPage = await context.newPage();
+  let userName = await storeLogin(newPage);
+  await newPage.getByText(userName).click();
+  await newPage.pause();
 })
 test.skip('Declined the Credit Card Payment as Logged In', async ({ page }, testInfo) => {
   let card_type = testdata.card_details.american;
