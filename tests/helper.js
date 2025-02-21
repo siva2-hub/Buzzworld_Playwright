@@ -12,6 +12,7 @@ const { default: AllPages } = require('./PageObjects');
 const { threadId } = require('worker_threads');
 const { count, log } = require('console');
 const { rTickIcon } = require('../pages/QuotesPage');
+const { loadingText } = require('../pages/PartsBuyingPages');
 const currentDate = new Date().toDateString();
 let date = currentDate.split(" ")[2];
 let vendor = testdata.vendor;
@@ -17511,8 +17512,14 @@ async function addStockLineItesAtSO(page, vendor_name) {
         await page.locator("//*[text()='Select supplier']").click();
         await page.keyboard.insertText(vendor_name);
         await page.keyboard.press('Enter');
+        if (manfg == 'Select supplier') {
+            await page.locator("//*[text()='Select supplier']").click();
+            await page.keyboard.insertText('BACO001');
+            await expect(loadingText(page)).toBeVisible(); await expect(loadingText(page)).toBeHidden();
+            await page.keyboard.press('Enter');
+        }
     }
-    await page.pause();
+    // await page.pause();
     await page.getByRole('button', { name: 'Add' }).click();
     await expect(page.locator("(//*[text() = 'Create Job'])[" + (w + 1) + "]")).toBeVisible();
     await page.waitForTimeout(2000);
