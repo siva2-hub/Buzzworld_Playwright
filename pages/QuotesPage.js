@@ -16,7 +16,7 @@ const iidmCost = (page) => { return page.locator('//*[@id="repair-items"]/div[2]
 const quotePrice = (page) => { return page.locator('//*[@id="repair-items"]/div[2]/div[1]/div/div/div[2]/div[3]/div[1]/h4'); }
 const totalGP = (page) => { return page.locator('//*[@id="repair-items"]/div[3]/div/div[1]/div/h4'); }
 const totalPriceDetls = (page) => { return page.locator('//*[@id="repair-items"]/div[3]/div/div[4]/div/h4'); }
-const sendToCustomerDropdown = (page) => { return page.locator("(//button[@type='button'])[7]"); }
+const sendToCustomerDropdown = (page) => { return page.locator("(//button[@type='button'])[6]"); }
 const quoteOrRMANumber = (page) => { return page.locator("(//*[@class='id-num'])[1]"); }
 const reviseQuoteButton = (page) => { return page.locator("//*[contains(text(),'Revise Quote')]"); }
 const confMsgForReviseQuote = (page) => { return page.locator("(//*[text()='This will move the quote to Open, Do you want to continue ?'])[1]") }
@@ -80,7 +80,7 @@ async function navigateToQuotesPage(page) {
 async function createQuote(page, acc_num, quote_type, project_name) {
     let quote_number;
     try {
-        // await page.goto('https://www.staging-buzzworld.iidm.com/quote_for_parts/2b0687a9-e503-477b-b7b8-980492922347')
+        // await page.goto('https://www.staging-buzzworld.iidm.com/all_quotes/a4ffeb9d-a1a5-4b20-ac6c-59599c0cda47')
         await createQuoteBtn(page).click();
         await expect(companyField(page)).toBeVisible();
         await companyField(page).fill(acc_num);
@@ -117,6 +117,7 @@ async function addItemsToQuote(page, stock_code, quote_type, suppl_name, suppl_c
             if (quote_type == 'Parts Quote') {
                 await supplierSearch(page).click();
                 await page.keyboard.insertText(suppl_code);
+                await expect(loadingText(page)).toBeVisible(); await expect(loadingText(page)).toBeHidden();
                 await selectReactDropdowns(page, (suppl_name + suppl_code))
             } else { }
             await partNumberField(page).fill(stock_code[index]);
@@ -179,6 +180,7 @@ async function reviseQuote(page) {
     await expect(iidmCostLabel(page)).toBeVisible();
 }
 async function sendForCustomerApprovals(page) {
+    await expect(gpLabel(page, 0)).toBeVisible(); await delay(page, 1400);
     await sendToCustomerDropdown(page).click();
     await expect(deliverToCustomer(page)).toBeVisible()
     await deliverToCustomer(page).click();

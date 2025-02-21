@@ -1,15 +1,16 @@
 const { test, expect } = require('@playwright/test');
+import { delay, getGridColumn } from '../tests/helper';
 const { returnResult, approve, login_buzz } = require('./helper');
 const { storeLogin, cartCheckout, grandTotalForCreditCard, creditCardPayment, searchProdCheckout, selectCustomerWithoutLogin, selectBillingDetails, selectShippingDetails, request_payterms } = require('../pages/StorePortalPages');
 const { loadingText } = require('../pages/PartsBuyingPages');
 const { storeTestData } = require('../pages/TestData_Store');
-const { reactFirstDropdown, createQuote, addItemsToQuote, selectRFQDateRequestedBy, selectSource } = require('../pages/QuotesPage');
+import { reactFirstDropdown, createQuote, addItemsToQuote, selectRFQDateRequestedBy, selectSource, sendForCustomerApprovals, quoteOrRMANumber } from '../pages/QuotesPage';
 const { testData } = require('../pages/TestData');
 const testdata = JSON.parse(JSON.stringify(require("../testdata.json")))
 let url = process.env.BASE_URL_STORE;
 
 test('As Logged In Net 30 Payment', async ({ page }) => {
-  let card_type = testdata.card_details.american, modelNumber = storeTestData.price_product, pay_type = 'NET 30';
+  let card_type = testdata.card_details.american, modelNumber = storeTestData.price_product_1, pay_type = 'NET 30';
   // let card_type = testdata.card_details.visa;
   let cardDetails = [
     card_type.card_number,
@@ -264,14 +265,14 @@ test('Request For Pay Terms', async ({ page }) => {
     await request_payterms(page);
   }
 })
-test('Quote From Buzzworld and Aprove from Portal', async ({ page, browser }) => {
+test('Create Quote From Buzzworld and Aprove Quote from Portal', async ({ page, browser }) => {
   //login into buzzworld
   await login_buzz(page, testData.app_url);
   //create Quote from buzzworld
   let quoteNumber = await createQuote(page, testData.quotes.acc_num, testData.quotes.quote_type, testData.quotes.project_name);
   //Add Items to Quote
   await addItemsToQuote(
-    page, storeTestData.price_product_1, testData.quotes.quote_type, testData.quotes.suppl_name,
+    page, [storeTestData.price_product_1, storeTestData.price_product], testData.quotes.quote_type, testData.quotes.suppl_name,
     testData.quotes.suppl_code, testData.quotes.source_text, testData.quotes.part_desc, testData.quotes.quote_price
   );
   //Selecting the RFDate and QuotedBy
@@ -280,14 +281,31 @@ test('Quote From Buzzworld and Aprove from Portal', async ({ page, browser }) =>
   await selectSource(page, testData.quotes.stock_code, testData.quotes.source_text, testData.quotes.item_notes);
   //Approve the Quote
   await approve(page, testData.quotes.cont_name);
-  //Send to Customer 
+  // Send to Customer 
   await sendForCustomerApprovals(page);
   //Creating one more page for Portal
   const context = await browser.newContext();
   const newPage = await context.newPage();
   let userName = await storeLogin(newPage);
   await newPage.getByText(userName).click();
-  await newPage.pause();
+  await newPage.getByRole('link', { name: 'Dashboard' }).click();
+  await expect(newPage.getByText('Need Your Attention')).toBeVisible(); await delay(page, 2000);
+  let recentQuoteId = await getGridColumn(newPage, 1);
+  console.log('recent tabs quote id :' + await recentQuoteId.first().textContent());
+  if (await recentQuoteId.first().textContent() == quoteNumber.replace('#', '')) {
+    await recentQuoteId.first().click();
+    await expect(newPage.locator("//*[text()='Unit Price:']").first()).toBeVisible();
+    let portalQuoteNum = await quoteOrRMANumber(newPage).textContent();
+    if (quoteNumber == portalQuoteNum.replace('#', '')) {
+      await newPage.getByRole('button', { name: 'Approve' }).first().click();
+      await expect(newPage.getByText('Company Information')).toBeVisible();
+      await newPage.pause();
+    } else {
+      console.log('buzzworld quote: ' + quoteNumber + '\nPorta Quote: ' + portalQuoteNum);
+    }
+  } else {
+    console.log('Recent quotes not having the required quote');
+  }
 })
 test.skip('Declined the Credit Card Payment as Logged In', async ({ page }, testInfo) => {
   let card_type = testdata.card_details.american;
