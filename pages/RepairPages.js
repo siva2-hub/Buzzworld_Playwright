@@ -1,5 +1,5 @@
 const { expect } = require("@playwright/test")
-const { customerIconAtGrid, companyField, reactFirstDropdown, addItemsBtn, partsSeach, partNumberField, partDescription, quoteOrRMANumber, rTickIcon, clickOnRelatedIds, saveButton, createSOBtn } = require("./QuotesPage")
+const { customerIconAtGrid, companyField, reactFirstDropdown, addItemsBtn, partsSeach, partNumberField, partDescription, quoteOrRMANumber, rTickIcon, clickOnRelatedIds, saveButton, createSOBtn, gpLabel } = require("./QuotesPage")
 const { getRMAItemStatus, selectReactDropdowns, spinner, approve, createSO, wonQuote, submitForCustomerApprovals, defaultTurnAroundTime, delay } = require("../tests/helper")
 const { checkVendorPartNumberAcceptingSpacesOrNot, ppItemQtyField, ppItemCostField, ppItemDescField, ppItemSpclNotesField, ppItemNotesField, createButtonAtPartsPurchForm, jobNumField, vpnFieldText, loadingText } = require("./PartsBuyingPages")
 const { testData } = require("./TestData")
@@ -222,7 +222,7 @@ async function repItemAddedToQuote(page) {
     await addItemsToQuoteBtn(page).click();
     await expect(addItemsToQuoteConfPopUp(page)).toBeVisible();
     await acceptButton(page).click();
-    await quoteItemsIsVisible(page);
+    await expect(gpLabel(page, 0)).toBeVisible();
     const quoteNumber = await quoteOrRMANumber(page).textContent();
     console.log("RMA quote is created: " + quoteNumber);
     return quoteNumber.replace('#', '');

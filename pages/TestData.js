@@ -48,12 +48,12 @@ const testData = {
         send_email_to_cust: true
     },
     repairs: {
-        cust_name: 'Hollymatic Corporation', // Chump Change Automation , Multicam Inc, Hollymatic Corporation
-        acc_num: 'HOLLY00', // CHUMP03 , MULTI00 , HOLLY00
-        cont_name: 'Victor Guynn', //chump userOne --> CHUMP03, Garret Luppino --> multioo
+        cust_name: 'Multicam Inc', // Chump Change Automation , Multicam Inc, Hollymatic Corporation
+        acc_num: 'MULTI00', // CHUMP03 , MULTI00 , HOLLY00
+        cont_name: 'Garret Luppino', //chump userOne --> CHUMP03, Garret Luppino --> multioo
         rep_tech: 'James Nairn', //James Nairn , Dan Holmes
         rep_type: ['1'], // '1' = Repairable, '2' = Non Repairable, '3' = Outsource Repairable
-        stock_code: ['131503.00-SURPLUS'], // 2000-1203, 12342-00012, 022-1BD70 , 131503.00-SURPLUS
+        stock_code: ['05P00620-0017'], // 2000-1203, 12342-00012, 022-1BD70 , 131503.00-SURPLUS
         part_desc: 'Manually Added From Repairs',
         suppl_name: 'BACO CONTROLS INC',
         suppl_code: 'BACO001',
