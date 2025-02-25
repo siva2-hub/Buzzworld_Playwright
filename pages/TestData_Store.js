@@ -11,10 +11,23 @@ const storeTestData = {
         l_name: 'Luppino', // Multi2
         email: 'testmulti2@espi.com'
     },
-    price_product: 'UG31-Custom', // 231-2706/026-000 // 0165029SS  231-642
-    price_product_1: 'UG39-Custom', // UG39-Custom , 231-2706/026-000, 2000-1406
+    price_product: '231-642', // 0165029SS [In sys], 231-642 [In sys] , 022-1BD50 , 021-1BF01 , 050-1BA10 , 032-1BD70 , 05P00620-0017
+    price_product_1: '331EARM', // UG39-Custom [In sys], 231-2706/026-000 [In sys],2000-1206[In sys] 2000-1406 , 053-1MT01 , 053-IP00 , 2000-2207
     non_price_product: '760916-45',
-    non_price_product_1: '376834-1D'
+    non_price_product_1: '376834-1D',
+    po_number: 'TEST7736548',
+    card_details: {
+        american: {
+            card_number: '370000000000002',
+            exp_date: '12/25',
+            cvv: '1234'
+        },
+        visa: {
+            card_number: '4111111111111111',
+            exp_date: '12/25',
+            cvv: '123'
+        }
+    }
 }
 module.exports = {
     storeTestData

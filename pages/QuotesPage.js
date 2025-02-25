@@ -72,6 +72,9 @@ const threeDots = (page) => { return page.locator("//*[@class='dropdown']") }
 const relatedData = (page) => { return page.locator("//*[contains(@class,'border-bottom')]/div/div/div/div") };
 const toolTipText = (page) => { return page.locator("//*[contains(@class,'Tooltip')]") }
 const createSOBtn = (page) => { return page.getByText('Create Sales Order') }
+const gridColumnData = (page, columnCount) => { return page.locator("//*[@class='ag-center-cols-container']/div/div[" + columnCount + "]"); }
+const loadSpin = (page) => { return page.locator("//*[contains(@style, 'stroke:')]") }
+
 
 async function navigateToQuotesPage(page) {
     await quotesLink(page).click()
@@ -80,7 +83,7 @@ async function navigateToQuotesPage(page) {
 async function createQuote(page, acc_num, quote_type, project_name) {
     let quote_number;
     try {
-        // await page.goto('https://www.staging-buzzworld.iidm.com/all_quotes/a4ffeb9d-a1a5-4b20-ac6c-59599c0cda47')
+        // await page.goto('https://www.staging-buzzworld.iidm.com/all_quotes/a251e1dd-1cc8-432c-8535-ab5dc6fa2c61')
         await createQuoteBtn(page).click();
         await expect(companyField(page)).toBeVisible();
         await companyField(page).fill(acc_num);
@@ -88,7 +91,7 @@ async function createQuote(page, acc_num, quote_type, project_name) {
         await expect(page.getByText(acc_num, { exact: true }).nth(1)).toBeVisible();
         await page.getByText(acc_num, { exact: true }).nth(1).click();
         await quoteTypeField(page).click();
-        await selectReactDropdowns(page, quote_type);
+        await selectReactDropdownAtQP(page, quote_type);
         await projectName(page).fill(project_name);//await page.pause();
         await createQuoteBtn(page).nth(2).click();
         await expect(allItemsAtDetailView(page)).toContainText('Add Items');
@@ -99,13 +102,26 @@ async function createQuote(page, acc_num, quote_type, project_name) {
         throw new Error("getting error while creating quote: " + error)
     }
 }
+async function selectReactDropdownAtQP(page, selectingText) {
+    const drops = await page.locator("//*[contains(@class,'react-select__option')]"); let isSelected = false;
+    // console.log('dropdowns count is: ' + await drops.count());
+    for (let index = 0; index < await drops.count(); index++) {
+        const dropdownText = await drops.nth(index).textContent();
+        // console.log(dropdownText);
+        if (dropdownText === selectingText) { await drops.nth(index).click(); isSelected = true; break; }
+        else { isSelected = false; }
+    }
+    if (isSelected) { }
+    else { throw new Error(selectingText + " not found in dropdown"); }
+}
 async function addItemsToQuote(page, stock_code, quote_type, suppl_name, suppl_code, sourceText, part_desc, qp) {
     for (let index = 0; index < stock_code.length; index++) {
         await addItemsBtn(page).click();
         await partsSeach(page).fill(stock_code[index]);
-        await spinner(page);
         let res = false;
         try {
+            await expect(itemNotAvailText(page)).toBeHidden();
+            await expect(loadSpin(page)).toBeHidden();
             await expect(itemNotAvailText(page)).toBeVisible({ timeout: 2300 });
             res = true;
         } catch (error) {
@@ -118,7 +134,7 @@ async function addItemsToQuote(page, stock_code, quote_type, suppl_name, suppl_c
                 await supplierSearch(page).click();
                 await page.keyboard.insertText(suppl_code);
                 await expect(loadingText(page)).toBeVisible(); await expect(loadingText(page)).toBeHidden();
-                await selectReactDropdowns(page, (suppl_name + suppl_code))
+                await selectReactDropdownAtQP(page, (suppl_name + suppl_code))
             } else { }
             await partNumberField(page).fill(stock_code[index]);
             await partQty(page).fill('1');
@@ -130,10 +146,10 @@ async function addItemsToQuote(page, stock_code, quote_type, suppl_name, suppl_c
             await page.getByText('Day(s)', { exact: true }).click();
             await page.getByPlaceholder('Day(s)').click();
             await page.getByPlaceholder('Day(s)').fill('12-16');
-            await partDescription(page).fill(part_desc);
+            await partDescription(page).fill(part_desc); //await page.pause();
             await addBtnAddNewItem(page).click();
         } else {
-            await fisrtSeachCheckBox(page).first().click();
+            await fisrtSeachCheckBox(page).first().click(); //await page.pause();
             await selectedItemAtSeach(page).click();
         }
         await expect(addOptionsBtn(page)).toBeVisible();
@@ -148,9 +164,9 @@ async function selectRFQDateRequestedBy(page, cont_name) {
     try {
         await expect(loadingText(page)).toBeVisible({ timeout: 3000 }); await expect(loadingText(page)).toBeHidden();
     } catch (error) { }
-    await selectReactDropdowns(page, cont_name);
+    await selectReactDropdownAtQP(page, cont_name);
     await rTickIcon(page).click();
-    await delay(page, 1200);
+    await page.waitForTimeout(2000);
 }
 async function selectSource(page, stock_code, sourceText, item_notes_text) {
     for (let index = 0; index < stock_code.length; index++) {
@@ -159,7 +175,7 @@ async function selectSource(page, stock_code, sourceText, item_notes_text) {
         await firstItemEdit(page, index).click();
         await expect(partNumFieldEdit(page)).toBeVisible();
         await reactFirstDropdown(page).nth(1).click();
-        await selectReactDropdowns(page, sourceText);
+        await selectReactDropdownAtQP(page, sourceText);
         await itemNotesAtEditItem(page).fill(item_notes_text);
         await saveButton(page).click();
         try {
@@ -168,7 +184,7 @@ async function selectSource(page, stock_code, sourceText, item_notes_text) {
             await saveButton(page).click();
         } catch (error) {
         }
-        await delay(page, 2000); await expect(addOptionsBtn(page)).toBeVisible();
+        await page.waitForTimeout(2000); await expect(addOptionsBtn(page)).toBeVisible();
     }
 }
 async function reviseQuote(page) {
@@ -180,7 +196,7 @@ async function reviseQuote(page) {
     await expect(iidmCostLabel(page)).toBeVisible();
 }
 async function sendForCustomerApprovals(page) {
-    await expect(gpLabel(page, 0)).toBeVisible(); await delay(page, 1400);
+    await expect(gpLabel(page, 0)).toBeVisible(); await page.waitForTimeout(1400);
     await sendToCustomerDropdown(page).click();
     await expect(deliverToCustomer(page)).toBeVisible()
     await deliverToCustomer(page).click();
@@ -342,5 +358,7 @@ module.exports = {
     quoteOrRMANumber,
     rTickIcon,
     saveButton,
-    createSOBtn
+    createSOBtn,
+    gridColumnData,
+    gpLabel
 }

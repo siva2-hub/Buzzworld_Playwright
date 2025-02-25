@@ -1,7 +1,7 @@
 const { test, expect } = require('@playwright/test');
-import { delay, getGridColumn } from '../tests/helper';
+import { delay, getGridColumn } from './helper';
 const { returnResult, approve, login_buzz } = require('./helper');
-const { storeLogin, cartCheckout, grandTotalForCreditCard, creditCardPayment, searchProdCheckout, selectCustomerWithoutLogin, selectBillingDetails, selectShippingDetails, request_payterms } = require('../pages/StorePortalPages');
+const { storeLogin, cartCheckout, grandTotalForCreditCard, creditCardPayment, searchProdCheckout, selectCustomerWithoutLogin, selectBillingDetails, selectShippingDetails, request_payterms, createQuoteSendToCustFromBuzzworld, net30Payment, ccPayment, ccPaymentLoggedIn, ccPaymentAsGuest } = require('../pages/StorePortalPages');
 const { loadingText } = require('../pages/PartsBuyingPages');
 const { storeTestData } = require('../pages/TestData_Store');
 import { reactFirstDropdown, createQuote, addItemsToQuote, selectRFQDateRequestedBy, selectSource, sendForCustomerApprovals, quoteOrRMANumber } from '../pages/QuotesPage';
@@ -10,128 +10,43 @@ const testdata = JSON.parse(JSON.stringify(require("../testdata.json")))
 let url = process.env.BASE_URL_STORE;
 
 test('As Logged In Net 30 Payment', async ({ page }) => {
-  let card_type = testdata.card_details.american, modelNumber = storeTestData.price_product_1, pay_type = 'NET 30';
-  // let card_type = testdata.card_details.visa;
-  let cardDetails = [
-    card_type.card_number,
-    card_type.exp_date,
-    card_type.cvv
-  ];
-  let userName = await storeLogin(page);
-  await cartCheckout(page, false, modelNumber);
-  if (pay_type === 'Credit Card') {
-    await page.getByLabel('Credit Card').click({ timeout: 10000 })
-    const status = await grandTotalForCreditCard(page);
-    console.log('status is: ' + status);
-    if (status) {
-      // await page.pause();
-      await page.getByRole('button', { name: 'Proceed' }).click();
-      await creditCardPayment(page, userName, cardDetails);
-    } else {
-      throw new Error("prices not matched");
-    }
-  } else {
-    await page.getByRole('button', { name: 'Proceed' }).click();
-    await page.getByPlaceholder('Enter PO Number').fill('TESTPO1234');
-    await page.pause();
-    await page.click("//*[text() = 'Approve']");
-  }
+  let modelNumber = storeTestData.price_product_1, poNumber = storeTestData.po_number;
+  await net30Payment(page, modelNumber, poNumber)
 });
 test('As Logged In Credit Card Payment', async ({ page }) => {
-  let card_type = testdata.card_details.american, modelNumber = storeTestData.price_product_1, pay_type = 'Credit Card';
-  // let card_type = testdata.card_details.visa;
-  let cardDetails = [
-    card_type.card_number,
-    card_type.exp_date,
-    card_type.cvv
-  ];
-  let userName = await storeLogin(page);
-  await cartCheckout(page, false, modelNumber);
-  if (pay_type === 'Credit Card') {
-    await page.getByLabel('Credit Card').click({ timeout: 10000 })
-    const status = await grandTotalForCreditCard(page);
-    console.log('status is: ' + status);
-    if (status) {
-      // await page.pause();
-      await page.getByRole('button', { name: 'Proceed' }).click();
-      await creditCardPayment(page, userName, cardDetails);
-    } else {
-      throw new Error("prices not matched");
-    }
-  } else {
-    await page.getByRole('button', { name: 'Proceed' }).click();
-    await page.getByPlaceholder('Enter PO Number').fill('TESTPO1234');
-    await page.pause();
-    await page.click("//*[text() = 'Approve']");
-  }
+  let card_type = storeTestData.card_details.visa,//defining the card type here
+    modelNumber = storeTestData.price_product_1,
+    cardDetails = [
+      card_type.card_number,
+      card_type.exp_date,
+      card_type.cvv
+    ];
+  //Make the credit card payment
+  await ccPaymentLoggedIn(page, modelNumber, cardDetails);
 });
 test('As a Guest Credit Card Payment with Exist Customer New Email', async ({ page }) => {
   let customerName = storeTestData.exist_cust_detls.customer_name, fName = storeTestData.exist_cust_detls.f_name,
     lName = storeTestData.exist_cust_detls.l_name, email = storeTestData.new_cust_detls.email,
-    modelNumber = storeTestData.price_product;
-  let card_type = testdata.card_details.american;
-  let pay_type = 'Credit Card';
+    modelNumber = storeTestData.price_product, card_type = storeTestData.card_details.visa
   // let card_type = testdata.card_details.visa;
   let cardDetails = [
     card_type.card_number,
     card_type.exp_date,
     card_type.cvv
   ];
-  await page.goto(url);
-  await searchProdCheckout(page, modelNumber);
-  await selectCustomerWithoutLogin(page, customerName, fName, lName, email, true);
-  //select billing address
-  await selectBillingDetails(page);
-  //select shipping address
-  await selectShippingDetails(page);
-  await page.getByRole('textbox').fill('Test\nNotes');
-  if (pay_type === 'Credit Card') {
-    await page.getByLabel('Credit Card').click({ timeout: 10000 })
-    const status = await grandTotalForCreditCard(page);
-    if (status) {
-      await page.getByRole('button', { name: 'Proceed' }).click();
-      await creditCardPayment(page, (fName + ' ' + lName), cardDetails);
-    } else {
-      throw new Error("price not matched");
-    }
-  } else {
-    await page.getByPlaceholder('Enter PO Number').fill('TESTPO1234');
-    await page.click("//*[text() = 'Approve']");
-  }
+  await ccPaymentAsGuest(page, url, modelNumber, customerName, fName, lName, email, cardDetails, true)
 });
 test('As a Guest Credit Card Payment with New Customer New Email', async ({ page }) => {
   let customerName = storeTestData.new_cust_detls.customer_name, fName = storeTestData.new_cust_detls.f_name,
     lName = storeTestData.new_cust_detls.l_name, email = storeTestData.new_cust_detls.email,
-    modelNumber = storeTestData.price_product;
-  let card_type = testdata.card_details.american;
-  let pay_type = 'Credit Card';
+    modelNumber = storeTestData.price_product, card_type = storeTestData.card_details.visa;
   // let card_type = testdata.card_details.visa;
   let cardDetails = [
     card_type.card_number,
     card_type.exp_date,
     card_type.cvv
   ];
-  await page.goto(url);
-  await searchProdCheckout(page, modelNumber);
-  await selectCustomerWithoutLogin(page, customerName, fName, lName, email, false);
-  //select billing address
-  await selectBillingDetails(page);
-  //select shipping address
-  await selectShippingDetails(page);
-  await page.getByRole('textbox').fill('Test\nNotes');
-  if (pay_type === 'Credit Card') {
-    await page.getByLabel('Credit Card').click({ timeout: 10000 })
-    const status = await grandTotalForCreditCard(page);
-    if (status) {
-      await page.getByRole('button', { name: 'Proceed' }).click();
-      await creditCardPayment(page, (fName + ' ' + lName), cardDetails);
-    } else {
-      throw new Error("price not matched");
-    }
-  } else {
-    await page.getByPlaceholder('Enter PO Number').fill('TESTPO1234');
-    await page.click("//*[text() = 'Approve']");
-  }
+  await ccPaymentAsGuest(page, url, modelNumber, customerName, fName, lName, email, cardDetails, false)
 });
 test('Single Price-less Item Request Quote For Price Exist Customer New Email', async ({ page }) => {
   let customerName = storeTestData.exist_cust_detls.customer_name, fName = storeTestData.exist_cust_detls.f_name,
@@ -266,46 +181,8 @@ test('Request For Pay Terms', async ({ page }) => {
   }
 })
 test('Create Quote From Buzzworld and Aprove Quote from Portal', async ({ page, browser }) => {
-  //login into buzzworld
-  await login_buzz(page, testData.app_url);
-  //create Quote from buzzworld
-  let quoteNumber = await createQuote(page, testData.quotes.acc_num, testData.quotes.quote_type, testData.quotes.project_name);
-  //Add Items to Quote
-  await addItemsToQuote(
-    page, [storeTestData.price_product_1, storeTestData.price_product], testData.quotes.quote_type, testData.quotes.suppl_name,
-    testData.quotes.suppl_code, testData.quotes.source_text, testData.quotes.part_desc, testData.quotes.quote_price
-  );
-  //Selecting the RFDate and QuotedBy
-  await selectRFQDateRequestedBy(page, testData.quotes.cont_name);
-  //Selecting the Source
-  await selectSource(page, testData.quotes.stock_code, testData.quotes.source_text, testData.quotes.item_notes);
-  //Approve the Quote
-  await approve(page, testData.quotes.cont_name);
-  // Send to Customer 
-  await sendForCustomerApprovals(page);
-  //Creating one more page for Portal
-  const context = await browser.newContext();
-  const newPage = await context.newPage();
-  let userName = await storeLogin(newPage);
-  await newPage.getByText(userName).click();
-  await newPage.getByRole('link', { name: 'Dashboard' }).click();
-  await expect(newPage.getByText('Need Your Attention')).toBeVisible(); await delay(page, 2000);
-  let recentQuoteId = await getGridColumn(newPage, 1);
-  console.log('recent tabs quote id :' + await recentQuoteId.first().textContent());
-  if (await recentQuoteId.first().textContent() == quoteNumber.replace('#', '')) {
-    await recentQuoteId.first().click();
-    await expect(newPage.locator("//*[text()='Unit Price:']").first()).toBeVisible();
-    let portalQuoteNum = await quoteOrRMANumber(newPage).textContent();
-    if (quoteNumber == portalQuoteNum.replace('#', '')) {
-      await newPage.getByRole('button', { name: 'Approve' }).first().click();
-      await expect(newPage.getByText('Company Information')).toBeVisible();
-      await newPage.pause();
-    } else {
-      console.log('buzzworld quote: ' + quoteNumber + '\nPorta Quote: ' + portalQuoteNum);
-    }
-  } else {
-    console.log('Recent quotes not having the required quote');
-  }
+  //create the Quote from buzzworld and Approve the quote from Portal
+  await createQuoteSendToCustFromBuzzworld(page, browser);
 })
 test.skip('Declined the Credit Card Payment as Logged In', async ({ page }, testInfo) => {
   let card_type = testdata.card_details.american;

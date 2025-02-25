@@ -1,6 +1,19 @@
 const { expect } = require("@playwright/test");
-const { delay, selectReactDropdowns } = require("../tests/helper");
+const { delay, login_buzz, approve } = require("../tests/helper");
 const { loadingText } = require("./PartsBuyingPages");
+const { createQuote, addItemsToQuote, selectRFQDateRequestedBy, selectSource, sendForCustomerApprovals, gridColumnData, quoteOrRMANumber } = require("./QuotesPage");
+const { testData } = require("./TestData");
+const { storeTestData } = require("./TestData_Store");
+const proceedBtn = (page) => { return page.getByRole('button', { name: 'Proceed' }) }
+const poNumber = (page) => { return page.getByPlaceholder('Enter PO Number') }
+const approveBtn = (page) => { return page.getByText('Approve') }
+const cardName = (page) => { return page.getByPlaceholder('Enter Name on the Card') }
+const cardNum = (page) => { return page.getByPlaceholder('Enter Card Number') }
+const validDate = (page) => { return page.getByPlaceholder('MM / YY') }
+const cvv = (page) => { return page.getByPlaceholder('Enter CVC') }
+const proPayBtn = (page) => { return page.getByRole('button', { name: 'Proceed To Payment' }) }
+const creditCardRadioBtn = (page) => { return page.getByLabel('Credit Card') }
+const notes = (page) => { return page.getByRole('textbox') }
 
 
 async function storeLogin(page) {
@@ -72,20 +85,16 @@ async function grandTotalForCreditCard(page) {
     return getResults;
 }
 async function creditCardPayment(page, userName, cardDetails) {
-    await page.getByPlaceholder('Enter Name on the Card').fill(userName);
-    await page.getByPlaceholder('Enter Card Number').fill(cardDetails[0]);
-    await page.getByPlaceholder('MM / YY').fill(cardDetails[1]);
-    await page.getByPlaceholder('Enter CVC').fill(cardDetails[2]);
-    await page.pause();
-    await page.getByRole('button', { name: 'Proceed To Payment' }).click();
-    await expect(page.locator("//*[@viewBox='0 0 16 16']").nth(1)).toBeVisible();
-    await expect(page.locator("//*[@viewBox='0 0 16 16']").nth(1)).toBeHidden();
-    try {
-        await page.locator("//*[text()='Something went wrong!!']").toBeHidden({ timeout: 2000 });
-        await page.screenshot({ path: 'pages/screenshot' + (index + 1) + '.png', fullPage: true });
-    } catch (error) {
-
-    }
+    //enter name on the card
+    await cardName(page).fill(userName);
+    //enter the card number
+    await cardNum(page).fill(cardDetails[0]);
+    //enter valid date
+    await validDate(page).fill(cardDetails[1]);
+    //enter CVV
+    await cvv(page).fill(cardDetails[2]); await page.pause();
+    //click on the Proceed  to Payment button
+    await proPayBtn(page).click();
 }
 async function searchProdCheckout(page, modelNumber) {
     await page.getByPlaceholder('Search Product name,').fill(modelNumber);
@@ -96,16 +105,20 @@ async function searchProdCheckout(page, modelNumber) {
 }
 async function verifySearchedProductIsAppearedInSearch(page, modelNumber) {
     let searchText = await page.locator("//*[text()='Searching...']");
+    let searchResult = false;
     await expect(searchText.first()).toBeVisible(); await expect(searchText.first()).toBeHidden();
     let search_prod_name = await page.locator('//*[@id="search"]/div[1]/div[1]/div/div[2]/ul/li/a/div[2]/p[1]');
     console.log('prods count at search is: ' + await search_prod_name.count())
     for (let index = 0; index < await search_prod_name.count(); index++) {
         const dis_prod_name = await search_prod_name.nth(index).textContent();
         if (dis_prod_name == modelNumber) {
-            await search_prod_name.nth(index).click(); break;
+            await search_prod_name.nth(index).click(); searchResult = true; break;
         } else {
-
+            searchResult = false;
         }
+    }
+    if (searchResult) { } else {
+        throw new Error("getting error while search or item not found");
     }
 }
 async function selectCustomerWithoutLogin(page, customerName, fName, lName, email, isExist) {
@@ -143,6 +156,42 @@ async function selectBillingDetails(page) {
     //Enter Shipping Details
     await page.getByPlaceholder('Enter Ship To Name').fill('Test Ship To Name');
     await page.getByRole('button', { name: 'Next' }).click();
+}
+async function net30Payment(page, modelNumber, poNum) {
+    await storeLogin(page);
+    await cartCheckout(page, false, modelNumber);
+    await proceedBtn(page).click();
+    await poNumber(page).fill(poNum);
+    await page.pause();
+    await approveBtn(page);
+}
+async function ccPaymentLoggedIn(page, modelNumber, cardDetails) {
+    let userName = await storeLogin(page);
+    await cartCheckout(page, false, modelNumber);
+    await creditCardRadioBtn(page).click({ timeout: 10000 })
+    const status = await grandTotalForCreditCard(page);
+    console.log('status is: ' + status);
+    if (status) {
+        // await page.pause();
+        await proceedBtn(page).click();
+        await creditCardPayment(page, userName, cardDetails);
+    } else {
+        throw new Error("prices not matched");
+    }
+
+}
+async function ccPaymentAsGuest(page, url, modelNumber, customerName, fName, lName, email, cardDetails, isExist) {
+    await page.goto(url);
+    await searchProdCheckout(page, modelNumber);
+    await selectCustomerWithoutLogin(page, customerName, fName, lName, email, isExist);
+    //select billing address
+    await selectBillingDetails(page);
+    //select shipping address
+    await selectShippingDetails(page);
+    await notes(page).fill('Test\nNotes');
+    await creditCardRadioBtn(page).click();
+    await proceedBtn(page).click();
+    await creditCardPayment(page, (fName + lName), cardDetails)
 }
 async function selectShippingDetails(page) {
     await page.getByText('Select Shipping Method').click();
@@ -221,6 +270,48 @@ async function request_payterms(page) {
     await page.getByRole('button', { name: 'Request' }).click();
     await page.pause();
 }
+async function createQuoteSendToCustFromBuzzworld(page, browser) {
+    //login into buzzworld
+    await login_buzz(page, testData.app_url);
+    //create Quote from buzzworld
+    let quoteNumber = await createQuote(page, testData.quotes.acc_num, testData.quotes.quote_type, testData.quotes.project_name);
+    //Add Items to Quote
+    await addItemsToQuote(
+        page, [storeTestData.price_product_1], testData.quotes.quote_type, testData.quotes.suppl_name,
+        testData.quotes.suppl_code, testData.quotes.source_text, testData.quotes.part_desc, testData.quotes.quote_price
+    );
+    //Selecting the RFDate and QuotedBy
+    await selectRFQDateRequestedBy(page, testData.quotes.cont_name);
+    //Selecting the Source
+    await selectSource(page, testData.quotes.stock_code, testData.quotes.source_text, testData.quotes.item_notes);
+    //Approve the Quote
+    await approve(page, testData.quotes.cont_name);
+    // Send to Customer 
+    await sendForCustomerApprovals(page);
+    //Creating one more page for Portal
+    const context = await browser.newContext();
+    const newPage = await context.newPage();
+    let userName = await storeLogin(newPage);
+    await newPage.getByText(userName).click();
+    await newPage.getByRole('link', { name: 'Dashboard' }).click();
+    await expect(newPage.getByText('Need Your Attention')).toBeVisible(); await delay(page, 2000);
+    let recentQuoteId = await gridColumnData(newPage, 1);
+    console.log('recent tabs quote id :' + await recentQuoteId.first().textContent());
+    if (await recentQuoteId.first().textContent() == quoteNumber.replace('#', '')) {
+        await recentQuoteId.first().click();
+        await expect(newPage.locator("//*[text()='Unit Price:']").first()).toBeVisible();
+        let portalQuoteNum = await quoteOrRMANumber(newPage).textContent();
+        if (quoteNumber == portalQuoteNum.replace('#', '')) {
+            await newPage.getByRole('button', { name: 'Approve' }).first().click();
+            await expect(newPage.getByText('Company Information')).toBeVisible();
+            await newPage.pause();
+        } else {
+            console.log('buzzworld quote: ' + quoteNumber + '\nPorta Quote: ' + portalQuoteNum);
+        }
+    } else {
+        console.log('Recent quotes not having the required quote');
+    }
+}
 async function fillCityStatePostal(page) {
     //checking city is prefilled or not
     const cityAtBillAdrs = page.getByPlaceholder('Enter City');
@@ -258,5 +349,9 @@ module.exports = {
     selectBillingDetails,
     selectShippingDetails,
     request_payterms,
-    fillCityStatePostal
+    fillCityStatePostal,
+    createQuoteSendToCustFromBuzzworld,
+    net30Payment,
+    ccPaymentLoggedIn,
+    ccPaymentAsGuest
 }
