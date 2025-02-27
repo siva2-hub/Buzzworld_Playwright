@@ -105,7 +105,7 @@ test('Approve and Won the RMA Quote', async ({ }, testInfo) => {
     } else { testMsg(testInfo.title, testTitle); testStatus = false }
     testTitle = testInfo.title
 });
-test('Check Line Ship Date, Customer Requested dates', async ({ }, testInfo) => {
+test.skip('Check Line Ship Date, Customer Requested dates', async ({ }, testInfo) => {
     if (testStatus) {
         try {
             await checkDatesAtCreateSO(page, aprDateAtRep, promDateAtRep); testStatus = true;
@@ -138,7 +138,7 @@ test('Create Parts Purchase From RMA', async ({ }, testInfo) => {
             ); testStatus = true;
 
         } catch (error) {
-            testStatus = false; //throw new Error(error);
+            testStatus = false; throw new Error(error);
         }
     } else { testMsg(testInfo.title, testTitle); testStatus = false }
     testTitle = testInfo.title

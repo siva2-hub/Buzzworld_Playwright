@@ -34,6 +34,7 @@ const assignTechBtn = (page) => { return page.getByText('Assign Technician') }
 const assignButton = (page) => { return page.getByRole('button', { name: 'Assign' }) }
 const evaluateItemBtn = (page) => { return page.getByText('Evaluate Item') }
 const estimatedRepHrs = (page) => { return page.getByPlaceholder('Estimated Repair Hrs') }
+const customerPO = (page) => { return page.getByPlaceholder('Customer PO') }
 const estimatedPartsCost = (page) => { return page.getByPlaceholder('Estimated Parts Cost') }
 const techSuggPrice = (page) => { return page.getByPlaceholder('Technician Suggested Price') }
 const repTypeRadioBtn = (page, repair_type) => { return page.locator("(//*[@class = 'radio'])[" + repair_type + "]") }
@@ -424,7 +425,7 @@ async function checkDueLabelChangeToPromisedDate(page, expText) {
 async function updateDatesAtRepairs(page, aprDateValue, promDateValue) {
     //click first repair item edit icon
     await repItemEditIcon(page).first().click();
-    await expect(estimatedRepHrs(page)).toBeVisible();
+    await expect(customerPO(page)).toBeVisible();
     await promisedDateField(page).nth(2).click();
     await page.keyboard.insertText(aprDateValue);
     await page.keyboard.press('Enter');
@@ -433,7 +434,7 @@ async function updateDatesAtRepairs(page, aprDateValue, promDateValue) {
     await page.keyboard.press('Enter');
     await saveButton(page).click(); await delay(page, 2000);
     await repItemEditIcon(page).first().click();
-    await expect(estimatedRepHrs(page)).toBeVisible();
+    await expect(customerPO(page)).toBeVisible();
     const approvedDate = await promisedDateField(page).nth(2).textContent();
     const promicedDate = await promisedDateField(page).nth(3).textContent();
     if (approvedDate === aprDateValue && promicedDate == promDateValue) {
