@@ -25,9 +25,9 @@ test('As Logged In Credit Card Payment', async ({ page }) => {
   await ccPaymentLoggedIn(page, modelNumber, cardDetails);
 });
 test('As a Guest Credit Card Payment with Exist Customer New Email', async ({ page }) => {
-  let customerName = storeTestData.exist_cust_detls.customer_name, fName = storeTestData.exist_cust_detls.f_name,
-    lName = storeTestData.exist_cust_detls.l_name, email = storeTestData.new_cust_detls.email,
-    modelNumber = storeTestData.price_product, card_type = storeTestData.card_details.visa
+  let customerName = storeTestData.exist_cust_detls.customer_name, fName = storeTestData.new_cust_detls.f_name,
+    lName = storeTestData.new_cust_detls.l_name, email = storeTestData.new_cust_detls.email,
+    modelNumber = storeTestData.price_product_1, card_type = storeTestData.card_details.visa
   // let card_type = testdata.card_details.visa;
   let cardDetails = [
     card_type.card_number,
