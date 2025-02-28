@@ -1,5 +1,6 @@
 const { expect } = require("@playwright/test");
 const { selectReactDropdowns, delay } = require("../tests/helper");
+const { selectReactDropdownAtQP } = require("./QuotesPage");
 
 
 const partsPurchaseLink = (page) => { return page.getByText('Parts Purchase') }
@@ -41,7 +42,7 @@ async function addDataIntoPartsPurchase(page, vendPartNumText) {
     await searchVendorField(page).click();
     await page.keyboard.insertText(vendorName);
     await expect(loadingText(page)).toBeVisible(); await expect(loadingText(page)).toBeHidden();
-    await selectReactDropdowns(page, vendorName);
+    await selectReactDropdownAtQP(page, vendorName);
     await nextButton(page).click();
     await vendorPartNumberField(page).fill(vendPartNumText);
     await createButtonAtPartsPurchForm(page).click();
@@ -54,7 +55,7 @@ async function checkVendorPartNumberAcceptingSpacesOrNot(page, vendPartNumText, 
             //navigate to repairs and
             //verify the parts purchase icon is visible or not
             await expect(ppIconRepairs(page)).toBeVisible();
-            await ppIconRepairs(page).click(); await delay(page, 2000);
+            await ppIconRepairs(page).click(); await page.waitForTimeout(2000);
             await expect(dateReqFieldLabelAtPartsp(page).first()).toBeVisible();
         } else {
             //Navigate to Parts Purchase Page
@@ -76,9 +77,9 @@ async function checkVendorPartNumberAcceptingSpacesOrNot(page, vendPartNumText, 
             //click on the urgnecy field
             await urgencyField(page).click();
             //select the Urgency what ever required
-            await selectReactDropdowns(page, 'Standard');
+            await selectReactDropdownAtQP(page, 'Standard');
             //fill the required data click on save date waiting for validation
-        }; await delay(page, 2000);
+        }; await page.waitForTimeout(2000);
         await nextButton(page).click();
         //select vendor
         await addDataIntoPartsPurchase(page, vendPartNumText);
@@ -94,7 +95,7 @@ async function checkVendorPartNumberAcceptingSpacesOrNot(page, vendPartNumText, 
 async function changePartsPurchaseStatus(page, statusText) {
     await partsBuyStatusEdit(page).click();
     await reactFirstDropdown(page).click();
-    await selectReactDropdowns(page, statusText);
+    await selectReactDropdownAtQP(page, statusText);
     await rTickIcon(page).click();
 }
 async function changePartsPurchaseStatusToPartiallyReceived(page) {

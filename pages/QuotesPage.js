@@ -347,6 +347,7 @@ module.exports = {
     checkReviseForOldVersions,
     displayProjectNameAtSendToCustomerApprovals,
     clickOnRelatedIds,
+    selectReactDropdownAtQP,
     //exporting locators
     companyField,
     customerIconAtGrid,

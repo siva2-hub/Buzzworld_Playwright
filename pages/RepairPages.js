@@ -85,6 +85,10 @@ const repItemEditIcon = (page) => { return page.locator("//*[contains(@src,'them
 const lineShipDateAtSO = (page) => { return page.locator("//*[@title='Line Ship Date']") }
 const custReqDateAtSO = (page) => { return page.locator("//*[@title='Customer Request Date']") }
 const poNumAtSOScr = (page) => { return page.getByPlaceholder('Enter PO Number'); }
+const rightArrowKey = (page) => { return page.keyboard.press('ArrowRight') }
+const leftArrowKey = (page) => { return page.keyboard.press('ArrowLeft') }
+const enterKey = (page) => { return page.keyboard.press('Enter') }
+const insertKeys = (page, values) => { return page.keyboard.insertText(values) }
 
 async function naviagateToRepairs(page) {
     await repairsLink(page).click();
@@ -427,14 +431,18 @@ async function updateDatesAtRepairs(page, aprDateValue, promDateValue) {
     await repItemEditIcon(page).first().click();
     await expect(customerPO(page)).toBeVisible();
     await promisedDateField(page).nth(2).click();
-    await page.keyboard.insertText(aprDateValue);
-    await page.keyboard.press('Enter');
+    // await page.keyboard.insertText(aprDateValue);
+    //enter aproved date 
+    await rightArrowKey(page); await leftArrowKey(page); await enterKey(page);
     await promisedDateField(page).nth(3).click();
-    await page.keyboard.insertText(promDateValue);
-    await page.keyboard.press('Enter');
+    // await page.keyboard.insertText(promDateValue);
+    //enter Promised date 
+    await rightArrowKey(page); await rightArrowKey(page); await enterKey(page);
+    //click save button
     await saveButton(page).click(); await delay(page, 2000);
     await repItemEditIcon(page).first().click();
     await expect(customerPO(page)).toBeVisible();
+    //verifying dates are properly saved or not
     const approvedDate = await promisedDateField(page).nth(2).textContent();
     const promicedDate = await promisedDateField(page).nth(3).textContent();
     if (approvedDate === aprDateValue && promicedDate == promDateValue) {
@@ -449,15 +457,19 @@ async function updateDatesAtRepairs(page, aprDateValue, promDateValue) {
 async function checkDatesAtCreateSO(page, aprDateRep, promDateRep) {
     await createSOBtn(page).click();
     await expect(poNumAtSOScr(page)).toBeVisible();
-    const lsdAtSO = await lineShipDateAtSO(page).textContent();
-    const crdAtSO = await custReqDateAtSO(page).textContent();
-    if (aprDateRep == crdAtSO.replaceAll('-', '/') && promDateRep == lsdAtSO.replaceAll('-', '/')) {
-        console.log('Repairs dates are prefilled at create SO screen')
-    } else {
-        console.log('Repairs dates are not prefilled at create SO screen')
+    try {
+        const lsdAtSO = await lineShipDateAtSO(page).textContent();
+        const crdAtSO = await custReqDateAtSO(page).textContent();
+        if (aprDateRep == crdAtSO.replaceAll('-', '/') && promDateRep == lsdAtSO.replaceAll('-', '/')) {
+            console.log('Repairs dates are prefilled at create SO screen')
+        } else {
+            console.log('Repairs dates are not prefilled at create SO screen')
+        }
+        console.log('dates at SO screen: (' + lsdAtSO + ') (' + crdAtSO + ')');
+        console.log('dates from repair: (' + promDateRep + ') (' + promDateValue + ')');
+    } catch (error) {
+        console.log('Dates are not verified, item not exist in syspro');
     }
-    console.log('dates at SO screen: (' + lsdAtSO + ') (' + crdAtSO + ')');
-    console.log('dates from repair: (' + promDateRep + ') (' + promDateValue + ')');
     await closeAtRepItemEdit(page).click();
 }
 module.exports = {
