@@ -14,6 +14,8 @@ const cvv = (page) => { return page.getByPlaceholder('Enter CVC') }
 const proPayBtn = (page) => { return page.getByRole('button', { name: 'Proceed To Payment' }) }
 const creditCardRadioBtn = (page) => { return page.getByLabel('Credit Card') }
 const notes = (page) => { return page.getByRole('textbox') }
+const orderQuoteText = (page) => { return page.locator("//*[contains(@class,'order-id-container')]/div/div[2]") }
+const orderOrQuoteNum = (page) => { return page.locator("//*[contains(@class,'order-id-container')]/div/div[2]/span[2]") }
 
 
 async function storeLogin(page) {
@@ -178,7 +180,7 @@ async function ccPaymentLoggedIn(page, modelNumber, cardDetails) {
     } else {
         throw new Error("prices not matched");
     }
-
+    await orderConfirmationPage(page);
 }
 async function ccPaymentAsGuest(page, url, modelNumber, customerName, fName, lName, email, cardDetails, isExist) {
     await page.goto(url);
@@ -337,6 +339,18 @@ async function fillCityStatePostal(page) {
             await page.getByText(postalCode).nth(1).click();
         }
     } else { }
+}
+async function orderConfirmationPage(page) {
+    await expect(page.getByRole('heading', { name: 'Thanks for your order!' })).toBeVisible();
+    const order_quote_text = await orderQuoteText(page).textContent();
+    const id = await orderOrQuoteNum(page).textContent(); let module;
+    if (order_quote_text.includes('Order Id')) {
+        module = 'Quote';
+    } else {
+        module = 'Order';
+    }
+    console.log(module + ' is created with: ' + id);
+    await page.pause();
 }
 module.exports = {
     storeLogin,
