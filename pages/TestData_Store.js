@@ -1,4 +1,4 @@
-const storeTestData = {
+export const storeTestData = {
     new_cust_detls: {
         customer_name: 'Chump Change Multi2',
         f_name: 'Chump',
@@ -27,8 +27,7 @@ const storeTestData = {
             exp_date: '12/25',
             cvv: '123'
         }
-    }
-}
-module.exports = {
-    storeTestData
+    },
+    guest_api_path: '',
+    loggedIn_api_path: 'doPayment'
 }

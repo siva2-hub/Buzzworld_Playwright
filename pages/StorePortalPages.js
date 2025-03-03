@@ -1,25 +1,26 @@
 const { expect } = require("@playwright/test");
-const { delay, login_buzz, approve } = require("../tests/helper");
+import { delay, login_buzz, approve, redirectConsoleToFile, logFilePath } from '../tests/helper';
 const { loadingText } = require("./PartsBuyingPages");
 const { createQuote, addItemsToQuote, selectRFQDateRequestedBy, selectSource, sendForCustomerApprovals, gridColumnData, quoteOrRMANumber } = require("./QuotesPage");
 const { testData } = require("./TestData");
 const { storeTestData } = require("./TestData_Store");
 const path = require("path");
-const proceedBtn = (page) => { return page.getByRole('button', { name: 'Proceed' }) }
-const poNumber = (page) => { return page.getByPlaceholder('Enter PO Number') }
-const approveBtn = (page) => { return page.getByText('Approve') }
-const cardName = (page) => { return page.getByPlaceholder('Enter Name on the Card') }
-const cardNum = (page) => { return page.getByPlaceholder('Enter Card Number') }
-const validDate = (page) => { return page.getByPlaceholder('MM / YY') }
-const cvv = (page) => { return page.getByPlaceholder('Enter CVC') }
-const proPayBtn = (page) => { return page.getByRole('button', { name: 'Proceed To Payment' }) }
-const creditCardRadioBtn = (page) => { return page.getByLabel('Credit Card') }
-const notes = (page) => { return page.getByRole('textbox') }
-const orderQuoteText = (page) => { return page.locator("//*[contains(@class,'order-id-container')]/div/div[2]") }
-const orderOrQuoteNum = (page) => { return page.locator("//*[contains(@class,'order-id-container')]/div/div[2]/span[2]") }
+export const proceedBtn = (page) => { return page.getByRole('button', { name: 'Proceed' }) }
+export const poNumber = (page) => { return page.getByPlaceholder('Enter PO Number') }
+export const approveBtn = (page) => { return page.getByText('Approve') }
+export const cardName = (page) => { return page.getByPlaceholder('Enter Name on the Card') }
+export const cardNum = (page) => { return page.getByPlaceholder('Enter Card Number') }
+export const validDate = (page) => { return page.getByPlaceholder('MM / YY') }
+export const cvv = (page) => { return page.getByPlaceholder('Enter CVC') }
+export const proPayBtn = (page) => { return page.getByRole('button', { name: 'Proceed To Payment' }) }
+export const creditCardRadioBtn = (page) => { return page.getByLabel('Credit Card') }
+export const notes = (page) => { return page.getByRole('textbox') }
+export const orderQuoteText = (page) => { return page.locator("//*[contains(@class,'order-id-container')]/div/div[2]") }
+export const orderOrQuoteNum = (page) => { return page.locator("//*[contains(@class,'order-id-container')]/div/div[2]/span[2]") }
 
-
-async function storeLogin(page) {
+//storing the console data into log file
+redirectConsoleToFile();
+export async function storeLogin(page) {
     let url = process.env.BASE_URL_STORE,
         logEmail, logPword, userName, path;
     await page.goto(url);
@@ -36,7 +37,7 @@ async function storeLogin(page) {
     await expect(page.locator('#main-header')).toContainText(userName);
     return userName;
 }
-async function cartCheckout(page, isDecline, modelNumber) {
+export async function cartCheckout(page, isDecline, modelNumber) {
     //search product go to checkout page
     await searchProdCheckout(page, modelNumber);
     await page.getByPlaceholder('Enter Phone Number').fill('(565) 465-46544');
@@ -63,7 +64,7 @@ async function cartCheckout(page, isDecline, modelNumber) {
     await page.getByRole('button', { name: 'Next' }).click();
     await page.getByRole('textbox').fill('Test\nNotes');
 }
-async function grandTotalForCreditCard(page) {
+export async function grandTotalForCreditCard(page) {
     let st = await page.locator("(//*[contains(@class,'Total_container')])[1]/div/div[2]").textContent();
     const subTotal = Number(Number(st.replace("$", "").replace(",", "")).toFixed(2));
     const exp_tax = Number((subTotal * 0.085).toFixed(2));
@@ -87,7 +88,7 @@ async function grandTotalForCreditCard(page) {
     else { getResults = false; }
     return getResults;
 }
-async function creditCardPayment(page, userName, cardDetails) {
+export async function creditCardPayment(page, userName, cardDetails) {
     //enter name on the card
     await cardName(page).fill(userName);
     //enter the card number
@@ -99,16 +100,15 @@ async function creditCardPayment(page, userName, cardDetails) {
     //click on the Proceed  to Payment button
     await proPayBtn(page).click();
 }
-async function searchProdCheckout(page, modelNumber) {
+export async function searchProdCheckout(page, modelNumber) {
     await page.getByPlaceholder('Search Product name,').fill(modelNumber);
+    // await apiReqResponses(page, 'index.php?route=extension/module/search_plus&search=' + modelNumber); await page.pause();
     await verifySearchedProductIsAppearedInSearch(page, modelNumber);
-    await apiReqResponses(page, 'index.php?route=extension/module/search_plus&search='+modelNumber);
-    await page.pause();
     await page.getByRole('button', { name: 'Add to Cart' }).click();
     await page.getByRole('link', { name: 'View Cart ' }).click();
     await page.getByRole('link', { name: 'Checkout' }).click();
 }
-async function verifySearchedProductIsAppearedInSearch(page, modelNumber) {
+export async function verifySearchedProductIsAppearedInSearch(page, modelNumber) {
     let searchText = await page.locator("//*[text()='Searching...']");
     let searchResult = false;
     await expect(searchText.first()).toBeVisible(); await expect(searchText.first()).toBeHidden();
@@ -126,7 +126,7 @@ async function verifySearchedProductIsAppearedInSearch(page, modelNumber) {
         throw new Error("getting error while search or item not found");
     }
 }
-async function selectCustomerWithoutLogin(page, customerName, fName, lName, email, isExist) {
+export async function selectCustomerWithoutLogin(page, customerName, fName, lName, email, isExist) {
     await page.getByLabel('open').click();
     await page.getByLabel('Company Name*').fill(customerName);
     if (isExist) {
@@ -150,7 +150,7 @@ async function selectCustomerWithoutLogin(page, customerName, fName, lName, emai
         throw new Error("Customer details are not filled or selected..." + error);
     }
 }
-async function selectBillingDetails(page) {
+export async function selectBillingDetails(page) {
     //checking Billing Adrress is prefilled or not
     const billAddress = page.locator('input[name="billing_address1"]');
     if (await billAddress.getAttribute('value') == '') {
@@ -162,15 +162,16 @@ async function selectBillingDetails(page) {
     await page.getByPlaceholder('Enter Ship To Name').fill('Test Ship To Name');
     await page.getByRole('button', { name: 'Next' }).click();
 }
-async function net30Payment(page, modelNumber, poNum) {
+export async function net30Payment(page, modelNumber, poNum, api_path) {
     await storeLogin(page);
     await cartCheckout(page, false, modelNumber);
     await proceedBtn(page).click();
     await poNumber(page).fill(poNum);
     await page.pause();
     await approveBtn(page);
+    await orderConfirmationPage(page, api_path);
 }
-async function ccPaymentLoggedIn(page, modelNumber, cardDetails) {
+export async function ccPaymentLoggedIn(page, modelNumber, cardDetails, api_url_path) {
     let userName = await storeLogin(page);
     await cartCheckout(page, false, modelNumber);
     await creditCardRadioBtn(page).click({ timeout: 10000 })
@@ -183,9 +184,11 @@ async function ccPaymentLoggedIn(page, modelNumber, cardDetails) {
     } else {
         throw new Error("prices not matched");
     }
-    await orderConfirmationPage(page);
+    await orderConfirmationPage(page, api_url_path);
 }
-async function ccPaymentAsGuest(page, url, modelNumber, customerName, fName, lName, email, cardDetails, isExist) {
+export async function ccPaymentAsGuest(
+    page, url, modelNumber, customerName, fName, lName, email, cardDetails, isExist, api_url_path
+) {
     await page.goto(url);
     await searchProdCheckout(page, modelNumber);
     await selectCustomerWithoutLogin(page, customerName, fName, lName, email, isExist);
@@ -197,15 +200,17 @@ async function ccPaymentAsGuest(page, url, modelNumber, customerName, fName, lNa
     await creditCardRadioBtn(page).click();
     await proceedBtn(page).click();
     await creditCardPayment(page, (fName + lName), cardDetails)
+    //checking order confirmation page
+    await orderConfirmationPage(page, api_url_path);
 }
-async function selectShippingDetails(page) {
+export async function selectShippingDetails(page) {
     await page.getByText('Select Shipping Method').click();
     await page.getByText('Over Night', { exact: true }).click();
     await page.getByLabel('', { exact: true }).check();
     await page.getByPlaceholder('Enter Collect Number').fill('123456ON');
     await page.getByRole('button', { name: 'Next' }).click();
 }
-async function request_payterms(page) {
+export async function request_payterms(page) {
     await page.getByLabel('Request for Pay Terms').click();
     await page.getByRole('button', { name: 'Proceed' }).click();
     await page.getByPlaceholder('Enter Legal Name of Company').fill('Test legal company');
@@ -275,7 +280,7 @@ async function request_payterms(page) {
     await page.getByRole('button', { name: 'Request' }).click();
     await page.pause();
 }
-async function createQuoteSendToCustFromBuzzworld(page, browser) {
+export async function createQuoteSendToCustFromBuzzworld(page, browser) {
     //login into buzzworld
     await login_buzz(page, testData.app_url);
     //create Quote from buzzworld
@@ -317,7 +322,7 @@ async function createQuoteSendToCustFromBuzzworld(page, browser) {
         console.log('Recent quotes not having the required quote');
     }
 }
-async function fillCityStatePostal(page) {
+export async function fillCityStatePostal(page) {
     //checking city is prefilled or not
     const cityAtBillAdrs = page.getByPlaceholder('Enter City');
     if (await cityAtBillAdrs.getAttribute('value') == '') {
@@ -343,7 +348,8 @@ async function fillCityStatePostal(page) {
         }
     } else { }
 }
-async function orderConfirmationPage(page) {
+export async function orderConfirmationPage(page, api_url_path) {
+    await apiReqResponses(page, api_url_path);
     await expect(page.getByRole('heading', { name: 'Thanks for your order!' })).toBeVisible();
     const order_quote_text = await orderQuoteText(page).textContent();
     const id = await orderOrQuoteNum(page).textContent(); let module;
@@ -353,33 +359,15 @@ async function orderConfirmationPage(page) {
         module = 'Order';
     }
     console.log(module + ' is created with: ' + id);
-    await page.screenshot({ path: 'payment_order_conf_page_scshots/' + module + '.png' })
+    await page.screenshot({ path: 'test-results/' + module + '.png' })
     await page.pause();
 }
-async function apiReqResponses(page, apiURLPath) {
+export async function apiReqResponses(page, apiURLPath) {
     // Wait for a specific request
     const response = await page.waitForResponse(response =>
         response.url().includes(apiURLPath) && response.status() === 200
     );
-
     // Get response JSON
     const responseBody = await response.json();
-    console.log('Captured Response:', responseBody);
-}
-module.exports = {
-    storeLogin,
-    cartCheckout,
-    grandTotalForCreditCard,
-    creditCardPayment,
-    searchProdCheckout,
-    verifySearchedProductIsAppearedInSearch,
-    selectCustomerWithoutLogin,
-    selectBillingDetails,
-    selectShippingDetails,
-    request_payterms,
-    fillCityStatePostal,
-    createQuoteSendToCustFromBuzzworld,
-    net30Payment,
-    ccPaymentLoggedIn,
-    ccPaymentAsGuest
+    console.log(response.url(), '\nCaptured Response:\n', JSON.stringify(responseBody, null, 2));
 }
