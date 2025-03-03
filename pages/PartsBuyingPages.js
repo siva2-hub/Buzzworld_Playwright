@@ -1,53 +1,50 @@
 const { expect } = require("@playwright/test");
-const { selectReactDropdowns, delay } = require("../tests/helper");
-const { selectReactDropdownAtQP } = require("./QuotesPage");
+import { selectReactDropdowns, delay } from '../tests/helper';
 
+export const partsPurchaseLink = (page) => { return page.getByText('Parts Purchase') }
+export const allRequestsText = (page) => { return page.getByText('All Requests') };
+export const createPartsPurchaseButton = (page) => { return page.getByText('Create Parts Purchase') }
+export const nextButton = (page) => { return page.getByRole('button', { name: 'Next', exact: true }) }
+export const searchVendorField = (page) => { return page.getByText('Search Vendor') }
+export const vendorPartNumberField = (page) => { return page.getByPlaceholder('Enter Vendor Part Number') }
+export const loadingText = (page) => { return page.locator("//*[text()='Loading...']"); }
+export const selectTechnicianField = (page) => { return page.getByText('Select Technician') }
+export const textInsideDateReuqested = (page) => { return page.locator("(//*[contains(@class,'singleValue')])[2]") }
+export const dateRequestedField = (page) => { return page.getByText('Select Date Requested') }
+export const urgencyField = (page) => { return page.getByText('Select Urgency') }
+export const vendorPartNumErrorValidatin = (page) => { return page.locator("//*[text()='Vendor Part Number not valid']") }
+export const closeCreatePartsBuyForm = (page) => { return page.getByTitle('close').getByRole('img') }
+export const createButtonAtPartsPurchForm = (page) => { return page.locator("//*[@id='tab-2-tab']/div/div/button") }
+export const ppIconRepairs = (page) => { return page.locator("(//*[contains(@src,'partspurchase')])[1]"); }
+export const dateReqFieldLabelAtPartsp = (page) => { return page.getByText('Date Requested') }
+export const ppItemQtyField = (page) => { return page.getByPlaceholder('Enter Quantity') }
+export const ppItemCostField = (page) => { return page.getByPlaceholder('Enter Cost') }
+export const ppItemDescField = (page) => { return page.getByPlaceholder('Enter Description') }
+export const ppItemSpclNotesField = (page) => { return page.getByPlaceholder('Enter Item Special Notes') }
+export const ppItemNotesField = (page) => { return page.getByPlaceholder('Enter Item Notes') }
+export const jobNumField = (page) => { return page.getByLabel('Job Number') }
+export const vpnFieldText = (page, vpnText) => { return page.getByText(vpnText) }
+export const partsBuyStatusEdit = (page, vpnText) => { return page.locator("(//*[name()='svg'])[8]") }
+export const submitButtonAtItemInfo = (page) => { return page.locator("//span[normalize-space()='Submit']") }
+export const statusUpdateConfPopUp = (page) => { return page.getByText('Status Changed Successfully') }
+export const reactFirstDropdown = (page) => { return page.getByLabel('open') }
+export const rTickIcon = (page) => { return page.getByTitle('Save Changes') }
 
-const partsPurchaseLink = (page) => { return page.getByText('Parts Purchase') }
-const allRequestsText = (page) => { return page.getByText('All Requests') };
-const createPartsPurchaseButton = (page) => { return page.getByText('Create Parts Purchase') }
-const nextButton = (page) => { return page.getByRole('button', { name: 'Next', exact: true }) }
-const searchVendorField = (page) => { return page.getByText('Search Vendor') }
-const vendorPartNumberField = (page) => { return page.getByPlaceholder('Enter Vendor Part Number') }
-const loadingText = (page) => { return page.locator("//*[text()='Loading...']"); }
-const selectTechnicianField = (page) => { return page.getByText('Select Technician') }
-const textInsideDateReuqested = (page) => { return page.locator("(//*[contains(@class,'singleValue')])[2]") }
-const dateRequestedField = (page) => { return page.getByText('Select Date Requested') }
-const urgencyField = (page) => { return page.getByText('Select Urgency') }
-const vendorPartNumErrorValidatin = (page) => { return page.locator("//*[text()='Vendor Part Number not valid']") }
-const closeCreatePartsBuyForm = (page) => { return page.getByTitle('close').getByRole('img') }
-const createButtonAtPartsPurchForm = (page) => { return page.locator("//*[@id='tab-2-tab']/div/div/button") }
-const ppIconRepairs = (page) => { return page.locator("(//*[contains(@src,'partspurchase')])[1]"); }
-const dateReqFieldLabelAtPartsp = (page) => { return page.getByText('Date Requested') }
-const ppItemQtyField = (page) => { return page.getByPlaceholder('Enter Quantity') }
-const ppItemCostField = (page) => { return page.getByPlaceholder('Enter Cost') }
-const ppItemDescField = (page) => { return page.getByPlaceholder('Enter Description') }
-const ppItemSpclNotesField = (page) => { return page.getByPlaceholder('Enter Item Special Notes') }
-const ppItemNotesField = (page) => { return page.getByPlaceholder('Enter Item Notes') }
-const jobNumField = (page) => { return page.getByLabel('Job Number') }
-const vpnFieldText = (page, vpnText) => { return page.getByText(vpnText) }
-const partsBuyStatusEdit = (page, vpnText) => { return page.locator("(//*[name()='svg'])[8]") }
-const submitButtonAtItemInfo = (page) => { return page.locator("//span[normalize-space()='Submit']") }
-const statusUpdateConfPopUp = (page) => { return page.getByText('Status Changed Successfully') }
-const reactFirstDropdown = (page) => { return page.getByLabel('open') }
-const rTickIcon = (page) => { return page.getByTitle('Save Changes') }
-
-
-async function navigateToPartsPurchase(page) {
+export async function navigateToPartsPurchase(page) {
     await partsPurchaseLink(page).click();
     await expect(allRequestsText(page)).toBeVisible();
 }
-async function addDataIntoPartsPurchase(page, vendPartNumText) {
+export async function addDataIntoPartsPurchase(page, vendPartNumText) {
     const vendorName = 'ENTERPI SOFTWARE SOLUTIONS';
     await searchVendorField(page).click();
     await page.keyboard.insertText(vendorName);
     await expect(loadingText(page)).toBeVisible(); await expect(loadingText(page)).toBeHidden();
-    await selectReactDropdownAtQP(page, vendorName);
+    await selectReactDropdowns(page, vendorName);
     await nextButton(page).click();
     await vendorPartNumberField(page).fill(vendPartNumText);
     await createButtonAtPartsPurchForm(page).click();
 }
-async function checkVendorPartNumberAcceptingSpacesOrNot(page, vendPartNumText, is_from_repair) {
+export async function checkVendorPartNumberAcceptingSpacesOrNot(page, vendPartNumText, is_from_repair) {
     try {
         //verifying is checking vendor part number from repair or parts buyiing module
         if (is_from_repair) {
@@ -77,7 +74,7 @@ async function checkVendorPartNumberAcceptingSpacesOrNot(page, vendPartNumText, 
             //click on the urgnecy field
             await urgencyField(page).click();
             //select the Urgency what ever required
-            await selectReactDropdownAtQP(page, 'Standard');
+            await selectReactDropdowns(page, 'Standard');
             //fill the required data click on save date waiting for validation
         }; await page.waitForTimeout(2000);
         await nextButton(page).click();
@@ -92,13 +89,13 @@ async function checkVendorPartNumberAcceptingSpacesOrNot(page, vendPartNumText, 
         throw new Error("vendor part number not accepting spaces: " + error);
     }
 }
-async function changePartsPurchaseStatus(page, statusText) {
+export async function changePartsPurchaseStatus(page, statusText) {
     await partsBuyStatusEdit(page).click();
     await reactFirstDropdown(page).click();
-    await selectReactDropdownAtQP(page, statusText);
+    await selectReactDropdowns(page, statusText);
     await rTickIcon(page).click();
 }
-async function changePartsPurchaseStatusToPartiallyReceived(page) {
+export async function changePartsPurchaseStatusToPartiallyReceived(page) {
     await changePartsPurchaseStatus(page, 'Ordered');
     await expect(statusUpdateConfPopUp(page)).toBeVisible();
     await changePartsPurchaseStatus(page, 'Partially Received');
@@ -107,19 +104,19 @@ async function changePartsPurchaseStatusToPartiallyReceived(page) {
     await expect(statusUpdateConfPopUp(page)).toBeVisible();
     console.log('Parts purchase status has changed to Ordered, Partially received');
 }
-module.exports = {
-    checkVendorPartNumberAcceptingSpacesOrNot,
-    changePartsPurchaseStatus,
-    changePartsPurchaseStatusToPartiallyReceived,
-    //exporting locstors
-    loadingText,
-    ppItemQtyField,
-    ppItemCostField,
-    ppItemDescField,
-    ppItemSpclNotesField,
-    ppItemNotesField,
-    createButtonAtPartsPurchForm,
-    jobNumField,
-    vpnFieldText
+// module.exports = {
+//     checkVendorPartNumberAcceptingSpacesOrNot,
+//     changePartsPurchaseStatus,
+//     changePartsPurchaseStatusToPartiallyReceived,
+//     //exporting locstors
+//     loadingText,
+//     ppItemQtyField,
+//     ppItemCostField,
+//     ppItemDescField,
+//     ppItemSpclNotesField,
+//     ppItemNotesField,
+//     createButtonAtPartsPurchForm,
+//     jobNumField,
+//     vpnFieldText
 
-}
+// }

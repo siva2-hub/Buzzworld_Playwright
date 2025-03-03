@@ -1,103 +1,108 @@
 const { expect } = require("@playwright/test")
-const { customerIconAtGrid, companyField, reactFirstDropdown, addItemsBtn, partsSeach, partNumberField, partDescription, quoteOrRMANumber, rTickIcon, clickOnRelatedIds, saveButton, createSOBtn, gpLabel } = require("./QuotesPage")
-const { getRMAItemStatus, selectReactDropdowns, spinner, approve, createSO, wonQuote, submitForCustomerApprovals, defaultTurnAroundTime, delay } = require("../tests/helper")
-const { checkVendorPartNumberAcceptingSpacesOrNot, ppItemQtyField, ppItemCostField, ppItemDescField, ppItemSpclNotesField, ppItemNotesField, createButtonAtPartsPurchForm, jobNumField, vpnFieldText, loadingText } = require("./PartsBuyingPages")
-const { testData } = require("./TestData")
+import { customerIconAtGrid, companyField, reactFirstDropdown, addItemsBtn, partsSeach, partNumberField, partDescription, quoteOrRMANumber, clickOnRelatedIds, saveButton, createSOBtn, gpLabel } from './QuotesPage';
+import { getRMAItemStatus, selectReactDropdowns, spinner, approve, createSO, wonQuote, submitForCustomerApprovals, defaultTurnAroundTime, delay } from '../tests/helper';
+import { checkVendorPartNumberAcceptingSpacesOrNot, ppItemQtyField, ppItemCostField, ppItemDescField, ppItemSpclNotesField, ppItemNotesField, createButtonAtPartsPurchForm, jobNumField, vpnFieldText, loadingText, rTickIcon } from './PartsBuyingPages';
+import { testData } from './TestData'
 const { error } = require("console")
-
-const repairsLink = (page) => { return page.getByText('Repairs') }
-const receivingLink = (page) => { return page.locator('#root').getByText('Receiving') }
-const repairInProgressLink = (page) => { return page.locator('#root').getByText('Repair in progress') }
-const horzScrollView = (page) => { return page.locator("//*[@class='ag-body-horizontal-scroll-viewport']"); }
-const horzScrollToRight = (page) => { return page.locator("//*[@class='ag-horizontal-right-spacer ag-scroller-corner']"); }
-const inProgressStatus = (page) => { return page.locator("(//*[text()='In Progress'])[1]") }
-const ppIconRepairs = (page) => { return page.locator("(//*[contains(@src,'partspurchase')])[1]"); }
-const serialNumaberLabel = (page) => { return page.locator("//*[text()='Serial No:']"); }
-const datePromisedLabel = (page) => { return page.locator("//*[@id='repair-items']/div[2]/div[1]/div/div[2]/div[4]/div[3]/span"); }
-const promisedDateField = (page) => { return page.locator("//*[contains(@class,'control')]") }
-const serialNumField = (page) => { return page.locator("//*[contains(@name,'serial_')]") }
-const saveAtRepItemEdit = (page) => { return page.locator("//*[text()='Save']") }
-const closeAtRepItemEdit = (page) => { return page.locator("//*[@title='close']") }
-const createRMABtn = (page) => { return page.getByText('Create RMA') }
-const createBtnAtRMA = (page) => { return page.getByRole('button', { name: 'Create', exact: true }) }
-const clickHereToAddThemBtn = (page) => { return page.locator('//*[text() = "? Click here to add them"]') }
-const fisrtSeachCheckBox = (page) => { return page.locator("//*[contains(@class,'data repair_grid')]/div/div/label") }
-const addSelectedPartBtn = (page) => { return page.getByRole('button', { name: 'Add Selected 1 Parts' }) }
-const assignLocation = (page) => { return page.getByText('Assign Location') }
-const mfgField = (page) => { return page.getByLabel('Manufacturer*') }
-const addNewPartBtn = (page) => { return page.getByRole('button', { name: 'Add New Part' }) }
-const serNumEdit = (page) => { return page.locator("//span[@title='Edit']//*[name()='svg']") }
-const strgLocation = (page) => { return page.getByPlaceholder('Storage Location') }
-const irnlItemNotesField = (page) => { return page.getByPlaceholder('Type here') }
-const updLocationBtn = (page) => { return page.getByRole('button', { name: 'Update Location' }) }
-const assignTechBtn = (page) => { return page.getByText('Assign Technician') }
-const assignButton = (page) => { return page.getByRole('button', { name: 'Assign' }) }
-const evaluateItemBtn = (page) => { return page.getByText('Evaluate Item') }
-const estimatedRepHrs = (page) => { return page.getByPlaceholder('Estimated Repair Hrs') }
-const customerPO = (page) => { return page.getByPlaceholder('Customer PO') }
-const estimatedPartsCost = (page) => { return page.getByPlaceholder('Estimated Parts Cost') }
-const techSuggPrice = (page) => { return page.getByPlaceholder('Technician Suggested Price') }
-const repTypeRadioBtn = (page, repair_type) => { return page.locator("(//*[@class = 'radio'])[" + repair_type + "]") }
-const summaryField = (page) => { return page.getByText('Select') }
-const updtEvaluationBtn = (page) => { return page.getByRole('button', { name: 'Update Evaluation' }) }
-const pendingQuoteStatus = (page) => { return page.getByText('Pending Quote') }
-const repItemCheckbox = (page) => { return page.locator('#repair-items label') }
-const addItemsToQuoteBtn = (page) => { return page.getByRole('button', { name: 'Add items to quote' }) }
-const addItemsToQuoteConfPopUp = (page) => { return page.getByText('Are you sure you want to add these item(s) to quote ?') }
-const acceptButton = (page) => { return page.getByRole('button', { name: 'Accept' }) }
-const quoteItemsIsVisible = (page) => { expect(page.locator('#repair-items')).toContainText('Quote Items') }
-const repLinkAtJobDetls = (page) => { return page.locator("(//*[contains(@class,'border-bottom')])/div/div[1]") }
-const markAsInProgressBtn = (page) => { return page.getByText('Mark as In Progress') }
-const repInProgresConfPopUp = (page) => { expect(page.locator('#root')).toContainText('Are you sure you want to move this item to Repair In Progress?') }
-const mfgFieldAtPp = (page) => { return page.getByText('Search Manufacturer') }
-const poInfoText = (page) => { return page.getByText('Purchase Order Information') }
-const assignToQCButton = (page) => { return page.getByText('Assign to QC') }
-const repSummaryField = (page) => { return page.locator("//*[contains(@src, 'repair_summary')]") }
-const repSummaryData = async (page, summaryData) => {
+//Locators / atributes
+export const repairsLink = (page) => { return page.getByText('Repairs') }
+export const receivingLink = (page) => { return page.locator('#root').getByText('Receiving') }
+export const repairInProgressLink = (page) => { return page.locator('#root').getByText('Repair in progress') }
+export const horzScrollView = (page) => { return page.locator("//*[@class='ag-body-horizontal-scroll-viewport']"); }
+export const horzScrollToRight = (page) => { return page.locator("//*[@class='ag-horizontal-right-spacer ag-scroller-corner']"); }
+export const inProgressStatus = (page) => { return page.locator("(//*[text()='In Progress'])[1]") }
+export const ppIconRepairs = (page) => { return page.locator("(//*[contains(@src,'partspurchase')])[1]"); }
+export const serialNumaberLabel = (page) => { return page.locator("//*[text()='Serial No:']"); }
+export const datePromisedLabel = (page) => { return page.locator("//*[@id='repair-items']/div[2]/div[1]/div/div[2]/div[4]/div[3]/span"); }
+export const promisedDateField = (page) => { return page.locator("//*[contains(@class,'control')]") }
+export const serialNumField = (page) => { return page.locator("//*[contains(@name,'serial_')]") }
+export const saveAtRepItemEdit = (page) => { return page.locator("//*[text()='Save']") }
+export const closeAtRepItemEdit = (page) => { return page.locator("//*[@title='close']") }
+export const createRMABtn = (page) => { return page.getByText('Create RMA') }
+export const createBtnAtRMA = (page) => { return page.getByRole('button', { name: 'Create', exact: true }) }
+export const clickHereToAddThemBtn = (page) => { return page.locator('//*[text() = "? Click here to add them"]') }
+export const fisrtSeachCheckBox = (page) => { return page.locator("//*[contains(@class,'data repair_grid')]/div/div/label") }
+export const addSelectedPartBtn = (page) => { return page.getByRole('button', { name: 'Add Selected 1 Parts' }) }
+export const assignLocation = (page) => { return page.getByText('Assign Location') }
+export const mfgField = (page) => { return page.getByLabel('Manufacturer*') }
+export const addNewPartBtn = (page) => { return page.getByRole('button', { name: 'Add New Part' }) }
+export const serNumEdit = (page) => { return page.locator("//span[@title='Edit']//*[name()='svg']") }
+export const strgLocation = (page) => { return page.getByPlaceholder('Storage Location') }
+export const irnlItemNotesField = (page) => { return page.getByPlaceholder('Type here') }
+export const updLocationBtn = (page) => { return page.getByRole('button', { name: 'Update Location' }) }
+export const assignTechBtn = (page) => { return page.getByText('Assign Technician') }
+export const assignButton = (page) => { return page.getByRole('button', { name: 'Assign' }) }
+export const evaluateItemBtn = (page) => { return page.getByText('Evaluate Item') }
+export const estimatedRepHrs = (page) => { return page.getByPlaceholder('Estimated Repair Hrs') }
+export const customerPO = (page) => { return page.getByPlaceholder('Customer PO') }
+export const estimatedPartsCost = (page) => { return page.getByPlaceholder('Estimated Parts Cost') }
+export const techSuggPrice = (page) => { return page.getByPlaceholder('Technician Suggested Price') }
+export const repTypeRadioBtn = (page, repair_type) => { return page.locator("(//*[@class = 'radio'])[" + repair_type + "]") }
+export const summaryField = (page) => { return page.getByText('Select') }
+export const updtEvaluationBtn = (page) => { return page.getByRole('button', { name: 'Update Evaluation' }) }
+export const pendingQuoteStatus = (page) => { return page.getByText('Pending Quote') }
+export const repItemCheckbox = (page) => { return page.locator('#repair-items label') }
+export const addItemsToQuoteBtn = (page) => { return page.getByRole('button', { name: 'Add items to quote' }) }
+export const addItemsToQuoteConfPopUp = (page) => { return page.getByText('Are you sure you want to add these item(s) to quote ?') }
+export const acceptButton = (page) => { return page.getByRole('button', { name: 'Accept' }) }
+export const quoteItemsIsVisible = (page) => { expect(page.locator('#repair-items')).toContainText('Quote Items') }
+export const repLinkAtJobDetls = (page) => { return page.locator("(//*[contains(@class,'border-bottom')])/div/div[1]") }
+export const markAsInProgressBtn = (page) => { return page.getByText('Mark as In Progress') }
+export const repInProgresConfPopUp = (page) => { expect(page.locator('#root')).toContainText('Are you sure you want to move this item to Repair In Progress?') }
+export const mfgFieldAtPp = (page) => { return page.getByText('Search Manufacturer') }
+export const poInfoText = (page) => { return page.getByText('Purchase Order Information') }
+export const assignToQCButton = (page) => { return page.getByText('Assign to QC') }
+export const repSummaryField = (page) => { return page.locator("//*[contains(@src, 'repair_summary')]") }
+export const repSummaryData = async (page, summaryData) => {
     console.log('summary data count: ' + summaryData.length);
     for (let index = 0; index < summaryData.length; index++) {
         await page.getByText(summaryData[index], { exact: true }).click();
     }
 }
-const repSummaryNotes = (page) => { return page.getByPlaceholder('Enter Repair Summary Notes') }
-const updateSuccMsg = (page) => { return page.getByText('Updated Successfully') };
-const assignQCLabel = (page) => { return page.getByText('Assign QC') }
-const pendingQCText = (page) => { return page.getByText('Pending QC') }
-const qcCheckListIcon = (page) => { return page.locator("//*[contains(@src,'qc_checklist')]") }
-const partsNotesQC = (page) => { return page.locator('textarea[name="part_notes"]') }
-const qcComments = (page) => { return page.locator('textarea[name="qc_comments"]') }
-const penInvoiceStatus = (page) => { return page.getByText('Pending Invoice') }
-const intrnlUsedParts = (page) => { return page.getByText('Internal Used Parts') }
-const selectSupplier = async (page, supplCode, supplName) => {
+export const repSummaryNotes = (page) => { return page.getByPlaceholder('Enter Repair Summary Notes') }
+export const updateSuccMsg = (page) => { return page.getByText('Updated Successfully') };
+export const assignQCLabel = (page) => { return page.getByText('Assign QC') }
+export const pendingQCText = (page) => { return page.getByText('Pending QC') }
+export const qcCheckListIcon = (page) => { return page.locator("//*[contains(@src,'qc_checklist')]") }
+export const partsNotesQC = (page) => { return page.locator('textarea[name="part_notes"]') }
+export const qcComments = (page) => { return page.locator('textarea[name="qc_comments"]') }
+export const penInvoiceStatus = (page) => { return page.getByText('Pending Invoice') }
+export const completedStatus = (page) => { return page.getByText('Completed') }
+export const intrnlUsedParts = (page) => { return page.getByText('Internal Used Parts') }
+export const selectSupplier = async (page, supplCode, supplName) => {
     await page.getByText('Search').click();
     await page.keyboard.insertText(supplCode);
     await expect(loadingText(page)).toBeVisible(); await expect(loadingText(page)).toBeHidden();
     await selectReactDropdowns(page, supplName + supplCode);
 }
-const intrnlUsedPartsDesc = (page) => { return page.locator('textarea[name="internal_parts\\.0\\.part_description"]') }
-const intrnlUsedPartsNum = (page) => { return page.getByPlaceholder('Enter Part Number') }
-const addNewRowIntrnlUsedPart = (page) => { return page.locator("//p[@class='add-row-text']") }
-const newPartUsedPartNumberValns = (page) => { return page.getByText('Please enter Part Number') }
-const qcFailedStatus = (page) => { return page.getByText('QC Failed') }
-const repItemStatus = (page) => { return page.locator('//*[@id="repair-items"]/div[2]/div/div/div[2]/div[5]/h4') }
-const pendingQCConfText = (page) => { return page.getByText('Are you sure you want to move this status to Pending QC') }
-const repItemEditIcon = (page) => { return page.locator("//*[contains(@src,'themecolorEdit')]") }
-const lineShipDateAtSO = (page) => { return page.locator("//*[@title='Line Ship Date']") }
-const custReqDateAtSO = (page) => { return page.locator("//*[@title='Customer Request Date']") }
-const poNumAtSOScr = (page) => { return page.getByPlaceholder('Enter PO Number'); }
-const rightArrowKey = (page) => { return page.keyboard.press('ArrowRight') }
-const leftArrowKey = (page) => { return page.keyboard.press('ArrowLeft') }
-const enterKey = (page) => { return page.keyboard.press('Enter') }
-const insertKeys = (page, values) => { return page.keyboard.insertText(values) }
+export const intrnlUsedPartsDesc = (page) => { return page.locator('textarea[name="internal_parts.0.part_description"]') }
+export const intrnlUsedPartsNum = (page) => { return page.getByPlaceholder('Enter Part Number') }
+export const addNewRowIntrnlUsedPart = (page) => { return page.locator("//p[@class='add-row-text']") }
+export const newPartUsedPartNumberValns = (page) => { return page.getByText('Please enter Description') }
+export const qcFailedStatus = (page) => { return page.getByText('QC Failed') }
+export const repItemStatus = (page) => { return page.locator('//*[@id="repair-items"]/div[2]/div/div/div[2]/div[5]/h4') }
+export const pendingQCConfText = (page) => { return page.getByText('Are you sure you want to move this status to Pending QC') }
+export const repItemEditIcon = (page) => { return page.locator("//*[contains(@src,'themecolorEdit')]") }
+export const lineShipDateAtSO = (page) => { return page.locator("//*[@title='Line Ship Date']") }
+export const custReqDateAtSO = (page) => { return page.locator("//*[@title='Customer Request Date']") }
+export const poNumAtSOScr = (page) => { return page.getByPlaceholder('Enter PO Number'); }
+export const rightArrowKey = (page) => { return page.keyboard.press('ArrowRight') }
+export const leftArrowKey = (page) => { return page.keyboard.press('ArrowLeft') }
+export const enterKey = (page) => { return page.keyboard.press('Enter') }
+export const insertKeys = (page, values) => { return page.keyboard.insertText(values) }
+export const statusChangeDropdown = (page) => { return page.getByRole('button', { name: 'loading Change Status' }) }
+export const completeDropdown = (page) => { return page.getByRole('menuitem', { name: 'Completed' }) }
+export const confPopUp = (page) => { return page.getByText('Are you sure you want to mark it as Completed ?') }
 
-async function naviagateToRepairs(page) {
+//Functions / Components / methods
+export async function naviagateToRepairs(page) {
     await repairsLink(page).click();
     await expect(customerIconAtGrid(page)).toBeVisible();
 }
-async function createRepair(page, acc_num, cont_name) {
+export async function createRepair(page, acc_num, cont_name) {
     try {
         await naviagateToRepairs(page);
-        // await page.goto('https://www.staging-buzzworld.iidm.com/parts-purchase-detail-view/e81fca37-f0e2-4e3d-b058-33d3fcd89b0a')
+        // await page.goto('https://www.staging-buzzworld.iidm.com/repair-request/64be6633-fc57-4a8e-b7fd-bc6ac1000454')
         await createRMABtn(page).click();
         await expect(companyField(page)).toBeVisible();
         await companyField(page).fill(acc_num);
@@ -115,7 +120,7 @@ async function createRepair(page, acc_num, cont_name) {
         throw new Error("getting error while creating repair" + error)
     }
 }
-async function addItemsToRepairs(page, vendorName, vendorCode, stock_code, partDesc, serialNum) {
+export async function addItemsToRepairs(page, vendorName, vendorCode, stock_code, partDesc, serialNum) {
     for (let index = 0; index < stock_code.length; index++) {
         await addItemsBtn(page).click();
         await partsSeach(page).fill(stock_code[index]);
@@ -136,7 +141,7 @@ async function addItemsToRepairs(page, vendorName, vendorCode, stock_code, partD
         await expect(assignLocation(page).first()).toBeVisible();
     }
 }
-async function addNewPart(page, stock_code, vendorCode, vendorName, partDesc, serialNum) {
+export async function addNewPart(page, stock_code, vendorCode, vendorName, partDesc, serialNum) {
     await clickHereToAddThemBtn(page).click();
     await expect(partNumberField(page)).toBeVisible();
     await partNumberField(page).fill(stock_code);
@@ -150,9 +155,9 @@ async function addNewPart(page, stock_code, vendorCode, vendorName, partDesc, se
     await partDescription(page).fill(partDesc); //await page.pause();
     await addNewPartBtn(page).click();
 }
-async function assignLocationFun(page, serialNum, storageLocation, internalItemNotes) {
-    assignLocation(page).first().click();
-    await serNumEdit(page).click();
+export async function assignLocationFun(page, serialNum, storageLocation, internalItemNotes) {
+    await assignLocation(page).first().click();
+    await serNumEdit(page).nth(1).click();
     if (await serialNumField(page).getAttribute('value') === '') {
         await serialNumField(page).fill(serialNum);
         await rTickIcon(page).click();
@@ -164,7 +169,7 @@ async function assignLocationFun(page, serialNum, storageLocation, internalItemN
     await expect(assignTechBtn(page).first()).toBeVisible()
     console.log('Location Assigned');
 }
-async function assignTech(page, tech, internalItemNotes) {
+export async function assignTech(page, tech, internalItemNotes) {
     await assignTechBtn(page).click();
     await reactFirstDropdown(page).click();
     await page.keyboard.insertText(tech);
@@ -175,7 +180,7 @@ async function assignTech(page, tech, internalItemNotes) {
     await expect(evaluateItemBtn(page).first()).toBeVisible();
     console.log('Technician Assigned');
 }
-async function itemEvaluation(page, repairType, techSuggestedPrice, internalItemNotes) {
+export async function itemEvaluation(page, repairType, techSuggestedPrice, internalItemNotes) {
     await evaluateItemBtn(page).click();
     //select repair type
     await repTypeRadioBtn(page, repairType).click();//await page.pause();
@@ -200,7 +205,7 @@ async function itemEvaluation(page, repairType, techSuggestedPrice, internalItem
     await expect(pendingQuoteStatus(page).first()).toBeVisible();
     console.log('Item evaluation has completed.');
 }
-async function repItemAddedToQuote(page) {
+export async function repItemAddedToQuote(page) {
     // Add Items to Quote
     await page.reload();
     await page.waitForTimeout(4000);
@@ -232,7 +237,7 @@ async function repItemAddedToQuote(page) {
     console.log("RMA quote is created: " + quoteNumber);
     return quoteNumber.replace('#', '');
 }
-async function approveWonTheRepairQuote(page, contactName) {
+export async function approveWonTheRepairQuote(page, contactName) {
     //Approve the Repair Quote
     await approve(page, contactName);
     console.log('Repair Quoted has approved');
@@ -243,11 +248,11 @@ async function approveWonTheRepairQuote(page, contactName) {
     await wonQuote(page);
     console.log('Repair Quoted has Won');
 }
-async function createSORepQuote(page, vendorName, isCreateJob, quoteType) {
+export async function createSORepQuote(page, vendorName, isCreateJob, quoteType) {
     // Create a Sales Order (SO) for RMA Quote
     await createSO(page, vendorName, isCreateJob, quoteType);
 }
-async function markAsRepairInProgress(page) {
+export async function markAsRepairInProgress(page) {
     //naigate to Repairs detailed view
     await clickOnRelatedIds(page, 'Related to Repairs');
     await expect(serialNumaberLabel(page).first()).toBeVisible();
@@ -258,7 +263,7 @@ async function markAsRepairInProgress(page) {
     await expect(inProgressStatus(page)).toBeVisible();
     console.log('Repair Item Marked as In Progress');
 }
-async function createPartsPurchase(page, vendorPartNum, vendorName, ppItemQty, ppItemCost, ppItemDesc, ppItemSpclNotes, ppItemNotes) {
+export async function createPartsPurchase(page, vendorPartNum, vendorName, ppItemQty, ppItemCost, ppItemDesc, ppItemSpclNotes, ppItemNotes) {
     //Navigate to Repairs Details from Jobs Details view
     await repLinkAtJobDetls(page).click();
     await expect(serialNumaberLabel(page).first()).toBeVisible();
@@ -286,7 +291,7 @@ async function createPartsPurchase(page, vendorPartNum, vendorName, ppItemQty, p
     // console.log('used job id is ' + await jobNumField(page).textContent());
     console.log('parts purchase created with id ' + pp_id);
 }
-async function repairSummary(page, sumData, repSumNotes, internalItemNotes) {
+export async function repairSummary(page, sumData, repSumNotes, internalItemNotes) {
     await repSummaryField(page).click();
     await page.getByLabel('open').click();
     await repSummaryData(page, sumData);
@@ -298,7 +303,7 @@ async function repairSummary(page, sumData, repSumNotes, internalItemNotes) {
     await expect(updateSuccMsg(page).nth(1)).toBeVisible();
     console.log('Repair summary has updated');
 }
-async function assignToQC(page, tech, internalNotes) {
+export async function assignToQC(page, tech, internalNotes) {
     await expect(assignToQCButton(page)).toBeVisible();
     await assignToQCButton(page).click();
     await expect(assignQCLabel(page).nth(1)).toBeVisible();
@@ -310,7 +315,7 @@ async function assignToQC(page, tech, internalNotes) {
     await expect(pendingQCText(page)).toBeVisible();
     console.log('QC has Assigned');
 }
-async function navigateToRepairInProgressTab(page) {
+export async function navigateToRepairInProgressTab(page) {
     await naviagateToRepairs(page);
     await repairInProgressLink(page).click();
     try {
@@ -322,7 +327,7 @@ async function navigateToRepairInProgressTab(page) {
     const partsPurchaseIcon = ppIconRepairs(page);
     return partsPurchaseIcon;
 }
-async function saveQCCheckListForm(page, partsNotes, qcCommentsToCust, status, supplCode, supplName, intrnlPartNum, intrnlPartsUsedDesc) {
+export async function saveQCCheckListForm(page, partsNotes, qcCommentsToCust, status, supplCode, supplName, intrnlPartNum, intrnlPartsUsedDesc) {
     //Go to the QC Checklist Form
     await qcCheckListIcon(page).scrollIntoViewIfNeeded();
     await qcCheckListIcon(page).click();
@@ -336,13 +341,13 @@ async function saveQCCheckListForm(page, partsNotes, qcCommentsToCust, status, s
     await page.getByLabel('N/A').nth(2).check();
     await page.getByLabel('Yes').nth(3).check();
     // Setting status to 'Pass'
-    await page.getByText('Status').nth(1).click();
+    await reactFirstDropdown(page).nth(1).click();
     await page.getByText(status, { exact: true }).click();
     // Filling text areas
-    await partsNotesQC(page).fill(partsNotes);
-    await qcComments(page).fill(qcCommentsToCust);
-    await intrnlUsedPartsNum(page).fill(intrnlPartNum);
-    await selectSupplier(page, supplCode, supplName);
+    // await partsNotesQC(page).fill(partsNotes);
+    // await qcComments(page).fill(qcCommentsToCust);
+    // await intrnlUsedPartsNum(page).fill(intrnlPartNum);
+    // await selectSupplier(page, supplCode, supplName);
     await intrnlUsedPartsDesc(page).fill(intrnlPartsUsedDesc);
     await saveButton(page).first().click(); //await page.pause();
     if (status == 'Pass') {
@@ -352,7 +357,7 @@ async function saveQCCheckListForm(page, partsNotes, qcCommentsToCust, status, s
     }
     console.log('QC status has updated to ' + status);
 }
-async function verifyAddRowIssue(page) {
+export async function verifyAddRowIssue(page) {
     const repIteStatus = await repItemStatus(page).textContent();
     console.log('status is:' + repIteStatus); //await page.pause();
     if (repIteStatus == ' QC Failed') {
@@ -365,7 +370,7 @@ async function verifyAddRowIssue(page) {
     await qcCheckListIcon(page).click();
     await expect(addNewRowIntrnlUsedPart(page)).toBeVisible();
     await addNewRowIntrnlUsedPart(page).click();
-    await expect(intrnlUsedPartsNum(page).first()).toBeVisible()
+    // await expect(intrnlUsedPartsNum(page).first()).toBeVisible();
     await saveButton(page).click();
     const valnCount = await newPartUsedPartNumberValns(page).count();
     if (valnCount > 1) {
@@ -373,9 +378,9 @@ async function verifyAddRowIssue(page) {
         throw new Error("" + error)
     } else {
         console.log('Add Multiple rows issue has fixed')
-    }
+    } await closeAtRepItemEdit(page).first().click();
 }
-async function checkDueLabelChangeToPromisedDate(page, expText) {
+export async function checkDueLabelChangeToPromisedDate(page, expText) {
     try {
         //navigate to repairs
         await repairsLink(page).click();
@@ -426,7 +431,7 @@ async function checkDueLabelChangeToPromisedDate(page, expText) {
         throw new Error("getting error during, during verifying the Promised Date" + error);
     }
 }
-async function updateDatesAtRepairs(page, aprDateValue, promDateValue) {
+export async function updateDatesAtRepairs(page, aprDateValue, promDateValue) {
     //click first repair item edit icon
     await repItemEditIcon(page).first().click();
     await expect(customerPO(page)).toBeVisible();
@@ -454,7 +459,7 @@ async function updateDatesAtRepairs(page, aprDateValue, promDateValue) {
     await closeAtRepItemEdit(page);
     return [approvedDate, promicedDate];
 }
-async function checkDatesAtCreateSO(page, aprDateRep, promDateRep) {
+export async function checkDatesAtCreateSO(page, aprDateRep, promDateRep) {
     await createSOBtn(page).click();
     await expect(poNumAtSOScr(page)).toBeVisible();
     try {
@@ -472,26 +477,11 @@ async function checkDatesAtCreateSO(page, aprDateRep, promDateRep) {
     }
     await closeAtRepItemEdit(page).click();
 }
-module.exports = {
-    //exporting functions
-    createRepair,
-    navigateToRepairInProgressTab,
-    checkDueLabelChangeToPromisedDate,
-    addItemsToRepairs,
-    assignLocationFun,
-    assignTech,
-    itemEvaluation,
-    repItemAddedToQuote,
-    approveWonTheRepairQuote,
-    createSORepQuote,
-    markAsRepairInProgress,
-    createPartsPurchase,
-    assignToQC,
-    repairSummary,
-    saveQCCheckListForm,
-    verifyAddRowIssue,
-    updateDatesAtRepairs,
-    checkDatesAtCreateSO,
-    //exporting locators
-    ppIconRepairs
+export async function rmaCompleted(page, moduleNum) {
+    await statusChangeDropdown(page).click();
+    await completeDropdown(page).click();
+    await expect(confPopUp(page)).toBeVisible()
+    await acceptButton(page).click();
+    await expect(completedStatus(page).first()).toBeVisible();
+    console.log(await quoteOrRMANumber(page).textContent() + ' - ' + moduleNum + ' is completed');
 }

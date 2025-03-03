@@ -38,7 +38,7 @@ const logFilePath = path.join(__dirname, 'logs.log');
 const token = process.env.API_TOKEN;
 redirectConsoleToFile(logFilePath);
 //--------------------------------------------------------------------//----------------------------------------------------------------//
-async function checkout_page(page1, pay_type) {
+export async function checkout_page(page1, pay_type) {
     let sub_total = await page1.locator("(//h4[@class = 'number'])[4]").textContent({ timeout: 10000 });
     // @ts-ignore
     let st = (parseFloat(sub_total?.replace("$", "").replace(",", "")).toFixed(2));
@@ -85,7 +85,7 @@ async function checkout_page(page1, pay_type) {
     }
     return res, exp_total;
 }
-async function order_summary_page(check_total, check_st, check_tax, check_cf) {
+export async function order_summary_page(check_total, check_st, check_tax, check_cf) {
     const browser = await chromium.launch();
     const cont = await browser.newContext();
     const page1 = await cont.newPage();
@@ -118,7 +118,7 @@ async function order_summary_page(check_total, check_st, check_tax, check_cf) {
     console.log("tax in order summary page " + tax);
     console.log("cf in order summary page " + cf);
 }
-async function guest_checkout_form(page) {
+export async function guest_checkout_form(page) {
     await page.getByLabel('Company Name*').fill(testdata.guest_customer.comp_name);
     await page.getByRole('option', { name: testdata.guest_customer.comp_name }).click();
     await page.getByPlaceholder('Enter First Name').fill(testdata.guest_customer.f_name);
@@ -146,7 +146,7 @@ async function guest_checkout_form(page) {
     await page.getByRole('button', { name: 'Next' }).click();
     await page.getByRole('textbox').fill('Test notes req payterms');
 }
-async function guest_add_products(page, product1, product2, count) {
+export async function guest_add_products(page, product1, product2, count) {
     await page.goto(testdata.urls.store_url);
     await page.getByRole('link', { name: 'See all products' }).scrollIntoViewIfNeeded();
     await page.waitForTimeout(2000);
@@ -158,7 +158,7 @@ async function guest_add_products(page, product1, product2, count) {
     await page.goto(testdata.urls.cart_page_url);
     await page.getByRole('link', { name: 'Checkout' }).click();
 }
-async function login_buzz(page, stage_url) {
+export async function login_buzz(page, stage_url) {
     allPages = new AllPages(page);
     await page.goto(stage_url + "all_quotes");
     // if (await page.url().includes('sso')) {
@@ -177,7 +177,7 @@ async function login_buzz(page, stage_url) {
     await expect(allPages.profileIconListView).toBeVisible({ timeout: 50000 });
     await page.waitForTimeout(1600);
 }
-async function login(page) {
+export async function login(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     //positive scenario
     let testResult;
@@ -293,12 +293,12 @@ async function login(page) {
     }
     return testResult;
 }
-async function logout(page) {
+export async function logout(page) {
     await page.locator('//*[@class = "user_image"]').click();
     await page.getByRole('menuitem', { name: 'Logout' }).click();
     await expect(page.locator('#loginform')).toContainText('Sign In');
 }
-async function search_user(page, user_email) {
+export async function search_user(page, user_email) {
     await allPages.clickAdmin;
     await expect(page.getByText('Users')).toBeVisible();
     await page.locator('#root').getByText('Users').click();
@@ -309,7 +309,7 @@ async function search_user(page, user_email) {
     await expect(page.locator("(//*[contains(@class, 'profile')])[1]")).toContainText(user_email);
     await page.getByRole('tab', { name: 'Permissions' }).click();
 }
-async function save_changes(page, atype, view) {
+export async function save_changes(page, atype, view) {
     await atype.locator("//*[text() = '" + view + "']").click();
     try {
         await page.getByRole('button', { name: 'Save' }).click({ timeout: 2500 });
@@ -320,7 +320,7 @@ async function save_changes(page, atype, view) {
 
     }
 }
-async function addCustomerPermissions(page, viewEdit) {
+export async function addCustomerPermissions(page, viewEdit) {
     let getTestResults;
     await search_user(page, 'defaultuser@enterpi.com');
     await page.locator('div').filter({ hasText: /^OrganizationsNoneViewEdit$/ }).locator('span').nth(viewEdit).click();
@@ -351,7 +351,7 @@ async function addCustomerPermissions(page, viewEdit) {
     }
     return getTestResults;
 }
-async function admin_permissions(page) {
+export async function admin_permissions(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     //-------------------------------------------------------------Account Types Permission----------------------------------------------------------------
     let testResult;
@@ -598,7 +598,7 @@ async function admin_permissions(page) {
     }
     return testResult;
 }
-async function pricing_permissions(page) {
+export async function pricing_permissions(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let modules = ['Discount Codes', 'Non Standard Pricing', 'Pricing'];
     let testResult;
@@ -829,7 +829,7 @@ async function pricing_permissions(page) {
     }
     return testResult;
 }
-async function admin3(page) {
+export async function admin3(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     await page.locator('#root').getByText('Terms Conditions').click();
     await expect(page.getByText('Shipping Instructions')).toBeVisible();
@@ -843,7 +843,7 @@ async function admin3(page) {
     await page.getByText('Permissions').click();
     await expect(page.getByText('Add to Quote')).toBeVisible();
 }
-async function admin4(page) {
+export async function admin4(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     await expect(page.getByText('Permissions')).toBeVisible();
     await page.getByText('Add', { exact: true }).click();
@@ -863,7 +863,7 @@ async function admin4(page) {
     await expect(page.getByRole('heading', { name: 'Zip Codes' })).toBeVisible();
     await expect(page.locator('span > img').first()).toBeVisible();
 }
-async function quotesRepairs(page) {
+export async function quotesRepairs(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let tabList = ['All Quotes', 'Parts Quotes', 'Repair Quotes', 'System Quotes', 'Expired Quotes', 'Archived Quotes', 'Waiting On Me', 'Quoted By Me'];
     await page.getByText('Quotes').click();
@@ -939,7 +939,7 @@ async function quotesRepairs(page) {
         await page.getByText('Repairs').first().click();
     }
 }
-async function leftMenuSearch(page) {
+export async function leftMenuSearch(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let res;
     try {
@@ -966,7 +966,7 @@ async function leftMenuSearch(page) {
     }
     return res;
 }
-async function add_dc(page, condition) {
+export async function add_dc(page, condition) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let res;
     try {
@@ -1035,7 +1035,7 @@ async function add_dc(page, condition) {
     }
     return res;
 }
-async function addDiscountCodeValidations(page, condition) {
+export async function addDiscountCodeValidations(page, condition) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let ourPrice, MRO, OEM, RS, res;
     try {
@@ -1081,7 +1081,7 @@ async function addDiscountCodeValidations(page, condition) {
     }
     return res;
 }
-async function update_dc(page, cond) {
+export async function update_dc(page, cond) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let res;
     try {
@@ -1156,7 +1156,7 @@ async function update_dc(page, cond) {
     }
     return res;
 }
-async function multi_edit(page, dc) {
+export async function multi_edit(page, dc) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     try {
         await expect(page.getByRole('button', { name: 'Pricing' })).toBeVisible();
@@ -1214,7 +1214,7 @@ async function multi_edit(page, dc) {
         await page.waitForTimeout(1800);
     }
 }
-async function add_sc(page, dc) {
+export async function add_sc(page, dc) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let res;
     try {
@@ -1252,7 +1252,7 @@ async function add_sc(page, dc) {
     }
     return res;
 }
-async function update_sc(page) {
+export async function update_sc(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     try {
         await page.getByRole('button', { name: 'Pricing' }).click();
@@ -1281,7 +1281,7 @@ async function update_sc(page) {
         await page.getByTitle('close').getByRole('img').click();
     }
 }
-async function filters_pricing(page) {
+export async function filters_pricing(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     await page.waitForTimeout(2000);
     await page.getByRole('button', { name: 'Pricing' }).click();
@@ -1305,7 +1305,7 @@ async function filters_pricing(page) {
     await page.waitForTimeout(1500);
     console.log('filter is applied for ', testdata.dc_new);
 }
-async function filters_quotes_cust(page, acc_num, custName) {
+export async function filters_quotes_cust(page, acc_num, custName) {
     try {
         await expect(page.locator("//*[text()='Clear']")).toBeVisible({ timeout: 2000 });
         await page.click("//*[text()='Clear']")
@@ -1327,7 +1327,7 @@ async function filters_quotes_cust(page, acc_num, custName) {
     else { results = false; }
     return results;
 }
-async function filters_quotes_sales_person(page, salesPerson, selectCount, cCount) {
+export async function filters_quotes_sales_person(page, salesPerson, selectCount, cCount) {
     try {
         await expect(page.locator("//*[text()='Clear']")).toBeVisible({ timeout: 2000 });
         await page.click("//*[text()='Clear']")
@@ -1360,7 +1360,7 @@ async function filters_quotes_sales_person(page, salesPerson, selectCount, cCoun
     }
     return results;
 }
-async function warranty_repair_parts_purchase(page, is_manually) {
+export async function warranty_repair_parts_purchase(page, is_manually) {
     async function update_urgency_status(edit_count, text_click, text_enter, click_count) {
         await delay(page, 1500); await page.click("(//*[@title='Edit'])[" + edit_count + "]");
         await page.click("(//*[text()='" + text_click + "'])[" + click_count + "]"); await page.keyboard.insertText(text_enter);
@@ -1416,14 +1416,14 @@ async function warranty_repair_parts_purchase(page, is_manually) {
     } else { res = false; }
     return res;
 }
-async function spinner(page) {
+export async function spinner(page) {
     try {
         await expect(await page.locator("//*[contains(@style, 'stroke:')]")).toBeVisible();
         await page.waitForTimeout(1200)
         await expect(await page.locator("//*[contains(@style, 'stroke:')]")).toBeHidden();
     } catch (error) { }
 }
-async function createRMA(page, acc_num, cont_name) {
+export async function createRMA(page, acc_num, cont_name) {
     await page.locator("//*[text()='Repairs']").first().click();
     await page.getByText('Create RMA').click();
     await expect(page.locator('#root')).toContainText('Search By Company Name');
@@ -1438,7 +1438,7 @@ async function createRMA(page, acc_num, cont_name) {
     await expect(allPages.quoteOrRMANumber).toBeVisible();
     console.log('RMA: ' + await allPages.quoteOrRMANumber.textContent());
 }
-async function assignLocation(page) {
+export async function assignLocation(page) {
 
     await expect(page.locator('#repair-items')).toContainText('Assign Location');
     let alCount = await page.locator("//*[text()='Assign Location']").count()
@@ -1456,7 +1456,7 @@ async function assignLocation(page) {
         await page.getByRole('button', { name: 'Update Location' }).click();
     }
 }
-async function itemsAddToEvaluation(page, stock_code, tech, repair_type, vendorCode, vendorName) {
+export async function itemsAddToEvaluation(page, stock_code, tech, repair_type, vendorCode, vendorName) {
     for (let index = 0; index < stock_code.length; index++) {
         await page.getByText('Add Items').click();
         await page.getByPlaceholder('Search By Part Number').fill(stock_code[index]);
@@ -1522,7 +1522,7 @@ async function itemsAddToEvaluation(page, stock_code, tech, repair_type, vendorC
     }
     await page.waitForTimeout(1800);
 }
-async function addItemsToQuote(page) {
+export async function addItemsToQuote(page) {
     // Add Items to Quote
     await page.reload();
     await page.waitForTimeout(4000);
@@ -1552,7 +1552,7 @@ async function addItemsToQuote(page) {
     await expect(page.locator('#repair-items')).toContainText('Quote Items');
     console.log("Quote ID: " + await allPages.quoteOrRMANumber.textContent());
 }
-async function cloneRepairQuote(page, acc_num, cont_name, tech) {
+export async function cloneRepairQuote(page, acc_num, cont_name, tech) {
     await createRMA(page, acc_num, cont_name);
     // await page.goto("https://www.staging-buzzworld.iidm.com/quote_for_repair/e9334bb4-3fa0-4cc0-add5-f832266ee5ce")
     let rep = await page.locator('(//*[@class = "id-num"])[1]').textContent()
@@ -1600,7 +1600,7 @@ async function cloneRepairQuote(page, acc_num, cont_name, tech) {
         console.log(errorMessage)
     }
 }
-async function create_job_repairs(page, is_create_job, repTypes, acc_num, cont_name, stock_code, tech, vendorCode, vendorName) {
+export async function create_job_repairs(page, is_create_job, repTypes, acc_num, cont_name, stock_code, tech, vendorCode, vendorName) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     // let acc_num = 'ENGYS00', cont_name = 'Jannice Carrillo', stock_code = 'EW25-104-20';
     // let tech = 'Michael Strothers';
@@ -1841,7 +1841,7 @@ async function create_job_repairs(page, is_create_job, repTypes, acc_num, cont_n
     console.log('After creating Repair Totals Repair count is: ', repCount);
     return testResult;
 }
-async function rep_complete(page, rep_id, job_sta, tech, job_num, work_hours, ppId) {
+export async function rep_complete(page, rep_id, job_sta, tech, job_num, work_hours, ppId) {
     //updating pp status to Ordered
     await page.locator('(//*[@class = "pi-label-edit-icon"])[1]').click();
     await page.getByLabel('Open').click();
@@ -1945,7 +1945,7 @@ async function rep_complete(page, rep_id, job_sta, tech, job_num, work_hours, pp
     await expect(page.locator('#repair-items')).toContainText('Completed');
     console.log(rep_id + '- 1 is completed');
 }
-async function markAsInProgress(page) {
+export async function markAsInProgress(page) {
     //naigate to Repairs detailed view
     await page.locator("(//*[contains(@class,'border-bottom')])/div/div[1]").click();
     await expect(allPages.serialNumaberLabel).toBeVisible();
@@ -1955,7 +1955,7 @@ async function markAsInProgress(page) {
     await page.getByRole('button', { name: 'Accept' }).click();
     await expect(page.locator('#repair-items')).toContainText('In Progress');
 }
-async function repSummary(page) {
+export async function repSummary(page) {
     await page.locator("//*[contains(@src, 'repair_summary')]").click();
     await page.getByLabel('open').click();
     await page.getByText('Bench tested', { exact: true }).click();
@@ -1966,7 +1966,7 @@ async function repSummary(page) {
     await page.getByPlaceholder('Type here').fill('Test Internal Item Notes in Repair Summary Page');
     await page.getByRole('button', { name: 'Save' }).click();
 }
-async function assignToQC(page, tech) {
+export async function assignToQC(page, tech) {
     await expect(page.locator('#repair-items')).toContainText('Assign to QC');
     await page.getByText('Assign to QC').click();
     await expect(page.getByRole('dialog')).toContainText('Assign QC');
@@ -1977,7 +1977,7 @@ async function assignToQC(page, tech) {
     await page.getByRole('button', { name: 'Assign' }).click();
     await expect(page.locator('#repair-items')).toContainText('Pending QC');
 }
-async function updateQCStatus(page) {
+export async function updateQCStatus(page) {
     //Go to the QC Checklist Form
     await page.locator('div:nth-child(6) > .action-item').first().click();
     await expect(page.locator('#root')).toContainText('QC Comments to Customer');
@@ -1999,7 +1999,7 @@ async function updateQCStatus(page) {
     await page.getByRole('button', { name: 'Save' }).click();
     await expect(page.locator('#repair-items')).toContainText('Pending Invoice');
 }
-async function createQuote(page, acc_num, quote_type) {
+export async function createQuote(page, acc_num, quote_type) {
     await allPages.headerQuotesTab.click();
     await expect(allPages.profileIconListView).toBeVisible();
     await allPages.createQuoteAtQuotesLV.click();
@@ -2015,7 +2015,7 @@ async function createQuote(page, acc_num, quote_type) {
     await page.getByRole('button', { name: 'Create Quote' }).click();
     await expect(allPages.allItemsAtDetailView).toContainText('Add Items');
 }
-async function selectRFQDateandQuoteRequestedBy(page, cont_name) {
+export async function selectRFQDateandQuoteRequestedBy(page, cont_name) {
     await page.locator('(//*[@class = "pi-label-edit-icon"])[2]').click();
     await page.getByRole('button', { name: 'Now' }).click();
     await page.getByTitle('Save Changes').click();
@@ -2026,7 +2026,7 @@ async function selectRFQDateandQuoteRequestedBy(page, cont_name) {
     await page.getByTitle('Save Changes').click();
     await delay(page, 1200);
 }
-async function addItesms(page, stock_code, quote_type) {
+export async function addItesms(page, stock_code, quote_type) {
     for (let index = 0; index < stock_code.length; index++) {
         await page.getByText('Add Items').click();
         await page.getByPlaceholder('Search By Part Number').click();
@@ -2070,7 +2070,7 @@ async function addItesms(page, stock_code, quote_type) {
         await expect(page.getByText('Add Options')).toBeVisible();
     }
 }
-async function soucreSelection(page, stock_code) {
+export async function soucreSelection(page, stock_code) {
     for (let index = 0; index < stock_code.length; index++) {
         //item edit icon
         await expect(page.locator("(//*[text()='GP'])[" + (index + 1) + "]")).toBeVisible();
@@ -2083,7 +2083,7 @@ async function soucreSelection(page, stock_code) {
         await page.getByRole('button', { name: 'Save' }).click();
     }
 }
-async function submitForInternalApproval(page) {
+export async function submitForInternalApproval(page) {
     await expect(page.locator("(//*[text() = 'Submit for Internal Approval'])[1]")).toBeVisible();
     await page.locator("(//*[text() = 'Submit for Internal Approval'])[1]").click();
     try {
@@ -2093,7 +2093,7 @@ async function submitForInternalApproval(page) {
     }
     await page.locator("(//*[text() = 'Proceed'])[1]").click();
 }
-async function approve(page, cont_name) {
+export async function approve(page, cont_name) {
     await expect(page.locator("(//*[text()='GP'])[1]")).toBeVisible()
     let total_price = await allPages.totalPriceDetls.textContent();
     let tqp = parseInt(total_price.replace("$", "").replace(",", ""));
@@ -2151,13 +2151,13 @@ async function approve(page, cont_name) {
     // await expect(page.locator("//*[text()='Revise Quote']")).toBeVisible();
     await expect(allPages.sendToCustomerButton).toBeVisible();
 }
-async function submitForCustomerApprovals(page) {
+export async function submitForCustomerApprovals(page) {
     await allPages.submitForCustomerDropdown.click();
     await expect(page.getByRole('menuitem')).toContainText('Delivered to Customer');
     await page.getByRole('menuitem', { name: 'Delivered to Customer' }).click();
     await expect(page.locator('#root')).toContainText('Won');
 }
-async function wonQuote(page) {
+export async function wonQuote(page) {
     await page.getByRole('button', { name: 'Won' }).click();
     await expect(page.locator('#root')).toContainText('Are you sure you want to mark it as approve ?');
     await page.getByRole('button', { name: 'Proceed' }).first().click();
@@ -2166,7 +2166,7 @@ async function wonQuote(page) {
     console.log('Items Count is ', itemsCount);
     await expect(page.locator('#root')).toContainText('Create Sales Order');
 }
-async function createSO(page, vendor_name, isJobCreate, quote_type) {
+export async function createSO(page, vendor_name, isJobCreate, quote_type) {
     // await page.goto('https://www.staging-buzzworld.iidm.com/all_quotes/9d04fdbd-5a31-42ea-b905-22e0b2b1b2e8')
     //Go to create sales order screen
     await page.getByText('Create Sales Order').click();
@@ -2243,14 +2243,14 @@ async function createSO(page, vendor_name, isJobCreate, quote_type) {
         console.log('Job created: ' + await allPages.quoteOrRMANumber.textContent());
     } else { console.log('Job not created for ' + quote_type) }
 }
-async function createVersion(page, quote_id) {
+export async function createVersion(page, quote_id) {
     await page.locator("//*[text()='Revise Quote']").click();
     await expect(page.locator('#root')).toContainText('This will move the quote to Open, Do you want to continue ?');
     await page.getByRole('button', { name: 'Proceed' }).first().click();
     await expect(page.getByRole('heading', { name: 'Related to' })).toBeVisible();
     await expect(page.locator('#root')).toContainText('Quote has been revised #' + quote_id + '');
 }
-async function create_job_quotes(page, is_create_job, quoteType, acc_num, cont_name, stock_code, quote_type) {
+export async function create_job_quotes(page, is_create_job, quoteType, acc_num, cont_name, stock_code, quote_type) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     // let acc_num = 'TESTC02', cont_name = 'Test CompanyTwo', stock_code = '832-1204',
     quote_type = quoteType;
@@ -2484,7 +2484,7 @@ async function create_job_quotes(page, is_create_job, quoteType, acc_num, cont_n
     }
     return testResult;
 }
-async function add_new_part(page, stock_code, vendorCode, vendorName) {
+export async function add_new_part(page, stock_code, vendorCode, vendorName) {
     await page.getByRole('button', { name: '? Click here to add them' }).click();
     await expect(page.getByPlaceholder('Part Number')).toBeVisible();
     await page.getByPlaceholder('Part Number').fill(stock_code);
@@ -2500,7 +2500,7 @@ async function add_new_part(page, stock_code, vendorCode, vendorName) {
     await page.getByPlaceholder('Description').fill('manually added');
     await page.getByRole('button', { name: 'Add New Part' }).click();
 }
-async function create_parts_purchase(page, is_manually, repair_id) {
+export async function create_parts_purchase(page, is_manually, repair_id) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let results; let pp_id
     try {
@@ -2573,7 +2573,7 @@ async function create_parts_purchase(page, is_manually, repair_id) {
     }
     return [results, pp_id];
 }
-async function validationsAtCreateRMAandQuotePages(page) {
+export async function validationsAtCreateRMAandQuotePages(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let testResults;
     try {
@@ -2610,7 +2610,7 @@ async function validationsAtCreateRMAandQuotePages(page) {
     }
     return testResults;
 }
-async function create_job_manually(page, orderId) {
+export async function create_job_manually(page, orderId) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let testResult;
     try {
@@ -2651,7 +2651,7 @@ async function create_job_manually(page, orderId) {
     }
     return testResult;
 }
-async function import_pricing(page, import_to) {
+export async function import_pricing(page, import_to) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     try {
         let ven_code = 'WEIN001';
@@ -2748,7 +2748,7 @@ async function import_pricing(page, import_to) {
     }
     console.log('imported file(s) is ', import_to);
 }
-async function functional_flow(page) {
+export async function functional_flow(page) {
     await expect(allPages.profileIconListView).toBeVisible();
     await page.getByText('Admin').click();
     await admin1(page);
@@ -2757,7 +2757,7 @@ async function functional_flow(page) {
     await admin4(page);
     await quotesRepairs(page)
 }
-async function inventory_search(page, stock_code, stage_url) {
+export async function inventory_search(page, stock_code, stage_url) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     // await login_buzz(page, stage_url);
     // try {
@@ -2821,7 +2821,7 @@ async function inventory_search(page, stock_code, stage_url) {
     }
     return testResult;
 }
-async function parts_purchase_left_menu_filter(page) {
+export async function parts_purchase_left_menu_filter(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     await page.getByText('Parts Purchase').click();
     await page.waitForTimeout(2000);
@@ -2889,7 +2889,7 @@ async function parts_purchase_left_menu_filter(page) {
         }
     }
 }
-async function addCustomerToSysProValidations(page, serachCompany) {
+export async function addCustomerToSysProValidations(page, serachCompany) {
     let getResults;
     try {
         await page.getByRole('button', { name: 'Organizations expand' }).click();
@@ -2977,7 +2977,7 @@ async function addCustomerToSysProValidations(page, serachCompany) {
     }
     return getResults;
 }
-async function addCustomerToSyspro(page, serachCompany, sysProId) {
+export async function addCustomerToSyspro(page, serachCompany, sysProId) {
     let getResults;
     async function fieldNames(page) {
         let contact = await page.getByPlaceholder('Contact').getAttribute('value');
@@ -3021,7 +3021,7 @@ async function addCustomerToSyspro(page, serachCompany, sysProId) {
     }
     return getResults;
 }
-async function pos_report(page) {
+export async function pos_report(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let testResults;
     try {
@@ -3082,7 +3082,7 @@ async function pos_report(page) {
     }
     return testResults;
 }
-async function past_repair_prices(page) {
+export async function past_repair_prices(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let quote_types = ['Repair Quotes', 'Parts Quotes'];//'System Quotes',
     let getTestResults;
@@ -3167,7 +3167,7 @@ async function past_repair_prices(page) {
     }
     return getTestResults;
 }
-async function edit_PO_pp(page) {
+export async function edit_PO_pp(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     await page.getByText('Parts Purchase').click();
     await spinner(page);
@@ -3186,7 +3186,7 @@ async function edit_PO_pp(page) {
     await spinner(page);
     await page.waitForTimeout(1200);
 }
-async function sync_jobs(page) {
+export async function sync_jobs(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let row = 1;
     for (let list = 1; list <= 109; list++) {
@@ -3286,7 +3286,7 @@ async function sync_jobs(page) {
     }
     await page.close();
 }
-async function parts_import(page) {
+export async function parts_import(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let file; let getTestResults;
     try {
@@ -3407,7 +3407,7 @@ async function parts_import(page) {
     }
     return getTestResults;
 }
-async function add_parts(page, cond2, cond3) {
+export async function add_parts(page, cond2, cond3) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let getTestResults;
     try {
@@ -3513,7 +3513,7 @@ async function add_parts(page, cond2, cond3) {
     }
     return getTestResults;
 }
-async function bomImporter(page, parentPart, childPart, qty, sequence, warehouse, testCount) {
+export async function bomImporter(page, parentPart, childPart, qty, sequence, warehouse, testCount) {
     let testResult;
     try {
         if (testCount == 1) {
@@ -3570,7 +3570,7 @@ async function bomImporter(page, parentPart, childPart, qty, sequence, warehouse
     await page.reload();
     return testResult;
 }
-async function uploadBOMFiles(page, parentPart, testCount, file, testName) {
+export async function uploadBOMFiles(page, parentPart, testCount, file, testName) {
     let testResult = false;
     async function isVisibleScrollable(page, element) {
         try { await expect(element).toBeVisible({ timeout: 3000 }); await element.scrollIntoViewIfNeeded(); await delay(page, 1200); return true; }
@@ -3667,7 +3667,7 @@ async function uploadBOMFiles(page, parentPart, testCount, file, testName) {
     await page.reload();
     return testResult;
 }
-async function allValidationsBOMImporter(page, parentPart) {
+export async function allValidationsBOMImporter(page, parentPart) {
     let testResult;
     let data = [
         //Stockcode(s) warehouse not found
@@ -3727,7 +3727,7 @@ async function allValidationsBOMImporter(page, parentPart) {
     }
     return testResult;
 }
-async function fetch_jobs_list(page, page_num) {
+export async function fetch_jobs_list(page, page_num) {
     const apiUrl = 'https://staging-buzzworld-api.iidm.com//v1/getSysproJobs?page=' + page_num + '&perPage=250&sort=asc&sort_key=job_id&grid_name=Jobs';
     // Make a GET request to the API endpoint
     const response = await page.evaluate(async (url) => {
@@ -3741,7 +3741,7 @@ async function fetch_jobs_list(page, page_num) {
     // Output the API response
     return response;
 }
-async function fetch_jobs_Detail(page, job_id) {
+export async function fetch_jobs_Detail(page, job_id) {
     const apiUrl = 'https://staging-buzzworld-api.iidm.com/v1/RelatedData?job_id=' + job_id;
     // Make a GET request to the API endpoint
     const response = await page.evaluate(async (url) => {
@@ -3756,7 +3756,7 @@ async function fetch_jobs_Detail(page, job_id) {
     return response;
 
 }
-async function fetch_order_list(page, order_num) {
+export async function fetch_order_list(page, order_num) {
     const apiUrl = 'https://staging-buzzworld-api.iidm.com//v1/getSalesOrder?page=1&perPage=25&sort=desc&sort_key=sales_order&grid_name=Orders&search=' + order_num;
     // Make a GET request to the API endpoint
     const response = await page.evaluate(async (url) => {
@@ -3770,7 +3770,7 @@ async function fetch_order_list(page, order_num) {
     // Output the API response
     return response;
 }
-async function fetch_orders_Detail(page, order_id) {
+export async function fetch_orders_Detail(page, order_id) {
     const apiUrl = 'https://staging-buzzworld-api.iidm.com/v1/RelatedData?sales_order_id=' + order_id;
     // Make a GET request to the API endpoint
     const response = await page.evaluate(async (url) => {
@@ -3784,7 +3784,7 @@ async function fetch_orders_Detail(page, order_id) {
     // Output the API response
     return response;
 }
-async function fetch_pp_status(page, status) {
+export async function fetch_pp_status(page, status) {
     const apiUrl = 'https://staging-buzzworld-api.iidm.com/v1/getPartPurchase?page=1&perPage=25&sort=&sort_key=&grid_name=Repairs&serverFilterOptions=[object%20Object]&selectedCustomFilters=[object%20Object]&part_purchase_type=' + status;
     // Make a GET request to the API endpoint
     const response = await page.evaluate(async (url) => {
@@ -3798,7 +3798,7 @@ async function fetch_pp_status(page, status) {
     // Output the API response
     return response;
 }
-async function write_data_into_excel(data) {
+export async function write_data_into_excel(data) {
     // Create a new workbook
     // const workbook = new ExcelJS.Workbook();
     // Add a worksheet
@@ -3817,7 +3817,7 @@ async function write_data_into_excel(data) {
     // Write the workbook to a file
     await workbook.xlsx.writeFile('logs.xlsx');
 }
-async function verifying_pull_data_from_syspro(page, newPart) {
+export async function verifying_pull_data_from_syspro(page, newPart) {
     //go to inventory
     await page.getByText('Inventory').click(); await page.getByText('Search by Stock Code').click();
     await page.keyboard.insertText(newPart);
@@ -3877,7 +3877,7 @@ async function verifying_pull_data_from_syspro(page, newPart) {
     } else { results = false }
     return results
 }
-async function verify_storage_location_repair_quotes(page) {
+export async function verify_storage_location_repair_quotes(page) {
     await page.locator('#root div').filter({ hasText: /^Repair Quotes$/ }).first().click();
     await expect(allPages.profileIconListView).toBeVisible();
     await page.locator('.ag-header-icon > .ag-icon').first().click();
@@ -3887,7 +3887,7 @@ async function verify_storage_location_repair_quotes(page) {
     catch (error) { results = false }
     return results;
 }
-async function verify_stocked_location_parts_system_quotes(page) {
+export async function verify_stocked_location_parts_system_quotes(page) {
     let quoteTypes = ['quote_for_parts', 'system_quotes', 'quote_for_repair'], results = false, urlPath = 'all_quotes';
     for (let index = 0; index < quoteTypes.length; index++) {
         await page.goto(await page.url().replace(urlPath, quoteTypes[index]));
@@ -3915,7 +3915,7 @@ async function verify_stocked_location_parts_system_quotes(page) {
         await page.goBack(); await expect(allPages.profileIconListView).toBeVisible();
     }
 }
-async function api_responses(page, api_url) {
+export async function api_responses(page, api_url) {
 
     // Make a GET request to the API endpoint
     const response = await page.evaluate(async (url) => {
@@ -3929,7 +3929,7 @@ async function api_responses(page, api_url) {
     // Output the API response
     return response;
 }
-async function i_icon_for_verifying_warehouses(page, quote_type, quote_id) {
+export async function i_icon_for_verifying_warehouses(page, quote_type, quote_id) {
     await page.goto(stage_url + quote_type + '/' + quote_id)
     let create_so = await page.locator("//*[text()='Create Sales Order']");
     await expect(page.locator("(//*[starts-with(text(),'GP')])[1]")).toBeVisible();
@@ -3997,7 +3997,7 @@ async function i_icon_for_verifying_warehouses(page, quote_type, quote_id) {
     } else { status = false; console.log('customer warehouse and stockcode warehouse are matched i.e No Icon') }
     return status;
 }
-async function verify_quote_clone_archived_quotes(page, status, colStatus) {
+export async function verify_quote_clone_archived_quotes(page, status, colStatus) {
     await page.click("//*[text()='" + status + "']"); await expect(allPages.profileIconListView).toBeVisible();
     try {
         await expect(page.locator("//*[text()='Clear']")).toBeVisible({ timeout: 2000 });
@@ -4015,7 +4015,7 @@ async function verify_quote_clone_archived_quotes(page, status, colStatus) {
     catch (error) { console.log("Clone is not display for " + status); results = false; }
     return results;
 }
-async function vendor_website_field_validation_slash(page) {
+export async function vendor_website_field_validation_slash(page) {
     async function verify_website_validation() {
         await page.click("(//*[text()='Select Technician'])[1]"); await page.keyboard.press('Enter');
         await page.click("(//*[text()='Select Urgency'])[1]"); await page.keyboard.press('Enter');
@@ -4040,7 +4040,7 @@ async function vendor_website_field_validation_slash(page) {
     } catch (error) { results = false; console.log("display validation for slash") }
     return results;
 }
-async function verify_default_branch_pricing(page) {
+export async function verify_default_branch_pricing(page) {
     await page.goto(await page.url().replace("all_quotes", "pricing"))//go to pricing
     await expect(page.locator("(//*[contains(@src,'editicon')])[1]")).toBeVisible()
     await page.fill("(//*[contains(@placeholder,'Search')])[1]", "YASK001");
@@ -4062,7 +4062,7 @@ async function verify_default_branch_pricing(page) {
     }
     return results;
 }
-async function read_excel_data(file, sheetIndex) {
+export async function read_excel_data(file, sheetIndex) {
     const workbook = xlsx.readFile(file);
     // Choose the first sheet (you can specify the sheet name or index)
     const sheetName = workbook.SheetNames[sheetIndex];
@@ -4071,7 +4071,7 @@ async function read_excel_data(file, sheetIndex) {
     const jsonData = xlsx.utils.sheet_to_json(sheet);
     return jsonData;
 }
-async function readExcelHeaders(file, sheetIndex) {
+export async function readExcelHeaders(file, sheetIndex) {
     const workbook = xlsx.readFile(file);
     // Choose the first sheet (you can specify the sheet name or index)
     const sheetName = workbook.SheetNames[sheetIndex];
@@ -4080,7 +4080,7 @@ async function readExcelHeaders(file, sheetIndex) {
     const jsonData = xlsx.utils.sheet_to_json(sheet, { header: 1 });
     return jsonData;
 }
-async function reports(test_name, status) {
+export async function reports(test_name, status) {
     const fs = require('fs');
 
     // Sample data to be included in the HTML report
@@ -4126,7 +4126,7 @@ async function reports(test_name, status) {
         }
     });
 }
-async function getProductWriteIntoExecl(page) {
+export async function getProductWriteIntoExecl(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     const apiUrl = 'https://staging-buzzworld-api.iidm.com//v1/Products?page=1&perPage=12107&sort=asc&sort_key=stock_code&branch_id=d9e293cd-34f6-4224-8fb3-e75a99ccb2e2&vendor_id=759a4e48-cd67-4e2e-8a5a-f703466bb3b4&vendor_name=YASKAWA&serverFilterOptions=[object%20Object]';
     // Make a GET request to the API endpoint
@@ -4168,7 +4168,7 @@ async function getProductWriteIntoExecl(page) {
     //
     //
 }
-async function verifyTwoExcelData(page) {
+export async function verifyTwoExcelData(page) {
     let omron_data = await read_excel_data('/home/enterpi/Downloads/omron-31-01-2025-01.csv', 0);// our db
     let excel_data = await read_excel_data('/home/enterpi/Documents/omron missing siva.xlsx', 0);//so db  
     console.log('omron siva list rows count at sheet is ', omron_data.length);
@@ -4223,7 +4223,7 @@ async function verifyTwoExcelData(page) {
     // Write the workbook to a file
     // await workbook.xlsx.writeFile('test_pricing.xlsx');
 }
-async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPrice, discountType, discountValue, testCount, qurl, fp) {
+export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPrice, discountType, discountValue, testCount, qurl, fp) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let vendor = testdata.vendor, testResults, quoteURL;
     await page.getByRole('button', { name: 'Pricing expand' }).click();
@@ -4357,7 +4357,7 @@ async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPrice, dis
     }
     return [testResults, quoteURL[0]];
 }
-async function itemNotesLineBreaks(page, stage_url) {
+export async function itemNotesLineBreaks(page, stage_url) {
     let quoteIds = [
         '3399173b-9bb2-44f4-a0f5-18ed6210db49',
         'd3c8a32f-d9be-4ba1-9dca-9471130ee105',
@@ -4403,7 +4403,7 @@ async function itemNotesLineBreaks(page, stage_url) {
     }
     return status;
 }
-async function defaultTurnAroundTime(page, acc_num, cont_name, isCreateNew, stock_code, tech, repair_type, stage_url) {
+export async function defaultTurnAroundTime(page, acc_num, cont_name, isCreateNew, stock_code, tech, repair_type, stage_url) {
     if (isCreateNew) {
         await createRMA(page, acc_num, cont_name)
         // await page.goto(stage_url + 'repair-request/724c34b8-fa4c-42bb-b89a-b6fec622bf26')
@@ -4427,7 +4427,7 @@ async function defaultTurnAroundTime(page, acc_num, cont_name, isCreateNew, stoc
     }
     return getResults;
 }
-async function websitePaddingTesting(browser) {
+export async function websitePaddingTesting(browser) {
     const context = await browser.newContext();
 
     // Open first tab (page)
@@ -4529,7 +4529,7 @@ async function websitePaddingTesting(browser) {
     }
     return getResults;
 }
-async function verifySPAExpiryMails(page) {
+export async function verifySPAExpiryMails(page) {
     console.log('------------------------.--------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let testResults;
     let customer = ['MULTI00', 'ZUMMO00', 'MADIX00'];
@@ -4587,7 +4587,7 @@ async function verifySPAExpiryMails(page) {
     }
     return testResults;
 }
-async function addSPAItemsToQuote(page, customer, quoteType, items, testCount, qurl, fixedSalesPrice, sellPrice, purchaseDiscount, buyPrice, listIIDMCost) {
+export async function addSPAItemsToQuote(page, customer, quoteType, items, testCount, qurl, fixedSalesPrice, sellPrice, purchaseDiscount, buyPrice, listIIDMCost) {
     let quoteURL, testResults;
     try {
         await page.getByText('Quotes', { exact: true }).first().click();
@@ -4671,7 +4671,7 @@ async function addSPAItemsToQuote(page, customer, quoteType, items, testCount, q
     }
     return [quoteURL, testResults];
 }
-async function addFunctionInAdminTabs(page) {
+export async function addFunctionInAdminTabs(page) {
     await page.getByText('Admin').click();
     await page.getByRole('gridcell', { name: 'H20' }).click();
     await page.getByRole('gridcell', { name: 'H20' }).press('Control+c');
@@ -4833,7 +4833,7 @@ async function addFunctionInAdminTabs(page) {
     await page.getByTitle('close').getByRole('img').click();
     await page.waitForTimeout(2000);
 }
-async function addStockInventorySearch(page, testCount) {
+export async function addStockInventorySearch(page, testCount) {
     let getResults = []; let vals = ['No', 'Yes']; let btns = ['View', 'Edit'];
     for (let index = 0; index < vals.length; index++) {
         await search_user(page, 'defaultuser@enterpi.com'); let yesBtn;
@@ -4886,7 +4886,7 @@ async function addStockInventorySearch(page, testCount) {
     }
     return res;
 }
-async function warehouse_update(page, stock_code) {
+export async function warehouse_update(page, stock_code) {
     await page.waitForTimeout(1600);
     await page.locator("(//*[contains(@src,  'themecolorEdit')])[2]").click();
     await page.locator("(//*[contains(@aria-label,  'open')])[3]").click();
@@ -4904,21 +4904,21 @@ function redirectConsoleToFile(filePath) {
         logStream.write(`${args.join(' ')}\n`); // Write to log file
     };
 }
-async function end_date(startDate) {
+export async function end_date(startDate) {
     let text = startDate;
     let len = text.length;
     let next_year = parseInt(text.substring(len - 1, len)) + 1;
     let end_date = text.substring(0, len - 1) + next_year;
     return end_date;
 }
-async function setScreenSize(page, w, h) {
+export async function setScreenSize(page, w, h) {
     // Get the monitor screen width
     await page.setViewportSize({
         width: w,
         height: h
     });
 }
-async function returnResult(page, testName, results) {
+export async function returnResult(page, testName, results) {
     try {
         expect(results).toBe(true);
         console.log(ANSI_GREEN + testName + ' Test Passed!' + ANSI_RESET);
@@ -4928,7 +4928,7 @@ async function returnResult(page, testName, results) {
         // throw error;
     }
 }
-async function verifyingCharacterLenght(page, condition, quoteType) {
+export async function verifyingCharacterLenght(page, condition, quoteType) {
     let stockCode = testdata.stock_character;
     let getTestResults;
     if (condition == 'inventory') {
@@ -5076,7 +5076,7 @@ async function verifyingCharacterLenght(page, condition, quoteType) {
     }
     return getTestResults;
 }
-async function addTerritoryToZipcodes(page) {
+export async function addTerritoryToZipcodes(page) {
     try {
         await allPages.clickAdmin;
         await page.locator("//*[text()='Zip Codes']").scrollIntoViewIfNeeded();
@@ -5095,7 +5095,7 @@ async function addTerritoryToZipcodes(page) {
         console.log(error);
     }
 }
-async function fetchZipcodes(page) {
+export async function fetchZipcodes(page) {
     // let zipcodes = await getZips();
     let zipcodes = await read_excel_data('/home/enterpi/Downloads/Omron_Deleted_Products.csv', 0);
     console.log('len is ', zipcodes.length);
@@ -5154,10 +5154,10 @@ async function fetchZipcodes(page) {
     //     }
     // }
 }
-async function delay(page, time) {
+export async function delay(page, time) {
     await page.waitForTimeout(time);
 }
-async function getZips() {
+export async function getZips() {
     let zipcodes = ['16849',
         '12045',
         '98666',
@@ -16943,7 +16943,7 @@ async function getZips() {
         '24030']
     return zipcodes;
 }
-async function orgSearchLoginAsClient(page, url) {
+export async function orgSearchLoginAsClient(page, url) {
     let orgName = await read_excel_data('organization.xlsx', 0);
     console.log('organizations count is ' + orgName.length); let results = [];
     let profile = page.locator("//*[@class='user_image']");
@@ -16986,7 +16986,7 @@ async function orgSearchLoginAsClient(page, url) {
     }
     return status;
 }
-async function quoteTotalDisplaysZero(page, acc_num, cont_name, quoteType, stockCode) {
+export async function quoteTotalDisplaysZero(page, acc_num, cont_name, quoteType, stockCode) {
     async function searchQuoteID() {
         await page.getByText('Quotes').click();
         await expect(allPages.profileIconListView).toBeVisible({ timeout: 50000 });
@@ -17035,12 +17035,12 @@ async function quoteTotalDisplaysZero(page, acc_num, cont_name, quoteType, stock
     }
     return res;
 }
-async function displayNCNRatItemsPage(page) {
+export async function displayNCNRatItemsPage(page) {
     await allPages.gridFirstRow.click();
     await expect(allPages.addItemsBtn).toBeVisible();
     await page.pause();
 }
-async function loginAsClient(page, url, context) {
+export async function loginAsClient(page, url, context) {
     let oName = 'ZUMMO00'
     let profile = page.locator("//*[@class='user_image']");
     await page.goto(url + 'inventory');
@@ -17123,7 +17123,7 @@ async function loginAsClient(page, url, context) {
         console.log(ANSI_RED + oName + ' -->  Owner is ' + ANSI_RESET)
     }
 }
-async function getImages(page) {
+export async function getImages(page) {
     let models = await read_excel_data('Models.xlsx', 0);
     console.log('count is ', models.length)
     // await page.pause();
@@ -17228,7 +17228,7 @@ async function getImages(page) {
     console.log('items match count is ' + findCount);
     console.log(categories);
 }
-async function salesOrderVerification(page) {
+export async function salesOrderVerification(page) {
     await page.getByText('Orders').click();
     for (let i = 0; i < 4; i++) {
         if (i > 0) {
@@ -17282,7 +17282,7 @@ async function salesOrderVerification(page) {
         }
     }
 }
-async function spaNewItemImport(page, fileName, b_s_Side, context) {
+export async function spaNewItemImport(page, fileName, b_s_Side, context) {
     async function importSPA(page, b_s_Side, fileName) {
         await page.click("(//*[contains(text(), 'Pricing')])[1]")
         await page.getByRole('menuitem', { name: 'Non Standard Pricing' }).click();
@@ -17367,7 +17367,7 @@ async function spaNewItemImport(page, fileName, b_s_Side, context) {
     }
     return results;
 }
-async function selectStartEndDates(page, startDate, operator, endDate, day, isConfigure) {
+export async function selectStartEndDates(page, startDate, operator, endDate, day, isConfigure) {
     await page.keyboard.insertText(startDate + operator + endDate);
     await page.locator("//*[contains(@class,'day--0" + (day) + "')]");
     const stylesVals = await getStyles(page, day); let values = [];
@@ -17383,7 +17383,7 @@ async function selectStartEndDates(page, startDate, operator, endDate, day, isCo
     values.push(actualDates); values.push(stylesVals);
     return values;
 }
-async function getStyles(page, day) {
+export async function getStyles(page, day) {
     let path;
     if (day === '30' || day === '31') {
         day = 1
@@ -17405,7 +17405,7 @@ async function getStyles(page, day) {
         return styles;
     } else { console.log('element not found!') }
 }
-async function selectReactDropdowns(page, selectingText) {
+export async function selectReactDropdowns(page, selectingText) {
     const drops = await page.locator("//*[contains(@class,'react-select__option')]"); let isSelected = false;
     // console.log('dropdowns count is: ' + await drops.count());
     for (let index = 0; index < await drops.count(); index++) {
@@ -17417,7 +17417,7 @@ async function selectReactDropdowns(page, selectingText) {
     if (isSelected) { }
     else { throw new Error(selectingText + " not found in dropdown"); }
 }
-async function clearFilters_TopSearch(page) {
+export async function clearFilters_TopSearch(page) {
     try {
         await expect(allPages.clearTopSearch).toBeVisible({ timeout: 2000 });
         await allPages.clearTopSearch.click();
@@ -17429,11 +17429,11 @@ async function clearFilters_TopSearch(page) {
         await allPages.statusAtGrid.toBeVisible();
     } catch (error) { }
 }
-async function getGridColumn(page, columnCount) {
+export async function getGridColumn(page, columnCount) {
     const column = page.locator("//*[@class='ag-center-cols-container']/div/div[" + columnCount + "]");
     return column;
 }
-async function getAccountTypePrice(page, atMapping, vendor, branch, stockCode) {
+export async function getAccountTypePrice(page, atMapping, vendor, branch, stockCode) {
     const response = await api_responses(page, stage_api_url + 'Pricing-Branches?vendor_id=' + vendor);
     console.log('branches count is: ' + (response.result.data.list).length); let isExist = false;
     for (let index = 0; index < (response.result.data.list).length; index++) {
@@ -17474,7 +17474,7 @@ async function getAccountTypePrice(page, atMapping, vendor, branch, stockCode) {
     }
     return mplValue;
 }
-async function startEndDates() {
+export async function startEndDates() {
     if (day < 10) { day = '0' + day.toString().replace("0", ""); }
     else { }
     if (previuosMonth < 10) { previuosMonth = '0' + previuosMonth.toString().replace("0", ""); }
@@ -17483,7 +17483,7 @@ async function startEndDates() {
     const endDate = (previuosMonth + 1) + '/' + day + '/' + (year + 1);
     return [startDate, endDate, day];
 }
-async function getRMAItemStatus(page) {
+export async function getRMAItemStatus(page) {
     const items = await page.locator("//*[@id='repair-items']/div[2]/div");
     console.log('items count: ' + await items.count()); let path; let datePromisedValue;
     for (let index = 0; index < await items.count(); index++) {
@@ -17500,7 +17500,7 @@ async function getRMAItemStatus(page) {
     await editIcon.click();
     return datePromisedValue;
 }
-async function addStockLineItesAtSO(page, vendor_name) {
+export async function addStockLineItesAtSO(page, vendor_name) {
     await allPages.plusIconAtSO.click();
     await expect(page.getByRole('dialog')).toContainText('Add Stock Line Items');
     await page.getByRole('dialog').getByLabel('open').first().click();
@@ -17524,7 +17524,7 @@ async function addStockLineItesAtSO(page, vendor_name) {
     await expect(page.locator("(//*[text() = 'Create Job'])[" + (w + 1) + "]")).toBeVisible();
     await page.waitForTimeout(2000);
 }
-async function loginAsClientFromBuzzworld(page, customer, accountNumber) {
+export async function loginAsClientFromBuzzworld(page, customer, accountNumber) {
     try {
         await page.getByRole('button', { name: 'loading' }).click();
         await page.getByRole('menuitem', { name: 'Login as Client' }).click();
@@ -17544,115 +17544,115 @@ async function loginAsClientFromBuzzworld(page, customer, accountNumber) {
         throw error;
     }
 }
-module.exports = {
-    checkout_page,
-    getRMAItemStatus,
-    submitForCustomerApprovals,
-    loginAsClientFromBuzzworld,
-    addStockLineItesAtSO,
-    wonQuote,
-    createSO,
-    markAsInProgress,
-    repSummary,
-    assignToQC,
-    updateQCStatus,
-    startEndDates,
-    getGridColumn,
-    getAccountTypePrice,
-    clearFilters_TopSearch,
-    order_summary_page,
-    guest_checkout_form,
-    guest_add_products,
-    login,
-    login_buzz,
-    logout,
-    admin_permissions,
-    pricing_permissions,
-    admin3,
-    admin4,
-    spinner,
-    quotesRepairs,
-    add_dc,
-    update_dc,
-    add_sc,
-    update_sc,
-    multi_edit,
-    leftMenuSearch,
-    createRMA,
-    itemsAddToEvaluation,
-    addItemsToQuote,
-    create_job_repairs,
-    create_job_quotes,
-    create_job_manually,
-    create_parts_purchase,
-    import_pricing,
-    functional_flow,
-    inventory_search,
-    filters_pricing,
-    filters_quotes_cust,
-    filters_quotes_sales_person,
-    setScreenSize,
-    sync_jobs,
-    fetch_jobs_list,
-    fetch_jobs_Detail,
-    fetch_order_list,
-    fetch_orders_Detail,
-    fetch_pp_status,
-    parts_purchase_left_menu_filter,
-    pos_report,
-    reports,
-    parts_import,
-    add_parts,
-    past_repair_prices,
-    edit_PO_pp,
-    read_excel_data,
-    getProductWriteIntoExecl,
-    verifyTwoExcelData,
-    addDiscountCodeValidations,
-    addFunctionInAdminTabs,
-    returnResult,
-    nonSPAPrice,
-    addSPAItemsToQuote,
-    validationsAtCreateRMAandQuotePages,
-    addCustomerToSysProValidations,
-    websitePaddingTesting,
-    verifyingCharacterLenght,
-    addCustomerToSyspro,
-    addCustomerPermissions,
-    delay,
-    bomImporter,
-    allValidationsBOMImporter,
-    verifySPAExpiryMails,
-    itemNotesLineBreaks,
-    uploadBOMFiles,
-    readExcelHeaders,
-    fetchZipcodes,
-    createQuote,
-    addItesms,
-    approve,
-    getZips,
-    addStockInventorySearch,
-    addTerritoryToZipcodes,
-    defaultTurnAroundTime,
-    getImages,
-    orgSearchLoginAsClient,
-    loginAsClient,
-    quoteTotalDisplaysZero,
-    displayNCNRatItemsPage,
-    salesOrderVerification,
-    cloneRepairQuote,
-    spaNewItemImport,
-    verifying_pull_data_from_syspro,
-    verify_quote_clone_archived_quotes,
-    vendor_website_field_validation_slash,
-    verify_default_branch_pricing,
-    verify_storage_location_repair_quotes,
-    warranty_repair_parts_purchase,
-    verify_stocked_location_parts_system_quotes,
-    i_icon_for_verifying_warehouses,
-    selectStartEndDates,
-    api_responses,
-    selectReactDropdowns,
-    selectRFQDateandQuoteRequestedBy,
-    soucreSelection
-};
+// module.exports = {
+//     checkout_page,
+//     getRMAItemStatus,
+//     submitForCustomerApprovals,
+//     loginAsClientFromBuzzworld,
+//     addStockLineItesAtSO,
+//     wonQuote,
+//     createSO,
+//     markAsInProgress,
+//     repSummary,
+//     assignToQC,
+//     updateQCStatus,
+//     startEndDates,
+//     getGridColumn,
+//     getAccountTypePrice,
+//     clearFilters_TopSearch,
+//     order_summary_page,
+//     guest_checkout_form,
+//     guest_add_products,
+//     login,
+//     login_buzz,
+//     logout,
+//     admin_permissions,
+//     pricing_permissions,
+//     admin3,
+//     admin4,
+//     spinner,
+//     quotesRepairs,
+//     add_dc,
+//     update_dc,
+//     add_sc,
+//     update_sc,
+//     multi_edit,
+//     leftMenuSearch,
+//     createRMA,
+//     itemsAddToEvaluation,
+//     addItemsToQuote,
+//     create_job_repairs,
+//     create_job_quotes,
+//     create_job_manually,
+//     create_parts_purchase,
+//     import_pricing,
+//     functional_flow,
+//     inventory_search,
+//     filters_pricing,
+//     filters_quotes_cust,
+//     filters_quotes_sales_person,
+//     setScreenSize,
+//     sync_jobs,
+//     fetch_jobs_list,
+//     fetch_jobs_Detail,
+//     fetch_order_list,
+//     fetch_orders_Detail,
+//     fetch_pp_status,
+//     parts_purchase_left_menu_filter,
+//     pos_report,
+//     reports,
+//     parts_import,
+//     add_parts,
+//     past_repair_prices,
+//     edit_PO_pp,
+//     read_excel_data,
+//     getProductWriteIntoExecl,
+//     verifyTwoExcelData,
+//     addDiscountCodeValidations,
+//     addFunctionInAdminTabs,
+//     returnResult,
+//     nonSPAPrice,
+//     addSPAItemsToQuote,
+//     validationsAtCreateRMAandQuotePages,
+//     addCustomerToSysProValidations,
+//     websitePaddingTesting,
+//     verifyingCharacterLenght,
+//     addCustomerToSyspro,
+//     addCustomerPermissions,
+//     delay,
+//     bomImporter,
+//     allValidationsBOMImporter,
+//     verifySPAExpiryMails,
+//     itemNotesLineBreaks,
+//     uploadBOMFiles,
+//     readExcelHeaders,
+//     fetchZipcodes,
+//     createQuote,
+//     addItesms,
+//     approve,
+//     getZips,
+//     addStockInventorySearch,
+//     addTerritoryToZipcodes,
+//     defaultTurnAroundTime,
+//     getImages,
+//     orgSearchLoginAsClient,
+//     loginAsClient,
+//     quoteTotalDisplaysZero,
+//     displayNCNRatItemsPage,
+//     salesOrderVerification,
+//     cloneRepairQuote,
+//     spaNewItemImport,
+//     verifying_pull_data_from_syspro,
+//     verify_quote_clone_archived_quotes,
+//     vendor_website_field_validation_slash,
+//     verify_default_branch_pricing,
+//     verify_storage_location_repair_quotes,
+//     warranty_repair_parts_purchase,
+//     verify_stocked_location_parts_system_quotes,
+//     i_icon_for_verifying_warehouses,
+//     selectStartEndDates,
+//     api_responses,
+//     // selectReactDropdowns,
+//     selectRFQDateandQuoteRequestedBy,
+//     soucreSelection
+// };
