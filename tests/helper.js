@@ -34,9 +34,9 @@ const ANSI_ORANGE = "\x1b[38;2;255;165;0m";
 // const month = parseInt(text.substring(3, 4));
 // Outputs "Mon Aug 31 2020"
 //store the logs 
-const logFilePath = path.join(__dirname, 'logs.log');
+// const logFilePath = path.join(__dirname, 'logs.log');
 const token = process.env.API_TOKEN;
-redirectConsoleToFile(logFilePath);
+redirectConsoleToFile();
 //--------------------------------------------------------------------//----------------------------------------------------------------//
 export async function checkout_page(page1, pay_type) {
     let sub_total = await page1.locator("(//h4[@class = 'number'])[4]").textContent({ timeout: 10000 });
@@ -4896,7 +4896,8 @@ export async function warehouse_update(page, stock_code) {
     await page.locator("(//*[contains(@class,  'tick-icon')])[3]").click();
     await page.waitForTimeout(1200);
 }
-function redirectConsoleToFile(filePath) {
+export function redirectConsoleToFile() {
+    let filePath = path.join(__dirname, '../testResFiles/logs.log');
     const originalConsoleLog = console.log;
     const logStream = fs.createWriteStream(filePath, { flags: 'a' }); // Open file in append mode
     console.log = function (...args) {

@@ -1,7 +1,7 @@
 const { test, expect } = require('@playwright/test');
 import { delay, getGridColumn } from './helper';
 const { returnResult, approve, login_buzz } = require('./helper');
-const { storeLogin, cartCheckout, grandTotalForCreditCard, creditCardPayment, searchProdCheckout, selectCustomerWithoutLogin, selectBillingDetails, selectShippingDetails, request_payterms, createQuoteSendToCustFromBuzzworld, net30Payment, ccPayment, ccPaymentLoggedIn, ccPaymentAsGuest } = require('../pages/StorePortalPages');
+import { storeLogin, cartCheckout, grandTotalForCreditCard, creditCardPayment, searchProdCheckout, selectCustomerWithoutLogin, selectBillingDetails, selectShippingDetails, request_payterms, createQuoteSendToCustFromBuzzworld, net30Payment, ccPayment, ccPaymentLoggedIn, ccPaymentAsGuest } from '../pages/StorePortalPages';
 const { loadingText } = require('../pages/PartsBuyingPages');
 const { storeTestData } = require('../pages/TestData_Store');
 import { reactFirstDropdown, createQuote, addItemsToQuote, selectRFQDateRequestedBy, selectSource, sendForCustomerApprovals, quoteOrRMANumber } from '../pages/QuotesPage';
@@ -11,7 +11,7 @@ let url = process.env.BASE_URL_STORE;
 
 test('As Logged In Net 30 Payment', async ({ page }) => {
   let modelNumber = storeTestData.price_product_1, poNumber = storeTestData.po_number;
-  await net30Payment(page, modelNumber, poNumber)
+  await net30Payment(page, modelNumber, poNumber, storeTestData.loggedIn_api_path)
 });
 test('As Logged In Credit Card Payment', async ({ page }) => {
   let card_type = storeTestData.card_details.visa,//defining the card type here
@@ -22,7 +22,7 @@ test('As Logged In Credit Card Payment', async ({ page }) => {
       card_type.cvv
     ];
   //Make the credit card payment
-  await ccPaymentLoggedIn(page, modelNumber, cardDetails);
+  await ccPaymentLoggedIn(page, modelNumber, cardDetails, storeTestData.loggedIn_api_path);
 });
 test('As a Guest Credit Card Payment with Exist Customer New Email', async ({ page }) => {
   let customerName = storeTestData.exist_cust_detls.customer_name, fName = storeTestData.new_cust_detls.f_name,
@@ -34,7 +34,9 @@ test('As a Guest Credit Card Payment with Exist Customer New Email', async ({ pa
     card_type.exp_date,
     card_type.cvv
   ];
-  await ccPaymentAsGuest(page, url, modelNumber, customerName, fName, lName, email, cardDetails, true)
+  await ccPaymentAsGuest(
+    page, url, modelNumber, customerName, fName, lName, email, cardDetails, true, storeTestData.guest_api_path
+  );
 });
 test('As a Guest Credit Card Payment with New Customer New Email', async ({ page }) => {
   let customerName = storeTestData.new_cust_detls.customer_name, fName = storeTestData.new_cust_detls.f_name,
