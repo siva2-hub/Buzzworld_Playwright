@@ -1,5 +1,5 @@
 const { test } = require("@playwright/test");
-const { createRepair, addItemsToRepairs, assignLocationFun, assignTech, itemEvaluation, repItemAddedToQuote, createSORepQuote, markAsRepairInProgress, createPartsPurchase, repairSummary, assignToQC, saveQCCheckListForm, verifyAddRowIssue, updateDatesAtRepairs, approveWonTheRepairQuote, checkDatesAtCreateSO } = require("../pages/RepairPages");
+import { createRepair, addItemsToRepairs, assignLocationFun, assignTech, itemEvaluation, repItemAddedToQuote, createSORepQuote, markAsRepairInProgress, createPartsPurchase, repairSummary, assignToQC, saveQCCheckListForm, verifyAddRowIssue, updateDatesAtRepairs, approveWonTheRepairQuote, checkDatesAtCreateSO, completedStatus, rmaCompleted } from '../pages/RepairPages';
 const { login_buzz } = require("./helper");
 const { testData } = require("../pages/TestData");
 const { changePartsPurchaseStatus, changePartsPurchaseStatusToPartiallyReceived } = require("../pages/PartsBuyingPages");
@@ -191,7 +191,7 @@ test('Save QC CheckList Form', async ({ }, testInfo) => {
     if (testStatus) {
         try {
             await saveQCCheckListForm(page, testData.repairs.parts_notes, testData.repairs.qc_cmc_cust, testData.repairs.qc_status,
-                testData.repairs.suppl_code, testData.repairs.suppl_name, testData.repairs.intrnl_used_part_num, testData.repairs.intrnl_used_part_desc
+                testData.repairs.suppl_code, testData.repairs.suppl_name, testData.repairs.intrnl_used_part_num, testData.repairs.intrnl_used_part_desc + '1'
             );
             testStatus = true;
         } catch (error) {
@@ -210,4 +210,17 @@ test('Check Add New Row at Internal Used Parts', async ({ }, testInfo) => {
     } else { testMsg(testInfo.title, testTitle); testStatus = false }
     testTitle = testInfo.title;
 })
+test('Completed the RMA', async ({ }, testInfo) => {
+    if (testStatus) {
+        try {
+            await saveQCCheckListForm(page, testData.repairs.parts_notes, testData.repairs.qc_cmc_cust, 'Pass',
+                testData.repairs.suppl_code, testData.repairs.suppl_name, testData.repairs.intrnl_used_part_num, testData.repairs.intrnl_used_part_desc + '2'
+            );
+            await rmaCompleted(page, testData.repairs.stock_code);
+        } catch (error) {
+            testStatus = false; throw new Error(error);
+        }
+    } else { testMsg(testInfo.title, testTitle); testStatus = false }
+    testTitle = testInfo.title;
+});
 

@@ -4,6 +4,7 @@ const { loadingText } = require("./PartsBuyingPages");
 const { createQuote, addItemsToQuote, selectRFQDateRequestedBy, selectSource, sendForCustomerApprovals, gridColumnData, quoteOrRMANumber } = require("./QuotesPage");
 const { testData } = require("./TestData");
 const { storeTestData } = require("./TestData_Store");
+const path = require("path");
 const proceedBtn = (page) => { return page.getByRole('button', { name: 'Proceed' }) }
 const poNumber = (page) => { return page.getByPlaceholder('Enter PO Number') }
 const approveBtn = (page) => { return page.getByText('Approve') }
@@ -101,6 +102,8 @@ async function creditCardPayment(page, userName, cardDetails) {
 async function searchProdCheckout(page, modelNumber) {
     await page.getByPlaceholder('Search Product name,').fill(modelNumber);
     await verifySearchedProductIsAppearedInSearch(page, modelNumber);
+    await apiReqResponses(page, 'index.php?route=extension/module/search_plus&search='+modelNumber);
+    await page.pause();
     await page.getByRole('button', { name: 'Add to Cart' }).click();
     await page.getByRole('link', { name: 'View Cart ' }).click();
     await page.getByRole('link', { name: 'Checkout' }).click();
@@ -350,7 +353,18 @@ async function orderConfirmationPage(page) {
         module = 'Order';
     }
     console.log(module + ' is created with: ' + id);
+    await page.screenshot({ path: 'payment_order_conf_page_scshots/' + module + '.png' })
     await page.pause();
+}
+async function apiReqResponses(page, apiURLPath) {
+    // Wait for a specific request
+    const response = await page.waitForResponse(response =>
+        response.url().includes(apiURLPath) && response.status() === 200
+    );
+
+    // Get response JSON
+    const responseBody = await response.json();
+    console.log('Captured Response:', responseBody);
 }
 module.exports = {
     storeLogin,

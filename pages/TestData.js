@@ -75,7 +75,7 @@ const testData = {
         ],
         rep_sum_notes: 'Test Repair Summary Notes to Customer',
         intrnl_used_part_num: 'TESTPART123',
-        intrnl_used_part_desc: 'Internal Used Part Description',
+        intrnl_used_part_desc: 'Internal Used Part Description 1st',
         apr_date_rep:'02/25/2025',
         prom_date_rep:'02/27/2025'
     }
