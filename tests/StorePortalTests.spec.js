@@ -48,7 +48,9 @@ test('As a Guest Credit Card Payment with New Customer New Email', async ({ page
     card_type.exp_date,
     card_type.cvv
   ];
-  await ccPaymentAsGuest(page, url, modelNumber, customerName, fName, lName, email, cardDetails, false)
+  await ccPaymentAsGuest(
+    page, url, modelNumber, customerName, fName, lName, email, cardDetails, false, storeTestData.guest_api_path
+  );
 });
 test('Single Price-less Item Request Quote For Price Exist Customer New Email', async ({ page }) => {
   let customerName = storeTestData.exist_cust_detls.customer_name, fName = storeTestData.exist_cust_detls.f_name,
@@ -179,12 +181,28 @@ test('Request For Pay Terms', async ({ page }) => {
     await page.getByLabel('Credit Card').click({ timeout: 10000 });
     await creditCardPayment(page, '', '');
   } else {
-    await request_payterms(page);
+    await request_payterms(page, storeTestData.guest_api_path);
   }
 })
-test('Create Quote From Buzzworld and Aprove Quote from Portal', async ({ page, browser }) => {
+test('Create Quote From Buzzworld and Aprove Quote from Portal while Credit Card', async ({ page, browser }) => {
+  let card_type = storeTestData.card_details.visa,//defining the card type here
+    cardDetails = [
+      card_type.card_number,
+      card_type.exp_date,
+      card_type.cvv
+    ];
   //create the Quote from buzzworld and Approve the quote from Portal
-  await createQuoteSendToCustFromBuzzworld(page, browser);
+  await createQuoteSendToCustFromBuzzworld(page, browser, cardDetails, 'Credit Card');
+})
+test('Create Quote From Buzzworld and Aprove Quote from Portal while Net Payments', async ({ page, browser }) => {
+  let card_type = storeTestData.card_details.visa,//defining the card type here
+    cardDetails = [
+      card_type.card_number,
+      card_type.exp_date,
+      card_type.cvv
+    ];
+  //create the Quote from buzzworld and Approve the quote from Portal
+  await createQuoteSendToCustFromBuzzworld(page, browser, cardDetails, 'Net Payment');
 })
 test.skip('Declined the Credit Card Payment as Logged In', async ({ page }, testInfo) => {
   let card_type = testdata.card_details.american;
