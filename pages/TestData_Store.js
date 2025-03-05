@@ -1,9 +1,9 @@
 export const storeTestData = {
     new_cust_detls: {
-        customer_name: 'Chump Change Multi2',
+        customer_name: 'Chump Change Multi3',
         f_name: 'Chump',
-        l_name: 'Multi5',
-        email: 'chumpmulti5@espi.co'
+        l_name: 'Multi6',
+        email: 'chumpmulti6@espi.co'
     },
     exist_cust_detls: {
         customer_name: 'Multicam Inc',
@@ -12,7 +12,7 @@ export const storeTestData = {
         email: 'testmulti2@espi.com'
     },
     price_product: '2022-109', // 0165029SS [In sys], 231-642 [In sys] , 022-1BD50 , 021-1BF01 , 050-1BA10 , 032-1BD70 , 05P00620-0017
-    price_product_1: 'BM7-032S', // UG39-Custom [In sys], 231-2706/026-000 [In sys],2000-1206[In sys] 2000-1406 , 053-1MT01 , 053-IP00 , 2000-2207
+    price_product_1: 'A22NW-2BM-TYA-P002-YD', // UG39-Custom [In sys], 231-2706/026-000 [In sys],2000-1206[In sys] 2000-1406 , 053-1MT01 , 053-IP00 , 2000-2207
     non_price_product: '760916-45',
     non_price_product_1: '376834-1D',
     po_number: 'TEST7736548',
@@ -29,5 +29,6 @@ export const storeTestData = {
         }
     },
     guest_api_path: '',
-    loggedIn_api_path: 'doPayment'
+    loggedIn_api_path: 'doPayment',
+    notes: 'Net 30 Payment from Store logged-In User with file attachment'
 }

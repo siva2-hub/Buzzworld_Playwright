@@ -1,3 +1,5 @@
+import { testData } from '../pages/TestData';
+
 const testdata = JSON.parse(JSON.stringify(require('../testdata.json')));
 const ExcelJS = require('exceljs');
 const fs = require('fs');
@@ -11,9 +13,10 @@ const { url } = require('inspector');
 const { default: AllPages } = require('./PageObjects');
 const { threadId } = require('worker_threads');
 const { count, log } = require('console');
-const { rTickIcon } = require('../pages/QuotesPage');
-const { loadingText } = require('../pages/PartsBuyingPages');
-const { checkDatesAtCreateSO } = require('../pages/RepairPages');
+const { rTickIcon, gridColumnData } = require('../pages/QuotesPage');
+const { loadingText, reactFirstDropdown } = require('../pages/PartsBuyingPages');
+import { enterKey, checkDatesAtCreateSO, rightArrowKey, leftArrowKey, insertKeys } from "../pages/RepairPages";
+import { dcAtPricing, pricingDropDown } from '../pages/PricingPages';
 const currentDate = new Date().toDateString();
 let date = currentDate.split(" ")[2];
 let vendor = testdata.vendor;
@@ -26,138 +29,22 @@ let day = currentDate1.getDate();
 let previuosMonth = currentDate1.getMonth();
 const year = currentDate1.getFullYear();
 let allPages;
-const currentDateTime = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
-const ANSI_RESET = "\x1b[0m";
-const ANSI_RED = "\x1b[31m";
-const ANSI_GREEN = "\x1b[32m";
-const ANSI_ORANGE = "\x1b[38;2;255;165;0m";
+export const currentDateTime = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+export const ANSI_RESET = "\x1b[0m";
+export const ANSI_RED = "\x1b[31m";
+export const ANSI_GREEN = "\x1b[32m";
+export const ANSI_ORANGE = "\x1b[38;2;255;165;0m";
 // const month = parseInt(text.substring(3, 4));
 // Outputs "Mon Aug 31 2020"
 //store the logs 
 // const logFilePath = path.join(__dirname, 'logs.log');
 const token = process.env.API_TOKEN;
+
+
+
 redirectConsoleToFile();
 //--------------------------------------------------------------------//----------------------------------------------------------------//
-export async function checkout_page(page1, pay_type) {
-    let sub_total = await page1.locator("(//h4[@class = 'number'])[4]").textContent({ timeout: 10000 });
-    // @ts-ignore
-    let st = (parseFloat(sub_total?.replace("$", "").replace(",", "")).toFixed(2));
-    // @ts-ignore
-    let tax = (parseFloat(sub_total?.replace("$", "").replace(",", "")) * 0.085).toFixed(2);
 
-    let exp_total, cf;
-    // @ts-ignore
-    if (await page1.getByLabel(pay_type).isChecked({ timeout: 10000 }) && pay_type === 'Credit Card') {
-        // @ts-ignore
-        cf = (parseFloat(sub_total?.replace("$", "").replace(",", "")) * 0.03).toFixed(2);
-        // @ts-ignore
-        exp_total = (parseFloat(st) + parseFloat(tax) + parseFloat(cf)).toFixed(2);
-        // pay_type = "credit card";
-    } else {
-        cf = 0.0;
-        // @ts-ignore
-        exp_total = (parseFloat(st) + parseFloat(tax) + parseFloat(cf)).toFixed(2);
-        // pay_type = "net 30";
-    }
-    // @ts-ignore
-
-    await page1.getByRole('textbox').fill('Test Notes');
-    let at = await page1.locator("(//h4[@class = 'number total'])[1]").textContent();
-    // @ts-ignore
-    let act_total = (parseFloat(at?.replace("$", "").replace(",", ""))).toFixed(2);
-    let res;
-    if (act_total === exp_total) {
-        console.log("pay type " + pay_type);
-        console.log("total " + exp_total);
-        console.log("Sub total " + st);
-        console.log("tax " + tax);
-        console.log("convc fee " + cf);
-        console.log("act total " + act_total);
-        res = true;
-    } else {
-        console.log("pay type " + pay_type);
-        console.log("exp_total " + exp_total);
-        console.log("Sub total " + st);
-        console.log("tax " + tax);
-        console.log("convc fee " + cf);
-        console.log("act total " + act_total);
-        res = false;
-    }
-    return res, exp_total;
-}
-export async function order_summary_page(check_total, check_st, check_tax, check_cf) {
-    const browser = await chromium.launch();
-    const cont = await browser.newContext();
-    const page1 = await cont.newPage();
-    let sub_total = await page1.locator("(//h4[@class = 'number'])[4]").textContent({ timeout: 10000 });
-    // @ts-ignore
-    let st = (parseFloat(sub_total?.replace("$", "").replace(",", "")).toFixed(2));
-    // @ts-ignore
-    let tax = (parseFloat(await page1.locator("(//h4[@class = 'number'])[5]").textContent()?.replace("$", "").replace(",", "")) * 0.085).toFixed(2);
-
-    let exp_total, cf;
-    // @ts-ignore
-    if (await page1.getByLabel(pay_type).isChecked({ timeout: 10000 }) && pay_type === 'Credit Card') {
-        // @ts-ignore
-        cf = (parseFloat(await page1.locator("(//h4[@class = 'number'])[6]").textContent()?.replace("$", "").replace(",", "")) * 0.03).toFixed(2);
-        // @ts-ignore
-        exp_total = (parseFloat(st) + parseFloat(tax) + parseFloat(cf)).toFixed(2);
-        // pay_type = "credit card";
-    } else {
-        cf = 0.0;
-        // @ts-ignore
-        exp_total = (parseFloat(st) + parseFloat(tax) + parseFloat(cf)).toFixed(2);
-        // pay_type = "net 30";
-    }
-    console.log("total in checkout page " + check_total);
-    console.log("st in checkout page " + check_st);
-    console.log("tax in checkout page " + check_tax);
-    console.log("cf in checkout page " + check_cf);
-    console.log("total in order summary page " + exp_total);
-    console.log("st in order summary page " + st);
-    console.log("tax in order summary page " + tax);
-    console.log("cf in order summary page " + cf);
-}
-export async function guest_checkout_form(page) {
-    await page.getByLabel('Company Name*').fill(testdata.guest_customer.comp_name);
-    await page.getByRole('option', { name: testdata.guest_customer.comp_name }).click();
-    await page.getByPlaceholder('Enter First Name').fill(testdata.guest_customer.f_name);
-    await page.getByPlaceholder('Enter Last Name').fill(testdata.guest_customer.l_name);
-    await page.getByPlaceholder('Enter Email ID').fill(testdata.guest_customer.email);
-    await page.getByText('Company Name*Chump Change AutomationFirst Name*Last Name*Email ID*Phone Number*').click();
-    await page.getByPlaceholder('Enter Phone Number').click();
-    await page.getByPlaceholder('Enter Phone Number').fill(testdata.guest_customer.phone);
-    await page.getByRole('button', { name: 'Next' }).click();
-    await page.getByPlaceholder('Enter Address1').fill('Test Address 1');
-    await page.getByRole('button', { name: 'Next' }).click();
-    await page.getByPlaceholder('Enter City').fill('columbia');
-    await page.locator('div').filter({ hasText: /^Select State$/ }).nth(2).click();
-    await page.locator('#react-select-2-input').fill('dis');
-    await page.getByText('District of Columbia', { exact: true }).click();
-    await page.locator('.react-select__input-container').click();
-    await page.getByLabel('Postal Code*').fill('77706');
-    await page.getByText('77706', { exact: true }).click();
-    await page.getByRole('button', { name: 'Next' }).click();
-    await page.getByPlaceholder('Enter Ship To Name').fill('test ship to name');
-    await page.getByText('Select Shipping Method').click();
-    await page.getByText('Over Night', { exact: true }).click();
-    await page.getByLabel('', { exact: true }).check();
-    await page.getByPlaceholder('Enter Collect Number').fill('CN37463746');
-    await page.getByRole('button', { name: 'Next' }).click();
-    await page.getByRole('textbox').fill('Test notes req payterms');
-}
-export async function guest_add_products(page, product1, product2, count) {
-    await page.goto(testdata.urls.store_url);
-    await page.getByRole('link', { name: 'See all products' }).scrollIntoViewIfNeeded();
-    await page.waitForTimeout(2000);
-    await page.getByRole('link', { name: product1 }).first().hover();
-    await page.getByRole('button', { name: '' }).nth(1).click();
-    await page.waitForTimeout(2000);
-    await page.getByRole('link', { name: product2 }).first().hover();
-    await page.getByRole('button', { name: '' }).nth(count).click();
-    await page.goto(testdata.urls.cart_page_url);
-    await page.getByRole('link', { name: 'Checkout' }).click();
-}
 export async function login_buzz(page, stage_url) {
     allPages = new AllPages(page);
     await page.goto(stage_url + "all_quotes");
@@ -945,7 +832,7 @@ export async function leftMenuSearch(page) {
     try {
         await expect(page.getByRole('button', { name: 'Pricing' })).toBeVisible();
         await page.getByRole('button', { name: 'Pricing' }).click();
-        await page.getByRole('menuitem', { name: 'Discount Codes' }).click();
+        await dc.click();
         await expect(page.getByRole('heading', { name: 'Discount Codes' })).toBeVisible();
         await page.waitForTimeout(2300)
         await page.getByPlaceholder('Search', { exact: true }).fill(vendor);
@@ -970,48 +857,44 @@ export async function add_dc(page, condition) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let res;
     try {
-        await expect(page.getByRole('button', { name: 'Pricing' })).toBeVisible();
-        await page.getByRole('button', { name: 'Pricing' }).click();
-        await page.getByRole('menuitem', { name: 'Discount Codes' }).click();
+        await expect(pricingDropDown(page)).toBeVisible();
+        await pricingDropDown(page).click();
+        await dcAtPricing(page).click();
         await expect(page.getByRole('heading', { name: 'Discount Codes' })).toBeVisible();
         //getting vendor from testdat json file
         await page.getByPlaceholder('Search', { exact: true }).fill(testdata.vendor);
         await expect(page.getByText(testdata.vendor)).toBeVisible();
         await page.waitForTimeout(2500);
-        await expect(page.getByLabel('open')).toBeVisible();
-        await page.getByLabel('open').click();
-        await page.keyboard.insertText('Default');
+        await expect(reactFirstDropdown(page).first()).toBeVisible();
+        await reactFirstDropdown(page).first().click();
+        await insertKeys(page, 'Default');
         await page.waitForTimeout(2000);
-        await page.keyboard.press('Enter');
+        await enterKey(page);
         await page.waitForTimeout(2300);
         await page.locator('.button-icon-text').click();
         await expect(page.getByPlaceholder('Our Price')).toBeVisible();
         let dc;
-        if (condition === 'duplicate') {
-            dc = 'P022';
-        } else {
+        if (condition === 'duplicate') { dc = 'P022'; }
+        else {
             //getting discount code from testdat json file
-            dc = testdata.dc_new;
+            dc = testData.pricing.new_discount_code;
         }
         await page.getByPlaceholder('Discount Code', { exact: true }).fill(dc);
         await page.getByText('MM/DD/YYYY').first().click();
-        await page.keyboard.press('ArrowDown');
-        await page.keyboard.press('ArrowUp');
-        await page.keyboard.press('Enter');
+        await rightArrowKey(page); //await page.keyboard.press('ArrowDown');
+        await leftArrowKey(page);//await page.keyboard.press('ArrowUp');
+        await enterKey(page);//await page.keyboard.press('Enter');
         let start_date = await page.locator("(//*[contains(@class, 'singleValue')])[2]").textContent();
         await page.getByText('MM/DD/YYYY').click();
         let e_date = await end_date(start_date);
-        await page.keyboard.insertText(e_date);
-        await page.keyboard.press('Enter');
-        await page.getByText('Quantity').nth(2).click()
-        await page.getByText('Quantity').nth(2).press('ArrowUp');
-        await page.getByText('Quantity').nth(2).press('Enter');
-        await page.getByPlaceholder('Description').click();
+        await insertKeys(page, e_date); await enterKey(page);
+        await reactFirstDropdown(page).nth(1).click();
+        await selectReactDropdowns(page, '1');
         await page.getByPlaceholder('Description').fill('Manually Added Discount Code');
         await page.getByPlaceholder('Our Price').fill('0.2');
         await page.getByPlaceholder('MRO').fill('0.4');
         await page.getByPlaceholder('OEM').fill('0.6');
-        await page.getByPlaceholder('RS').fill('0.6');
+        await page.getByPlaceholder('RS').fill('0.6'); await page.pause();
         await page.getByRole('button', { name: 'Add Discount Code' }).click();
         await page.waitForTimeout(1800);
         if (condition === 'duplicate') {
@@ -1021,9 +904,11 @@ export async function add_dc(page, condition) {
         } else {
             await expect(page.getByRole('button', { name: 'Add Discount Code' })).toBeHidden({ timeout: 5000 });
             await page.getByPlaceholder('Search By Discount Code').fill(dc);
-            await expect(page.locator("//*[text() = '" + dc + "']")).toBeHidden({ timeout: 5000 });
+            await enterKey(page);
+            await expect(await editIconAtReactGrid(page).nth(0)).toBeHidden(); await expect(await editIconAtReactGrid(page).nth(0)).toBeVisible();
+            await expect(page.locator("//*[text() = '" + dc + "']").first()).toBeVisible({ timeout: 5000 });
             await page.waitForTimeout(2300);
-            console.log("added discount code is ", testdata.dc_new);
+            console.log("added discount code is ", dc);
         }
         res = true;
     } catch (error) {
@@ -1085,9 +970,9 @@ export async function update_dc(page, cond) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let res;
     try {
-        await expect(page.getByRole('button', { name: 'Pricing' })).toBeVisible();
-        await page.getByRole('button', { name: 'Pricing' }).click();
-        await page.getByRole('menuitem', { name: 'Discount Codes' }).click();
+        await expect(pricingDropDown(page)).toBeVisible();
+        await pricingDropDown(page).click();
+        await dc.click();
         await expect(page.getByRole('heading', { name: 'Discount Codes' })).toBeVisible();
         await page.getByPlaceholder('Search', { exact: true }).fill(testdata.vendor);
         await expect(page.getByText(testdata.vendor)).toBeVisible();
@@ -1161,7 +1046,7 @@ export async function multi_edit(page, dc) {
     try {
         await expect(page.getByRole('button', { name: 'Pricing' })).toBeVisible();
         await page.getByRole('button', { name: 'Pricing' }).click();
-        await page.getByRole('menuitem', { name: 'Discount Codes' }).click();
+        await dc.click();
         await expect(page.getByRole('heading', { name: 'Discount Codes' })).toBeVisible();
         await page.getByPlaceholder('Search', { exact: true }).fill(vendor);
         await expect(page.getByText(vendor)).toBeVisible();
