@@ -14,7 +14,7 @@ export const validDate = (page) => { return page.getByPlaceholder('MM / YY') }
 export const cvv = (page) => { return page.getByPlaceholder('Enter CVC') }
 export const proPayBtn = (page) => { return page.getByRole('button', { name: 'Proceed To Payment' }) }
 export const creditCardRadioBtn = (page) => { return page.getByLabel('Credit Card') }
-export const notes = (page) => { return page.getByRole('textbox') }
+export const notes = (page) => { return page.locator('textarea[name="notes"]') }
 export const orderQuoteText = (page) => { return page.locator("//*[contains(@class,'order-id-container')]/div/div[2]") }
 export const orderOrQuoteNum = (page) => { return page.locator("//*[contains(@class,'order-id-container')]/div/div[2]/span[2]") }
 
@@ -62,7 +62,7 @@ export async function cartCheckout(page, isDecline, modelNumber) {
     await page.getByLabel('', { exact: true }).check();
     await page.getByPlaceholder('Enter Collect Number').fill('123456ON');
     await page.getByRole('button', { name: 'Next' }).click();
-    await page.getByRole('textbox').fill('Test\nNotes');
+    await notes(page).fill(storeTestData.notes);
 }
 export async function grandTotalForCreditCard(page) {
     let st = await page.locator("(//*[contains(@class,'Total_container')])[1]/div/div[2]").textContent();
@@ -169,7 +169,7 @@ export async function selectBillingDetails(page) {
     await nextButton(page).click();
     //Enter Shipping Details
     const shipToName = page.getByPlaceholder('Enter Ship To Name');
-    if (shipToName.getAttribute('value') == '') { await shipToName.fill('Test Ship To Name'); }
+    if (await shipToName.getAttribute('value') == '') { await shipToName.fill('Test Ship To Name'); }
     else { } await nextButton(page).click();
 }
 export async function net30Payment(page, modelNumber, poNum, api_path) {
@@ -206,7 +206,7 @@ export async function ccPaymentAsGuest(
     await selectBillingDetails(page);
     //select shipping address
     await selectShippingDetails(page);
-    await notes(page).fill('Test\nNotes');
+    await notes(page).fill(storeTestData.notes);
     // await creditCardRadioBtn(page).click();
     // await proceedBtn(page).click();
     await creditCardPayment(page, (fName + lName), cardDetails)

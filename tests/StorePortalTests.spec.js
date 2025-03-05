@@ -9,7 +9,7 @@ const { testData } = require('../pages/TestData');
 const testdata = JSON.parse(JSON.stringify(require("../testdata.json")))
 let url = process.env.BASE_URL_STORE;
 
-test('As Logged In Net 30 Payment', async ({ page }) => {
+test('As Logged In Net 30 Payment from store', async ({ page }) => {
   let modelNumber = storeTestData.price_product_1, poNumber = storeTestData.po_number;
   await net30Payment(page, modelNumber, poNumber, storeTestData.loggedIn_api_path)
 });

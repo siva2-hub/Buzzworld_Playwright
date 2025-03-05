@@ -76,8 +76,15 @@ const testData = {
         rep_sum_notes: 'Test Repair Summary Notes to Customer',
         intrnl_used_part_num: 'TESTPART123',
         intrnl_used_part_desc: 'Internal Used Part Description 1st',
-        apr_date_rep:'02/25/2025',
-        prom_date_rep:'02/27/2025'
+        apr_date_rep: '02/25/2025',
+        prom_date_rep: '02/27/2025'
+    },
+    pricing: {
+        vendor_code: 'WIEG001',
+        new_stock_code: 'SC10001',
+        new_discount_code: 'DC10001',
+        multipliers_path: ['Our Price', 'MRO', 'OEM', 'RS'],
+        multipliers_data: ['0.1', '0.2', '0.3', '0.4'],
     }
 }
 module.exports = {
