@@ -81,10 +81,20 @@ const testData = {
     },
     pricing: {
         vendor_code: 'WIEG001',
+        old_discount_code: ['TestDC#003', 'DC10001'],
         new_stock_code: 'SC10001',
         new_discount_code: 'DC10001',
+        dcQty: '1',
+        dcDesc: 'Manually Added',
         multipliers_path: ['Our Price', 'MRO', 'OEM', 'RS'],
-        multipliers_data: ['0.1', '0.2', '0.3', '0.4'],
+        multipliers_data: ['0.11', '0.2', '0.3', '0.4'],
+        mpls_empty_values: ['', '', '', ''],
+        mpls_inValid_values: ['jhged', 'jhsfjbg', 'sdfd', 'ksdhf'],
+        mpls_empty_values_valn: ['Please enter Discount Code', 'Please select Start Date', 'Please select End Date', 'Please select  Quantity',
+            'Please enter Our Price', 'Please enter MRO', 'Please enter OEM', 'Please enter RS'],
+        mpls_inValid_vals_valdn: 'Please enter valid number',
+        upt_dc_empty_valns: ['Please select Start Date', 'Please select End Date', 'Please enter Our Price',
+            'Please enter MRO', 'Please enter OEM', 'Please enter RS'],
     }
 }
 module.exports = {
