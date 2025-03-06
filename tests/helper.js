@@ -17301,7 +17301,10 @@ export async function selectReactDropdowns(page, selectingText) {
         else { isSelected = false; }
     }
     if (isSelected) { }
-    else { throw new Error(selectingText + " not found in dropdown"); }
+    else {
+        if (selectingText == '') { }
+        else { throw new Error(selectingText + " not found in dropdown"); }
+    }
 }
 export async function clearFilters_TopSearch(page) {
     try {

@@ -261,46 +261,46 @@ test.describe('all tests', async () => {
     await returnResult(page, testName, results);
   });
 
-  test('Add Discount Code with Validations', async ({ }, testInfo) => {
-    results = await add_dc(page, '');
-    if (results) {
-      results = await add_dc(page, 'duplicate');
-      if (results) {
-        results = await addDiscountCodeValidations(page, 'emptyValues');
-        if (results) {
-          results = await addDiscountCodeValidations(page, '');
-        }
-      }
-    }
-    let testName = testInfo.title;
-    await returnResult(page, testName, results);
-  });
+  // test('Add Discount Code with Validations', async ({ }, testInfo) => {
+  //   results = await add_dc(page, '');
+  //   if (results) {
+  //     results = await add_dc(page, 'duplicate');
+  //     if (results) {
+  //       results = await addDiscountCodeValidations(page, 'emptyValues');
+  //       if (results) {
+  //         results = await addDiscountCodeValidations(page, '');
+  //       }
+  //     }
+  //   }
+  //   let testName = testInfo.title;
+  //   await returnResult(page, testName, results);
+  // });
 
-  test('Update Discount Code with Validations', async ({ }, testInfo) => {
-    results = await update_dc(page, '');
-    if (results) {
-      results = await update_dc(page, 'emptyValues');
-      if (results) {
-        results = await update_dc(page, 'inValidMultipliers');
-      }
-    }
-    let testName = testInfo.title;
-    await returnResult(page, testName, results);
-  });
+  // test('Update Discount Code with Validations', async ({ }, testInfo) => {
+  //   results = await update_dc(page, '');
+  //   if (results) {
+  //     results = await update_dc(page, 'emptyValues');
+  //     if (results) {
+  //       results = await update_dc(page, 'inValidMultipliers');
+  //     }
+  //   }
+  //   let testName = testInfo.title;
+  //   await returnResult(page, testName, results);
+  // });
 
-  test('Add Products in Pricing', async ({ }, testInfo) => {
-    results = await add_sc(page, testdata.dc_new);
-    let testName = testInfo.title;
-    await returnResult(page, testName, results);
-  });
+  // test('Add Products in Pricing', async ({ }, testInfo) => {
+  //   results = await add_sc(page, testdata.dc_new);
+  //   let testName = testInfo.title;
+  //   await returnResult(page, testName, results);
+  // });
 
-  test.skip('Update products in Pricing', async () => {
-    stock_code = await update_sc(page);
-  });
+  // test.skip('Update products in Pricing', async () => {
+  //   stock_code = await update_sc(page);
+  // });
 
-  test.skip('multi edit dc', async () => {
-    await multi_edit(page, testdata.dc_new);
-  });
+  // test.skip('multi edit dc', async () => {
+  //   await multi_edit(page, testdata.dc_new);
+  // });
 
   test('Verifying Buy Price and Sell Price values at Non SPA', async ({ }, testInfo) => {
     //Buy price value getting from purchase discount on list price

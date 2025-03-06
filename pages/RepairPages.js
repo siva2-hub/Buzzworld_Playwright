@@ -88,6 +88,8 @@ export const custReqDateAtSO = (page) => { return page.locator("//*[@title='Cust
 export const poNumAtSOScr = (page) => { return page.getByPlaceholder('Enter PO Number'); }
 export const rightArrowKey = (page) => { return page.keyboard.press('ArrowRight') }
 export const leftArrowKey = (page) => { return page.keyboard.press('ArrowLeft') }
+export const arrowUpKey = (page) => { return page.keyboard.press('ArrowUp') }
+export const arrowDownKey = (page) => { return page.keyboard.press('ArrowDown') }
 export const enterKey = (page) => { return page.keyboard.press('Enter') }
 export const insertKeys = (page, values) => { return page.keyboard.insertText(values) }
 export const statusChangeDropdown = (page) => { return page.getByRole('button', { name: 'loading Change Status' }) }
