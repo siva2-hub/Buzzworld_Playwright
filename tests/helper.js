@@ -2058,7 +2058,7 @@ export async function createSO(page, vendor_name, isJobCreate, quote_type) {
     await expect(allPages.poNumberAtSO).toBeVisible();
     try { await expect(page.locator("(//*[text() = 'Create'])[2]")).toBeVisible(); }
     catch (error) { console.log('error diplaying Item or Stock Code test at Create Sales Order Screen', error); }
-    await allPages.poNumberAtSO.fill('543534534');
+    await allPages.poNumberAtSO.fill(testData.quotes.po_num);
     //checking and selecting the FOB dropdown
     let fobTxt = await page.locator("(//*[contains(@class, 'react-select__value-container')])[2]").textContent();
     if (fobTxt == 'Select FOB Point') {

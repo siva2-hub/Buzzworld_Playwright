@@ -2,7 +2,7 @@ import { expect } from "@playwright/test";
 import { testData } from "./TestData";
 import { ANSI_RED, ANSI_RESET, currentDateTime, delay, end_date, selectReactDropdowns } from "../tests/helper";
 import { closeAtSubCustAprvl, proceedButton, reactFirstDropdown } from "./QuotesPage";
-import { arrowDownKey, arrowUpKey, enterKey, insertKeys, leftArrowKey, promisedDateField, rightArrowKey, updateSuccMsg } from "./RepairPages";
+import { arrowDownKey, arrowUpKey, confPopUp, enterKey, insertKeys, leftArrowKey, promisedDateField, rightArrowKey, updateSuccMsg } from "./RepairPages";
 import { timeout } from "../playwright.config";
 
 
@@ -26,6 +26,10 @@ export const dcField = (page) => { return page.getByPlaceholder('Discount Code',
 export const clearDdField = (page) => { return page.locator("//*[@aria-label='clear']") }
 export const updateDCButton = (page) => { return page.getByRole('button', { name: 'Update Discount Code' }) }
 export const meDCButton = (page) => { return page.getByText('Multi Edit') }
+export const addSCButton = (page) => { return page.getByRole('button', { name: 'Add Product' }) }
+export const scField = (page) => { return page.getByPlaceholder('Enter Stock Code') }
+export const lpField = (page) => { return page.getByPlaceholder('Enter List Price') }
+export const updateSCButton = (page) => { return page.getByRole('button', { name: 'Update Product' }) }
 
 //Actions Components
 export async function goToDiscountCodes(page) {
@@ -49,6 +53,20 @@ export async function fillDCData(page, dc, dcDesc, qty) {
     await reactFirstDropdown(page).nth(1).click();
     await selectReactDropdowns(page, qty);
     await descPricing(page).fill(dcDesc + ' ' + dc);
+}
+export async function fillSCData(page, stock_code, dc, lp, prodClass) {
+    //fill data into stock code field
+    await scField(page).fill(stock_code);
+    //select discount code
+    await reactFirstDropdown(page).nth(1).click();
+    await selectReactDropdowns(page, dc);
+    //fill data into list price
+    await lpField(page).fill(lp);
+    //select product class
+    await reactFirstDropdown(page).nth(2).click();
+    await selectReactDropdowns(page, prodClass);
+    //fill data into description
+    await descPricing(page).fill(testData.pricing.dcDesc + ' ' + stock_code);
 }
 export async function selectVendorBranch(page) {
     await topSearch(page).fill(testData.pricing.vendor_code);
@@ -243,6 +261,105 @@ export async function multiEditDiscountCode(page, dc) {
         await page.screenshot({ path: 'files/multi_edit_dc_error.png', fullPage: true });
         await closeAtSubCustAprvl(page).click();
         await page.waitForTimeout(1800);
+    }
+    return testStatus;
+}
+export async function addStockCode(page, stock_code, dc, lPrice, condition) {
+    console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
+    let res, productClass;
+    try {
+        //go to pricing
+        await pricingDropDown(page).click();
+        await getEleByText(page, 'Pricing').nth(1).click();
+        //selecting vendor and branch
+        await selectVendorBranch(page);
+        // click on Add button at pricing
+        await addButton(page).click()
+        //enter all required data into add stock code page
+        switch (condition) {
+            case 'valid':
+                productClass = testData.pricing.vendor_code[0] + testData.pricing.vendor_code[1] + '01';
+                await fillSCData(page, stock_code, dc, lPrice, productClass);
+                break;
+            case 'empty': //productClass = ''; await fillSCData(page, stock_code, dc, lPrice, productClass);
+                break;
+            case 'InValid':
+                productClass = testData.pricing.vendor_code[0] + testData.pricing.vendor_code[1] + '01';
+                await fillSCData(page, stock_code, dc, lPrice, productClass);
+                break;
+        }
+        //click on add stock code button
+        await addSCButton(page).click();
+        await page.waitForTimeout(1800);
+        if (condition == 'valid') {
+            await expect(addSCButton(page)).toBeHidden();
+            //verify the stock code is added or not
+            await searchSC_DC(page).fill(stock_code);
+            await enterKey(page);
+            await expect(await editIconAtReactGrid(page).nth(0)).toBeHidden(); await expect(await editIconAtReactGrid(page).nth(0)).toBeVisible();
+            await expect(getEleByText(page, stock_code)).toBeVisible()
+            console.log("added stock code is ", stock_code)
+        } else if (condition == 'empty') {
+            for (let index = 0; index < testData.pricing.empty_sc_valns.length; index++) {
+                await expect(getEleByText(page, testData.pricing.empty_sc_valns[index])).toBeVisible();
+                await closeAtSubCustAprvl(page).click();
+            }
+            console.log('displaying validations for emoty values while adding product')
+        } else {
+            await lpField(page).fill('sivs');
+            for (let index = 0; index < testData.pricing.inValid_sc_valns.length; index++) {
+                await expect(getEleByText(page, testData.pricing.inValid_sc_valns[index])).toBeVisible()
+            }
+            console.log('displaying validations for in-valid values while adding product');
+            await closeAtSubCustAprvl(page).click();
+        }
+        await page.waitForTimeout(1800);
+        res = true;
+    } catch (error) {
+        console.log('getting error while adding stock code ', error);
+        await page.screenshot({ path: 'files/add_stock_code_error.png', fullPage: true });
+        await closeAtSubCustAprvl(page).click();
+        res = false;
+    }
+    return res;
+}
+export async function updateProduct(page, stock_code) {
+    console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
+    let testStatus = false;
+    try {
+        //go to pricing
+        await pricingDropDown(page).click();
+        await getEleByText(page, 'Pricing').nth(1).click();
+        //selecting vendor and branch
+        await selectVendorBranch(page);
+        await searchSC_DC(page).fill(stock_code);
+        await enterKey(page); await page.waitForTimeout(2300);
+        await expect(editIconAtReactGrid(page).first()).toBeVisible();
+        await editIconAtReactGrid(page).first().click()
+        await expect(descPricing(page)).toBeVisible();
+        let descFieldValue = await descPricing(page).textContent();
+        console.log('Description before update: ' + descFieldValue)
+        let updatedDesc = testData.pricing.dcDesc + ' After Update';
+        await descPricing(page).fill(updatedDesc);
+        await updateSCButton(page).click();
+        await expect(updateSuccMsg(page)).toBeVisible()
+        await searchSC_DC(page).fill(stock_code);
+        await enterKey(page); await page.waitForTimeout(2300);
+        await expect(editIconAtReactGrid(page).first()).toBeVisible();
+        await editIconAtReactGrid(page).first().click()
+        await expect(descPricing(page)).toBeVisible();
+        descFieldValue = await descPricing(page).textContent();
+        console.log(updatedDesc + '\n' + descFieldValue);
+        console.log('Description after update: ' + descFieldValue)
+        if (descFieldValue == updatedDesc) {
+            console.log('updated stock code is ', stock_code); testStatus = true;
+        } else {
+            console.log('product update is failed')
+        }
+    } catch (error) {
+        console.log('getting error while updating stock code ', error);
+        await page.screenshot({ path: 'files/update_stock_code_error.png', fullPage: true });
+        await closeAtSubCustAprvl(page).click();
     }
     return testStatus;
 }

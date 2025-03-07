@@ -29,6 +29,7 @@ export const submitButtonAtItemInfo = (page) => { return page.locator("//span[no
 export const statusUpdateConfPopUp = (page) => { return page.getByText('Status Changed Successfully') }
 export const reactFirstDropdown = (page) => { return page.getByLabel('open') }
 export const rTickIcon = (page) => { return page.getByTitle('Save Changes') }
+export const undoChangesIcon = (page) => { return page.getByTitle('Undo Changes') }
 
 export async function navigateToPartsPurchase(page) {
     await partsPurchaseLink(page).click();

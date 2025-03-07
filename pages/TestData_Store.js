@@ -15,7 +15,7 @@ export const storeTestData = {
     price_product_1: 'A22NW-2BM-TYA-P002-YD', // UG39-Custom [In sys], 231-2706/026-000 [In sys],2000-1206[In sys] 2000-1406 , 053-1MT01 , 053-IP00 , 2000-2207
     non_price_product: '760916-45',
     non_price_product_1: '376834-1D',
-    po_number: 'TEST7736548',
+    po_number: 'MAR-7-2025_TEST_PORTAL',
     card_details: {
         american: {
             card_number: '370000000000002',
@@ -30,5 +30,5 @@ export const storeTestData = {
     },
     guest_api_path: '',
     loggedIn_api_path: 'doPayment',
-    notes: 'As a guest credit card payment, existing customer and new contact'
+    notes: 'Net 30 Payment from Store logged-In User with file attachment'
 }

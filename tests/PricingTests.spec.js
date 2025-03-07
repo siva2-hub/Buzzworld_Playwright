@@ -1,6 +1,6 @@
 const { test } = require("@playwright/test");
-import { add_sc, addDiscountCodeValidations, login_buzz, returnResult, update_dc, update_sc } from "../tests/helper";
-import { addDCValidations, addDiscountCode, multiEditDiscountCode, updateDiscountCode } from '../pages/PricingPages';
+import { login_buzz, returnResult, update_sc } from "../tests/helper";
+import { addDCValidations, addDiscountCode, addStockCode, multiEditDiscountCode, updateDiscountCode, updateProduct } from '../pages/PricingPages';
 import { testData } from '../pages/TestData';
 
 let page, results;
@@ -46,11 +46,22 @@ test('Discount Code Update with Validations', async ({ }, testInfo) => {
     }
     await returnResult(page, testInfo.title, testStatus);
 });
-test('Add Products in Pricing', async ({ }, testInfo) => {
-    results = await add_sc(page, testdata.dc_new);
+test('Manually Add Product in Pricing', async ({ }, testInfo) => {
+    results = await addStockCode(page, testData.pricing.new_stock_code, testData.pricing.old_discount_code[0],
+        testData.pricing.lp, 'valid'); let testName = testInfo.title;
+    await returnResult(page, testName, results);
+});
+test('Update product in Pricing', async ({ }, testInfo) => {
+    results = await updateProduct(page, testData.pricing.new_stock_code);
+    await returnResult(page, testInfo.title, results);
+});
+test('Checking Empty values Validations while Add Product in Pricing', async ({ }, testInfo) => {
+    results = await addStockCode(page, '', '', '', 'empty');
     let testName = testInfo.title;
     await returnResult(page, testName, results);
 });
-test('Update products in Pricing', async () => {
-    stock_code = await update_sc(page);
+test('Checking In-Valid values Validations while Add Product in Pricing', async ({ }, testInfo) => {
+    results = await addStockCode(page, '*&^%$', testData.pricing.old_discount_code[0],
+        testData.pricing.lp, 'InValid'); let testName = testInfo.title;
+    await returnResult(page, testName, results);
 });

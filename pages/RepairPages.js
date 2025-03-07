@@ -1,7 +1,7 @@
 const { expect } = require("@playwright/test")
 import { customerIconAtGrid, companyField, reactFirstDropdown, addItemsBtn, partsSeach, partNumberField, partDescription, quoteOrRMANumber, clickOnRelatedIds, saveButton, createSOBtn, gpLabel } from './QuotesPage';
 import { getRMAItemStatus, selectReactDropdowns, spinner, approve, createSO, wonQuote, submitForCustomerApprovals, defaultTurnAroundTime, delay } from '../tests/helper';
-import { checkVendorPartNumberAcceptingSpacesOrNot, ppItemQtyField, ppItemCostField, ppItemDescField, ppItemSpclNotesField, ppItemNotesField, createButtonAtPartsPurchForm, jobNumField, vpnFieldText, loadingText, rTickIcon } from './PartsBuyingPages';
+import { checkVendorPartNumberAcceptingSpacesOrNot, ppItemQtyField, ppItemCostField, ppItemDescField, ppItemSpclNotesField, ppItemNotesField, createButtonAtPartsPurchForm, jobNumField, vpnFieldText, loadingText, rTickIcon, undoChangesIcon } from './PartsBuyingPages';
 import { testData } from './TestData'
 const { error } = require("console")
 //Locators / atributes
@@ -26,7 +26,7 @@ export const addSelectedPartBtn = (page) => { return page.getByRole('button', { 
 export const assignLocation = (page) => { return page.getByText('Assign Location') }
 export const mfgField = (page) => { return page.getByLabel('Manufacturer*') }
 export const addNewPartBtn = (page) => { return page.getByRole('button', { name: 'Add New Part' }) }
-export const serNumEdit = (page) => { return page.locator("//span[@title='Edit']//*[name()='svg']") }
+export const serNumEdit = (page) => { return page.locator("//*[@class='quantity-parent']/div[4]/div/span") }
 export const strgLocation = (page) => { return page.getByPlaceholder('Storage Location') }
 export const irnlItemNotesField = (page) => { return page.getByPlaceholder('Type here') }
 export const updLocationBtn = (page) => { return page.getByRole('button', { name: 'Update Location' }) }
@@ -104,16 +104,16 @@ export async function naviagateToRepairs(page) {
 export async function createRepair(page, acc_num, cont_name) {
     try {
         await naviagateToRepairs(page);
-        // await page.goto('https://www.staging-buzzworld.iidm.com/repair-request/64be6633-fc57-4a8e-b7fd-bc6ac1000454')
-        await createRMABtn(page).click();
-        await expect(companyField(page)).toBeVisible();
-        await companyField(page).fill(acc_num);
-        await expect(page.getByText(acc_num, { exact: true }).nth(1)).toBeVisible();
-        await page.getByText(acc_num, { exact: true }).nth(1).click();
-        await reactFirstDropdown(page).nth(2).click();
-        await page.keyboard.insertText(cont_name);
-        await selectReactDropdowns(page, cont_name); //await page.pause();
-        await createBtnAtRMA(page).click();
+        await page.goto('https://www.staging-buzzworld.iidm.com/repair-request/054868bd-9299-41fe-9ff3-fad2f327fbb6')
+        // await createRMABtn(page).click();
+        // await expect(companyField(page)).toBeVisible();
+        // await companyField(page).fill(acc_num);
+        // await expect(page.getByText(acc_num, { exact: true }).nth(1)).toBeVisible();
+        // await page.getByText(acc_num, { exact: true }).nth(1).click();
+        // await reactFirstDropdown(page).nth(2).click();
+        // await page.keyboard.insertText(cont_name);
+        // await selectReactDropdowns(page, cont_name); //await page.pause();
+        // await createBtnAtRMA(page).click();
         await expect(quoteOrRMANumber(page)).toBeVisible();
         const rmaNumber = await quoteOrRMANumber(page).textContent();
         console.log('RMA: ' + rmaNumber);
@@ -159,11 +159,11 @@ export async function addNewPart(page, stock_code, vendorCode, vendorName, partD
 }
 export async function assignLocationFun(page, serialNum, storageLocation, internalItemNotes) {
     await assignLocation(page).first().click();
-    await serNumEdit(page).nth(1).click();
+    await serNumEdit(page).nth(0).click();
     if (await serialNumField(page).getAttribute('value') === '') {
         await serialNumField(page).fill(serialNum);
         await rTickIcon(page).click();
-    }
+    } else { await undoChangesIcon(page).click(); }
     await strgLocation(page).fill(storageLocation);
     await irnlItemNotesField(page).fill(internalItemNotes);
     await updLocationBtn(page).click();
@@ -172,7 +172,7 @@ export async function assignLocationFun(page, serialNum, storageLocation, intern
     console.log('Location Assigned');
 }
 export async function assignTech(page, tech, internalItemNotes) {
-    await assignTechBtn(page).click();
+    await assignTechBtn(page).first().click();
     await reactFirstDropdown(page).click();
     await page.keyboard.insertText(tech);
     await page.keyboard.press('Enter');
@@ -183,7 +183,7 @@ export async function assignTech(page, tech, internalItemNotes) {
     console.log('Technician Assigned');
 }
 export async function itemEvaluation(page, repairType, techSuggestedPrice, internalItemNotes) {
-    await evaluateItemBtn(page).click();
+    await evaluateItemBtn(page).first().click();
     //select repair type
     await repTypeRadioBtn(page, repairType).click();//await page.pause();
     if (repairType == 1) {
@@ -360,7 +360,7 @@ export async function saveQCCheckListForm(page, partsNotes, qcCommentsToCust, st
     console.log('QC status has updated to ' + status);
 }
 export async function verifyAddRowIssue(page) {
-    const repIteStatus = await repItemStatus(page).textContent();
+    const repIteStatus = await repItemStatus(page).first().textContent();
     console.log('status is:' + repIteStatus); //await page.pause();
     if (repIteStatus == ' QC Failed') {
         await pendingQCText(page).first().click();
@@ -449,6 +449,7 @@ export async function updateDatesAtRepairs(page, aprDateValue, promDateValue) {
     await saveButton(page).click(); await delay(page, 2000);
     await repItemEditIcon(page).first().click();
     await expect(customerPO(page)).toBeVisible();
+    await customerPO(page).fill(testData.repairs.cust_po_num);
     //verifying dates are properly saved or not
     const approvedDate = await promisedDateField(page).nth(2).textContent();
     const promicedDate = await promisedDateField(page).nth(3).textContent();
