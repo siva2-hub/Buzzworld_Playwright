@@ -52,15 +52,15 @@ const testData = {
         cust_name: 'Multicam Inc', // Chump Change Automation , Multicam Inc, Hollymatic Corporation
         acc_num: 'MULTI00', // CHUMP03 , MULTI00 , HOLLY00
         cont_name: 'Garret Luppino', //chump userOne --> CHUMP03, Garret Luppino --> multioo
-        rep_tech: 'James Nairn', //James Nairn , Dan Holmes
+        rep_tech: 'Dan Holmes', //James Nairn , Dan Holmes
         rep_type: ['1'], // '1' = Repairable, '2' = Non Repairable, '3' = Outsource Repairable
-        stock_code: ['05P00620-0017'], // 2000-1203, 12342-00012, 022-1BD70 , 131503.00-SURPLUS
+        stock_code: ['2000-1203'], // 2000-1203, 12342-00012, 022-1BD70 , 131503.00-SURPLUS
         part_desc: 'Manually Added From Repairs',
         suppl_name: 'BACO CONTROLS INC',
         suppl_code: 'BACO001',
-        serial_number: 'TEST1234SN',
-        storage_loc: 'surplus', // surplus , C300
-        tech_sugg_price: '800',
+        serial_number: 'CD088A0W01010101',
+        storage_loc: 'WHS', // surplus , C300
+        tech_sugg_price: '475',
         item_internal_notes: 'Test Internal Notes at ',
         is_create_job: true,
         quote_type: 'Repair Quote',
@@ -84,8 +84,8 @@ const testData = {
     pricing: {
         vendor_code: 'WIEG001',
         old_discount_code: ['TestDC#003', 'DC10001'],
-        new_stock_code: 'SC10001',
-        new_discount_code: 'DC10001',
+        new_stock_code: 'SC10003',
+        new_discount_code: 'DC10003',
         dcQty: '1',
         dcDesc: 'Manually Added',
         multipliers_path: ['Our Price', 'MRO', 'OEM', 'RS'],
@@ -97,10 +97,11 @@ const testData = {
         mpls_inValid_vals_valdn: 'Please enter valid number',
         upt_dc_empty_valns: ['Please select Start Date', 'Please select End Date', 'Please enter Our Price',
             'Please enter MRO', 'Please enter OEM', 'Please enter RS'],
-        old_stock_code: '',
+        old_stock_code: 'SC10002',
         lp: '211.34',
         empty_sc_valns: ['Please enter Stock Code', 'Please select  Discount Code', 'Please enter List Price', 'Please select Product Class'],
         inValid_sc_valns: ['The name format is invalid.', 'Please enter valid number'],
+        duplicate_sc_valns: 'The Stock Code already exists.'
     }
 }
 module.exports = {
