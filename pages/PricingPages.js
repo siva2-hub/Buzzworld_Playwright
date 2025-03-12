@@ -12,7 +12,7 @@ export const editIconAtReactGrid = (page) => { return page.locator("//*[contains
 export const pricingDropDown = (page) => { return page.getByRole('button', { name: 'Pricing' }) }
 export const dcAtPricing = (page, text) => { return page.getByRole(text, { name: 'Discount Codes' }) }
 export const topSearch = (page) => { return page.getByPlaceholder('Search', { exact: true }) }
-export const addButton = (page) => { return page.locator("//*[contains(text(),'Add')]") }
+export const addButton = (page) => { return page.getByText('Add', { exact: true }) }
 export const multipliersFields = async (page, mplsPath, mplsValues) => {
     for (let index = 0; index < mplsPath.length; index++) { await page.getByPlaceholder(mplsPath[index]).fill(mplsValues[index]); }
 }
@@ -82,7 +82,8 @@ export async function addDiscountCode(page, condition, mplsPath, mplsData) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let res;
     try {
-        await goToDiscountCodes(page);
+        if (await page.url().includes('discount-codes')) {
+        } else { await goToDiscountCodes(page); }
         //getting vendor from testdat json file
         await selectVendorBranch(page);
         //click on Add button
@@ -122,7 +123,8 @@ export async function updateDiscountCode(page, condition) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let res;
     try {
-        await goToDiscountCodes(page);
+        if (await page.url().includes('discount-codes')) {
+        } else { await goToDiscountCodes(page); }
         await selectVendorBranch(page);
         await searchSC_DC(page).fill(testData.pricing.new_discount_code);
         await enterKey(page); await page.waitForTimeout(2300);
@@ -154,17 +156,20 @@ export async function updateDiscountCode(page, condition) {
         } else {
             let opValue = await page.getByPlaceholder(testData.pricing.multipliers_path[0]).getAttribute('value');
             console.log('our price value before update: ' + opValue);
-            await multipliersFields(page, [testData.pricing.multipliers_path[0]], [testData.pricing.multipliers_data[0]]);
+            await multipliersFields(page, [testData.pricing.multipliers_path[0]], [testData.pricing.multipliers_data[3]]);
             await updateDCButton(page).click();
             await expect(updateSuccMsg(page)).toBeVisible();
             // await expect(page.locator('#root')).toContainText('Updated Successfully');
-            await searchSC_DC(page).fill(testData.pricing.new_discount_code); await enterKey(page);
-            await expect(editIconAtReactGrid(page).nth(0)).toBeHidden(); await expect(editIconAtReactGrid(page).nth(0)).toBeVisible();
+            await searchSC_DC(page).first().fill(testData.pricing.new_discount_code); await enterKey(page);
+            try {
+                await expect(editIconAtReactGrid(page).nth(0)).toBeHidden({ timeout: 4000 }); await expect(editIconAtReactGrid(page).nth(0)).toBeVisible();
+            } catch (error) {
+            }
             await editIconAtReactGrid(page).nth(0).click();
             await page.waitForTimeout(1600);
             opValue = await page.getByPlaceholder(testData.pricing.multipliers_path[0]).getAttribute('value');
             console.log('our price value after update: ' + opValue);
-            await page.pause();
+            await closeAtSubCustAprvl(page).click();
             console.log("updated discount code is ", testData.pricing.new_discount_code);
             res = true;
         }
@@ -287,6 +292,10 @@ export async function addStockCode(page, stock_code, dc, lPrice, condition) {
                 productClass = testData.pricing.vendor_code[0] + testData.pricing.vendor_code[1] + '01';
                 await fillSCData(page, stock_code, dc, lPrice, productClass);
                 break;
+            case 'duplicate':
+                productClass = testData.pricing.vendor_code[0] + testData.pricing.vendor_code[1] + '01';
+                await fillSCData(page, stock_code, dc, lPrice, productClass);
+                break;
         }
         //click on add stock code button
         await addSCButton(page).click();
@@ -302,9 +311,11 @@ export async function addStockCode(page, stock_code, dc, lPrice, condition) {
         } else if (condition == 'empty') {
             for (let index = 0; index < testData.pricing.empty_sc_valns.length; index++) {
                 await expect(getEleByText(page, testData.pricing.empty_sc_valns[index])).toBeVisible();
-                await closeAtSubCustAprvl(page).click();
-            }
+            }; await closeAtSubCustAprvl(page).click();
             console.log('displaying validations for emoty values while adding product')
+        } else if (condition == 'duplicate') {
+            await expect(getEleByText(page, testData.pricing.duplicate_sc_valns)).toBeVisible({ timeout: 3000 });
+            await closeAtSubCustAprvl(page).click();
         } else {
             await lpField(page).fill('sivs');
             for (let index = 0; index < testData.pricing.inValid_sc_valns.length; index++) {
@@ -328,8 +339,11 @@ export async function updateProduct(page, stock_code) {
     let testStatus = false;
     try {
         //go to pricing
-        await pricingDropDown(page).click();
-        await getEleByText(page, 'Pricing').nth(1).click();
+        if (await page.url().includes('pricing')) {
+        } else {
+            await pricingDropDown(page).click();
+            await getEleByText(page, 'Pricing').nth(1).click();
+        }
         //selecting vendor and branch
         await selectVendorBranch(page);
         await searchSC_DC(page).fill(stock_code);
@@ -343,7 +357,7 @@ export async function updateProduct(page, stock_code) {
         await descPricing(page).fill(updatedDesc);
         await updateSCButton(page).click();
         await expect(updateSuccMsg(page)).toBeVisible()
-        await searchSC_DC(page).fill(stock_code);
+        await searchSC_DC(page).first().fill(stock_code);
         await enterKey(page); await page.waitForTimeout(2300);
         await expect(editIconAtReactGrid(page).first()).toBeVisible();
         await editIconAtReactGrid(page).first().click()
@@ -354,12 +368,49 @@ export async function updateProduct(page, stock_code) {
         if (descFieldValue == updatedDesc) {
             console.log('updated stock code is ', stock_code); testStatus = true;
         } else {
-            console.log('product update is failed')
+            console.log('product update is failed');
         }
+        await closeAtSubCustAprvl(page).click();
     } catch (error) {
         console.log('getting error while updating stock code ', error);
         await page.screenshot({ path: 'files/update_stock_code_error.png', fullPage: true });
         await closeAtSubCustAprvl(page).click();
+    }
+    return testStatus;
+}
+export async function updateProductValiadtions(page, stockCode, condition, lpData, validationMessage) {
+    console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
+    let testStatus = false;
+    try {
+        //go to pricing
+        if (await page.url().includes('pricing')) {
+        } else {
+            await pricingDropDown(page).click();
+            await getEleByText(page, 'Pricing').nth(1).click();
+        }
+        //selecting vendor and branch
+        await selectVendorBranch(page);
+        await searchSC_DC(page).fill(stockCode);
+        await enterKey(page); await page.waitForTimeout(2300);
+        await expect(editIconAtReactGrid(page).first()).toBeVisible();
+        await editIconAtReactGrid(page).first().click()
+        await expect(descPricing(page)).toBeVisible();
+        if (condition == 'empty') { await lpField(page).fill(lpData); }
+        else { await lpField(page).fill(lpData); }
+        await updateSCButton(page).click();
+        // await page.pause();
+        if (condition == 'empty') {
+            await expect(getEleByText(page, validationMessage)).toBeVisible();
+            console.log('validating update product with ' + condition + ' list price'); testStatus = true;
+        } else {
+            await expect(getEleByText(page, validationMessage)).toBeVisible();
+            console.log('validating update product with ' + condition + ' list price'); testStatus = true;
+        }
+        await closeAtSubCustAprvl(page).click();
+    } catch (error) {
+        await closeAtSubCustAprvl(page).click();
+        await page.screenshot({ path: 'files/update_stock_code_error.png', fullPage: true });
+        throw new Error("getting error, while validating the update product");
     }
     return testStatus;
 }

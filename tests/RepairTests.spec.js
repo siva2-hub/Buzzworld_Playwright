@@ -1,5 +1,5 @@
 const { test } = require("@playwright/test");
-import { createRepair, addItemsToRepairs, assignLocationFun, assignTech, itemEvaluation, repItemAddedToQuote, createSORepQuote, markAsRepairInProgress, createPartsPurchase, repairSummary, assignToQC, saveQCCheckListForm, verifyAddRowIssue, updateDatesAtRepairs, approveWonTheRepairQuote, checkDatesAtCreateSO, completedStatus, rmaCompleted } from '../pages/RepairPages';
+import { createRepair, addItemsToRepairs, assignLocationFun, assignTech, itemEvaluation, repItemAddedToQuote, createSORepQuote, markAsRepairInProgress, createPartsPurchase, repairSummary, assignToQC, saveQCCheckListForm, verifyAddRowIssue, updateDatesAtRepairs, approveWonTheRepairQuote, checkDatesAtCreateSO, completedStatus, rmaCompleted, checkRepairReport } from '../pages/RepairPages';
 const { login_buzz } = require("./helper");
 const { testData } = require("../pages/TestData");
 const { changePartsPurchaseStatus, changePartsPurchaseStatusToPartiallyReceived } = require("../pages/PartsBuyingPages");
@@ -223,4 +223,6 @@ test('Completed the RMA', async ({ }, testInfo) => {
     } else { testMsg(testInfo.title, testTitle); testStatus = false }
     testTitle = testInfo.title;
 });
-
+test.skip('Repair Report Download', async () => {
+    await checkRepairReport(page);
+})

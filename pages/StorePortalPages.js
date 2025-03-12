@@ -17,6 +17,7 @@ export const creditCardRadioBtn = (page) => { return page.getByLabel('Credit Car
 export const notes = (page) => { return page.locator('textarea[name="notes"]') }
 export const orderQuoteText = (page) => { return page.locator("//*[contains(@class,'order-id-container')]/div/div[2]") }
 export const orderOrQuoteNum = (page) => { return page.locator("//*[contains(@class,'order-id-container')]/div/div[2]/span[2]") }
+export const fileUpload = (page) => { return page.locator("//*[@type='file']") }
 
 //storing the console data into log file
 // redirectConsoleToFile();
@@ -295,7 +296,7 @@ export async function request_payterms(page, apiURLPath) {
 export async function createQuoteSendToCustFromBuzzworld(page, browser, cardDetails, paymentType) {
     //login into buzzworld
     await login_buzz(page, testData.app_url);
-    //create Quote from buzzworld
+    // //create Quote from buzzworld
     let quoteNumber = await createQuote(page, testData.quotes.acc_num, testData.quotes.quote_type, testData.quotes.project_name);
     //Add Items to Quote
     await addItemsToQuote(
@@ -347,6 +348,7 @@ export async function createQuoteSendToCustFromBuzzworld(page, browser, cardDeta
                 let poNum = storeTestData.po_number;
                 await proceedBtn(newPage).click();
                 await poNumber(newPage).fill(poNum);
+                await fileUpload(page).setInputFiles('/home/enterpi/Downloads/Qc_Report_315020.pdf')
                 await newPage.pause();
                 await approveBtn(newPage).click();
             }
@@ -393,7 +395,7 @@ export async function orderConfirmationPage(page, api_url_path) {
     if (order_quote_text.includes('Order Id')) { module = 'Quote'; }
     else { module = 'Order'; }
     console.log(module + ' is created with: ' + id);
-    await page.screenshot({ path: 'test-results/' + module + 'Id_' + id + '.png' });//await page.pause();
+    await page.screenshot({ path: 'testResFiles/' + module + 'Id_' + id + '.png' });//await page.pause();
 }
 export async function apiReqResponses(page, apiURLPath) {
     // Wait for a specific request

@@ -30,5 +30,15 @@ export const storeTestData = {
     },
     guest_api_path: '',
     loggedIn_api_path: 'doPayment',
-    notes: 'Net 30 Payment from Store logged-In User with file attachment'
+    notes: 'Net 30 Payment from Portal logged-In User with file attachment'
 }
+/*
+Notes:=====>
+    Net 30 Payment from Store logged-In User with file attachment
+    Net 30 Payment from Portal logged-In User with file attachment
+    Credit Card Payment from Portal (from quote detailed view) logged-In User
+    Credit Card Payment from Store Logged-In User
+    Credit Card Payment from Store as Guest ( Existing customer, New contact)
+    Credit Card Payment from Store as Guest ( New customer, New contact)
+
+*/

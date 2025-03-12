@@ -91,6 +91,7 @@ export const leftArrowKey = (page) => { return page.keyboard.press('ArrowLeft') 
 export const arrowUpKey = (page) => { return page.keyboard.press('ArrowUp') }
 export const arrowDownKey = (page) => { return page.keyboard.press('ArrowDown') }
 export const enterKey = (page) => { return page.keyboard.press('Enter') }
+export const tabKey = (page) => { return page.keyboard.press('Tab') }
 export const insertKeys = (page, values) => { return page.keyboard.insertText(values) }
 export const statusChangeDropdown = (page) => { return page.getByRole('button', { name: 'loading Change Status' }) }
 export const completeDropdown = (page) => { return page.getByRole('menuitem', { name: 'Completed' }) }
@@ -104,16 +105,16 @@ export async function naviagateToRepairs(page) {
 export async function createRepair(page, acc_num, cont_name) {
     try {
         await naviagateToRepairs(page);
-        await page.goto('https://www.staging-buzzworld.iidm.com/repair-request/054868bd-9299-41fe-9ff3-fad2f327fbb6')
-        // await createRMABtn(page).click();
-        // await expect(companyField(page)).toBeVisible();
-        // await companyField(page).fill(acc_num);
-        // await expect(page.getByText(acc_num, { exact: true }).nth(1)).toBeVisible();
-        // await page.getByText(acc_num, { exact: true }).nth(1).click();
-        // await reactFirstDropdown(page).nth(2).click();
-        // await page.keyboard.insertText(cont_name);
-        // await selectReactDropdowns(page, cont_name); //await page.pause();
-        // await createBtnAtRMA(page).click();
+        // await page.goto('https://www.staging-buzzworld.iidm.com/repair-request/054868bd-9299-41fe-9ff3-fad2f327fbb6')
+        await createRMABtn(page).click();
+        await expect(companyField(page)).toBeVisible();
+        await companyField(page).fill(acc_num);
+        await expect(page.getByText(acc_num, { exact: true }).nth(1)).toBeVisible();
+        await page.getByText(acc_num, { exact: true }).nth(1).click();
+        await reactFirstDropdown(page).nth(2).click();
+        await page.keyboard.insertText(cont_name);
+        await selectReactDropdowns(page, cont_name); //await page.pause();
+        await createBtnAtRMA(page).click();
         await expect(quoteOrRMANumber(page)).toBeVisible();
         const rmaNumber = await quoteOrRMANumber(page).textContent();
         console.log('RMA: ' + rmaNumber);
@@ -479,6 +480,30 @@ export async function checkDatesAtCreateSO(page, aprDateRep, promDateRep) {
         console.log('Dates are not verified, item not exist in syspro');
     }
     await closeAtRepItemEdit(page).click();
+}
+export async function checkRepairReport(page) {
+    // const repairID = '94224df5-f1d5-49b0-9fde-3050b2cd0589';
+    // await page.goto(testData.app_url + 'repair-request/' + repairID);
+    // await expect(penInvoiceStatus(page).first()).toBeVisible()
+    // let rmaNum = await quoteOrRMANumber(page).textContent();
+    // const page1Promise = page.waitForEvent('download');
+    // await printIcon(page).click();
+    // // const repairID = '94224df5-f1d5-49b0-9fde-3050b2cd0589';
+    // // await page.goto(testData.app_url + 'repair-request/' + repairID);
+    // // await expect(penInvoiceStatus(page).first()).toBeVisible()
+    // // let rmaNum = await quoteOrRMANumber(page).textContent();
+    // // const page1Promise = page.waitForEvent('popup');
+    // // await printIcon(page).click();
+    // const page1 = await page1Promise;
+    // await delay(page, 3000);
+    // await page1.saveAs('Downloads/Qc_Report_' + rmaNum.replace("#", "") + '.pdf');
+    // const pdfPath = await page1.url();
+    // console.log(pdfPath);
+    // // await expect(page1.locator('//*[@title="Download"]')).toBeVisible();
+    // for (let index = 0; index < 8; index++) { await tabKey(page1); } await enterKey(page1); await page.pause();
+    // const dataBuffer = fs.readFileSync('Qc_Report_' + rmaNum.replace("#", "") + '.pdf');
+    // const data = await pdf(dataBuffer);
+    // console.log(data);
 }
 export async function rmaCompleted(page, moduleNum) {
     await statusChangeDropdown(page).click();
