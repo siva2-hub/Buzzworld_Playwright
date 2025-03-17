@@ -178,6 +178,7 @@ export async function net30Payment(page, modelNumber, poNum, api_path) {
     await cartCheckout(page, false, modelNumber);
     await proceedBtn(page).click();
     await poNumber(page).fill(poNum);
+    await fileUpload(page).setInputFiles('/home/enterpi/Downloads/Qc_Report_315020.pdf');
     await page.pause();
     await approveBtn(page).click();
     await orderConfirmationPage(page, api_path);
@@ -339,7 +340,7 @@ export async function createQuoteSendToCustFromBuzzworld(page, browser, cardDeta
             await selectBillingDetails(newPage);
             //selecting the Shipping infornation
             await selectShippingDetails(newPage);
-            await notes(newPage).fill('Test\nNotes');
+            await notes(newPage).fill(storeTestData.notes);
             //selecting the payment options
             if (paymentType == 'Credit Card') {
                 let userName = storeTestData.exist_cust_detls.f_name + storeTestData.exist_cust_detls.l_name;
@@ -348,7 +349,7 @@ export async function createQuoteSendToCustFromBuzzworld(page, browser, cardDeta
                 let poNum = storeTestData.po_number;
                 await proceedBtn(newPage).click();
                 await poNumber(newPage).fill(poNum);
-                await fileUpload(page).setInputFiles('/home/enterpi/Downloads/Qc_Report_315020.pdf')
+                await fileUpload(newPage).setInputFiles('/home/enterpi/Downloads/Qc_Report_315020.pdf')
                 await newPage.pause();
                 await approveBtn(newPage).click();
             }
