@@ -9,7 +9,7 @@ const { testData } = require('../pages/TestData');
 const testdata = JSON.parse(JSON.stringify(require("../testdata.json")))
 let url = process.env.BASE_URL_STORE;
 
-test('As Logged In Net 30 Payment from store', async ({ page }) => {
+test('Net 30 Payment from Store logged-In User with file attachment', async ({ page }) => {
   let modelNumber = storeTestData.price_product_1, poNumber = storeTestData.po_number;
   await net30Payment(page, modelNumber, poNumber, storeTestData.loggedIn_api_path)
 });
@@ -194,7 +194,7 @@ test('Create Quote From Buzzworld and Aprove Quote from Portal while Credit Card
   //create the Quote from buzzworld and Approve the quote from Portal
   await createQuoteSendToCustFromBuzzworld(page, browser, cardDetails, 'Credit Card');
 })
-test('Create Quote From Buzzworld and Aprove Quote from Portal while Net Payments', async ({ page, browser }) => {
+test('Net 30 Payment from Portal (from quote detailed view) logged-In User with file attachment', async ({ page, browser }) => {
   let card_type = storeTestData.card_details.visa,//defining the card type here
     cardDetails = [
       card_type.card_number,
