@@ -1,12 +1,12 @@
 export const storeTestData = {
     new_cust_detls: {
-        customer_name: 'Chump Change Multi3',
+        customer_name: 'Chump Change Multi4',
         f_name: 'Chump',
         l_name: 'ChangeEspi',
-        email: 'chumpchange@espi.co'
+        email: 'chumpchangemulti@espi.co'
     },
     exist_cust_detls: {
-        customer_name: 'Chump Change Automation', //Chump Change Automation , Multicam Inc
+        customer_name: 'Multicam Inc', //Chump Change Automation , Multicam Inc
         f_name: 'Garret', // Chump , Garret
         l_name: 'Luppino', // Change , Luppino
         email: 'testmulti2@espi.com' //test@enspchump123.co , 

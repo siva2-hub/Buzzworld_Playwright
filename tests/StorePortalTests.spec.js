@@ -1,7 +1,7 @@
 const { test, expect } = require('@playwright/test');
 import { delay, getGridColumn } from './helper';
 const { returnResult, approve, login_buzz } = require('./helper');
-import { storeLogin, cartCheckout, grandTotalForCreditCard, creditCardPayment, searchProdCheckout, selectCustomerWithoutLogin, selectBillingDetails, selectShippingDetails, request_payterms, createQuoteSendToCustFromBuzzworld, net30Payment, ccPayment, ccPaymentLoggedIn, ccPaymentAsGuest } from '../pages/StorePortalPages';
+import { storeLogin, cartCheckout, grandTotalForCreditCard, creditCardPayment, searchProdCheckout, selectCustomerWithoutLogin, selectBillingDetails, selectShippingDetails, request_payterms, createQuoteSendToCustFromBuzzworld, net30Payment, ccPayment, ccPaymentLoggedIn, ccPaymentAsGuest, exemptNonExemptAtCheckout } from '../pages/StorePortalPages';
 const { loadingText } = require('../pages/PartsBuyingPages');
 const { storeTestData } = require('../pages/TestData_Store');
 import { reactFirstDropdown, createQuote, addItemsToQuote, selectRFQDateRequestedBy, selectSource, sendForCustomerApprovals, quoteOrRMANumber } from '../pages/QuotesPage';
@@ -194,7 +194,7 @@ test('Create Quote From Buzzworld and Aprove Quote from Portal while Credit Card
   //create the Quote from buzzworld and Approve the quote from Portal
   await createQuoteSendToCustFromBuzzworld(page, browser, cardDetails, 'Credit Card');
 })
-test('Net 30 Payment from Portal (from quote detailed view) logged-In User with file attachment', async ({ page, browser }) => {
+test('Net 30 Payment from Portal from quote detailed view logged-In User with file attachment', async ({ page, browser }) => {
   let card_type = storeTestData.card_details.visa,//defining the card type here
     cardDetails = [
       card_type.card_number,
