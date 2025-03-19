@@ -1,5 +1,7 @@
 const { expect } = require("@playwright/test");
-import { delay, login_buzz, approve, redirectConsoleToFile, logFilePath } from '../tests/helper';
+import { delay, login_buzz, approve, redirectConsoleToFile, logFilePath, api_responses } from '../tests/helper';
+import { getEleByText } from './PricingPages';
+import { approveWonTheRepairQuote } from './RepairPages';
 const { loadingText, nextButton } = require("./PartsBuyingPages");
 const { createQuote, addItemsToQuote, selectRFQDateRequestedBy, selectSource, sendForCustomerApprovals, gridColumnData, quoteOrRMANumber } = require("./QuotesPage");
 const { testData } = require("./TestData");
@@ -18,6 +20,7 @@ export const notes = (page) => { return page.locator('textarea[name="notes"]') }
 export const orderQuoteText = (page) => { return page.locator("//*[contains(@class,'order-id-container')]/div/div[2]") }
 export const orderOrQuoteNum = (page) => { return page.locator("//*[contains(@class,'order-id-container')]/div/div[2]/span[2]") }
 export const fileUpload = (page) => { return page.locator("//*[@type='file']") }
+export const selectItemToAprCB = (page) => { return page.locator("//*[@name='checkbox0']") }
 
 //storing the console data into log file
 // redirectConsoleToFile();
@@ -41,6 +44,8 @@ export async function storeLogin(page) {
 export async function cartCheckout(page, isDecline, modelNumber) {
     //search product go to checkout page
     await searchProdCheckout(page, modelNumber);
+    const response = await apiReqResponses(page, "https://staging-buzzworld-api.iidm.com/v1/getCustomerData");
+    let taxable = response.result.data.customerInfo.taxable_status;
     await page.getByPlaceholder('Enter Phone Number').fill('(565) 465-46544');
     await page.getByRole('button', { name: 'Next' }).click();
     if (isDecline) {
@@ -64,11 +69,18 @@ export async function cartCheckout(page, isDecline, modelNumber) {
     await page.getByPlaceholder('Enter Collect Number').fill('123456ON');
     await page.getByRole('button', { name: 'Next' }).click();
     await notes(page).fill(storeTestData.notes);
+    console.log("taxable status is: " + taxable);
+    return taxable;
 }
-export async function grandTotalForCreditCard(page) {
+export async function grandTotalForCreditCard(page, taxable) {
     let st = await page.locator("(//*[contains(@class,'Total_container')])[1]/div/div[2]").textContent();
     const subTotal = Number(Number(st.replace("$", "").replace(",", "")).toFixed(2));
-    const exp_tax = Number((subTotal * 0.085).toFixed(2));
+    let exp_tax;
+    if (taxable == 'Exempt') {
+        exp_tax = Number(0.00).toFixed(2);
+    } else {
+        exp_tax = Number((subTotal * 0.085).toFixed(2));
+    }
     const exp_convFee = Number((subTotal * 0.04).toFixed(2));
     const exp_grandTotal = subTotal + exp_tax + exp_convFee;
     // console.log('exp sub total: '+subTotal);
@@ -89,9 +101,34 @@ export async function grandTotalForCreditCard(page) {
     else { getResults = false; }
     return getResults;
 }
-export async function creditCardPayment(page, userName, cardDetails) {
-    await creditCardRadioBtn(page).click({ timeout: 10000 })
-    const status = await grandTotalForCreditCard(page);
+export async function grandTotalForNet30_RPayterms(page, taxable) {
+    let st = await page.locator("(//*[contains(@class,'Total_container')])[1]/div/div[2]").textContent();
+    const subTotal = Number(Number(st.replace("$", "").replace(",", "")).toFixed(2));
+    let exp_tax;
+    if (taxable == 'Exempt') {
+        exp_tax = Number(0.00).toFixed(2);
+    } else {
+        exp_tax = Number((subTotal * 0.085).toFixed(2));
+    }
+    const exp_grandTotal = subTotal + exp_tax;
+    // console.log('exp sub total: '+subTotal);
+    // console.log('exp tax: '+exp_tax);
+    // console.log('exp grand total: '+exp_grandTotal);
+    let at = await page.locator("(//*[contains(@class,'Total_container')])[1]/div/div[4]").textContent();
+    const actual_tax = Number(at.replace("$", "").replace(",", ""));
+    const actualGrandTotal = (subTotal + actual_tax);
+    console.log('actual sub total: ' + subTotal + '\nexp sub total: ' + subTotal);
+    console.log('actual tax: ' + actual_tax + '\nexp tax: ' + exp_tax);
+    console.log('actual grand total: ' + actualGrandTotal + '\nexp grand total: ' + exp_grandTotal);
+    let getResults = false;
+    if (exp_grandTotal === actualGrandTotal && exp_tax === actual_tax && exp_convFee === actual_convFee) { getResults = true }
+    else { getResults = false; }
+    return getResults;
+}
+export async function creditCardPayment(page, userName, cardDetails, taxable) {
+    await creditCardRadioBtn(page).click({ timeout: 10000 });
+    // console.log(taxable); await page.pause();
+    const status = await grandTotalForCreditCard(page, taxable);
     console.log('status is: ' + status);
     if (status) {
         // await page.pause();
@@ -109,6 +146,16 @@ export async function creditCardPayment(page, userName, cardDetails) {
     } else {
         throw new Error("prices not matched");
     }
+}
+export async function net30PaymentAtCheckout(page, poNum, taxable) {
+    let grandTotalRes = await grandTotalForNet30_RPayterms(page, taxable);
+    if (grandTotalRes) {
+        await proceedBtn(page).click();
+        await poNumber(page).fill(poNum);
+        await fileUpload(page).setInputFiles('/home/enterpi/Downloads/Qc_Report_315020.pdf')
+        await page.pause();
+        await approveBtn(page).click();
+    } else { throw new Error("prices not matched"); }
 }
 export async function searchProdCheckout(page, modelNumber) {
     await page.getByPlaceholder('Search Product name,').fill(modelNumber);
@@ -137,7 +184,7 @@ export async function verifySearchedProductIsAppearedInSearch(page, modelNumber)
     }
 }
 export async function selectCustomerWithoutLogin(page, customerName, fName, lName, email, isExist) {
-    await page.getByLabel('open').click();
+    await page.getByLabel('open').click(); let response, taxable;
     await page.getByLabel('Company Name*').fill(customerName);
     if (isExist) {
         await page.getByRole('option', { name: customerName, exact: true }).click();
@@ -148,6 +195,11 @@ export async function selectCustomerWithoutLogin(page, customerName, fName, lNam
             await page.getByRole('option', { name: customerName, exact: true }).toBeVisible({ timeout: 2000 });
         } catch (error) { await page.locator("//*[text()='Add Company Name']").click(); }
     }
+    if (isExist) {
+        response = await apiReqResponses(page, "https://staging-buzzworld-api.iidm.com/v1/getCustomerData");
+        taxable = response.result.data.customerInfo.taxable_status;
+    } else { taxable = "Non-Exempt"; }
+    // console.log(response); await page.pause()
     await page.getByPlaceholder('Enter First Name').fill(fName);
     await page.getByPlaceholder('Enter Last Name').fill(lName);
     await page.getByPlaceholder('Enter Email ID').fill(email);
@@ -159,6 +211,8 @@ export async function selectCustomerWithoutLogin(page, customerName, fName, lNam
     } catch (error) {
         throw new Error("Customer details are not filled or selected..." + error);
     }
+    console.log("taxable status is: " + taxable);
+    return taxable;
 }
 export async function selectBillingDetails(page) {
     //checking Billing Adrress is prefilled or not
@@ -175,24 +229,25 @@ export async function selectBillingDetails(page) {
 }
 export async function net30Payment(page, modelNumber, poNum, api_path) {
     await storeLogin(page);
-    await cartCheckout(page, false, modelNumber);
-    await proceedBtn(page).click();
-    await poNumber(page).fill(poNum);
-    await fileUpload(page).setInputFiles('/home/enterpi/Downloads/Qc_Report_315020.pdf');
-    await page.pause();
-    await approveBtn(page).click();
+    let taxable = await cartCheckout(page, false, modelNumber);
+    // await proceedBtn(page).click();
+    // await poNumber(page).fill(poNum);
+    // await fileUpload(page).setInputFiles('/home/enterpi/Downloads/Qc_Report_315020.pdf');
+    // await page.pause();
+    await net30PaymentAtCheckout(page, poNum, taxable);
+    // await approveBtn(page).click();
     await orderConfirmationPage(page, api_path);
 }
 export async function ccPaymentLoggedIn(page, modelNumber, cardDetails, api_url_path) {
     let userName = await storeLogin(page);
-    await cartCheckout(page, false, modelNumber);
+    let taxable = await cartCheckout(page, false, modelNumber);
     // await creditCardRadioBtn(page).click({ timeout: 10000 })
     // const status = await grandTotalForCreditCard(page);
     // console.log('status is: ' + status);
     // if (status) {
     //     // await page.pause();
     //     await proceedBtn(page).click();
-    await creditCardPayment(page, userName, cardDetails);
+    await creditCardPayment(page, userName, cardDetails, taxable);
     // } else {
     //     throw new Error("prices not matched");
     // }
@@ -203,7 +258,7 @@ export async function ccPaymentAsGuest(
 ) {
     await page.goto(url);
     await searchProdCheckout(page, modelNumber);
-    await selectCustomerWithoutLogin(page, customerName, fName, lName, email, isExist);
+    let taxable = await selectCustomerWithoutLogin(page, customerName, fName, lName, email, isExist);
     //select billing address
     await selectBillingDetails(page);
     //select shipping address
@@ -211,7 +266,7 @@ export async function ccPaymentAsGuest(
     await notes(page).fill(storeTestData.notes);
     // await creditCardRadioBtn(page).click();
     // await proceedBtn(page).click();
-    await creditCardPayment(page, (fName + lName), cardDetails)
+    await creditCardPayment(page, (fName + lName), cardDetails, taxable)
     //checking order confirmation page
     await orderConfirmationPage(page, api_url_path);
 }
@@ -312,7 +367,7 @@ export async function createQuoteSendToCustFromBuzzworld(page, browser, cardDeta
     await approve(page, testData.quotes.cont_name);
     // Send to Customer 
     await sendForCustomerApprovals(page);
-    //Creating one more page for Portal
+    // Creating one more page for Portal
     const context = await browser.newContext();
     const newPage = await context.newPage();
     let userName = await storeLogin(newPage);
@@ -327,6 +382,17 @@ export async function createQuoteSendToCustFromBuzzworld(page, browser, cardDeta
         let portalQuoteNum = await quoteOrRMANumber(newPage).textContent();
         if (quoteNumber == portalQuoteNum.replace('#', '')) {
             await newPage.getByRole('button', { name: 'Approve' }).first().click();
+            try {
+                await expect(getEleByText(newPage, 'Please select atleast one item')).toBeVisible({ timeout: 2000 });
+                await getEleByText(newPage, 'Cancel').nth(1).click();
+                await selectItemToAprCB(newPage).click();
+                await newPage.getByRole('button', { name: 'Approve' }).first().click();
+            } catch (error) {
+            }
+            //get customer data
+            const response = await apiReqResponses(newPage, "https://staging-buzzworld-api.iidm.com/v1/getCustomerData");
+            const taxable = response.result.data.customerInfo.taxable_status;
+            console.log('Taxable status is: ' + taxable);
             await expect(newPage.getByText('Company Information')).toBeVisible();
             await nextButton(newPage).click();
             try {
@@ -344,14 +410,10 @@ export async function createQuoteSendToCustFromBuzzworld(page, browser, cardDeta
             //selecting the payment options
             if (paymentType == 'Credit Card') {
                 let userName = storeTestData.exist_cust_detls.f_name + storeTestData.exist_cust_detls.l_name;
-                await creditCardPayment(newPage, userName, cardDetails);
+                await creditCardPayment(newPage, userName, cardDetails, taxable);
             } else {
                 let poNum = storeTestData.po_number;
-                await proceedBtn(newPage).click();
-                await poNumber(newPage).fill(poNum);
-                await fileUpload(newPage).setInputFiles('/home/enterpi/Downloads/Qc_Report_315020.pdf')
-                await newPage.pause();
-                await approveBtn(newPage).click();
+                await net30PaymentAtCheckout(newPage, poNum, taxable);
             }
             //checking the order confimation page
             await orderConfirmationPage(newPage, storeTestData.loggedIn_api_path);
@@ -388,6 +450,16 @@ export async function fillCityStatePostal(page) {
         }
     } else { }
 }
+export async function exemptNonExemptAtCheckout(page, url, modelNumber, isGuest) {
+    if (isGuest) { await page.goto(url); }
+    else { await storeLogin(page); }//Login into store
+    //search product
+    await searchProdCheckout(page, modelNumber);
+    let response = await selectCustomerWithoutLogin(page, storeTestData.exist_cust_detls.customer_name, '', '', '', true);
+    // const getCustomerData = JSON.stringify(cd, null, 2)
+    const taxable = response.result.data.customerInfo.taxable_status;
+    console.log(taxable);
+}
 export async function orderConfirmationPage(page, api_url_path) {
     await apiReqResponses(page, api_url_path);
     await expect(page.getByRole('heading', { name: 'Thanks for your order!' })).toBeVisible();
@@ -406,4 +478,5 @@ export async function apiReqResponses(page, apiURLPath) {
     // Get response JSON
     const responseBody = await response.json();
     console.log(response.url(), '\nCaptured Response:\n', JSON.stringify(responseBody, null, 2));
+    return responseBody;
 }
