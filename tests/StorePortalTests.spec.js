@@ -1,7 +1,7 @@
 const { test, expect } = require('@playwright/test');
 import { delay, getGridColumn } from './helper';
 const { returnResult, approve, login_buzz } = require('./helper');
-import { storeLogin, cartCheckout, grandTotalForCreditCard, creditCardPayment, searchProdCheckout, selectCustomerWithoutLogin, selectBillingDetails, selectShippingDetails, request_payterms, createQuoteSendToCustFromBuzzworld, net30Payment, ccPayment, ccPaymentLoggedIn, ccPaymentAsGuest, exemptNonExemptAtCheckout } from '../pages/StorePortalPages';
+import { storeLogin, cartCheckout, grandTotalForCreditCard, creditCardPayment, searchProdCheckout, selectCustomerWithoutLogin, selectBillingDetails, selectShippingDetails, request_payterms, createQuoteSendToCustFromBuzzworld, net30Payment, ccPayment, ccPaymentLoggedIn, ccPaymentAsGuest, exemptNonExemptAtCheckout, grandTotalForNet30_RPayterms } from '../pages/StorePortalPages';
 const { loadingText } = require('../pages/PartsBuyingPages');
 const { storeTestData } = require('../pages/TestData_Store');
 import { reactFirstDropdown, createQuote, addItemsToQuote, selectRFQDateRequestedBy, selectSource, sendForCustomerApprovals, quoteOrRMANumber } from '../pages/QuotesPage';
@@ -170,7 +170,7 @@ test('Request For Pay Terms', async ({ page }) => {
   await page.goto(url);
   await searchProdCheckout(page, modelNumber);
   //selecting customer details
-  await selectCustomerWithoutLogin(page, customerName, fName, lName, email, isCustomerAlreadyExist);
+  let taxable = await selectCustomerWithoutLogin(page, customerName, fName, lName, email, isCustomerAlreadyExist);
   //select billing address
   await selectBillingDetails(page);
   //select shipping address
@@ -181,6 +181,7 @@ test('Request For Pay Terms', async ({ page }) => {
     await page.getByLabel('Credit Card').click({ timeout: 10000 });
     await creditCardPayment(page, '', '');
   } else {
+    await grandTotalForNet30_RPayterms(page, taxable);
     await request_payterms(page, storeTestData.guest_api_path);
   }
 })
