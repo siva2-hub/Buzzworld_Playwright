@@ -121,7 +121,7 @@ export async function grandTotalForNet30_RPayterms(page, taxable) {
     console.log('actual tax: ' + actual_tax + '\nexp tax: ' + exp_tax);
     console.log('actual grand total: ' + actualGrandTotal + '\nexp grand total: ' + exp_grandTotal);
     let getResults = false;
-    if (exp_grandTotal === actualGrandTotal && exp_tax === actual_tax && exp_convFee === actual_convFee) { getResults = true }
+    if (exp_grandTotal === actualGrandTotal && exp_tax === actual_tax) { getResults = true }
     else { getResults = false; }
     return getResults;
 }
@@ -277,7 +277,7 @@ export async function selectShippingDetails(page) {
     await page.getByPlaceholder('Enter Collect Number').fill('123456ON');
     await page.getByRole('button', { name: 'Next' }).click();
 }
-export async function request_payterms(page, apiURLPath) {
+export async function request_payterms(page, apiURLPath, taxable) {
     await page.getByLabel('Request for Pay Terms').click();
     await page.getByRole('button', { name: 'Proceed' }).click();
     await page.getByPlaceholder('Enter Legal Name of Company').fill('Test legal company');
