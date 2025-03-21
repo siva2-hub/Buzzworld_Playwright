@@ -1,7 +1,7 @@
 const { test, expect } = require('@playwright/test');
 import { delay, getGridColumn } from './helper';
 const { returnResult, approve, login_buzz } = require('./helper');
-import { storeLogin, cartCheckout, grandTotalForCreditCard, creditCardPayment, searchProdCheckout, selectCustomerWithoutLogin, selectBillingDetails, selectShippingDetails, request_payterms, createQuoteSendToCustFromBuzzworld, net30Payment, ccPayment, ccPaymentLoggedIn, ccPaymentAsGuest, exemptNonExemptAtCheckout, grandTotalForNet30_RPayterms } from '../pages/StorePortalPages';
+import { storeLogin, cartCheckout, grandTotalForCreditCard, creditCardPayment, searchProdCheckout, selectCustomerWithoutLogin, selectBillingDetails, selectShippingDetails, request_payterms, createQuoteSendToCustFromBuzzworld, net30Payment, ccPayment, ccPaymentLoggedIn, ccPaymentAsGuest, exemptNonExemptAtCheckout, grandTotalForNet30_RPayterms, checkTwoPercentForRSAccounts } from '../pages/StorePortalPages';
 const { loadingText } = require('../pages/PartsBuyingPages');
 const { storeTestData } = require('../pages/TestData_Store');
 import { reactFirstDropdown, createQuote, addItemsToQuote, selectRFQDateRequestedBy, selectSource, sendForCustomerApprovals, quoteOrRMANumber } from '../pages/QuotesPage';
@@ -204,6 +204,9 @@ test('Net 30 Payment from Portal from quote detailed view logged-In User with fi
     ];
   //create the Quote from buzzworld and Approve the quote from Portal
   await createQuoteSendToCustFromBuzzworld(page, browser, cardDetails, 'Net Payment');
+})
+test('Check 2 percent for Reseller Account', async ({ page }, testInfo) => {
+  await checkTwoPercentForRSAccounts(page, storeTestData.price_product);
 })
 test.skip('Declined the Credit Card Payment as Logged In', async ({ page }, testInfo) => {
   let card_type = testdata.card_details.american;
