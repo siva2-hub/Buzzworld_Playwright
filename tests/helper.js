@@ -12,11 +12,12 @@ const xlsx = require('xlsx');
 const { url } = require('inspector');
 const { default: AllPages } = require('./PageObjects');
 const { threadId } = require('worker_threads');
-const { count, log } = require('console');
+const { count, log, error } = require('console');
 const { rTickIcon, gridColumnData } = require('../pages/QuotesPage');
 const { loadingText, reactFirstDropdown } = require('../pages/PartsBuyingPages');
 import { enterKey, checkDatesAtCreateSO, rightArrowKey, leftArrowKey, insertKeys } from "../pages/RepairPages";
-import { dcAtPricing, pricingDropDown } from '../pages/PricingPages';
+import { dcAtPricing, getEleByText, pricingDropDown } from '../pages/PricingPages';
+import { apiReqResponses } from '../pages/StorePortalPages';
 const currentDate = new Date().toDateString();
 let date = currentDate.split(" ")[2];
 let vendor = testdata.vendor;
@@ -2114,18 +2115,39 @@ export async function createSO(page, vendor_name, isJobCreate, quote_type) {
         //throw new Error(error);
     } //await page.pause();
     await page.getByRole('button', { name: 'Create', exact: true }).click();
+    const response = await apiReqResponses(page, "https://staging-buzzworld-api.iidm.com//v1/SysproSalesOrderInsert");
+    let jobWarnings = response.result.data.jobWarningMsgs;
+    console.log('job warnings: length' + jobWarnings.length)
     await expect(page.getByRole('heading', { name: 'Sales Order Information' })).toBeVisible();
     let soid = await allPages.quoteOrRMANumber.textContent();
     let order_id = soid.replace("#", "");
-    console.log('order created: ', order_id);
-    if (isSelectJob) {//isJobCreate
+    console.log('order created: ', order_id);await page.pause();
+    if (isSelectJob) {//isJobCreate 
+        let jobCreatedStstus = false;
         if (quote_type === 'System Quote') {
-            await page.locator('//*[@id="root"]/div/div[4]/div/div/div/div[1]/div[2]/div[1]/div/div[2]/div/div[2]').click();
+            if (jobWarnings.length == 0) {
+                await page.locator('//*[@id="root"]/div/div[4]/div/div/div/div[1]/div[2]/div[1]/div/div[2]/div/div[2]').click();
+                jobCreatedStstus = true;
+            } else {
+                await delay(page, 1500); console.log(jobWarnings);
+                await page.screenshot({ path: 'testResFiles/JobWarnings.png', fullPage: true });
+            }
         } else {
-            await page.locator('//*[@id="root"]/div/div[4]/div/div/div/div[1]/div[2]/div[1]/div/div[2]/div/div[3]').click();
+            if (jobWarnings.length == 0) {
+                await page.locator('//*[@id="root"]/div/div[4]/div/div/div/div[1]/div[2]/div[1]/div/div[2]/div/div[3]').click();
+                jobCreatedStstus = true;
+            } else {
+                await delay(page, 1500); console.log(jobWarnings);
+                await page.screenshot({ path: 'testResFiles/JobWarnings.png', fullPage: true });
+            }
         }
-        await expect(page.locator("//*[text()='Job Information']")).toBeVisible();
-        console.log('Job created: ' + await allPages.quoteOrRMANumber.textContent());
+        //checking is Job is created or not
+        if (jobCreatedStstus) {
+            await expect(page.locator("//*[text()='Job Information']")).toBeVisible();
+            console.log('Job created: ' + await allPages.quoteOrRMANumber.textContent());
+        } else {
+            await page.locator("//*[@class='close-icon-container']").nth(2).click();
+        }
     } else { console.log('Job not created for ' + quote_type) }
 }
 export async function createVersion(page, quote_id) {

@@ -31,19 +31,19 @@ const testData = {
         new_part: '002-2123-01'
     },
     quotes: {
-        cust_name: 'Multicam Inc', // Chump Change Automation , Multicam Inc
-        acc_num: 'MULTI00', // CHUMP03 , MULTI00
+        cust_name: 'Multicam Inc', // Chump Change Automation , Multicam Inc , HE&M INC
+        acc_num: 'MULTI00', // CHUMP03 , MULTI00 , HEMIN00
         quote_type: 'System Quote',// System Quote , Parts Quote
-        cont_name: 'Garret Luppino', //chump userOne --> CHUMP03, Garret Luppino --> multioo
+        cont_name: 'Garret Luppino', //chump userOne --> CHUMP03, Garret Luppino --> multioo , Amanda Medel --> HEMIN00
         project_name: 'TEST_1234SS',
-        stock_code: ['002-2123-01'], // 2000-1203, A1C4B590, 2000-1206
+        stock_code: ['NS8-TV01B-V2'], // 2000-1203, A1C4B590, 2000-1206
         quote_price: '25000',
         part_desc: 'Manually Added From Quotes',
         suppl_name: 'BACO CONTROLS INC',
         suppl_code: 'BACO001',
         source_text: 'I-IDM-Stocked',
         item_notes: 'Test Item Notes 1\nTest Item Notes 2\nTest Item Notes 3\nTest Item Notes 4',
-        is_create_job: false, // true, false
+        is_create_job: true, // true, false
         quote_id: 'e2727487-5fb9-4289-ad45-2fe7604b8ad0',
         send_email_to_cust: true,
         po_num: 'PO978-FROM-SYSTEMQUOS'
@@ -54,7 +54,7 @@ const testData = {
         cont_name: 'Garret Luppino', //chump userOne --> CHUMP03, Garret Luppino --> multioo
         rep_tech: 'Dan Holmes', //James Nairn , Dan Holmes
         rep_type: ['1'], // '1' = Repairable, '2' = Non Repairable, '3' = Outsource Repairable
-        stock_code: ['2000-1203'], // 2000-1203, 12342-00012, 022-1BD70 , 131503.00-SURPLUS
+        stock_code: ['NS8-TV01B-V2'], // 2000-1203, 12342-00012, 022-1BD70 , 131503.00-SURPLUS
         part_desc: 'Manually Added From Repairs',
         suppl_name: 'BACO CONTROLS INC',
         suppl_code: 'BACO001',
