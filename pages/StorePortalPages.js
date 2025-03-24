@@ -480,3 +480,32 @@ export async function apiReqResponses(page, apiURLPath) {
     console.log(response.url(), '\nCaptured Response:\n', JSON.stringify(responseBody, null, 2));
     return responseBody;
 }
+export async function checkTwoPercentForRSAccounts(page, modelNumber) {
+    let email = 'multicam@testuser.com', orgsName;
+    const res = await api_responses(page, 'https://staging-buzzworld-api.iidm.com//v1/Contacts?page=1&perPage=25&sort=asc&sort_key=name&grid_name=Repairs&serverFilterOptions=%5Bobject+Object%5D&selectedCustomFilters=%5Bobject+Object%5D&search=' + email)
+    // let response = JSON.stringify(res, null, 2)
+    let primaryEmail = res.result.data.list[0].primary_email;
+    if (email === primaryEmail) {
+        orgsName = res.result.data.list[0].organization;
+        // console.log(orgsName);
+        const res1 = await api_responses(page, 'https://staging-buzzworld-api.iidm.com//v1/Organizations?page=1&perPage=25&sort=desc&sort_key=accountnumber&grid_name=Repairs&serverFilterOptions=%5Bobject+Object%5D&selectedCustomFilters=%5Bobject+Object%5D&search=' + orgsName)
+        // console.log(JSON.stringify(res1, null, 2));
+        let getOrgsName = res1.result.data.list[0].name;
+        if (orgsName == getOrgsName) {
+            let actType = res1.result.data.list[0].account_type;
+            console.log('getting account type is: ' + actType);
+            if (actType.includes('RS')) {
+                await page.pause();
+            } else {
+                console.log('Account Types are not matched set email is ' + actType);
+            }
+        } else {
+            console.log('customers not matched set customer is ' + orgsName + ' and get customer is ' + getOrgsName);
+        }
+    } else {
+        console.log('emails not matched set email is ' + email + ' and get email is ' + primaryEmail);
+    }
+    await page.pause();
+    // await storeLogin(page);
+    let taxable = await cartCheckout(page, false, modelNumber);
+}

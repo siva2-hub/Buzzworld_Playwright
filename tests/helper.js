@@ -12,11 +12,12 @@ const xlsx = require('xlsx');
 const { url } = require('inspector');
 const { default: AllPages } = require('./PageObjects');
 const { threadId } = require('worker_threads');
-const { count, log } = require('console');
+const { count, log, error } = require('console');
 const { rTickIcon, gridColumnData } = require('../pages/QuotesPage');
 const { loadingText, reactFirstDropdown } = require('../pages/PartsBuyingPages');
 import { enterKey, checkDatesAtCreateSO, rightArrowKey, leftArrowKey, insertKeys } from "../pages/RepairPages";
-import { dcAtPricing, pricingDropDown } from '../pages/PricingPages';
+import { dcAtPricing, getEleByText, pricingDropDown } from '../pages/PricingPages';
+import { apiReqResponses } from '../pages/StorePortalPages';
 const currentDate = new Date().toDateString();
 let date = currentDate.split(" ")[2];
 let vendor = testdata.vendor;
@@ -2114,18 +2115,39 @@ export async function createSO(page, vendor_name, isJobCreate, quote_type) {
         //throw new Error(error);
     } //await page.pause();
     await page.getByRole('button', { name: 'Create', exact: true }).click();
+    const response = await apiReqResponses(page, "https://staging-buzzworld-api.iidm.com//v1/SysproSalesOrderInsert");
+    let jobWarnings = response.result.data.jobWarningMsgs;
+    console.log('job warnings: length' + jobWarnings.length)
     await expect(page.getByRole('heading', { name: 'Sales Order Information' })).toBeVisible();
     let soid = await allPages.quoteOrRMANumber.textContent();
     let order_id = soid.replace("#", "");
-    console.log('order created: ', order_id);
-    if (isSelectJob) {//isJobCreate
+    console.log('order created: ', order_id);await page.pause();
+    if (isSelectJob) {//isJobCreate 
+        let jobCreatedStstus = false;
         if (quote_type === 'System Quote') {
-            await page.locator('//*[@id="root"]/div/div[4]/div/div/div/div[1]/div[2]/div[1]/div/div[2]/div/div[2]').click();
+            if (jobWarnings.length == 0) {
+                await page.locator('//*[@id="root"]/div/div[4]/div/div/div/div[1]/div[2]/div[1]/div/div[2]/div/div[2]').click();
+                jobCreatedStstus = true;
+            } else {
+                await delay(page, 1500); console.log(jobWarnings);
+                await page.screenshot({ path: 'testResFiles/JobWarnings.png', fullPage: true });
+            }
         } else {
-            await page.locator('//*[@id="root"]/div/div[4]/div/div/div/div[1]/div[2]/div[1]/div/div[2]/div/div[3]').click();
+            if (jobWarnings.length == 0) {
+                await page.locator('//*[@id="root"]/div/div[4]/div/div/div/div[1]/div[2]/div[1]/div/div[2]/div/div[3]').click();
+                jobCreatedStstus = true;
+            } else {
+                await delay(page, 1500); console.log(jobWarnings);
+                await page.screenshot({ path: 'testResFiles/JobWarnings.png', fullPage: true });
+            }
         }
-        await expect(page.locator("//*[text()='Job Information']")).toBeVisible();
-        console.log('Job created: ' + await allPages.quoteOrRMANumber.textContent());
+        //checking is Job is created or not
+        if (jobCreatedStstus) {
+            await expect(page.locator("//*[text()='Job Information']")).toBeVisible();
+            console.log('Job created: ' + await allPages.quoteOrRMANumber.textContent());
+        } else {
+            await page.locator("//*[@class='close-icon-container']").nth(2).click();
+        }
     } else { console.log('Job not created for ' + quote_type) }
 }
 export async function createVersion(page, quote_id) {
@@ -3806,7 +3828,7 @@ export async function api_responses(page, api_url) {
     const response = await page.evaluate(async (url) => {
         const fetchData = await fetch(url, {
             headers: {
-                'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiZjE1YmRhMTRiZTQzNmNkMzAzMTdhODgxYjMzOGYyODEwZjg0MjFiMjg5YjQzOTAxYTEyYjM3ZjZiZDEyNjY5YWU1OTg2MzFiYTk3ZjVhODAiLCJpYXQiOjE3Mzg3MzgwOTEuMjQwNDA1LCJuYmYiOjE3Mzg3MzgwOTEuMjQwNDEsImV4cCI6MTc0MDAzNDA5MS4xNDc1ODcsInN1YiI6IjY3MTRhOTI0LTdiZmEtNDk2OS04NTM4LWJmODQxOTViNTQxYSIsInNjb3BlcyI6W119.EjcLdRniiKorj61iFF1zYHGGckqAkLr5oXiGx3FWLlACQlEb-0UI9sjJ5ipBxNal5uLbIIOX0C4qYmvgNSxZj-0L0lxg1qQE_Ghgbet71F45fkXxOEwdO73kka__f4apNqQBTaf179CsFVCTeVCYnqIr1gSyqSIbLz2Ba9l1FYZNJSqJXxmsjmjpc8cIxgnbs9lq_uO1cbNPesCEusefa14WZ8KBUEnhF1utZGTteYsQDN415qbBlp-mHT2Yd1gBlIcWf4vwkxz9NJvjnAs0TGCSlNod5EMcUO93hzOuWpaStbKlIr5joILpEujcbRQyE269TXHyEz2rOF2RvtQ1AN_2FXgeFgNVlMWEl0tv3jkaLj3dcG-klmEhbMjDLqDazTky7WQ89g6R3JvHEe4b0OfXvMMpZomNF6QKGPY1Tf2fQ73LLYPvG33DcAohoCdLyVdGi7z1kqdZIhjb3mZoNOhUA4W2BymOcXI6399HMlZKb70tFQlJXkzEOL26C6JuM1GrDyjSz4WV4ht8osm4RWkq7tYl4M-TwQHjFD7x2VgoxIb5uflYcXlOniiPe6-pM2tof5ziw_H6W5bnAZxFw6NN8c-lvq8SBVesC8cE05INCSNTdb_WPJKa5quF8LzKOFp0UlQgBQcK8z_fTjp2K82PdmUUzknWns74Uv5CSC8' // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
+                'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiYjEyNzNhMTkwZTM4ZmYxOGYyYjM1NzA2YjM5ZWIzODFkZDRjMmVkMDRkYTEwMDVjZDQ3MmVhN2FiMDY5MmRmZWYyZDFlMTY3MzgxZGQ2OWUiLCJpYXQiOjE3NDI1NTUxMDQuMjUwNDA3LCJuYmYiOjE3NDI1NTUxMDQuMjUwNDEzLCJleHAiOjE3NDM4NTExMDQuMjEyOTkxLCJzdWIiOiI2NzE0YTkyNC03YmZhLTQ5NjktODUzOC1iZjg0MTk1YjU0MWEiLCJzY29wZXMiOltdfQ.lnXvslJH0KiNcsJjawU8aZJr-g5q36-sUQt2VemW7BGpe5PqdUEaEBROhC74WvWV2QXT-g8U40-QlLVhkOy3S1i3NcIoZhyjGPg7wag-kar0Anty0NNbX5XV8yTTbTyOxrfNZ8Nd-VVHHgk6MriM-GdWi2-vj_Kes1bbH6gd82Tmi__0gQA_x70EEB-yb51uRMOsAlnkO-smMImpPtiZE-BP4Acr_yNI7o09kJq1ZcbL5oqxYiJZlARvxJ_EUcRO2Sa9rKVSKShT55sL0YprcYfAQ3J63-Wclo3eMGnYPlKGDl7KaN1pT3Frn9H7e9cRrV7l6IuNPgqrufQuN4msxcdfRqmiz213vwMzsm27Ccd8hF2KA01wIlGPDwdu3KJcfTV9CTcNggk9loFjy3FA8OuTdqyYygiiNq4EdLz9FHnXD2U9qSJ7LXKnR8qr5KWXoxY1drqXGJVNW8K0L4HxHWBabDQIIO_AvAfn9TsULs4i9lgCqyNrmvMjq1qwYdgkVrCa6YbguEa43CvN-PhOLaTqWxMFnOsBVjy4RXRZO5vsxmWWM9zWWIkFNh9YnGS8DlFni8DQ8pYJ_jlaOjNYDGU1DuiZaYbZv2utV0DbxaECS59vtSkanKAzvkQRhl9Yv-xwuT_1NPlbFFEWJbukiaes1hCEnGZm5KmawjyQQRs' // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
             }
         });
         return fetchData.json();
