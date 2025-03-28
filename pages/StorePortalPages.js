@@ -21,6 +21,7 @@ export const orderQuoteText = (page) => { return page.locator("//*[contains(@cla
 export const orderOrQuoteNum = (page) => { return page.locator("//*[contains(@class,'order-id-container')]/div/div[2]/span[2]") }
 export const fileUpload = (page) => { return page.locator("//*[@type='file']") }
 export const selectItemToAprCB = (page) => { return page.locator("//*[@name='checkbox0']") }
+export const getTwoPerText = (page) => { return page.locator("//html/body/div[2]/div[7]/div[1]/div[2]/div/div[1]/div[2]/div[6]/div[3]") }
 
 //storing the console data into log file
 // redirectConsoleToFile();
@@ -33,7 +34,8 @@ export async function storeLogin(page) {
     if (url.includes('dev')) {
         logEmail = 'cathy@bigmanwashes.com', logPword = 'Enter@4321', userName = 'Cathy'
     } else {
-        logEmail = 'multicam@testuser.com', logPword = 'Enter@4321', userName = 'test'
+        logEmail = storeTestData.storeLogin.chump.email, logPword = storeTestData.storeLogin.chump.pword,
+            userName = storeTestData.storeLogin.chump.user_name
     }
     await page.getByPlaceholder('Enter Email ID').fill(logEmail);
     await page.getByPlaceholder('Enter Password').fill(logPword);
@@ -471,41 +473,88 @@ export async function orderConfirmationPage(page, api_url_path) {
     await page.screenshot({ path: 'testResFiles/' + module + 'Id_' + id + '.png' });//await page.pause();
 }
 export async function apiReqResponses(page, apiURLPath) {
-    // Wait for a specific request
-    const response = await page.waitForResponse(response =>
-        response.url().includes(apiURLPath) && response.status() === 200
-    );
-    // Get response JSON
-    const responseBody = await response.json();
-    console.log(response.url(), '\nCaptured Response:\n', JSON.stringify(responseBody, null, 2));
-    return responseBody;
+    let apiRes = false;
+    for (let index = 0; index < 20; index++) {
+        try {
+            // Wait for a specific request
+            const response = await page.waitForResponse(response =>
+                response.url().includes(apiURLPath) && response.status() === 200
+            );
+            // Get response JSON
+            const responseBody = await response.json();
+            console.log(response.url(), '\nCaptured Response:\n', JSON.stringify(responseBody, null, 2));
+            apiRes = true;
+            return responseBody;
+        } catch (error) {
+            console.log('calling api not hitting')
+        }
+        if (apiRes) { break; }
+        else { }
+    }
 }
-export async function checkTwoPercentForRSAccounts(page, modelNumber) {
-    let email = 'multicam@testuser.com', orgsName;
+export async function checkTwoPercentForRSAccounts(page, modelNumber, email) {
+    let orgsName, isReseller = [];
     const res = await api_responses(page, 'https://staging-buzzworld-api.iidm.com//v1/Contacts?page=1&perPage=25&sort=asc&sort_key=name&grid_name=Repairs&serverFilterOptions=%5Bobject+Object%5D&selectedCustomFilters=%5Bobject+Object%5D&search=' + email)
     // let response = JSON.stringify(res, null, 2)
     let primaryEmail = res.result.data.list[0].primary_email;
+    //checking set email is equal to get email
     if (email === primaryEmail) {
+        //if emails are macthed reading the org's name
         orgsName = res.result.data.list[0].organization;
-        // console.log(orgsName);
-        const res1 = await api_responses(page, 'https://staging-buzzworld-api.iidm.com//v1/Organizations?page=1&perPage=25&sort=desc&sort_key=accountnumber&grid_name=Repairs&serverFilterOptions=%5Bobject+Object%5D&selectedCustomFilters=%5Bobject+Object%5D&search=' + orgsName)
-        // console.log(JSON.stringify(res1, null, 2));
-        let getOrgsName = res1.result.data.list[0].name;
-        if (orgsName == getOrgsName) {
-            let actType = res1.result.data.list[0].account_type;
-            console.log('getting account type is: ' + actType);
-            if (actType.includes('RS')) {
-                await page.pause();
+        const res1 = await api_responses(page, 'https://staging-buzzworld-api.iidm.com//v1/Organizations?page=1&perPage=25&sort=desc&sort_key=accountnumber&grid_name=Repairs&serverFilterOptions=%5Bobject+Object%5D&selectedCustomFilters=%5Bobject+Object%5D&search=' + orgsName);
+        let getOrgsName;
+        for (let index = 0; index < res1.result.data.list.length; index++) {
+            //checking the reading org's is exist in the orgs list or not
+            getOrgsName = res1.result.data.list[index].name;
+            //verifying both orgs are matched or not
+            if (orgsName == getOrgsName) {
+                let actType = res1.result.data.list[index].account_type;
+                console.log('getting account type is: ' + actType);
+                //If both orgs are matched checking the Account type is Reseller or not
+                if (actType.includes('RS')) {
+                    await storeLogin(page);
+                    for (let i = 0; i < modelNumber.length; i++) {
+                        await page.getByPlaceholder('Search Product name,').fill(modelNumber[i]);
+                        await verifySearchedProductIsAppearedInSearch(page, modelNumber[i]);
+                        let actLabel = await getTwoPerText(page).textContent();
+                        await expect(getTwoPerText(page)).toBeVisible();
+                        if (actLabel.includes('Get Extra 2% off by placing an order online.')) {
+                            isReseller.push(true);
+                        } else {
+                            isReseller.push(false);
+                            console.log('2% discount label not visible, at item detail view')
+                        }
+                    }
+                    // let taxable = await cartCheckout(page, false, modelNumber);
+                } else {
+                    console.log('Account Types are not matched set Account Types is ' + actType);
+                }
+                break;
             } else {
-                console.log('Account Types are not matched set email is ' + actType);
+                console.log('customers not matched set customer is ' + orgsName + ' and get customer is ' + getOrgsName);
             }
-        } else {
-            console.log('customers not matched set customer is ' + orgsName + ' and get customer is ' + getOrgsName);
         }
     } else {
         console.log('emails not matched set email is ' + email + ' and get email is ' + primaryEmail);
     }
-    await page.pause();
-    // await storeLogin(page);
-    let taxable = await cartCheckout(page, false, modelNumber);
+    //
+    console.log('is Reseller status : ' + isReseller);
+    await page.pause()
+
+}
+export async function getPendingApprovalsGT(page) {
+    let userName = await storeLogin(page);
+    await page.getByText(userName).click();
+    await page.getByRole('link', { name: 'Dashboard' }).click();
+    await expect(page.locator("//*[contains(@src,'Delivery-Outline')]").nth(1)).toBeVisible();
+    let aPAV = await page.locator("//section/div[3]/div/div[2]").textContent();
+    let penAprGrandTotal = await aPAV.replace("$", "").replace(",", "");
+    console.log(penAprGrandTotal);
+    const res = await apiReqResponses(page, 'https://buzzworlddev-iidm.enterpi.com:8446//v1/getAttentionQuotes?page=1&perPage=25&sort=desc&sort_key=quote_id&grid_name=Quotes&disableAutoSize=true&apiSource=portal');
+    let pendingApprovalsCount = res.result.data.list; let gt = 0;
+    console.log('pending approvals count is: ' + pendingApprovalsCount.length)
+    for (let index = 0; index < pendingApprovalsCount.length; index++) {
+        gt = gt + Number(pendingApprovalsCount[i].grand_total.replace("$",));
+    }
+    console.log('grand total is: ' + gt);
 }
