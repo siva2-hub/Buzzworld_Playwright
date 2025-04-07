@@ -22,6 +22,10 @@ export const orderOrQuoteNum = (page) => { return page.locator("//*[contains(@cl
 export const fileUpload = (page) => { return page.locator("//*[@type='file']") }
 export const selectItemToAprCB = (page) => { return page.locator("//*[@name='checkbox0']") }
 export const getTwoPerText = (page) => { return page.locator("//html/body/div[2]/div[7]/div[1]/div[2]/div/div[1]/div[2]/div[6]/div[3]") }
+export const addToCartBtn = (page) => { return page.getByRole('button', { name: 'Add to Cart' }) }
+export const viewCartBtn = (page) => { return page.getByRole('link', { name: 'View Cart ' }) }
+export const checkoutBtn = (page) => { return page.getByRole('link', { name: 'Checkout' }) }
+
 
 //storing the console data into log file
 // redirectConsoleToFile();
@@ -76,7 +80,7 @@ export async function cartCheckout(page, isDecline, modelNumber) {
 }
 export async function grandTotalForCreditCard(page, taxable) {
     let st = await page.locator("(//*[contains(@class,'Total_container')])[1]/div/div[2]").textContent();
-    const subTotal = Number(Number(st.replace("$", "").replace(",", "")).toFixed(2));
+    const subTotal = Number(Number(st.replaceAll(/[$,]/g, "")).toFixed(2));
     let exp_tax;
     if (taxable == 'Exempt') {
         exp_tax = Number(0.00).toFixed(2);
@@ -84,20 +88,17 @@ export async function grandTotalForCreditCard(page, taxable) {
         exp_tax = Number((subTotal * 0.085).toFixed(2));
     }
     const exp_convFee = Number((subTotal * 0.04).toFixed(2));
-    const exp_grandTotal = subTotal + exp_tax + exp_convFee;
-    // console.log('exp sub total: '+subTotal);
-    // console.log('exp tax: '+exp_tax);
-    // console.log('exp con feee: '+exp_convFee);
-    // console.log('exp grand total: '+exp_grandTotal);
+    const exp_grandTotal = (Number(subTotal) + Number(exp_tax) + Number(exp_convFee)).toFixed(2);
     let at = await page.locator("(//*[contains(@class,'Total_container')])[1]/div/div[4]").textContent();
-    const actual_tax = Number(at.replace("$", "").replace(",", ""));
+    const actual_tax = Number(at.replaceAll(/[$,]/g, "")).toFixed(2);
     let ac = await page.locator("(//*[contains(@class,'Total_container')])[1]/div/div[6]").textContent();
-    const actual_convFee = Number(ac.replace("$", "").replace(",", ""));
-    const actualGrandTotal = (subTotal + actual_tax + actual_convFee);
+    const actual_convFee = Number(ac.replaceAll(/[$,]/g, ""));
+    const actualGrandTotal = (Number(subTotal) + Number(actual_tax) + Number(actual_convFee)).toFixed(2);
     console.log('actual sub total: ' + subTotal + '\nexp sub total: ' + subTotal);
     console.log('actual tax: ' + actual_tax + '\nexp tax: ' + exp_tax);
     console.log('actual con feee: ' + actual_convFee + '\nexp con feee: ' + exp_convFee);
     console.log('actual grand total: ' + actualGrandTotal + '\nexp grand total: ' + exp_grandTotal);
+    await page.pause()
     let getResults = false;
     if (exp_grandTotal === actualGrandTotal && exp_tax === actual_tax && exp_convFee === actual_convFee) { getResults = true }
     else { getResults = false; }
@@ -107,12 +108,12 @@ export async function grandTotalForNet30_RPayterms(page, taxable) {
     let st = await page.locator("(//*[contains(@class,'Total_container')])[1]/div/div[2]").textContent();
     const subTotal = Number(Number(st.replace("$", "").replace(",", "")).toFixed(2));
     let exp_tax;
-    if (taxable == 'Exempt') {
-        exp_tax = Number(0.00).toFixed(2);
+    if (taxable === 'Exempt') {
+        exp_tax = 0.00;
     } else {
         exp_tax = Number((subTotal * 0.085).toFixed(2));
     }
-    const exp_grandTotal = subTotal + exp_tax;
+    const exp_grandTotal = Number((subTotal + exp_tax).toFixed(2));
     // console.log('exp sub total: '+subTotal);
     // console.log('exp tax: '+exp_tax);
     // console.log('exp grand total: '+exp_grandTotal);
@@ -163,9 +164,9 @@ export async function searchProdCheckout(page, modelNumber) {
     await page.getByPlaceholder('Search Product name,').fill(modelNumber);
     // await apiReqResponses(page, 'index.php?route=extension/module/search_plus&search=' + modelNumber); await page.pause();
     await verifySearchedProductIsAppearedInSearch(page, modelNumber);
-    await page.getByRole('button', { name: 'Add to Cart' }).click();
-    await page.getByRole('link', { name: 'View Cart ' }).click();
-    await page.getByRole('link', { name: 'Checkout' }).click();
+    await addToCartBtn(page).click();
+    await viewCartBtn(page).click();
+    await checkoutBtn(page).click();
 }
 export async function verifySearchedProductIsAppearedInSearch(page, modelNumber) {
     let searchText = await page.locator("//*[text()='Searching...']");
@@ -518,7 +519,8 @@ export async function checkTwoPercentForRSAccounts(page, modelNumber, email) {
                         await verifySearchedProductIsAppearedInSearch(page, modelNumber[i]);
                         let actLabel = await getTwoPerText(page).textContent();
                         await expect(getTwoPerText(page)).toBeVisible();
-                        if (actLabel.includes('Get Extra 2% off by placing an order online.')) {
+                        if (actLabel.includes('Get an Extra 2% off by placing an order online.')) {
+                            await addToCartBtn(page).click();
                             isReseller.push(true);
                         } else {
                             isReseller.push(false);
@@ -527,7 +529,8 @@ export async function checkTwoPercentForRSAccounts(page, modelNumber, email) {
                     }
                     // let taxable = await cartCheckout(page, false, modelNumber);
                 } else {
-                    console.log('Account Types are not matched set Account Types is ' + actType);
+                    // console.log('Account Types are not matched set Account Types is ' + actType);
+                    throw new Error("Account Types are not matched set Account Types is " + actType);
                 }
                 break;
             } else {
@@ -537,10 +540,60 @@ export async function checkTwoPercentForRSAccounts(page, modelNumber, email) {
     } else {
         console.log('emails not matched set email is ' + email + ' and get email is ' + primaryEmail);
     }
-    //
+    //chekcing prices at checkout page
     console.log('is Reseller status : ' + isReseller);
-    await page.pause()
-
+    let taxable;
+    if (isReseller.every(value => value === true)) {
+        await viewCartBtn(page).click();
+        await checkoutBtn(page).click();
+        const response = await apiReqResponses(page, "https://staging-buzzworld-api.iidm.com/v1/getCustomerData");
+        const taxable = response.result.data.customerInfo.taxable_status;
+        await expect(notes(page)).toBeVisible();
+        let qty = page.locator('//*[@id="root"]/div/div[2]/div[2]/div[1]/div/div[2]');
+        let price = page.locator('//*[@id="root"]/div/div[2]/div[2]/div[1]/div/div[3]');
+        let discount = page.locator('//*[@id="root"]/div/div[2]/div[2]/div[1]/div/div[4]');
+        let total = page.locator('//*[@id="root"]/div/div[2]/div[2]/div[1]/div/div[5]');
+        let actCalsSubTotal = 0.00;
+        console.log('items length: ' + await total.count())
+        for (let index = 1; index < await total.count(); index++) {
+            // let itemText = await total.nth(index).textContent();
+            qty = await qty.nth(index).textContent(); qty = Number(qty);
+            price = await price.nth(index).textContent(); price = Number(price.replaceAll(/[$,]/g, "")).toFixed(2);
+            discount = await discount.nth(index).textContent(); discount = Number(discount.replaceAll(/[%]/g, "")) / 100;
+            total = ((qty * price) - ((qty * price) * discount)).toFixed(2);
+            actCalsSubTotal = (Number(actCalsSubTotal) + Number(total)).toFixed(2);
+            console.log('qty: ' + qty)
+            console.log('price: ' + price)
+            console.log('discount: ' + discount)
+            console.log('total: ' + total)
+            console.log('act sub total: ' + actCalsSubTotal);
+            qty = page.locator('//*[@id="root"]/div/div[2]/div[2]/div[1]/div/div[2]');
+            price = page.locator('//*[@id="root"]/div/div[2]/div[2]/div[1]/div/div[3]');
+            discount = page.locator('//*[@id="root"]/div/div[2]/div[2]/div[1]/div/div[4]');
+            total = page.locator('//*[@id="root"]/div/div[2]/div[2]/div[1]/div/div[5]');
+        }
+        console.log("before applying discount sub total is: " + actCalsSubTotal);
+        let actSubTotal = await page.locator('//*[@id="root"]/div/div[2]/div[2]/div[2]/div[5]/div/div[2]/h4').textContent();
+        console.log("actual sub total is: " + actSubTotal);
+        let expSubTotal = actCalsSubTotal;
+        console.log("expected sub total is: " + expSubTotal);
+        let status;
+        if (actSubTotal.replaceAll(/[$,]/g, "") === expSubTotal) {
+            let radioBtn = 0;
+            if (paymentType == 'Credit') { radioBtn = 2 }
+            else { radioBtn = 1 }
+            await page.locator("(//*[@name='programming_needed'])[" + radioBtn + "]").click();
+            await delay(page, 1200);
+            if (paymentType == 'Credit') { status = await grandTotalForCreditCard(page, taxable); }
+            else { status = await grandTotalForNet30_RPayterms(page, taxable); }
+            console.log('status: ' + status);
+            if (status) { await proceedBtn(page).click(); }
+            else { await page.pause(); }
+        } else {
+            console.log('sub totals are not matched..');
+            await page.pause();
+        }
+    } else { }
 }
 export async function getPendingApprovalsGT(page) {
     let userName = await storeLogin(page);

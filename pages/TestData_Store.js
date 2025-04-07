@@ -24,7 +24,7 @@ export const storeTestData = {
         email: 'test@enspchump321.co' //test@enspchump123.co , testmulti@espi.com
     },
     price_product: '2022-109', // 0165029SS [In sys], 231-642 [In sys] , 022-1BD50 , 021-1BF01 , 050-1BA10 , 032-1BD70 , 05P00620-0017
-    price_product_1: '2000-1406', // UG39-Custom [In sys], 231-2706/026-000 [In sys],2000-1206[In sys] 2000-1406 , 053-1MT01 , 053-IP00 , 2000-2207
+    price_product_1: 'AF52-30-22-13', // UG39-Custom [In sys], 231-2706/026-000 [In sys],2000-1206[In sys] 2000-1406 , 053-1MT01 , 053-IP00 , 2000-2207
     non_price_product: '760916-45',
     non_price_product_1: '376834-1D',
     po_number: 'MAR-7-2025_TEST_PORTAL',

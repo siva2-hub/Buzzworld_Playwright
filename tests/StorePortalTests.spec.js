@@ -207,8 +207,8 @@ test('Net 30 Payment from Portal from quote detailed view logged-In User with fi
 })
 test('Check 2 percent for Reseller Account', async ({ page }, testInfo) => {
   let email = 'chumpchange@espi.co', // chumpchange@espi.co , multicam@testuser.com
-    modelNumber = ['D1000-240-50HP', 'FP65U2031AFA'];
-  await checkTwoPercentForRSAccounts(page, modelNumber, email);
+    modelNumber = ['D1000-240-50HP', 'FP65U2031AFA'], pay_type = 'Credit';
+  await checkTwoPercentForRSAccounts(page, modelNumber, email, pay_type);
 })
 test('Total Values of Pending Approvals', async ({ page }, testInfo) => {
   await getPendingApprovalsGT(page);
