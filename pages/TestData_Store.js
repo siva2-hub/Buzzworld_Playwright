@@ -42,7 +42,8 @@ export const storeTestData = {
     },
     guest_api_path: '',
     loggedIn_api_path: 'doPayment',
-    notes: 'Net 30 Payment from Store logged-In User with file attachment'
+    notes: 'Net 30 Payment from Store logged-In User with file attachment',
+    shipping_method:'FEDX - Ground' //
 }
 /*
 Notes:=====>

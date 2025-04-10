@@ -1,7 +1,7 @@
 const { test, expect } = require('@playwright/test');
 import { delay, getGridColumn } from './helper';
 const { returnResult, approve, login_buzz } = require('./helper');
-import { storeLogin, cartCheckout, grandTotalForCreditCard, creditCardPayment, searchProdCheckout, selectCustomerWithoutLogin, selectBillingDetails, selectShippingDetails, request_payterms, createQuoteSendToCustFromBuzzworld, net30Payment, ccPayment, ccPaymentLoggedIn, ccPaymentAsGuest, exemptNonExemptAtCheckout, grandTotalForNet30_RPayterms, checkTwoPercentForRSAccounts, getPendingApprovalsGT } from '../pages/StorePortalPages';
+import { storeLogin, cartCheckout, grandTotalForCreditCard, creditCardPayment, searchProdCheckout, selectCustomerWithoutLogin, selectBillingDetails, selectShippingDetails, request_payterms, createQuoteSendToCustFromBuzzworld, net30Payment, ccPayment, ccPaymentLoggedIn, ccPaymentAsGuest, exemptNonExemptAtCheckout, grandTotalForNet30_RPayterms, checkTwoPercentForRSAccounts, getPendingApprovalsGT, checkShippingInstructionsAtOrders, ordersGridSorting } from '../pages/StorePortalPages';
 const { loadingText } = require('../pages/PartsBuyingPages');
 const { storeTestData } = require('../pages/TestData_Store');
 import { reactFirstDropdown, createQuote, addItemsToQuote, selectRFQDateRequestedBy, selectSource, sendForCustomerApprovals, quoteOrRMANumber } from '../pages/QuotesPage';
@@ -10,12 +10,13 @@ const testdata = JSON.parse(JSON.stringify(require("../testdata.json")))
 let url = process.env.BASE_URL_STORE;
 
 test('Net 30 Payment from Store logged-In User with file attachment', async ({ page }) => {
-  let modelNumber = storeTestData.price_product_1, poNumber = storeTestData.po_number;
+  let modelNumber = [storeTestData.price_product_1],
+    poNumber = storeTestData.po_number;
   await net30Payment(page, modelNumber, poNumber, storeTestData.loggedIn_api_path)
 });
 test('As Logged In Credit Card Payment', async ({ page }) => {
   let card_type = storeTestData.card_details.visa,//defining the card type here
-    modelNumber = storeTestData.price_product_1,
+    modelNumber = [storeTestData.price_product_1],
     cardDetails = [
       card_type.card_number,
       card_type.exp_date,
@@ -27,7 +28,7 @@ test('As Logged In Credit Card Payment', async ({ page }) => {
 test('As a Guest Credit Card Payment with Exist Customer New Email', async ({ page }) => {
   let customerName = storeTestData.exist_cust_detls.customer_name, fName = storeTestData.new_cust_detls.f_name,
     lName = storeTestData.new_cust_detls.l_name, email = storeTestData.new_cust_detls.email,
-    modelNumber = storeTestData.price_product_1, card_type = storeTestData.card_details.visa
+    modelNumber = [storeTestData.price_product_1], card_type = storeTestData.card_details.visa
   // let card_type = testdata.card_details.visa;
   let cardDetails = [
     card_type.card_number,
@@ -41,7 +42,7 @@ test('As a Guest Credit Card Payment with Exist Customer New Email', async ({ pa
 test('As a Guest Credit Card Payment with New Customer New Email', async ({ page }) => {
   let customerName = storeTestData.new_cust_detls.customer_name, fName = storeTestData.new_cust_detls.f_name,
     lName = storeTestData.new_cust_detls.l_name, email = storeTestData.new_cust_detls.email,
-    modelNumber = storeTestData.price_product, card_type = storeTestData.card_details.visa;
+    modelNumber = [storeTestData.price_product], card_type = storeTestData.card_details.visa;
   // let card_type = testdata.card_details.visa;
   let cardDetails = [
     card_type.card_number,
@@ -55,7 +56,7 @@ test('As a Guest Credit Card Payment with New Customer New Email', async ({ page
 test('Single Price-less Item Request Quote For Price Exist Customer New Email', async ({ page }) => {
   let customerName = storeTestData.exist_cust_detls.customer_name, fName = storeTestData.exist_cust_detls.f_name,
     lName = storeTestData.exist_cust_detls.l_name, email = storeTestData.new_cust_detls.email,
-    modelNumber = storeTestData.non_price_product, isCustomerAlreadyExist = true;
+    modelNumber = [storeTestData.non_price_product], isCustomerAlreadyExist = true;
   let url = process.env.BASE_URL_STORE;
   await page.goto(url);
   await searchProdCheckout(page, modelNumber);
@@ -72,7 +73,7 @@ test('Single Price-less Item Request Quote For Price Exist Customer New Email', 
 test('Single Price-less Item Request Quote For Price New Customer New Email', async ({ page }) => {
   let customerName = storeTestData.new_cust_detls.customer_name, fName = storeTestData.new_cust_detls.f_name,
     lName = storeTestData.new_cust_detls.l_name, email = storeTestData.new_cust_detls.email,
-    modelNumber = storeTestData.non_price_product, isCustomerAlreadyExist = false;
+    modelNumber = [storeTestData.non_price_product], isCustomerAlreadyExist = false;
   let url = process.env.BASE_URL_STORE;
   await page.goto(url);
   await searchProdCheckout(page, modelNumber);
@@ -89,12 +90,13 @@ test('Single Price-less Item Request Quote For Price New Customer New Email', as
 test('For Two Price-less Items Request Quote For Price Exist Customer New Email', async ({ page }) => {
   let customerName = storeTestData.exist_cust_detls.customer_name, fName = storeTestData.exist_cust_detls.f_name,
     lName = storeTestData.exist_cust_detls.l_name, email = storeTestData.new_cust_detls.email,
-    modelNumber = storeTestData.non_price_product, isCustomerAlreadyExist = true,
-    modelNumber2 = storeTestData.non_price_product_1;// 376834-1D --> No Price , 231-2706/026-000 --> Have Price;
+    modelNumber = [storeTestData.non_price_product, storeTestData.non_price_product_1],
+    isCustomerAlreadyExist = true;
+  // modelNumber2 = storeTestData.non_price_product_1;// 376834-1D --> No Price , 231-2706/026-000 --> Have Price;
   await page.goto(url);
   await searchProdCheckout(page, modelNumber);
-  await page.goBack(); //again back to shop and add one more item which is having price
-  await searchProdCheckout(page, modelNumber2);
+  // await page.goBack(); //again back to shop and add one more item which is having price
+  // await searchProdCheckout(page, modelNumber2);
   //selecting customer details
   await selectCustomerWithoutLogin(page, customerName, fName, lName, email, isCustomerAlreadyExist);
   //select billing address
@@ -108,12 +110,13 @@ test('For Two Price-less Items Request Quote For Price Exist Customer New Email'
 test('For Two Items Price and Price-less Request Quote For Price Exist Customer New Email', async ({ page }) => {
   let customerName = storeTestData.exist_cust_detls.customer_name, fName = storeTestData.exist_cust_detls.f_name,
     lName = storeTestData.exist_cust_detls.l_name, email = storeTestData.new_cust_detls.email,
-    modelNumber = storeTestData.non_price_product, isCustomerAlreadyExist = true,
-    modelNumber2 = storeTestData.price_product_1;// 376834-1D --> No Price , 231-2706/026-000 --> Have Price;
+    modelNumber = [storeTestData.non_price_product, storeTestData.price_product_1]
+    , isCustomerAlreadyExist = true;
+  // modelNumber2 = storeTestData.price_product_1;// 376834-1D --> No Price , 231-2706/026-000 --> Have Price;
   await page.goto(url);
   await searchProdCheckout(page, modelNumber);
-  await page.goBack(); //again back to shop and add one more item which is having price
-  await searchProdCheckout(page, modelNumber2);
+  // await page.goBack(); //again back to shop and add one more item which is having price
+  // await searchProdCheckout(page, modelNumber2);
   //selecting customer details
   await selectCustomerWithoutLogin(page, customerName, fName, lName, email, isCustomerAlreadyExist);
   //select billing address
@@ -127,12 +130,13 @@ test('For Two Items Price and Price-less Request Quote For Price Exist Customer 
 test('For Two Price-less Items Request Quote For Price New Customer New Email', async ({ page }) => {
   let customerName = storeTestData.new_cust_detls.customer_name, fName = storeTestData.new_cust_detls.f_name,
     lName = storeTestData.new_cust_detls.l_name, email = storeTestData.new_cust_detls.email,
-    modelNumber = storeTestData.non_price_product, isCustomerAlreadyExist = false,
-    modelNumber2 = storeTestData.non_price_product_1;
+    modelNumber = [storeTestData.non_price_product, storeTestData.non_price_product_1],
+    isCustomerAlreadyExist = false;
+  // modelNumber2 = storeTestData.non_price_product_1;
   await page.goto(url);
   await searchProdCheckout(page, modelNumber);
-  await page.goBack(); //again back to shop and add one more item which is having price
-  await searchProdCheckout(page, modelNumber2);
+  // await page.goBack(); //again back to shop and add one more item which is having price
+  // await searchProdCheckout(page, modelNumber2);
   //selecting customer details
   await selectCustomerWithoutLogin(page, customerName, fName, lName, email, isCustomerAlreadyExist);
   //select billing address
@@ -146,12 +150,13 @@ test('For Two Price-less Items Request Quote For Price New Customer New Email', 
 test('For Two Items Price and Price-less Request Quote For Price New Customer New Email', async ({ page }) => {
   let customerName = storeTestData.new_cust_detls.customer_name, fName = storeTestData.new_cust_detls.f_name,
     lName = storeTestData.new_cust_detls.l_name, email = storeTestData.new_cust_detls.email,
-    modelNumber = storeTestData.non_price_product, isCustomerAlreadyExist = false,
-    modelNumber2 = storeTestData.price_product_1;
+    modelNumber = [storeTestData.non_price_product, storeTestData.price_product_1],
+    isCustomerAlreadyExist = false;
+  // modelNumber2 = storeTestData.price_product_1;
   await page.goto(url);
   await searchProdCheckout(page, modelNumber);
-  await page.goBack(); //again back to shop and add one more item which is having price
-  await searchProdCheckout(page, modelNumber2);
+  // await page.goBack(); //again back to shop and add one more item which is having price
+  // await searchProdCheckout(page, modelNumber2);
   //selecting customer details
   await selectCustomerWithoutLogin(page, customerName, fName, lName, email, isCustomerAlreadyExist);
   //select billing address
@@ -166,7 +171,7 @@ test('Request For Pay Terms', async ({ page }) => {
   const pay_type = 'Request for Pay Terms';
   let customerName = storeTestData.new_cust_detls.customer_name, fName = storeTestData.new_cust_detls.f_name,
     lName = storeTestData.new_cust_detls.l_name, email = storeTestData.new_cust_detls.email,
-    modelNumber = storeTestData.price_product_1, isCustomerAlreadyExist = false;
+    modelNumber = [storeTestData.price_product_1], isCustomerAlreadyExist = false;
   await page.goto(url);
   await searchProdCheckout(page, modelNumber);
   //selecting customer details
@@ -213,6 +218,17 @@ test('Check 2 percent for Reseller Account', async ({ page }, testInfo) => {
 test('Total Values of Pending Approvals', async ({ page }, testInfo) => {
   await getPendingApprovalsGT(page);
 })
+test('Checking Shipping Instructions at Orders', async ({ page, browser }, testInfo) => {
+  let modelNumber = [storeTestData.price_product], payType = 'NET 30';
+  await checkShippingInstructionsAtOrders(page, modelNumber, payType, browser)
+})
+test('Checking Orders Grid Sorting', async ({ page }, testInfo) => {
+  await ordersGridSorting(page);
+})
+
+
+
+
 test.skip('Declined the Credit Card Payment as Logged In', async ({ page }, testInfo) => {
   let card_type = testdata.card_details.american;
   // let card_type = testdata.card_details.visa;

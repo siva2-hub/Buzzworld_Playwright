@@ -25,6 +25,10 @@ export const getTwoPerText = (page) => { return page.locator("//html/body/div[2]
 export const addToCartBtn = (page) => { return page.getByRole('button', { name: 'Add to Cart' }) }
 export const viewCartBtn = (page) => { return page.getByRole('link', { name: 'View Cart ' }) }
 export const checkoutBtn = (page) => { return page.getByRole('link', { name: 'Checkout' }) }
+export const shipping_instr_buzz = (page) => { return page.locator('//*[@id="repair-info-id"]/div[2]/div[8]/div/div') }
+export const shipping_instr_portal = (page) => { return page.locator('//*[@id="repair-info-id"]/div[2]/div[6]/div/div') }
+export const dashboardLink = (page) => { return page.getByRole('link', { name: 'Dashboard' }) }
+
 
 
 //storing the console data into log file
@@ -70,7 +74,7 @@ export async function cartCheckout(page, isDecline, modelNumber) {
         await page.getByRole('button', { name: 'Next' }).click();
     }
     await page.getByText('Select Shipping Method').click();
-    await page.getByText('Over Night', { exact: true }).click();
+    await page.getByText(storeTestData.shipping_method, { exact: true }).click();
     await page.getByLabel('', { exact: true }).check();
     await page.getByPlaceholder('Enter Collect Number').fill('123456ON');
     await page.getByRole('button', { name: 'Next' }).click();
@@ -93,14 +97,15 @@ export async function grandTotalForCreditCard(page, taxable) {
     const actual_tax = Number(at.replaceAll(/[$,]/g, "")).toFixed(2);
     let ac = await page.locator("(//*[contains(@class,'Total_container')])[1]/div/div[6]").textContent();
     const actual_convFee = Number(ac.replaceAll(/[$,]/g, ""));
-    const actualGrandTotal = (Number(subTotal) + Number(actual_tax) + Number(actual_convFee)).toFixed(2);
-    console.log('actual sub total: ' + subTotal + '\nexp sub total: ' + subTotal);
-    console.log('actual tax: ' + actual_tax + '\nexp tax: ' + exp_tax);
-    console.log('actual con feee: ' + actual_convFee + '\nexp con feee: ' + exp_convFee);
-    console.log('actual grand total: ' + actualGrandTotal + '\nexp grand total: ' + exp_grandTotal);
-    await page.pause()
+    // const actualGrandTotal = (Number(subTotal) + Number(actual_tax) + Number(actual_convFee)).toFixed(2);
+    let actualGTotal = await page.locator('//*[@id="root"]/div/div[2]/div[2]/div[2]/div[5]/div/div[10]/h4').textContent();
+    const actualGrandTotal = Number(actualGTotal.replaceAll(/[$,]/g, ""));
+    console.log('actual sub total:' + subTotal + '\nexp sub total:' + subTotal);
+    console.log('actual tax:' + actual_tax + '\nexp tax:' + exp_tax);
+    console.log('actual con feee:' + actual_convFee + '\nexp con feee:' + exp_convFee);
+    console.log('actual grand total:' + actualGrandTotal + '\nexp grand total:' + exp_grandTotal);
     let getResults = false;
-    if (exp_grandTotal === actualGrandTotal && exp_tax === actual_tax && exp_convFee === actual_convFee) { getResults = true }
+    if ((exp_grandTotal == actualGrandTotal) && (exp_tax == actual_tax) && (exp_convFee == actual_convFee)) { getResults = true }
     else { getResults = false; }
     return getResults;
 }
@@ -124,7 +129,7 @@ export async function grandTotalForNet30_RPayterms(page, taxable) {
     console.log('actual tax: ' + actual_tax + '\nexp tax: ' + exp_tax);
     console.log('actual grand total: ' + actualGrandTotal + '\nexp grand total: ' + exp_grandTotal);
     let getResults = false;
-    if (exp_grandTotal === actualGrandTotal && exp_tax === actual_tax) { getResults = true }
+    if ((exp_grandTotal === actualGrandTotal) && (exp_tax === actual_tax)) { getResults = true }
     else { getResults = false; }
     return getResults;
 }
@@ -161,10 +166,11 @@ export async function net30PaymentAtCheckout(page, poNum, taxable) {
     } else { throw new Error("prices not matched"); }
 }
 export async function searchProdCheckout(page, modelNumber) {
-    await page.getByPlaceholder('Search Product name,').fill(modelNumber);
-    // await apiReqResponses(page, 'index.php?route=extension/module/search_plus&search=' + modelNumber); await page.pause();
-    await verifySearchedProductIsAppearedInSearch(page, modelNumber);
-    await addToCartBtn(page).click();
+    for (let index = 0; index < modelNumber.length; index++) {
+        await page.getByPlaceholder('Search Product name,').fill(modelNumber[index]);
+        await verifySearchedProductIsAppearedInSearch(page, modelNumber[index]);
+        await addToCartBtn(page).click();
+    }
     await viewCartBtn(page).click();
     await checkoutBtn(page).click();
 }
@@ -265,7 +271,7 @@ export async function ccPaymentAsGuest(
     //select billing address
     await selectBillingDetails(page);
     //select shipping address
-    await selectShippingDetails(page);
+    await selectShippingDetails(page, storeTestData.shipping_method);
     await notes(page).fill(storeTestData.notes);
     // await creditCardRadioBtn(page).click();
     // await proceedBtn(page).click();
@@ -273,9 +279,9 @@ export async function ccPaymentAsGuest(
     //checking order confirmation page
     await orderConfirmationPage(page, api_url_path);
 }
-export async function selectShippingDetails(page) {
+export async function selectShippingDetails(page, shippingMethod) {
     await page.getByText('Select Shipping Method').click();
-    await page.getByText('Over Night', { exact: true }).click();
+    await page.getByText(shippingMethod, { exact: true }).click();
     await page.getByLabel('', { exact: true }).check();
     await page.getByPlaceholder('Enter Collect Number').fill('123456ON');
     await page.getByRole('button', { name: 'Next' }).click();
@@ -408,7 +414,7 @@ export async function createQuoteSendToCustFromBuzzworld(page, browser, cardDeta
             //selecting the Billing information
             await selectBillingDetails(newPage);
             //selecting the Shipping infornation
-            await selectShippingDetails(newPage);
+            await selectShippingDetails(newPage, storeTestData.shipping_method);
             await notes(newPage).fill(storeTestData.notes);
             //selecting the payment options
             if (paymentType == 'Credit Card') {
@@ -472,6 +478,7 @@ export async function orderConfirmationPage(page, api_url_path) {
     else { module = 'Order'; }
     console.log(module + ' is created with: ' + id);
     await page.screenshot({ path: 'testResFiles/' + module + 'Id_' + id + '.png' });//await page.pause();
+    return module;
 }
 export async function apiReqResponses(page, apiURLPath) {
     let apiRes = false;
@@ -493,7 +500,7 @@ export async function apiReqResponses(page, apiURLPath) {
         else { }
     }
 }
-export async function checkTwoPercentForRSAccounts(page, modelNumber, email) {
+export async function checkTwoPercentForRSAccounts(page, modelNumber, email, paymentType) {
     let orgsName, isReseller = [];
     const res = await api_responses(page, 'https://staging-buzzworld-api.iidm.com//v1/Contacts?page=1&perPage=25&sort=asc&sort_key=name&grid_name=Repairs&serverFilterOptions=%5Bobject+Object%5D&selectedCustomFilters=%5Bobject+Object%5D&search=' + email)
     // let response = JSON.stringify(res, null, 2)
@@ -553,7 +560,7 @@ export async function checkTwoPercentForRSAccounts(page, modelNumber, email) {
         let price = page.locator('//*[@id="root"]/div/div[2]/div[2]/div[1]/div/div[3]');
         let discount = page.locator('//*[@id="root"]/div/div[2]/div[2]/div[1]/div/div[4]');
         let total = page.locator('//*[@id="root"]/div/div[2]/div[2]/div[1]/div/div[5]');
-        let actCalsSubTotal = 0.00;
+        let actCalsSubTotal = 0.00, expTotal = 0.00;
         console.log('items length: ' + await total.count())
         for (let index = 1; index < await total.count(); index++) {
             // let itemText = await total.nth(index).textContent();
@@ -562,15 +569,22 @@ export async function checkTwoPercentForRSAccounts(page, modelNumber, email) {
             discount = await discount.nth(index).textContent(); discount = Number(discount.replaceAll(/[%]/g, "")) / 100;
             total = ((qty * price) - ((qty * price) * discount)).toFixed(2);
             actCalsSubTotal = (Number(actCalsSubTotal) + Number(total)).toFixed(2);
+            // expTotal = (Number(expTotal) + ((qty * price) - ((qty * price) * discount)).toFixed(2));
+            expTotal = Number(expTotal) + Number(((qty * price) - ((qty * price) * discount)).toFixed(2));
             console.log('qty: ' + qty)
             console.log('price: ' + price)
             console.log('discount: ' + discount)
             console.log('total: ' + total)
             console.log('act sub total: ' + actCalsSubTotal);
-            qty = page.locator('//*[@id="root"]/div/div[2]/div[2]/div[1]/div/div[2]');
-            price = page.locator('//*[@id="root"]/div/div[2]/div[2]/div[1]/div/div[3]');
-            discount = page.locator('//*[@id="root"]/div/div[2]/div[2]/div[1]/div/div[4]');
-            total = page.locator('//*[@id="root"]/div/div[2]/div[2]/div[1]/div/div[5]');
+            console.log('exp sub total: ' + expTotal);
+            if ((actCalsSubTotal == expTotal)) {
+                qty = page.locator('//*[@id="root"]/div/div[2]/div[2]/div[1]/div/div[2]');
+                price = page.locator('//*[@id="root"]/div/div[2]/div[2]/div[1]/div/div[3]');
+                discount = page.locator('//*[@id="root"]/div/div[2]/div[2]/div[1]/div/div[4]');
+                total = page.locator('//*[@id="root"]/div/div[2]/div[2]/div[1]/div/div[5]');
+            } else {
+                console.log('Total not matched at products grid')
+            }
         }
         console.log("before applying discount sub total is: " + actCalsSubTotal);
         let actSubTotal = await page.locator('//*[@id="root"]/div/div[2]/div[2]/div[2]/div[5]/div/div[2]/h4').textContent();
@@ -578,7 +592,7 @@ export async function checkTwoPercentForRSAccounts(page, modelNumber, email) {
         let expSubTotal = actCalsSubTotal;
         console.log("expected sub total is: " + expSubTotal);
         let status;
-        if (actSubTotal.replaceAll(/[$,]/g, "") === expSubTotal) {
+        if (actSubTotal.replaceAll(/[$,]/g, "") == expSubTotal) {
             let radioBtn = 0;
             if (paymentType == 'Credit') { radioBtn = 2 }
             else { radioBtn = 1 }
@@ -610,4 +624,88 @@ export async function getPendingApprovalsGT(page) {
         gt = gt + Number(pendingApprovalsCount[i].grand_total.replace("$",));
     }
     console.log('grand total is: ' + gt);
+}
+export async function checkShippingInstructionsAtOrders(page, modelNumber, paymentType, browser) {
+    let userName = await storeLogin(page);
+    // await page.goto('https://www.staging-portal.iidm.com/orders/942c61c3-94e6-440a-88bd-b072b7b8be7e')
+    let taxable = await cartCheckout(page, false, modelNumber);
+    if (paymentType == 'Credit Card') {
+        let card_type = storeTestData.card_details.visa,//defining the card type here
+            cardDetails = [
+                card_type.card_number,
+                card_type.exp_date,
+                card_type.cvv
+            ];
+        await creditCardPayment(page, userName, cardDetails, taxable);
+    } else {
+        let poNumber = storeTestData.po_number;
+        await net30PaymentAtCheckout(page, poNumber, taxable);
+    }
+    let module = await orderConfirmationPage(page, storeTestData.loggedIn_api_path);
+    // let module = 'Order';
+    if (module == 'Order') {
+        await getEleByText(page, 'Go to ' + module).click();
+        await expect(getEleByText(page, 'Orders Information')).toBeVisible()
+        let shipInstrLabel = await shipping_instr_portal(page).nth(0).textContent();
+        let shipInstrValue = await shipping_instr_portal(page).nth(1).textContent();
+        if (shipInstrLabel.includes('Shipping Instructions')) {
+            if (shipInstrValue.toLowerCase() == storeTestData.shipping_method.toLowerCase()) {
+                console.log('Sending Shipping method displayed at portal Orders')
+                let url = await page.url().replace("portal", "buzzworld").replace("orders", "orders-detail-view");
+                const context = await browser.newContext();
+                const newPage = await context.newPage();
+                await login_buzz(newPage, testData.app_url);
+                await newPage.goto(url);
+                await expect(getEleByText(newPage, 'Sales Order Information')).toBeVisible()
+                let shipInstrBuzzLabel = await shipping_instr_buzz(newPage).nth(0).textContent();
+                let shipInstrBuzzValue = await shipping_instr_buzz(newPage).nth(1).textContent();
+                if (shipInstrBuzzLabel.includes('Shipping Instructions')) {
+                    if (shipInstrBuzzValue.toLowerCase() == storeTestData.shipping_method.toLowerCase()) {
+                        console.log('Sending Shipping method displayed at buzzworld Orders')
+                    } else {
+                        console.log('ship_instruction label buzz is: ' + shipInstrBuzzLabel)
+                        console.log('ship_instruction value buzz is: ' + shipInstrBuzzValue)
+                    }
+                } else {
+                    console.log('ship_instruction label buzz is: ' + shipInstrBuzzLabel)
+                    console.log('ship_instruction value buzz is: ' + shipInstrBuzzValue)
+                }
+            } else {
+                console.log('ship_instruction label is: ' + shipInstrLabel)
+                console.log('ship_instruction value is: ' + shipInstrValue)
+            }
+        } else {
+            console.log('ship_instruction label is: ' + shipInstrLabel)
+            console.log('ship_instruction value is: ' + shipInstrValue)
+        }
+    } else {
+        console.log('Order not Created for this payment')
+    }
+    await page.screenshot({ path: 'testResFiles/' + module + '.png' })
+}
+export async function ordersGridSorting(page) {
+    // await page.pause();
+    let userName = await storeLogin(page);
+    await getEleByText(page, ' ' + userName).click();
+    await dashboardLink(page).click();
+    await getEleByText(page, 'Orders').click();
+    await spinner(page); await delay(page, 3600);
+    let headers = page.locator("//*[contains(@class,'ag-header-container')]/div/div");
+    let headerColText = page.locator("//*[contains(@class,'ag-header-container')]/div/div/div[3]/div/span[1]");
+    console.log('headers count is: ' + await headers.count())
+    for (let index = 0; index < await headers.count(); index++) {
+        await headers.nth(index).click();
+        let sorting = await headers.nth(index).getAttribute('aria-sort');
+        if (sorting == 'ascending' || sorting == 'descending') {
+            await headers.nth(index).click();
+            sorting = await headers.nth(index).getAttribute('aria-sort');
+            if (sorting == 'descending' || sorting == 'ascending') {
+                console.log('Sorting is working for ' + await headerColText.nth(index).textContent() + ' column at Orders grid');
+            } else {
+                console.log('Sorting is not working for ' + await headerColText.nth(index).textContent() + ' column at Orders grid');
+            }
+        } else {
+            console.log('sorting on first click is: ' + sorting)
+        }
+    }
 }
