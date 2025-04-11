@@ -1,5 +1,5 @@
 const { expect } = require("@playwright/test");
-import { delay, login_buzz, approve, redirectConsoleToFile, logFilePath, api_responses } from '../tests/helper';
+import { delay, login_buzz, approve, redirectConsoleToFile, logFilePath, api_responses, loginAsClient, selectReactDropdowns, profile, spinner, i_icon_for_verifying_warehouses } from '../tests/helper';
 import { getEleByText } from './PricingPages';
 import { approveWonTheRepairQuote } from './RepairPages';
 const { loadingText, nextButton } = require("./PartsBuyingPages");
@@ -28,6 +28,9 @@ export const checkoutBtn = (page) => { return page.getByRole('link', { name: 'Ch
 export const shipping_instr_buzz = (page) => { return page.locator('//*[@id="repair-info-id"]/div[2]/div[8]/div/div') }
 export const shipping_instr_portal = (page) => { return page.locator('//*[@id="repair-info-id"]/div[2]/div[6]/div/div') }
 export const dashboardLink = (page) => { return page.getByRole('link', { name: 'Dashboard' }) }
+export const iIcon = (page) => { return page.locator("//*[contains(@src,'infoIcon')]") }
+export const statusCode = (page) => { return page.locator("//*[@class='model-ag-grid']/div/div[2]/div[2]/div[3]/div[2]/div/div/div/div[1]"); }
+export const statusInfo = (page) => { return page.locator("//*[@class='model-ag-grid']/div/div[2]/div[2]/div[3]/div[2]/div/div/div/div[2]"); }
 
 
 
@@ -373,7 +376,7 @@ export async function createQuoteSendToCustFromBuzzworld(page, browser, cardDeta
     //Selecting the Source
     await selectSource(page, testData.quotes.stock_code, testData.quotes.source_text, testData.quotes.item_notes);
     //Approve the Quote
-    await approve(page, testData.quotes.cont_name);
+    await approve(page, testData.quotes.cont_name); await page.pause()
     // Send to Customer 
     await sendForCustomerApprovals(page);
     // Creating one more page for Portal
@@ -687,7 +690,7 @@ export async function ordersGridSorting(page) {
     // await page.pause();
     let userName = await storeLogin(page);
     await getEleByText(page, ' ' + userName).click();
-    await dashboardLink(page).click();
+    await dashboardLink(page).click(); await delay(page, 2600);
     await getEleByText(page, 'Orders').click();
     await spinner(page); await delay(page, 3600);
     let headers = page.locator("//*[contains(@class,'ag-header-container')]/div/div");
@@ -706,6 +709,77 @@ export async function ordersGridSorting(page) {
             }
         } else {
             console.log('sorting on first click is: ' + sorting)
+        }
+    }
+}
+export async function checkTotalDueAtDashboard(page, customerName, url, oName, context) {
+    let apiurl = 'https://staging-buzzworld-api.iidm.com//v1/PastDueInvoices?page=1&perPage=25&sort=desc&sort_key=customer&grid_name=Repairs&serverFilterOptions=%5Bobject+Object%5D&selectedCustomFilters=%5Bobject+Object%5D&search=' + customerName;
+    const response = await api_responses(page, apiurl);
+    let apiCustomer = response.result.data.list[0].customer_name;
+    if (apiCustomer === customerName) {
+        let expectedTotalDue = response.result.data.list[0].total_due;
+        if (expectedTotalDue.includes('(')) {
+            expectedTotalDue = expectedTotalDue.replace("(", "-").replace(")", "");
+        }// Do Login as client and go to dashboard
+        try { await expect(profile(page)).toBeVisible({ timeout: 3000 }); }
+        catch (error) { await login_buzz(page, url) }
+        await expect(profile(page)).toBeVisible(); await profile(page).click()
+        await expect(page.locator("//*[text()='Login as Client']")).toBeVisible()
+        await page.click("//*[text()='Login as Client']")
+        await expect(page.locator("//*[contains(@class, 'login-client-icon')]")).toBeVisible()
+        await page.click("//*[contains(@class, 'login-client-icon')]")
+        await expect(page.locator("//*[text()='Please select Organization']")).toBeVisible()
+        if (typeof oName != "string") { oName = oName.toString(); }
+        await page.getByLabel('Organization*').fill(oName);
+        await expect(loadingText(page)).toBeVisible(); await expect(loadingText(page)).toBeHidden();
+        await getEleByText(page, oName).nth(1).click()
+        const [page1] = await Promise.all([
+            context.waitForEvent('page'),
+            await page.click("//*[contains(@src, 'open-new-tab')]")
+        ]);
+        let portalRes = await apiReqResponses(page1, 'https://staging-buzzworld-api.iidm.com/v1/getSOCardInfo?apiSource=portal')
+        let actualTotalDue = portalRes.result.data.total_due_count;
+        if (expectedTotalDue === actualTotalDue) {
+            console.log('Total Due at Portal is displaying properly for ' + customerName)
+        } else {
+            console.log('Total Due at Portal is displaying wrong for ' + customerName)
+        }
+        console.log('exp total due: ' + expectedTotalDue + '\nact total due: ' + actualTotalDue);
+        //closing the Portal opened page
+        await delay(page1, 1200); await page1.close();
+    } else {
+        console.log('customers not matched set cust: ' + customerName + ' get cust: ' + apiCustomer)
+    }
+}
+export async function navigateToPortalDashboard(page) {
+    let userName = await storeLogin(page);
+    await getEleByText(page, ' ' + userName).click();
+    await dashboardLink(page).click();
+}
+export async function checkStatusIcon(page) {
+    function checkStatusInfo(module, value) {
+        let statuses;
+        if (module == 'Quotes') { statuses = storeTestData.status_data.quotes.status_info }
+        else { statuses = storeTestData.status_data.repairs.status_info }
+        for (let index = 0; index < statuses.length; index++) {
+            if (value == statuses[index]) {
+                console.log('status codes and Information are matched ' + statuses[index])
+                break;
+            } else { console.log('status codes and Information are not matched ' + statuses[index]) }
+        }
+    }
+    await navigateToPortalDashboard(page);
+    await getEleByText(page, 'Quotes').nth(0).click();
+    await expect(iIcon(page)).toBeVisible()
+    await iIcon(page).click(); await delay(page, 2300);
+    // let statusInfo = page.locator("//*[@class='model-ag-grid']/div/div[2]/div[2]/div[3]/div[2]/div/div/div/div[2]");
+    for (let index = 0; index < await statusCode(page).count(); index++) {
+        let status_code = await statusCode(page).nth(index).textContent()
+        let status_info = await statusInfo(page).nth(index).textContent()
+        if (status_code == storeTestData.status_data.quotes.status_code[index]) {
+            checkStatusInfo('Quotes', status_info);
+        } else {
+            console.log('statuc code at grid ' + status_code + ' status code at data file ' + storeTestData.status_data.quotes.status_code[index])
         }
     }
 }

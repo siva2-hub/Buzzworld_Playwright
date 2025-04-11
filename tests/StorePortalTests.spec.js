@@ -1,7 +1,7 @@
 const { test, expect } = require('@playwright/test');
-import { delay, getGridColumn } from './helper';
+import { api_responses, delay, getGridColumn } from './helper';
 const { returnResult, approve, login_buzz } = require('./helper');
-import { storeLogin, cartCheckout, grandTotalForCreditCard, creditCardPayment, searchProdCheckout, selectCustomerWithoutLogin, selectBillingDetails, selectShippingDetails, request_payterms, createQuoteSendToCustFromBuzzworld, net30Payment, ccPayment, ccPaymentLoggedIn, ccPaymentAsGuest, exemptNonExemptAtCheckout, grandTotalForNet30_RPayterms, checkTwoPercentForRSAccounts, getPendingApprovalsGT, checkShippingInstructionsAtOrders, ordersGridSorting } from '../pages/StorePortalPages';
+import { storeLogin, cartCheckout, grandTotalForCreditCard, creditCardPayment, searchProdCheckout, selectCustomerWithoutLogin, selectBillingDetails, selectShippingDetails, request_payterms, createQuoteSendToCustFromBuzzworld, net30Payment, ccPayment, ccPaymentLoggedIn, ccPaymentAsGuest, exemptNonExemptAtCheckout, grandTotalForNet30_RPayterms, checkTwoPercentForRSAccounts, getPendingApprovalsGT, checkShippingInstructionsAtOrders, ordersGridSorting, checkTotalDueAtDashboard, checkStatusIcon } from '../pages/StorePortalPages';
 const { loadingText } = require('../pages/PartsBuyingPages');
 const { storeTestData } = require('../pages/TestData_Store');
 import { reactFirstDropdown, createQuote, addItemsToQuote, selectRFQDateRequestedBy, selectSource, sendForCustomerApprovals, quoteOrRMANumber } from '../pages/QuotesPage';
@@ -219,11 +219,23 @@ test('Total Values of Pending Approvals', async ({ page }, testInfo) => {
   await getPendingApprovalsGT(page);
 })
 test('Checking Shipping Instructions at Orders', async ({ page, browser }, testInfo) => {
-  let modelNumber = [storeTestData.price_product], payType = 'NET 30';
+  let modelNumber = [storeTestData.price_product], payType = 'Credit Card';
   await checkShippingInstructionsAtOrders(page, modelNumber, payType, browser)
 })
 test('Checking Orders Grid Sorting', async ({ page }, testInfo) => {
   await ordersGridSorting(page);
+})
+test('Checking Total Due at Dashboard', async ({ browser }, testInfo) => {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  for (let index = 0; index < storeTestData.cust_total_dues.customers.length; index++) {
+    let custName = storeTestData.cust_total_dues.customers[index],
+      accNumber = storeTestData.cust_total_dues.acc_nums[index];
+    await checkTotalDueAtDashboard(page, custName, testData.app_url, accNumber, context);
+  }
+})
+test('Check Status Legend', async ({ page }) => {
+  await checkStatusIcon(page);
 })
 
 
