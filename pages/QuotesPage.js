@@ -16,7 +16,7 @@ export const iidmCost = (page) => { return page.locator('//*[@id="repair-items"]
 export const quotePrice = (page) => { return page.locator('//*[@id="repair-items"]/div[2]/div[1]/div/div/div[2]/div[3]/div[1]/h4'); }
 export const totalGP = (page) => { return page.locator('//*[@id="repair-items"]/div[3]/div/div[1]/div/h4'); }
 export const totalPriceDetls = (page) => { return page.locator('//*[@id="repair-items"]/div[3]/div/div[4]/div/h4'); }
-export const sendToCustomerDropdown = (page) => { return page.locator("(//button[@type='button'])[6]"); }
+export const sendToCustomerDropdown = (page) => { return page.locator("(//button[@type='button'])[7]"); }
 export const quoteOrRMANumber = (page) => { return page.locator("(//*[@class='id-num'])[1]"); }
 export const reviseQuoteButton = (page) => { return page.locator("//*[contains(text(),'Revise Quote')]"); }
 export const confMsgForReviseQuote = (page) => { return page.locator("(//*[text()='This will move the quote to Open, Do you want to continue ?'])[1]") }

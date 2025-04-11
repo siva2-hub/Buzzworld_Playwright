@@ -40,7 +40,7 @@ export const ANSI_ORANGE = "\x1b[38;2;255;165;0m";
 //store the logs 
 // const logFilePath = path.join(__dirname, 'logs.log');
 const token = process.env.API_TOKEN;
-
+export const profile = (page) => { return page.locator("//*[@class='user_image']") }
 
 
 redirectConsoleToFile();
@@ -3828,7 +3828,7 @@ export async function api_responses(page, api_url) {
     const response = await page.evaluate(async (url) => {
         const fetchData = await fetch(url, {
             headers: {
-                'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiYjdiYjkxYWQ3NWU1ZjFlODVlNzIyNjI4NWY1MmZjOTgzODk2OWU3YjQ5YjM3YjFmNDljMDIzYjE5M2YyMmQwNzU0M2E4ZWRlMzZmNGIwZGIiLCJpYXQiOjE3NDQyNzQ2ODEuMzY5NzUxLCJuYmYiOjE3NDQyNzQ2ODEuMzY5NzU0LCJleHAiOjE3NDU1NzA2ODEuMzU3MTI2LCJzdWIiOiI2NzE0YTkyNC03YmZhLTQ5NjktODUzOC1iZjg0MTk1YjU0MWEiLCJzY29wZXMiOltdfQ.SJavQDxbgTLm_OjpROlgS1qs-Vyo599pdSR2kABLTeBoyDvq0TJtlmeNBIM1yShnSvfDlKjrvggH8H2Qwv_ipVHqxsxWmbTBthsI9XrOferDdBv2mAKUblasVYjN_3zvJ9i2J9k2yeKLA8UHxaNISw1x0OJGD4LBC_oKbT43S8q5JRfuVE1gtnYis9GaJ1s-fb8mR17UzZSa_jJP_S-l-oFAeu2qf0l6GGkZKChlnEYc3z_ATqb7aQsaA_RdOAyL4kqzB2klk22Xb9eqgdP7cHuvEXiPUzrLPWSipGzv4xqD6H4-0CXy2w6d4-ziDFqrUal9cfiCYk02Q1CaftBJcjLy6c54X-advx4aT5KXs4l653jQBBTwrdpOn1H2-Mun6POg0jyjK9zAlnbT7xtLdq74aGWVKGqzl_7dmtRaNEYn8e6cAJloNXF7fZ0cumjGWp0Yoa4T_XUEj2gwG3KWMqHTJbYiRFvOWC9LvRsiScuTwZSTO-Iajl6SRQslMPJQ06aon5gUjgdiuqasMe0bbs2kNyocZ-naJTpM2vxQvprGqlf5yquqgLmLmbRvTdRfSBiGKEgsGIj3PLF0VbjGlaxwa3FvMGIsyq4MZNEWEP9uHUlTLCgoR3LWUl5nwXtq6oMN3GD6ctGJgSs5_6ivuhBLDQvGjAcfJxDkAkN6VMI' // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
+                'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiMmNlOWI5NWYwNGEwMWI4YTlhYTIxODg0YTBiY2JmNDE4MDlhYTI5OWJkZGI4ZTBhOTUxMDFkMmExN2IzN2I3MzAzNGI1ZTUyMDZmMDVmZTIiLCJpYXQiOjE3NDQyNzc2NjguNzg4MTI1LCJuYmYiOjE3NDQyNzc2NjguNzg4MTI5LCJleHAiOjE3NDU1NzM2NjguNzcyOTYsInN1YiI6IjY3MTRhOTI0LTdiZmEtNDk2OS04NTM4LWJmODQxOTViNTQxYSIsInNjb3BlcyI6W119.FgzVLW2V7FpNzNgdtXIma6OAKjpHE12efgzsaWNVAIsKVDsvZQR2cikqCVVlX-c7F1Da5Sn3UeSa5kkrbOdojwa4Jj_ETLvdm6x2-lw3cGZmhe7my4CYB_nN1KZ2VvGc6LKU4gzILY6qwfhhDXlnA1-bJLdRoMOZIXPZxe96B8UQQPr7pDDvGNjUhlltZNawUWQcTvQNIxzL3Ml5owvIpN1W-dDe7I05YrFg5HgP4JW3QfPkK47Ru3gIFf9P4d-eM0b1yYwwcO8Bt6FnbKSal3Sofnhlu3r0YauhUJ0u5NDtM7Q0Ji7o7fwfoILUqIlp9yDXU2FREo7Wen6141cvoqYilaCnokjqe5PYEKiwfN1v02Fa5ybJcdTkqO-_6f6lK4n1Ru29HX4yG-UGEdERxL5-lbc_hVASczCUxnABoCuGVtCDYXRzoJ1Udf6jW0XKbR6-5sjDl3fLo_dnBloopEzyUL7DtjDOcDL6RP0OQ92phPKH1I7Ssv_HyfDHZsryDo6gjeSYNz4P76WHFkv1z7KE5_7iHg5EnVhtmMK11IQ0Z2NHSdeRPNwu3ok5i4P5y_w27N56dzi4t26B9xS53xoPXUdEOTzg6TKp08hVfeisNw2ouCb7J3Zvoqq3UfVw2XY0pRMOuzhKH9h1MXS09QFDUoZnMsEIQKWMPdOyurY' // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
             }
         });
         return fetchData.json();
@@ -16948,8 +16948,8 @@ export async function displayNCNRatItemsPage(page) {
     await expect(allPages.addItemsBtn).toBeVisible();
     await page.pause();
 }
-export async function loginAsClient(page, url, context) {
-    let oName = 'ZUMMO00'
+export async function loginAsClient(page, url, context, oName) {
+    // let oName = 'ZUMMO00'
     let profile = page.locator("//*[@class='user_image']");
     await page.goto(url + 'inventory');
     await expect(profile).toBeVisible(); await profile.click()

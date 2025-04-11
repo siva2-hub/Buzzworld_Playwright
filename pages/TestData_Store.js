@@ -15,7 +15,7 @@ export const storeTestData = {
         customer_name: 'Chump Change Multi4',
         f_name: 'Chump',
         l_name: 'ChangeEspi',
-        email: 'chumpchangemulti@espi.co'
+        email: 'chumpchangemulti21@espi.co'
     },
     exist_cust_detls: {
         customer_name: 'Chump Change Automation', //Chump Change Automation , Multicam Inc
@@ -43,7 +43,40 @@ export const storeTestData = {
     guest_api_path: '',
     loggedIn_api_path: 'doPayment',
     notes: 'Net 30 Payment from Store logged-In User with file attachment',
-    shipping_method:'FEDX - Ground' //
+    shipping_method: 'FEDX - Ground',//
+    cust_total_dues: {
+        customers: [
+            'CPI SATCOM & ANTENNA TECHNOLOGIES INC',
+            'TRIMPOT ELECTRONICAS LTDA',
+            'TITAN READY MIX',
+            'SOUTHWESTERN WIRE INC',
+            'MULTICAM INC',
+            'ACS INDUSTRIES - LAREDO',
+            'ALLPAC CONSULTING,LLC.',
+            'SKYCAM LLC'
+        ],
+        acc_nums: [
+            'VERTE01',
+            'TRIMP00',
+            'TITAN03',
+            'SOUTH39',
+            'MULTI00',
+            'ACSIN01',
+            'ALLPA01',
+            'SKYCA00'
+        ]
+    },
+    status_data: {
+        quotes: {
+            status_code: ['Approved', 'Archived', 'Closed', 'Pending Approval'],
+            status_info: ['Approved', 'Archived', 'Closed', 'Waiting on Customer Approval']
+        },
+        repairs: {
+            status_code: [],
+            status_info: []
+        }
+    }
+
 }
 /*
 Notes:=====>
