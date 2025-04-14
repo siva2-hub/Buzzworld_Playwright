@@ -15,7 +15,7 @@ const { threadId } = require('worker_threads');
 const { count, log, error } = require('console');
 const { rTickIcon, gridColumnData } = require('../pages/QuotesPage');
 const { loadingText, reactFirstDropdown } = require('../pages/PartsBuyingPages');
-import { enterKey, checkDatesAtCreateSO, rightArrowKey, leftArrowKey, insertKeys } from "../pages/RepairPages";
+import { enterKey, checkDatesAtCreateSO, rightArrowKey, leftArrowKey, insertKeys, horzScrollToRight, horzScrollView } from "../pages/RepairPages";
 import { dcAtPricing, getEleByText, pricingDropDown } from '../pages/PricingPages';
 import { apiReqResponses } from '../pages/StorePortalPages';
 const currentDate = new Date().toDateString();
@@ -48,7 +48,13 @@ redirectConsoleToFile();
 
 export async function login_buzz(page, stage_url) {
     allPages = new AllPages(page);
-    await page.goto(stage_url + "all_quotes");
+    try { await page.goto(stage_url + "all_quotes"); }
+    catch (error) {
+        await expect(page.locator("//*[contains(text(),'Advanced')]").nth(0)).toBeVisible({ timeout: 1500 });
+        await page.locator("//*[contains(text(),'Advanced')]").nth(0).click();
+        await page.locator("//*[contains(text(),'Proceed to buzzworld-web-iidm.enterpi.com (unsafe)')]").nth(0).click();
+        await page.waitForTimeout(2000);
+    }
     // if (await page.url().includes('sso')) {
     let userName, password;
     if (stage_url.includes('192.168')) {
@@ -2121,7 +2127,7 @@ export async function createSO(page, vendor_name, isJobCreate, quote_type) {
     await expect(page.getByRole('heading', { name: 'Sales Order Information' })).toBeVisible();
     let soid = await allPages.quoteOrRMANumber.textContent();
     let order_id = soid.replace("#", "");
-    console.log('order created: ', order_id);await page.pause();
+    console.log('order created: ', order_id); await page.pause();
     if (isSelectJob) {//isJobCreate 
         let jobCreatedStstus = false;
         if (quote_type === 'System Quote') {
@@ -4133,7 +4139,7 @@ export async function verifyTwoExcelData(page) {
 export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPrice, discountType, discountValue, testCount, qurl, fp) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let vendor = testdata.vendor, testResults, quoteURL;
-    await page.getByRole('button', { name: 'Pricing expand' }).click();
+    await pricingDropDown(page).click();
     await page.getByRole('menuitem', { name: 'Non Standard Pricing' }).click();
     await page.getByRole('button', { name: 'Configure' }).click();
     await page.locator('div').filter({ hasText: /^Company Name\*Search$/ }).getByLabel('open').click();
@@ -4151,7 +4157,7 @@ export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPri
         await page.getByLabel('Next Month').click();
     }
     await page.locator("(//*[text() = '" + eDate + "'])[1]").click();
-    await page.getByPlaceholder('Enter Client Quote Number').fill('TEST123434');
+    await page.getByPlaceholder('Enter Client Quote Number').fill('TESTLOADINGISSUE');
     await page.locator('div').filter({ hasText: /^Supplier\*Search$/ }).getByLabel('open').click();
     await page.keyboard.insertText(vendor);
     await page.locator("(//*[text() = '" + vendor + "'])[2]").click();
@@ -4169,20 +4175,21 @@ export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPri
     await page.locator('//*[@id = "pricing_rules.0.fixed_value"]').fill(fp);
     await page.getByRole('button', { name: 'Preview Items' }).click();
     await expect(page.locator("//*[text() = 'more']")).toBeHidden();
-    let icp = await page.locator("//*[@style = 'left: 891px; width: 120px;']").textContent();
+    await delay(page, 2000); await page.pause();
+    let icp = await page.locator("//*[@style = 'left: 986px; width: 120px;']").textContent();
     let listIIDMCost = icp.replace(",", "").replace("$", "");
-    let lBP = await page.locator("//*[@style = 'left: 751px; width: 140px;']").textContent();
+    let lBP = await page.locator("//*[@style = 'left: 846px; width: 140px;']").textContent();
     let listBuyPrice = lBP.replace(",", "").replace("$", "");
-    let lp = await page.locator("//*[@style = 'left: 611px; width: 140px;']").textContent();
+    let lp = await page.locator("//*[@style = 'left: 706px; width: 140px;']").textContent();
     let listPrice = lp.replace(",", "").replace("$", "");
-    let lSP = await page.locator("//*[@style = 'left: 1718px; width: 117px;']").textContent();
+    let lSP = await page.locator("//*[@style = 'left: 1817px; width: 117px;']").textContent();
     let listSellPrice = lSP.replace(",", "").replace("$", "");
     let buyPriceInListViewCalc; let sellPriceInListViewCalc;
     console.log(ANSI_ORANGE, 'Pricing Rule Applied Item is ', item, ANSI_RESET);
     console.log('buy price ', listBuyPrice);
     console.log('sell price ', listSellPrice);
     console.log('list price ', listPrice);
-    console.log('IIDM Cost ', listIIDMCost);
+    console.log('IIDM Cost ', listIIDMCost); 
     if (buyPrice == '' && purchaseDiscount != '') {
         buyPriceInListViewCalc = (parseFloat(listPrice)) - ((parseFloat(listPrice)) * parseInt(purchaseDiscount) / 100).toFixed("2");
         console.log('buy price is ', buyPriceInListViewCalc, ' is calculated from purchase discount on list price.');

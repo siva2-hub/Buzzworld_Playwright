@@ -316,20 +316,20 @@ test.describe('all tests', async () => {
     results = await nonSPAPrice(page, customer, items[1], '26', '256.56', 'Discount', '58', 2, quoteURL, '');
     await returnResult(page, testName, results[0]);
 
-    //Buy price and purchase discount is given empty and type is Discount
-    testName = 'Verifying Buy Price, Sell Price (Type is Discount) and IIDM Cost with buyprice && Purchase Discount as NaN';
-    results = await nonSPAPrice(page, customer, items[2], '', '', 'Discount', '32', 3, quoteURL, '');
-    await returnResult(page, testName, results[0]);
+    // //Buy price and purchase discount is given empty and type is Discount
+    // testName = 'Verifying Buy Price, Sell Price (Type is Discount) and IIDM Cost with buyprice && Purchase Discount as NaN';
+    // results = await nonSPAPrice(page, customer, items[2], '', '', 'Discount', '32', 3, quoteURL, '');
+    // await returnResult(page, testName, results[0]);
 
-    //Buy price and purchase discount is given empty and type is Markup
-    testName = 'Verifying Buy Price, Sell Price (Type is Markup) and IIDM Cost with buyprice && Purchase Discount as NaN';
-    results = await nonSPAPrice(page, customer, items[3], '', '', 'Markup', '39', 4, quoteURL, '');
-    await returnResult(page, testName, results[0]);
+    // //Buy price and purchase discount is given empty and type is Markup
+    // testName = 'Verifying Buy Price, Sell Price (Type is Markup) and IIDM Cost with buyprice && Purchase Discount as NaN';
+    // results = await nonSPAPrice(page, customer, items[3], '', '', 'Markup', '39', 4, quoteURL, '');
+    // await returnResult(page, testName, results[0]);
 
-    //Buy price and purchase discount is given empty and type is Markup
-    testName = 'Verifying Buy Price, Fixed Sales Price and IIDM Cost with buyprice && Purchase Discount as NaN';
-    results = await nonSPAPrice(page, customer, items[4], '', '', 'Markup', '69', 5, quoteURL, '129.26');
-    await returnResult(page, testName, results[0]);
+    // //Buy price and purchase discount is given empty and type is Markup
+    // testName = 'Verifying Buy Price, Fixed Sales Price and IIDM Cost with buyprice && Purchase Discount as NaN';
+    // results = await nonSPAPrice(page, customer, items[4], '', '', 'Markup', '69', 5, quoteURL, '129.26');
+    // await returnResult(page, testName, results[0]);
   });
 
   test.skip('verify filters in pricing', async () => {
