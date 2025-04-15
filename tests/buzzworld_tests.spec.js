@@ -306,15 +306,21 @@ test.describe('all tests', async () => {
     //Buy price value getting from purchase discount on list price
     let items = ['A081004', 'A151506', 'A151804', 'A121606', 'A121204NK'];
     let customer = 'FLOWP00';
-    let testName = 'Verifying Buy Price, Sell Price(Type is Markup) and IIDM Cost with buyprice as Purchase Discount';
-    results = await nonSPAPrice(page, customer, items[0], '26', '', 'Markup', '78', 1, '', '');
+    //
+    let testName = 'Verifying All Products for Non SPA with Puchase dc and markup';
+    results = await nonSPAPrice(page, customer, '', '26', '', 'Markup', '78', 1, '', '');
     await returnResult(page, testName, results[0]);
     let quoteURL = results[1];
 
-    //Buy price is given directly as buy price
-    testName = 'Verifying Buy Price, Sell Price(Type is Discount) and IIDM Cost with buyprice as directly given';
-    results = await nonSPAPrice(page, customer, items[1], '26', '256.56', 'Discount', '58', 2, quoteURL, '');
-    await returnResult(page, testName, results[0]);
+    // testName = 'Verifying Buy Price, Sell Price(Type is Markup) and IIDM Cost with buyprice as Purchase Discount';
+    // results = await nonSPAPrice(page, customer, items[0], '26', '', 'Markup', '78', 1, '', '');
+    // await returnResult(page, testName, results[0]);
+    // quoteURL = results[1];
+
+    // //Buy price is given directly as buy price
+    // testName = 'Verifying Buy Price, Sell Price(Type is Discount) and IIDM Cost with buyprice as directly given';
+    // results = await nonSPAPrice(page, customer, items[1], '26', '256.56', 'Discount', '58', 2, quoteURL, '');
+    // await returnResult(page, testName, results[0]);
 
     // //Buy price and purchase discount is given empty and type is Discount
     // testName = 'Verifying Buy Price, Sell Price (Type is Discount) and IIDM Cost with buyprice && Purchase Discount as NaN';

@@ -4138,7 +4138,7 @@ export async function verifyTwoExcelData(page) {
 }
 export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPrice, discountType, discountValue, testCount, qurl, fp) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
-    let vendor = testdata.vendor, testResults, quoteURL;
+    let vendor = testdata.vendor, testResults, quoteURL, listIIDMCost, sellPriceInListViewCalc;
     await pricingDropDown(page).click();
     await page.getByRole('menuitem', { name: 'Non Standard Pricing' }).click();
     await page.getByRole('button', { name: 'Configure' }).click();
@@ -4161,101 +4161,141 @@ export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPri
     await page.locator('div').filter({ hasText: /^Supplier\*Search$/ }).getByLabel('open').click();
     await page.keyboard.insertText(vendor);
     await page.locator("(//*[text() = '" + vendor + "'])[2]").click();
-    await page.locator("(//*[text() = 'Select '])[1]").click();
-    await page.keyboard.insertText('Specific Item');
-    await page.keyboard.press('Enter');
-    await page.locator('div').filter({ hasText: /^ItemsSearch$/ }).getByLabel('open').click();
-    await page.keyboard.insertText(item);
-    await page.locator("(//*[text() = '" + item + "'])[2]").click();
-    await page.locator('[id="pricing_rules\\.0\\.buy_side_discount"]').fill(purchaseDiscount);
-    await page.getByPlaceholder('Enter Buy Price').fill(buyPrice);
-    await page.locator('div').filter({ hasText: /^Select%$/ }).getByLabel('open').click();
-    await page.getByText(discountType, { exact: true }).click();
-    await page.locator('[id="pricing_rules\\.0\\.type_value"]').fill(discountValue);
-    await page.locator('//*[@id = "pricing_rules.0.fixed_value"]').fill(fp);
-    await page.getByRole('button', { name: 'Preview Items' }).click();
-    await expect(page.locator("//*[text() = 'more']")).toBeHidden();
-    await delay(page, 2000); await page.pause();
-    let icp = await page.locator("//*[@style = 'left: 986px; width: 120px;']").textContent();
-    let listIIDMCost = icp.replace(",", "").replace("$", "");
-    let lBP = await page.locator("//*[@style = 'left: 846px; width: 140px;']").textContent();
-    let listBuyPrice = lBP.replace(",", "").replace("$", "");
-    let lp = await page.locator("//*[@style = 'left: 706px; width: 140px;']").textContent();
-    let listPrice = lp.replace(",", "").replace("$", "");
-    let lSP = await page.locator("//*[@style = 'left: 1817px; width: 117px;']").textContent();
-    let listSellPrice = lSP.replace(",", "").replace("$", "");
-    let buyPriceInListViewCalc; let sellPriceInListViewCalc;
-    console.log(ANSI_ORANGE, 'Pricing Rule Applied Item is ', item, ANSI_RESET);
-    console.log('buy price ', listBuyPrice);
-    console.log('sell price ', listSellPrice);
-    console.log('list price ', listPrice);
-    console.log('IIDM Cost ', listIIDMCost); 
-    if (buyPrice == '' && purchaseDiscount != '') {
-        buyPriceInListViewCalc = (parseFloat(listPrice)) - ((parseFloat(listPrice)) * parseInt(purchaseDiscount) / 100).toFixed("2");
-        console.log('buy price is ', buyPriceInListViewCalc, ' is calculated from purchase discount on list price.');
-
+    if (item == '') {
+        //entering purchase discount
+        await page.locator('[id="pricing_rules\\.0\\.buy_side_discount"]').fill(purchaseDiscount);
+        //select type markup/discount
+        await page.locator('div').filter({ hasText: /^Select%$/ }).getByLabel('open').click();
+        await page.getByText(discountType, { exact: true }).click();
+        //entering discount value
+        await page.locator('[id="pricing_rules\\.0\\.type_value"]').fill(discountValue);
+        //click on Apply Rule button
+        // await page.locator('div').filter({ hasText: /^Apply Rule$/ }).getByRole('button').click();
+        await getEleByText(page, 'Apply Rule').nth(0).click();
+        //checking rule applied or not
+        await expect(page.getByText('Applied Successfully')).toBeVisible();
+        //verifying All products text at SPA logs
+        await expect(getEleByText(page, 'All Products')).toBeVisible();
+        if (purchaseDiscount != '') {
+            await expect(getEleByText(page, 'Purchse Discount - ' + purchaseDiscount + '%')).toBeVisible();
+        } else if (purchaseDiscount != '' && discountValue != '') {
+            await expect(getEleByText(page, 'Purchse Discount - ' + purchaseDiscount + '%')).toBeVisible();
+            await expect(getEleByText(page, discountType + ' - ' + discountValue + '%')).toBeVisible();
+        } else if (discountValue != '') {
+            await expect(getEleByText(page, discountType + ' - ' + discountValue + '%')).toBeVisible();
+        }
+        testResults = true;
+        await page.pause();
     } else {
-        buyPriceInListViewCalc = buyPrice;
-        console.log('buy price is ', buyPriceInListViewCalc, ' is directly given as buy price.');
-        if (listBuyPrice == NaN) {
-            buyPriceInListViewCalc = NaN;
-        }
-    }
-    if (buyPriceInListViewCalc == listBuyPrice) {
-        console.log('calculated buy price ', buyPriceInListViewCalc);
-        console.log('buyprice calculation passed, at preview items page');
-        if (discountType === 'Markup') {
-            if (buyPrice == '' && purchaseDiscount == '') {
-                sellPriceInListViewCalc = ((parseFloat(listIIDMCost)) + ((parseFloat(listIIDMCost)) * parseInt(discountValue) / 100)).toFixed("2");;
-            } else {
-                sellPriceInListViewCalc = ((buyPriceInListViewCalc + (buyPriceInListViewCalc * parseInt(discountValue) / 100))).toFixed("2");
-                buyPrice = buyPriceInListViewCalc;
-            }
+        await page.locator("(//*[text() = 'Select '])[1]").click();
+        await page.keyboard.insertText('Specific Item');
+        await page.keyboard.press('Enter');
+        await page.locator('div').filter({ hasText: /^ItemsSearch$/ }).getByLabel('open').click();
+        await page.keyboard.insertText(item);
+        await page.locator("(//*[text() = '" + item + "'])[2]").click();
+        await page.locator('[id="pricing_rules\\.0\\.buy_side_discount"]').fill(purchaseDiscount);
+        await page.getByPlaceholder('Enter Buy Price').fill(buyPrice);
+        await page.locator('div').filter({ hasText: /^Select%$/ }).getByLabel('open').click();
+        await page.getByText(discountType, { exact: true }).click();
+        await page.locator('[id="pricing_rules\\.0\\.type_value"]').fill(discountValue);
+        await page.locator('//*[@id = "pricing_rules.0.fixed_value"]').fill(fp);
+        await page.getByRole('button', { name: 'Preview Items' }).click();
+        await expect(page.locator("//*[text() = 'more']")).toBeHidden();
+        await delay(page, 2000);
+        // let icp = await page.locator("//*[@style = 'left: 986px; width: 120px;']").textContent();
+        const icpLocator = await getGridColumn(page, 7); const icp = await icpLocator.textContent();
+        listIIDMCost = icp.replace(",", "").replace("$", "");
+        // let lBP = await page.locator("//*[@style = 'left: 846px; width: 140px;']").textContent();
+        const lBPLocator = await getGridColumn(page, 6); const lBP = await lBPLocator.textContent();
+        let listBuyPrice = lBP.replace(",", "").replace("$", "");
+        // let lp = await page.locator("//*[@style = 'left: 706px; width: 140px;']").textContent();
+        const lpLocator = await getGridColumn(page, 5); const lp = await lpLocator.textContent();
+        let listPrice = lp.replace(",", "").replace("$", "");
+        // let lSP = await page.locator("//*[@style = 'left: 1817px; width: 117px;']").textContent();
+        const lSPLocator = await getGridColumn(page, 12); const lSP = await lSPLocator.textContent();
+        let listSellPrice = lSP.replace(",", "").replace("$", "");
+        let buyPriceInListViewCalc;
+        console.log(ANSI_ORANGE, 'Pricing Rule Applied Item is ', item, ANSI_RESET);
+        console.log('buy price ', listBuyPrice);
+        console.log('sell price ', listSellPrice);
+        console.log('list price ', listPrice);
+        console.log('IIDM Cost ', listIIDMCost);
+        if (buyPrice == '' && purchaseDiscount != '') {
+            buyPriceInListViewCalc = (parseFloat(listPrice)) - ((parseFloat(listPrice)) * parseInt(purchaseDiscount) / 100).toFixed("2");
+            console.log('buy price is ', buyPriceInListViewCalc, ' is calculated from purchase discount on list price.');
+
         } else {
-            sellPriceInListViewCalc = ((parseFloat(listPrice)) - ((parseFloat(listPrice)) * parseInt(discountValue) / 100)).toFixed("2");
+            buyPriceInListViewCalc = buyPrice;
+            console.log('buy price is ', buyPriceInListViewCalc, ' is directly given as buy price.');
+            if (listBuyPrice == NaN) {
+                buyPriceInListViewCalc = NaN;
+            }
         }
-        if (sellPriceInListViewCalc == listSellPrice) {
-            console.log('calculated sell price ', sellPriceInListViewCalc);
-            console.log('sell price calculation passed, at preview items page and type is ', discountType);
-            await page.locator('div').filter({ hasText: /^Apply Rule$/ }).getByRole('button').click();
-            await page.getByRole('tab', { name: 'Items' }).click();
-            await expect(page.getByRole('gridcell', { name: 'loading', exact: true }).getByRole('img')).toBeVisible();
-            let bpil = await page.locator("//*[@style = 'left: 720px; width: 140px;']").textContent();
-            let buyPriceItemList = bpil.replace("$", "").replace(",", "");
-            let spil = await page.locator("//*[@style = 'left: 1580px; width: 100px;']").textContent();
-            let sellPriceItemList = spil.replace("$", "").replace(",", "");
-            if (buyPriceItemList == buyPriceInListViewCalc && sellPriceItemList == sellPriceInListViewCalc) {
-                console.log('sell price and buy price calculation passed, at items list page');
-                await page.getByRole('tab', { name: 'SPA Logs' }).click();
-                await page.getByTitle(item).click();
-                await expect(page.locator("(//*[text() = 'more'])[2]")).toBeHidden();
-                let lBP = await page.locator("//*[@style = 'left: 751px; width: 140px;']").textContent();
-                let cardBuyPrice = lBP.replace(",", "").replace("$", "");
-                let clp = await page.locator("//*[@style = 'left: 611px; width: 140px;']").textContent();
-                let cardListPrice = clp.replace("$", "").replace(",", "");
-                spil = await page.locator("//*[@style = 'left: 1718px; width: 117px;']").textContent();
-                let cardSellPrice = spil.replace("$", "").replace(",", "");
-                if (buyPriceItemList == cardBuyPrice && sellPriceItemList == cardSellPrice && cardListPrice == listPrice) {
-                    console.log('sell price, buy price and list price calculation passed, at spa logs card view');
-                    testResults = true;
+        if (buyPriceInListViewCalc == listBuyPrice) {
+            console.log('calculated buy price ', buyPriceInListViewCalc);
+            console.log('buyprice calculation passed, at preview items page');
+            if (discountType === 'Markup') {
+                if (buyPrice == '' && purchaseDiscount == '' && listIIDMCost != '') {
+                    sellPriceInListViewCalc = ((parseFloat(listIIDMCost)) + ((parseFloat(listIIDMCost)) * parseInt(discountValue) / 100)).toFixed("2");
+                    console.log('Sell price is calculated on IIDM cost')
+                } else if (buyPrice != '' || purchaseDiscount != '') {
+                    sellPriceInListViewCalc = ((buyPriceInListViewCalc + (buyPriceInListViewCalc * parseInt(discountValue) / 100))).toFixed("2");
+                    buyPrice = buyPriceInListViewCalc;
+                    console.log('Sell price is calculated on buy price')
                 } else {
-                    console.log('sell price, buy price and list price calculation Failed, at spa logs card view');
+                    sellPriceInListViewCalc = ((parseFloat(listPrice)) + ((parseFloat(listPrice)) * parseInt(discountValue) / 100)).toFixed("2");
+                    console.log('Sell price is calculated on list price')
+                }
+            } else {
+                sellPriceInListViewCalc = ((parseFloat(listPrice)) - ((parseFloat(listPrice)) * parseInt(discountValue) / 100)).toFixed("2");
+                console.log('Sell price is calculated on list price')
+            }
+            if (sellPriceInListViewCalc == listSellPrice) {
+                console.log('calculated sell price ', sellPriceInListViewCalc);
+                console.log('sell price calculation passed, at preview items page and type is ', discountType);
+                //click on Apply rule button
+                await page.pause();
+                await page.locator('div').filter({ hasText: /^Apply Rule$/ }).getByRole('button').click();
+                await page.getByRole('tab', { name: 'Items' }).click();
+                await expect(page.getByRole('gridcell', { name: 'loading', exact: true }).getByRole('img')).toBeVisible();
+                let bpil = await page.locator("//*[@style = 'left: 720px; width: 140px;']").textContent();
+                let buyPriceItemList = bpil.replace("$", "").replace(",", "");
+                let spil = await page.locator("//*[@style = 'left: 1580px; width: 100px;']").textContent();
+                let sellPriceItemList = spil.replace("$", "").replace(",", "");
+                if (buyPriceItemList == buyPriceInListViewCalc && sellPriceItemList == sellPriceInListViewCalc) {
+                    console.log('sell price and buy price calculation passed, at items list page');
+                    await page.getByRole('tab', { name: 'SPA Logs' }).click();
+                    await page.getByTitle(item).click();
+                    await expect(page.locator("(//*[text() = 'more'])[2]")).toBeHidden();
+                    let lBP = await page.locator("//*[@style = 'left: 751px; width: 140px;']").textContent();
+                    let cardBuyPrice = lBP.replace(",", "").replace("$", "");
+                    let clp = await page.locator("//*[@style = 'left: 611px; width: 140px;']").textContent();
+                    let cardListPrice = clp.replace("$", "").replace(",", "");
+                    spil = await page.locator("//*[@style = 'left: 1718px; width: 117px;']").textContent();
+                    let cardSellPrice = spil.replace("$", "").replace(",", "");
+                    if (buyPriceItemList == cardBuyPrice && sellPriceItemList == cardSellPrice && cardListPrice == listPrice) {
+                        console.log('sell price, buy price and list price calculation passed, at spa logs card view');
+                        testResults = true;
+                    } else {
+                        console.log('sell price, buy price and list price calculation Failed, at spa logs card view');
+                        testResults = false;
+                    }
+                } else {
+                    console.log('sell price and buy price calculation failed, at items list page');
                     testResults = false;
                 }
             } else {
-                console.log('sell price and buy price calculation failed, at items list page');
+                console.log('calculated sell price ', sellPriceInListViewCalc);
+                console.log('sell price calculation failed, at preview items page and type is ', discountType);
                 testResults = false;
             }
         } else {
-            console.log('calculated sell price ', sellPriceInListViewCalc);
-            console.log('sell price calculation failed, at preview items page and type is ', discountType);
+            console.log('calculated buy price ', buyPriceInListViewCalc);
+            console.log('buyprice calculation failed, at preview items page');
             testResults = false;
         }
-    } else {
-        console.log('calculated buy price ', buyPriceInListViewCalc);
-        console.log('buyprice calculation failed, at preview items page');
-        testResults = false;
     }
+
     await page.goBack();
     if (testResults) {
         //Create quote for these items
@@ -4529,7 +4569,7 @@ export async function addSPAItemsToQuote(page, customer, quoteType, items, testC
             await page.goto(quoteURL);
         }
         await page.getByText('Add Items').click();
-        await page.getByPlaceholder('Search By Part Number').fill(items);
+        await page.getByPlaceholder('Search By Part Number').fill(items); await page.pause();
         await page.locator('(//*[@id="tab-0-tab"]/div[1]/div[2]/div/div[1]/div)[1]').click();
         await page.getByRole('button', { name: 'Add Selected 1 Items' }).click();
         await spinner(page);
