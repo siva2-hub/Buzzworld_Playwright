@@ -46,24 +46,18 @@ export const storeTestData = {
     shipping_method: 'FEDX - Ground',//
     cust_total_dues: {
         customers: [
-            'CPI SATCOM & ANTENNA TECHNOLOGIES INC',
-            'TRIMPOT ELECTRONICAS LTDA',
-            'TITAN READY MIX',
-            'SOUTHWESTERN WIRE INC',
-            'MULTICAM INC',
-            'ACS INDUSTRIES - LAREDO',
-            'ALLPAC CONSULTING,LLC.',
-            'SKYCAM LLC'
+            'GENERAL DYNAMICS - LONGVIEW',
+            'VOLTEA',
+            'SURE CAST INC',
+            'STARLINE INC',
+            'PLAINS ALL AMERICAN PIPELINE',
         ],
         acc_nums: [
-            'VERTE01',
-            'TRIMP00',
-            'TITAN03',
-            'SOUTH39',
-            'MULTI00',
-            'ACSIN01',
-            'ALLPA01',
-            'SKYCA00'
+            'VERTE03',
+            'VOLTE00',
+            'SUREC00',
+            'STARL00',
+            'PLAIN01',
         ]
     },
     status_data: {

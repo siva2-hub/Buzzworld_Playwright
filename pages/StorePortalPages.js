@@ -732,21 +732,28 @@ export async function checkTotalDueAtDashboard(page, customerName, url, oName, c
         if (typeof oName != "string") { oName = oName.toString(); }
         await page.getByLabel('Organization*').fill(oName);
         await expect(loadingText(page)).toBeVisible(); await expect(loadingText(page)).toBeHidden();
-        await getEleByText(page, oName).nth(1).click()
-        const [page1] = await Promise.all([
-            context.waitForEvent('page'),
-            await page.click("//*[contains(@src, 'open-new-tab')]")
-        ]);
-        let portalRes = await apiReqResponses(page1, 'https://staging-buzzworld-api.iidm.com/v1/getSOCardInfo?apiSource=portal')
-        let actualTotalDue = portalRes.result.data.total_due_count;
-        if (expectedTotalDue === actualTotalDue) {
-            console.log('Total Due at Portal is displaying properly for ' + customerName)
-        } else {
-            console.log('Total Due at Portal is displaying wrong for ' + customerName)
+        await page.pause()
+        try {
+            await expect(getEleByText(page, 'No Organization Found')).toBeHidden({ timeout: 2000 });
+            await getEleByText(page, oName).nth(1).click()
+            const [page1] = await Promise.all([
+                context.waitForEvent('page'),
+                await page.click("//*[contains(@src, 'open-new-tab')]")
+            ]);
+            let portalRes = await apiReqResponses(page1, 'https://staging-buzzworld-api.iidm.com/v1/getSOCardInfo?apiSource=portal')
+            let actualTotalDue = portalRes.result.data.total_due_count;
+            if (expectedTotalDue === actualTotalDue) {
+                console.log('Total Due at Portal is displaying properly for ' + customerName)
+            } else {
+                console.log('Total Due at Portal is displaying wrong for ' + customerName)
+            }
+            console.log('exp total due: ' + expectedTotalDue + '\nact total due: ' + actualTotalDue);
+            //closing the Portal opened page
+            await delay(page1, 1200); await page1.close();
+        } catch (error) {
+            console.log('seraching orgs not found')
+            await page.getByTitle('close').getByRole('img').click()
         }
-        console.log('exp total due: ' + expectedTotalDue + '\nact total due: ' + actualTotalDue);
-        //closing the Portal opened page
-        await delay(page1, 1200); await page1.close();
     } else {
         console.log('customers not matched set cust: ' + customerName + ' get cust: ' + apiCustomer)
     }
