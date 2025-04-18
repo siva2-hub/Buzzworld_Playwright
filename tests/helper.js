@@ -16,7 +16,7 @@ const { count, log, error } = require('console');
 const { rTickIcon, gridColumnData, iidmCostLabel } = require('../pages/QuotesPage');
 const { loadingText, reactFirstDropdown } = require('../pages/PartsBuyingPages');
 import { enterKey, checkDatesAtCreateSO, rightArrowKey, leftArrowKey, insertKeys, horzScrollToRight, horzScrollView, arrowDownKey, arrowUpKey } from "../pages/RepairPages";
-import { dcAtPricing, getEleByText, pricingDropDown } from '../pages/PricingPages';
+import { checkStartEndDatesAreExipred, dcAtPricing, getEleByText, pricingDropDown } from '../pages/PricingPages';
 import { apiReqResponses } from '../pages/StorePortalPages';
 const currentDate = new Date().toDateString();
 let date = currentDate.split(" ")[2];
@@ -3834,7 +3834,7 @@ export async function api_responses(page, api_url) {
     const response = await page.evaluate(async (url) => {
         const fetchData = await fetch(url, {
             headers: {
-                'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiMmNlOWI5NWYwNGEwMWI4YTlhYTIxODg0YTBiY2JmNDE4MDlhYTI5OWJkZGI4ZTBhOTUxMDFkMmExN2IzN2I3MzAzNGI1ZTUyMDZmMDVmZTIiLCJpYXQiOjE3NDQyNzc2NjguNzg4MTI1LCJuYmYiOjE3NDQyNzc2NjguNzg4MTI5LCJleHAiOjE3NDU1NzM2NjguNzcyOTYsInN1YiI6IjY3MTRhOTI0LTdiZmEtNDk2OS04NTM4LWJmODQxOTViNTQxYSIsInNjb3BlcyI6W119.FgzVLW2V7FpNzNgdtXIma6OAKjpHE12efgzsaWNVAIsKVDsvZQR2cikqCVVlX-c7F1Da5Sn3UeSa5kkrbOdojwa4Jj_ETLvdm6x2-lw3cGZmhe7my4CYB_nN1KZ2VvGc6LKU4gzILY6qwfhhDXlnA1-bJLdRoMOZIXPZxe96B8UQQPr7pDDvGNjUhlltZNawUWQcTvQNIxzL3Ml5owvIpN1W-dDe7I05YrFg5HgP4JW3QfPkK47Ru3gIFf9P4d-eM0b1yYwwcO8Bt6FnbKSal3Sofnhlu3r0YauhUJ0u5NDtM7Q0Ji7o7fwfoILUqIlp9yDXU2FREo7Wen6141cvoqYilaCnokjqe5PYEKiwfN1v02Fa5ybJcdTkqO-_6f6lK4n1Ru29HX4yG-UGEdERxL5-lbc_hVASczCUxnABoCuGVtCDYXRzoJ1Udf6jW0XKbR6-5sjDl3fLo_dnBloopEzyUL7DtjDOcDL6RP0OQ92phPKH1I7Ssv_HyfDHZsryDo6gjeSYNz4P76WHFkv1z7KE5_7iHg5EnVhtmMK11IQ0Z2NHSdeRPNwu3ok5i4P5y_w27N56dzi4t26B9xS53xoPXUdEOTzg6TKp08hVfeisNw2ouCb7J3Zvoqq3UfVw2XY0pRMOuzhKH9h1MXS09QFDUoZnMsEIQKWMPdOyurY' // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
+                'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiMjMzNjEyOTMyYzNmYzAzZjg2YjIyMDA3YjEyYmNkMTVlMjdlYWMyODg3ZDAyYmE1YzEzZTU2NDliMjMyNjkxMTA3MTdmY2I4ZjZlYWY0ZDkiLCJpYXQiOjE3NDQzNzc2NDMuMzEyMzA5LCJuYmYiOjE3NDQzNzc2NDMuMzEyMzEyLCJleHAiOjE3NDU2NzM2NDMuMjYxNTIzLCJzdWIiOiI5MWEzNWI0ZC0wMGZhLTQ5NGYtOTNjYS02NDZkYjJmY2I2MWMiLCJzY29wZXMiOltdfQ.JqqKsclJ4Siq9R6Z2A5PU6ZABcBQX76ClcZq-aNZJq1te7cactbu87KTgjNg8Ie-i5glIsLvyqDgvceMNUhgADxQzA8nsrgCE-epFNybcj5TfwLp-V4lR2GPZNfV_jYeDcn2uLaATF8DB8P7MwmS4OzPWk6ewWvLlc7vBiL3WJdJvYgwaJiJar9ic_9cRGNbwddZ3-TI2gUYJxyY6qbdqss1coU-QawVGHlDia1WdJxy7URKvnoQ2OGadun3C7FojUSZSggrtsmIZjBUhgnDkp-OXCXgXaAj9Qc2m1wqE6nrHv4hZXIN_QHtT9zxkn5z2zjeNQCo8dmd89J6l-VQfp2I_JDJyR-4MNvK0jSd2zqDlsoZnnWzADWCVqpt8pDd4hhZbnPSaXTz2Xkepbu6ezvZhyyqa3lvIdaWjTPXPAm--GWcZWtAnhH2tLZkkqYNQ6yNy413kzhQKf4-GrM9N25xNIRbgAV6axkN-sywF-BnbYYRH6YlTMj93NdJqvoCrTGAr2pl2grnboj4DrSSb4x_5-WxILNz9gVIYbkf87Mc6QZy2P8jwxL6DqzMWdpUyMSDVXsu7rOJ1EpHPbPyiTEXxTTvoQrDARXwAKHns2Sp5DWDVcUi8qIuzQlDxZIbXKr5QWRM7vCTNoyvUcrPYCVOj3V48yaYP2SXTwROc7w' // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
             }
         });
         return fetchData.json();
@@ -4182,7 +4182,57 @@ export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPri
             await expect(getEleByText(page, discountType + ' - ' + discountValue + '%')).toBeVisible();
         }
         testResults = true;
-        await page.pause();
+        //Here if apply rule for all products, not able to see the SPA logs view and item list view
+        //reading the data from pricing grid at pricing for 
+        item = 'CMT3092X'; let stock_pricing, icp, startDate, endDate, lp, lBP, listPrice;
+        const response = await api_responses(page, 'https://buzzworldqa-iidm.enterpi.com:8446//v1/Products?page=1&perPage=25&sort=asc&sort_key=stock_code&branch_id=385411d3-ddc8-4029-9719-e89698446c24&vendor_id=c256d67f-f65e-46c1-be92-a1a666340ce8&vendor_name=WEINTEK+USA+INC&serverFilterOptions=%5Bobject+Object%5D&search=' + item);
+        let apiLength = response.result.data.list;
+        for (let index = 0; index < apiLength.length; index++) {
+            stock_pricing = response.result.data.list[index].stock_code;
+            if (stock_pricing == item) {
+                lp = response.result.data.list[index].list_price;
+                lp = parseFloat(lp.replaceAll(/[$,]/g, ""));
+                if (purchaseDiscount != '') {
+                    lBP = lp - ((lp) * parseInt(purchaseDiscount) / 100).toFixed("2");
+                    console.log('buy price is calculated from purchase discount (', purchaseDiscount, '%) on list price.');
+                } else {
+                    lBP = '';
+                    console.log('purchase discount is empty,so buy price is also empty.');
+                }
+                startDate = response.result.data.list[index].start_date;
+                endDate = response.result.data.list[index].end_date;
+                let statusToday = await checkStartEndDatesAreExipred(startDate, endDate);
+                if (statusToday == true) { icp = response.result.data.list[index].PO; }
+                else { icp = ''; }
+                break;
+            } else { console.log('item not found in api response'); }
+        }
+        listIIDMCost = icp.replace(",", "").replace("$", "");
+        let listBuyPrice = lBP;
+        let buyPriceInListViewCalc = listBuyPrice
+        console.log(ANSI_ORANGE, 'Pricing Rule Applied Item is ', item, ANSI_RESET);
+        console.log('buy price ', listBuyPrice);
+        // console.log('sell price ', listSellPrice);
+        console.log('list price ', lp);
+        console.log('IIDM Cost ', listIIDMCost);
+        console.log('type for discount is ', discountType);
+        console.log('discount value is ', discountValue);
+        if (discountType === 'Markup') {
+            if (purchaseDiscount == '' && listIIDMCost != '') {
+                sellPriceInListViewCalc = ((parseFloat(listIIDMCost)) + ((parseFloat(listIIDMCost)) * parseInt(discountValue) / 100)).toFixed("2");
+                console.log('Sell price is calculated on IIDM cost')
+            } else if (purchaseDiscount != '') {
+                sellPriceInListViewCalc = ((buyPriceInListViewCalc + (buyPriceInListViewCalc * parseInt(discountValue) / 100))).toFixed("2");
+                buyPrice = buyPriceInListViewCalc;
+                console.log('Sell price is calculated on buy price')
+            } else {
+                sellPriceInListViewCalc = (lp + (lp * parseInt(discountValue) / 100)).toFixed("2");
+                console.log('Sell price is calculated on list price')
+            }
+        } else {
+            sellPriceInListViewCalc = (lp - (lp * parseInt(discountValue) / 100)).toFixed("2");
+            console.log('Sell price is calculated on list price')
+        }
     } else {
         await page.locator("(//*[text() = 'Select '])[1]").click();
         await page.keyboard.insertText('Specific Item');
@@ -4566,6 +4616,7 @@ export async function addSPAItemsToQuote(page, customer, quoteType, items, testC
         }
         console.log('quote url is ', quoteURL);
         await page.getByText('Add Items').click();
+        items = 'CMT3092X';
         await page.getByPlaceholder('Search By Part Number').fill(items); await page.pause();
         await page.locator('(//*[@id="tab-0-tab"]/div[1]/div[2]/div/div[1]/div)[1]').click();
         await page.getByRole('button', { name: 'Add Selected 1 Items' }).click();
