@@ -414,3 +414,21 @@ export async function updateProductValiadtions(page, stockCode, condition, lpDat
     }
     return testStatus;
 }
+export async function checkStartEndDatesAreExipred(start_Date, end_Date) {
+    const startDate = new Date(start_Date);
+    const endDate = new Date(end_Date);
+    const today = new Date();
+    let result;
+    // // Set time to 00:00:00 to avoid issues with time comparisons
+    // startDate.setHours(0, 0, 0, 0);
+    // endDate.setHours(0, 0, 0, 0);
+    // today.setHours(0, 0, 0, 0);
+    if (today >= startDate && today <= endDate) {
+        console.log("Today's date is within the range.");
+        result = true;
+    } else {
+        console.log("Today's date is NOT within the range.");
+        result = false;
+    }
+    return result;
+}
