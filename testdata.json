@@ -23,7 +23,7 @@
         "email": "helmerich@testuser.com",
         "pwd": "Enter@4321"
     },
-    "vendor": "WIEG001",
+    "vendor": "WEIN001", 
     "stock_code_new": "Test#001",
     "dc_new": "TestDC#003",
     "PO": "0.06",

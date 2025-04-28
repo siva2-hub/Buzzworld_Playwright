@@ -305,11 +305,11 @@ test.describe('all tests', async () => {
   test('Verifying Buy Price and Sell Price values at Non SPA', async ({ }, testInfo) => {
     //Buy price value getting from purchase discount on list price
     let items = ['CMT3092X', 'A151506', 'A151804', 'A121606', 'A121204NK'];
-    let customer = 'FLOWP00', testName, quoteURL;
-    quoteURL = 'https://buzzworld-web-iidm.enterpi.com/all_quotes/265b2c09-b077-424f-853d-57a1d0569c4b';
+    let customer = 'MULTI00', testName, quoteURL;
+    // quoteURL = 'https://www.staging-buzzworld.iidm.com/quote_for_parts/5c279eee-0180-4798-82d5-6f0ac41943d6';
     //Verifying Non SPA rule for all products at Configure
     testName = 'Verifying All Products for Non SPA with Puchase dc and markup';
-    results = await nonSPAPrice(page, customer, '', '22', '', 'Markup', '78', 2, quoteURL, '');
+    results = await nonSPAPrice(page, customer, '', '54', '', 'Markup', '78', 1, quoteURL, '');
     await returnResult(page, testName, results[0]);
     quoteURL = results[1];
 
