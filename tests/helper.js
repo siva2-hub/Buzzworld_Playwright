@@ -3834,7 +3834,7 @@ export async function api_responses(page, api_url) {
     const response = await page.evaluate(async (url) => {
         const fetchData = await fetch(url, {
             headers: {
-                'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiNWQ0MmUyNmM0Y2E5NzA1YzNkNzk4ZTNiNDEzMDI2MTRkZWVlMzkxNjRmZjRlODFkMTMyYWNiNWJmYTQ4NDgzN2FiNDZlMDVkYjFmMzU3NDIiLCJpYXQiOjE3NDU4NDgyODguNDgwODgsIm5iZiI6MTc0NTg0ODI4OC40ODA4ODQsImV4cCI6MTc0NzE0NDI4OC40NjA4OTksInN1YiI6IjY3MTRhOTI0LTdiZmEtNDk2OS04NTM4LWJmODQxOTViNTQxYSIsInNjb3BlcyI6W119.MhzfybeTUNGZ-LEGmEZDloU3Oj7Q2LqwZfd9u024Ay4odxk-bVFO6AYt-fBFd_LQWCBop1jqusgXAFgGdPDjQdRjYulXq0vSGK3trDv4u1exbZTqxMIb7KWEa3s86x9EZzWOqH4tE8heZwCRrm2gzmwlU08bN2tngVyA-WBzwJ-Nd1m_xLg_3gdA7HBhdmBMPlXH1lTU5EtLe610pfSOjyZJiVEjyfHoZcrdgqF8OqVz32shebycGp9Tuo0Ivrk3A-2kLIWTEUt1ldQRPyhzLU_EPxYKRUWZR-z1YupDr1dTYl2O1N1LUPRYSgDFQPGssX9uV5nWmH0yuys2e4ulRNNaNZQAIxDYtDklmEg2nCNosnydHbtiEC0RXkJSa9H-6ozXRMidLoRVVPaVYkxX2WtR60DqogR4iFY6Z9xmlJ0hNPIKTdh1Fgd1PxoG9DDQQP9utaPPfmXR2kX8KLMdfgzIehxJFWR8wek8B83xQllCM_w1Eap7TU-eN4YLVl-K-_HR8RNMoiDJTHoaKeet_sJXeLWEemA57S9TMHOgpNQfefqDGJfkAKr214bLeunFVVrNzeTZJaIzEN_cknndYInq1I0fRRM72AMXCzi9H14AdXlAp9Cp2BrK6oq0oPHLJBgYSZJImpbNwGy4o5kjy3FzylnY-i5fCHGkdFt48hE' // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
+                'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiM2JmMDQ3NzhlNmY5OWJiMDc1MDQ5NTcxMzI4ZjA0ZjNkMDM4ODc3ODdlNmM5M2YyNjI5ODZmZmJlZTdjNzUwZmYxNzVkY2JiYjYzZDU4MzEiLCJpYXQiOjE3NDU5MTkwODUuMTQxMjQ4LCJuYmYiOjE3NDU5MTkwODUuMTQxMjUyLCJleHAiOjE3NDcyMTUwODUuMTI3ODcsInN1YiI6IjY3MTRhOTI0LTdiZmEtNDk2OS04NTM4LWJmODQxOTViNTQxYSIsInNjb3BlcyI6W119.UK9gM6SzXHTZog8xqQoGUCESiywAMyMnZvjx_IJkMM_0G7s5kgDDZVOyrNyw9JQvsu8RiZHXisIwieOR_NcgVrG7XXaVZUzF4Ev4s1jLrXlQ9MRZXXhzHtTER705ci2L20o6XoQjI-0ovzDDWASfa54R5p8AMwi2hJJH74zUkHu7RrJiryLwGOVSjnmTT9DmH1XmHsfGvmSMwM6x9W11D_9e_FSUpp_GGzlh04lTU3eZ_lRAPtPKJUtYsmuhy30ZIKUpLnwNFdeuo67KytNPWr0f8s_WpnDveK2DJGdWZ94H7u2AMuhcCTHgi8GPjTlsDZfBa-yCuHsNrYWJq4i2xV2UUpRU7_8Qka175FyVyQbZBYHQq0_RfyD7F86x5FlpU-mK8Bzzj_50Ckaj1iw2YrQ0hv3-qGPRedDk18dTmLZC1lnIuKEWkUluQr-VZKZUgP1dti-xFYjstM5bHEsq4_gnGoZnyERAhqsV-_SK98otBIhQIghjlxIGPIMU_-zj7SL4S5jJTfpOiyjNuw-_k8eLtBTmArIG67T1cxT7hqXGJLQmF1fqvoWEmuuwSj35hirwxyat_BGwSoxRBMsaAMiUgKLU5Mjrvf2d7JC8lVqKDyw7ZwU1KF0p6Q_YMiOFuKmEWFUkkoI71gLn9BNwZO-MD0b0JuLaVNLb2uqC8e0' // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
             }
         });
         return fetchData.json();
@@ -4298,7 +4298,6 @@ export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPri
                 console.log('calculated sell price ', sellPriceInListViewCalc);
                 console.log('sell price calculation passed, at preview items page and type is ', discountType);
                 //click on Apply rule button
-                await page.pause();
                 await page.locator('div').filter({ hasText: /^Apply Rule$/ }).getByRole('button').click();
                 await page.getByRole('tab', { name: 'Items' }).click();
                 await expect(page.getByRole('gridcell', { name: 'loading', exact: true }).getByRole('img')).toBeVisible();
@@ -4617,7 +4616,7 @@ export async function addSPAItemsToQuote(page, customer, quoteType, items, testC
         console.log('quote url is ', quoteURL);
         await page.getByText('Add Items').click();
         items = 'CMT3092X';
-        await page.getByPlaceholder('Search By Part Number').fill(items); await page.pause();
+        await page.getByPlaceholder('Search By Part Number').fill(items); //await page.pause();
         await page.locator('(//*[@id="tab-0-tab"]/div[1]/div[2]/div/div[1]/div)[1]').click();
         await page.getByRole('button', { name: 'Add Selected 1 Items' }).click();
         // await spinner(page);
