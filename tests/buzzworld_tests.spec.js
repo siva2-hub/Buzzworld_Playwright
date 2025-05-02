@@ -302,11 +302,11 @@ test.describe('all tests', async () => {
   //   await multi_edit(page, testdata.dc_new);
   // });
 
-  test('Verifying Buy Price and Sell Price values at Non SPA', async ({ }, testInfo) => {
+  test('Verifying Buy Price and Sell Price values at Non SPA', async ({ browser }, testInfo) => {
     //Buy price value getting from purchase discount on list price
-    let items = ['CMT3092X', 'A151506', 'A151804', 'A121606', 'A121204NK'];
-    let customer = 'MULTI00', testName, quoteURL;
-    quoteURL = 'https://www.staging-buzzworld.iidm.com/quote_for_parts/c6efb558-5633-4e06-9150-168f1dfa9b68';
+    let items = ['05P00620-0042', 'A151506', 'A151804', 'A121606', 'A121204NK'];
+    let customer = 'CHUMP03', testName, quoteURL;
+    quoteURL = 'https://www.staging-buzzworld.iidm.com/quote_for_parts/d19ea572-1b5f-44e8-a7c0-d95b729c93f8';
     //Verifying Non SPA rule for all products at Configure
     // testName = 'Verifying All Products for Non SPA with Puchase dc and markup';
     // results = await nonSPAPrice(page, customer, '', '19', '', 'Markup', '8', 1, quoteURL, '');
@@ -330,7 +330,7 @@ test.describe('all tests', async () => {
 
     //Buy price and purchase discount is given empty and type is Markup
     testName = 'Verifying Buy Price, Sell Price (Type is Markup) and IIDM Cost with buyprice && Purchase Discount as NaN';
-    results = await nonSPAPrice(page, customer, items[0], '', '', 'Markup', '39', 4, quoteURL, '');
+    results = await nonSPAPrice(page, customer, items[0], '5', '', 'Discount', '39', 1, quoteURL, '', true, browser);
     await returnResult(page, testName, results[0]);
 
     // //Buy price and purchase discount is given empty and type is Markup

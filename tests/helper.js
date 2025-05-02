@@ -13,11 +13,12 @@ const { url } = require('inspector');
 const { default: AllPages } = require('./PageObjects');
 const { threadId } = require('worker_threads');
 const { count, log, error } = require('console');
-const { rTickIcon, gridColumnData, iidmCostLabel } = require('../pages/QuotesPage');
+const { rTickIcon, gridColumnData, iidmCostLabel, quotePrice } = require('../pages/QuotesPage');
 const { loadingText, reactFirstDropdown } = require('../pages/PartsBuyingPages');
 import { enterKey, checkDatesAtCreateSO, rightArrowKey, leftArrowKey, insertKeys, horzScrollToRight, horzScrollView, arrowDownKey, arrowUpKey } from "../pages/RepairPages";
 import { checkStartEndDatesAreExipred, dcAtPricing, getEleByText, pricingDropDown } from '../pages/PricingPages';
-import { apiReqResponses } from '../pages/StorePortalPages';
+import { addToCartBtn, apiReqResponses, storeLogin, viewCartBtn } from '../pages/StorePortalPages';
+import { platform } from 'os';
 const currentDate = new Date().toDateString();
 let date = currentDate.split(" ")[2];
 let vendor = testdata.vendor;
@@ -3834,7 +3835,7 @@ export async function api_responses(page, api_url) {
     const response = await page.evaluate(async (url) => {
         const fetchData = await fetch(url, {
             headers: {
-                'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiM2JmMDQ3NzhlNmY5OWJiMDc1MDQ5NTcxMzI4ZjA0ZjNkMDM4ODc3ODdlNmM5M2YyNjI5ODZmZmJlZTdjNzUwZmYxNzVkY2JiYjYzZDU4MzEiLCJpYXQiOjE3NDU5MTkwODUuMTQxMjQ4LCJuYmYiOjE3NDU5MTkwODUuMTQxMjUyLCJleHAiOjE3NDcyMTUwODUuMTI3ODcsInN1YiI6IjY3MTRhOTI0LTdiZmEtNDk2OS04NTM4LWJmODQxOTViNTQxYSIsInNjb3BlcyI6W119.UK9gM6SzXHTZog8xqQoGUCESiywAMyMnZvjx_IJkMM_0G7s5kgDDZVOyrNyw9JQvsu8RiZHXisIwieOR_NcgVrG7XXaVZUzF4Ev4s1jLrXlQ9MRZXXhzHtTER705ci2L20o6XoQjI-0ovzDDWASfa54R5p8AMwi2hJJH74zUkHu7RrJiryLwGOVSjnmTT9DmH1XmHsfGvmSMwM6x9W11D_9e_FSUpp_GGzlh04lTU3eZ_lRAPtPKJUtYsmuhy30ZIKUpLnwNFdeuo67KytNPWr0f8s_WpnDveK2DJGdWZ94H7u2AMuhcCTHgi8GPjTlsDZfBa-yCuHsNrYWJq4i2xV2UUpRU7_8Qka175FyVyQbZBYHQq0_RfyD7F86x5FlpU-mK8Bzzj_50Ckaj1iw2YrQ0hv3-qGPRedDk18dTmLZC1lnIuKEWkUluQr-VZKZUgP1dti-xFYjstM5bHEsq4_gnGoZnyERAhqsV-_SK98otBIhQIghjlxIGPIMU_-zj7SL4S5jJTfpOiyjNuw-_k8eLtBTmArIG67T1cxT7hqXGJLQmF1fqvoWEmuuwSj35hirwxyat_BGwSoxRBMsaAMiUgKLU5Mjrvf2d7JC8lVqKDyw7ZwU1KF0p6Q_YMiOFuKmEWFUkkoI71gLn9BNwZO-MD0b0JuLaVNLb2uqC8e0' // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
+                'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiYTA2MzQwYTY0NGE1YmU1N2RjMDFhYjU1ZDQ0OGZkMDU2NjkwODdiYzFhM2E0YzNkMzJiZmE4ODkwMTlhZWIxYzYwNzY1OGVlNzllNjUxMDUiLCJpYXQiOjE3NDU5OTY2NTEuOTkzMzY3LCJuYmYiOjE3NDU5OTY2NTEuOTkzMzcxLCJleHAiOjE3NDcyOTI2NTEuOTcyNDE5LCJzdWIiOiI2NzE0YTkyNC03YmZhLTQ5NjktODUzOC1iZjg0MTk1YjU0MWEiLCJzY29wZXMiOltdfQ.KSWUmytnGtvo1a935obiC4PDIZ_qoBLEibb7U8N21FNukoaPKY9AlSMUtaH_ngjmIQNJrbAuQWPdbrJ-Umvc1TlYBSaXmcQFDCUOye3Ja0CUbrmzl_H_cLhHvU5id4VTG-sboVJ1Mi-o66N_dMlolSOKSklsHAMPjmKI9VhSg82vRC1K47SR6dBJUiflDObab2C8Tw5IfzcprUBCpPiTXQrUNIQUiqIFvR4uc-pXayHs0INSf5gAKXDk6DJ8GvxpR1jjmJzaSlah_gZ08BRrdFtozm0rugn2nwqeBdlWqPI1PhIn8znRUGACYDHMlJfZedghId3RK18I74jefYds1kdxiGuZfeE7Tw2hpRKFL-Jfw8h4KrVsLq35ygr0tZENZWlg6oghv_Y8REEEakk4RB_OF39VvGJ5Fp7E4JrBn3GNO0yupx6JGjfPu66-pqA9p7EncUMkBCW6UnuYbM5le0rjy5uTOnpSnknmaNshPppHB6VF9pn2UXUlGC7XKs7o1Mopt5ZStYHyJIb5iIpw5e2vi5YeuZxZ-MiG_sNaaRZdA8MNmWA4usd2Xy4sWsQ8yNmK8PyMoO8l3uc6yFuphk-LJW0AIrR9Bao-nl08HA37HNwze3VZHrCIomAdNFb-X7INaP9RcyU9AW3a5W2J8OHqCTy1jAhgpEE5wn0OMMM' // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
             }
         });
         return fetchData.json();
@@ -4136,7 +4137,7 @@ export async function verifyTwoExcelData(page) {
     // Write the workbook to a file
     // await workbook.xlsx.writeFile('test_pricing.xlsx');
 }
-export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPrice, discountType, discountValue, testCount, qurl, fp) {
+export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPrice, discountType, discountValue, testCount, qurl, fp, isVerifyStore, browser) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let vendor = testdata.vendor, testResults, quoteURL, listIIDMCost, sellPriceInListViewCalc;
     await pricingDropDown(page).click();
@@ -4220,13 +4221,16 @@ export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPri
         if (discountType === 'Markup') {
             if (purchaseDiscount == '' && listIIDMCost != '') {
                 sellPriceInListViewCalc = ((parseFloat(listIIDMCost)) + ((parseFloat(listIIDMCost)) * parseInt(discountValue) / 100)).toFixed("2");
+                // sellPriceInListViewCalc = ((parseFloat(listIIDMCost)) / (1 - (discountValue / 100))).toFixed("2");
                 console.log('Sell price is calculated on IIDM cost')
             } else if (purchaseDiscount != '') {
                 sellPriceInListViewCalc = ((buyPriceInListViewCalc + (buyPriceInListViewCalc * parseInt(discountValue) / 100))).toFixed("2");
+                // sellPriceInListViewCalc = ((buyPriceInListViewCalc / (1 - (discountValue / 100))).toFixed("2"));
                 buyPrice = buyPriceInListViewCalc;
                 console.log('Sell price is calculated on buy price')
             } else {
                 sellPriceInListViewCalc = (lp + (lp * parseInt(discountValue) / 100)).toFixed("2");
+                // sellPriceInListViewCalc = (lp / (1 - (discountValue / 100))).toFixed("2");
                 console.log('Sell price is calculated on list price')
             }
         } else {
@@ -4281,13 +4285,16 @@ export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPri
             if (discountType === 'Markup') {
                 if (buyPrice == '' && purchaseDiscount == '' && listIIDMCost != '') {
                     sellPriceInListViewCalc = ((parseFloat(listIIDMCost)) + ((parseFloat(listIIDMCost)) * parseInt(discountValue) / 100)).toFixed("2");
+                    // sellPriceInListViewCalc = ((parseFloat(listIIDMCost)) / (1 - (discountValue / 100))).toFixed("2");
                     console.log('Sell price is calculated on IIDM cost')
                 } else if (buyPrice != '' || purchaseDiscount != '') {
                     sellPriceInListViewCalc = ((buyPriceInListViewCalc + (buyPriceInListViewCalc * parseInt(discountValue) / 100))).toFixed("2");
+                    // sellPriceInListViewCalc = ((buyPriceInListViewCalc / (1 - (discountValue / 100))).toFixed("2"));
                     buyPrice = buyPriceInListViewCalc;
                     console.log('Sell price is calculated on buy price')
                 } else {
                     sellPriceInListViewCalc = ((parseFloat(listPrice)) + ((parseFloat(listPrice)) * parseInt(discountValue) / 100)).toFixed("2");
+                    // sellPriceInListViewCalc = ((parseFloat(listPrice)) / (1 - (discountValue / 100))).toFixed("2");
                     console.log('Sell price is calculated on list price')
                 }
             } else {
@@ -4341,7 +4348,6 @@ export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPri
             testResults = false;
         }
     }
-
     await page.goBack();
     if (testResults) {
         //Create quote for these items
@@ -4349,6 +4355,39 @@ export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPri
         console.log('status at quotes is ', quoteURL[1]);
         if (quoteURL[1]) {
             testResults = true;
+            if (isVerifyStore == true) {
+                const newPage = await browser.newPage();
+                await storeLogin(newPage);
+                await newPage.goto("https://staging-store.iidm.com/yaskawa-m-2");
+                const itemData = newPage.locator("//*[@class='caption']").nth(24);
+                const model = await itemData.locator("a").nth(0);
+                await model.scrollIntoViewIfNeeded();
+                let modelNum = await model.textContent();
+                let price = await itemData.locator("div").nth(0).locator("span").textContent();
+                const storePrice = price.replaceAll(/[$,]/g, "")
+                console.log(modelNum + ' store price at Items list is ' + storePrice);
+                console.log('quote price is ', quoteURL[2])
+                if (quoteURL[2] == storePrice) {
+                    console.log('prices are matched at Items list page');
+                    await model.click();
+                    let itemPrice = await newPage.locator("//*[@class='price']/h3").nth(0).textContent();
+                    const itemDetailedPrice = itemPrice.replaceAll(/[$,]/g, "");
+                    console.log('store price at item detailed view ', itemDetailedPrice)
+                    if (quoteURL[2] == itemDetailedPrice) {
+                        console.log('prices are matched at Item detailed view');
+                        await addToCartBtn(newPage).click();
+                        await viewCartBtn(newPage).click();
+                        let cartPrice = await newPage.locator('//*[@id="content"]/div[2]/form/div/table/tbody/tr/td[5]/span').textContent()
+                        const cartStorePrice = cartPrice.replaceAll(/[$,]/g, "");
+                        if (quoteURL[2] == cartStorePrice) {
+                            console.log('prices are matched at carts page');
+                        } else { console.log('prices are not matched at carts page'); }
+                    } else { console.log('prices are not matched at Item detailed view'); }
+                } else { console.log('prices are not matched at Items list page') }
+                await newPage.close(); await page.close();
+            } else {
+
+            }
         } else {
             testResults = false;
         }
@@ -4588,7 +4627,7 @@ export async function verifySPAExpiryMails(page) {
     return testResults;
 }
 export async function addSPAItemsToQuote(page, customer, quoteType, items, testCount, qurl, fixedSalesPrice, sellPrice, purchaseDiscount, buyPrice, listIIDMCost) {
-    let quoteURL, testResults;
+    let quoteURL, testResults, quotePrice;
     try {
         await page.getByText('Quotes', { exact: true }).first().click();
         await expect(allPages.profileIconListView).toBeVisible();
@@ -4615,7 +4654,7 @@ export async function addSPAItemsToQuote(page, customer, quoteType, items, testC
         }
         console.log('quote url is ', quoteURL);
         await page.getByText('Add Items').click();
-        items = 'CMT3092X';
+        // items = 'CMT3092X';
         await page.getByPlaceholder('Search By Part Number').fill(items); //await page.pause();
         await page.locator('(//*[@id="tab-0-tab"]/div[1]/div[2]/div/div[1]/div)[1]').click();
         await page.getByRole('button', { name: 'Add Selected 1 Items' }).click();
@@ -4623,7 +4662,7 @@ export async function addSPAItemsToQuote(page, customer, quoteType, items, testC
         await expect(iidmCostLabel(page).nth(0)).toBeVisible();
         // let qp = await page.locator('//*[@id="repair-items"]/div[2]/div[1]/div[' + testCount + ']/div/div[2]/div[3]/div[1]/h4').textContent();
         let qp = await page.locator('//*[@id="repair-items"]/div[2]/div[1]/div[1]/div/div[2]/div[3]/div[1]/h4').textContent();
-        let quotePrice = qp.replace(",", "").replace("$", "");
+        quotePrice = qp.replace(",", "").replace("$", "");
         console.log('quote price at quote detailed view: ' + quotePrice);
         // let ic = await page.locator('//*[@id="repair-items"]/div[2]/div[1]/div[' + testCount + ']/div/div[2]/div[3]/div[3]/h4').textContent();
         let ic = await page.locator('//*[@id="repair-items"]/div[2]/div[1]/div[1]/div/div[2]/div[3]/div[3]/h4').textContent();
@@ -4718,7 +4757,7 @@ export async function addSPAItemsToQuote(page, customer, quoteType, items, testC
         testResults = false;
         throw new Error("error" + error);
     }
-    return [quoteURL, testResults];
+    return [quoteURL, testResults, quotePrice];
 }
 export async function addFunctionInAdminTabs(page) {
     await page.getByText('Admin').click();
