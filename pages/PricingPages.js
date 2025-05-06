@@ -1,6 +1,6 @@
 import { expect } from "@playwright/test";
 import { testData } from "./TestData";
-import { ANSI_RED, ANSI_RESET, currentDateTime, delay, end_date, selectReactDropdowns } from "../tests/helper";
+import { ANSI_GREEN, ANSI_RED, ANSI_RESET, currentDateTime, delay, end_date, selectReactDropdowns } from "../tests/helper";
 import { closeAtSubCustAprvl, proceedButton, reactFirstDropdown } from "./QuotesPage";
 import { arrowDownKey, arrowUpKey, confPopUp, enterKey, insertKeys, leftArrowKey, promisedDateField, rightArrowKey, updateSuccMsg } from "./RepairPages";
 import { timeout } from "../playwright.config";
@@ -431,4 +431,11 @@ export async function checkStartEndDatesAreExipred(start_Date, end_Date) {
         result = false;
     }
     return result;
+}
+export async function getTestResults(testResult, testInfo) {
+    if (testResult) {
+        console.log(`${ANSI_GREEN}Test Passed: ${testInfo.title} ${ANSI_RESET}`);
+    } else {
+        throw new Error(`${ANSI_RED}Test Failed: ${testInfo.title} ${ANSI_RESET}`);
+    }
 }
