@@ -31,6 +31,10 @@ export const dashboardLink = (page) => { return page.getByRole('link', { name: '
 export const iIcon = (page) => { return page.locator("//*[contains(@src,'infoIcon')]") }
 export const statusCode = (page) => { return page.locator("//*[@class='model-ag-grid']/div/div[2]/div[2]/div[3]/div[2]/div/div/div/div[1]"); }
 export const statusInfo = (page) => { return page.locator("//*[@class='model-ag-grid']/div/div[2]/div[2]/div[3]/div[2]/div/div/div/div[2]"); }
+export const loginButton = (page) => { return page.locator("text=Login"); }
+export const emailInput = (page) => { return page.locator("input[name='username']") }
+export const passwordInput = (page) => { return page.locator("input[name='password']") }
+export const signInButton = (page) => { return page.locator("//*[contains(text(),'Sign In')]").nth(1) }
 
 
 
@@ -40,17 +44,17 @@ export async function storeLogin(page) {
     let url = process.env.BASE_URL_STORE,
         logEmail, logPword, userName, path;
     await page.goto(url);
-    await page.getByRole('link', { name: ' Login' }).click();
+    await loginButton(page).click();
     await expect(page.getByRole('img', { name: 'IIDM' }).first()).toBeVisible();
     if (url.includes('dev')) {
         logEmail = 'cathy@bigmanwashes.com', logPword = 'Enter@4321', userName = 'Cathy'
     } else {
-        logEmail = storeTestData.storeLogin.chump.email, logPword = storeTestData.storeLogin.chump.pword,
-            userName = storeTestData.storeLogin.chump.user_name
+        logEmail = storeTestData.storeLogin.multicam.email, logPword = storeTestData.storeLogin.multicam.pword,
+            userName = storeTestData.storeLogin.multicam.user_name
     }
-    await page.getByPlaceholder('Enter Email ID').fill(logEmail);
-    await page.getByPlaceholder('Enter Password').fill(logPword);
-    await page.click("(//*[@type='submit'])[1]");
+    await emailInput(page).fill(logEmail);
+    await passwordInput(page).fill(logPword);
+    await signInButton(page).click();
     await expect(page.locator('#main-header')).toContainText(userName);
     return userName;
 }
