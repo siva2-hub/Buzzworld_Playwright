@@ -3835,7 +3835,7 @@ export async function api_responses(page, api_url) {
     const response = await page.evaluate(async (url) => {
         const fetchData = await fetch(url, {
             headers: {
-                'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiZjk4N2Y1MDFiNzVmN2UxNThmYTA5OGExMzNkODc3NTQ4ODdlMmMwMWZhYTIxMmJmOTQzOGVjN2Q5ZjgzODBkMjNiNGZkYTYxMWM3YjNiYzciLCJpYXQiOjE3NDY1MzA5ODUuMDk4NTE1LCJuYmYiOjE3NDY1MzA5ODUuMDk4NTIsImV4cCI6MTc0NzgyNjk4NS4wNTAzMDYsInN1YiI6IjY3MTRhOTI0LTdiZmEtNDk2OS04NTM4LWJmODQxOTViNTQxYSIsInNjb3BlcyI6W119.Inuk80vPY9Va1kDLieZ7ZnKn4SU4mC4LVtJo7tRp6a9V99RiNMoyd36A8f1Sck6jBsrr-oJKUfaMX1EWJEq0R5phCjsCuB1CiUKvm4S1dj2T88K3ofWxSzvA4HWwqfME3bAsBFPrQgbiEsixheIfxWO2u3Szpe6KwcWx8e34Qy6W8AddhFwvVaWD3V6mm9wzTvQ3PRyV5FlWldm0SVTdi2FOalqIMvEg6XXw0MEPcX0RoXTO-id9n6WCUde0vc7oC9OQ2pRnmAgNNwWnJmhhVJynW1sZ6zkqrw1FVGVbZo70ebLJ9nj-8TJtzPBLDl59ZVg80_AvknuoaqHtPiZ7LXKfKOIxqIS8SKEKCpwUXyWEK5oJ46Sqt6KN5WJBGVDgzh_OJ3U67yGoBOlTrOaYkJSOqVEBTsVGanlam4RdGlBlGfn6eH1He1ObRycIdDDp645hXkYw1EEMh-w3bYRZbEBvYO8G9ukWvwNMVAiPId255TIvJ9kMQF9BiVccr5xYyzx1B6ovCYcNJLoyOjAdqgtGJdxWmPE9t61GPmVHq2iuEx2NNj6TLaHtx1oPTLVzgFhfLjqN8czNTc7bSQjsWv0WBGg3N9dzT6n7jQNSNRloBMAyECDoNXKWvuQxOVMe8FCb8D5sL7J_V5PDaqtDGwiqe8ELUEiSZNdmVqqUf5k' // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
+                'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiNjFiOTAzNjI2ZjFmZTE4NjZlYmU4NzNmYzBiNzBlMjAzNWZhMzQ3MWU0YjFlNzI2YTA5MWU5ZWFhYWYwZTc2YjEwOGUxNmFjNmI2YzI5MjMiLCJpYXQiOjE3NDY1NDk3NTQuNTQ0MDE2LCJuYmYiOjE3NDY1NDk3NTQuNTQ0MDIsImV4cCI6MTc0Nzg0NTc1NC41MjQ2NzgsInN1YiI6IjY3MTRhOTI0LTdiZmEtNDk2OS04NTM4LWJmODQxOTViNTQxYSIsInNjb3BlcyI6W119.cUHS9wnRU2emwP-M7Mh-_uozrL2t4g5AN5Nd0bd-UjYJAtKra9xD_raEi1GksfBDuUpzjbY1bCxidgx7FnUpRVYUgpK_gcczruOf7hEscclSThDRi-zLUnEPWP3BuRG4Vv-_fcYDJgoQ-LjilSpIZBQIW6SdMLoxkIG1m70zETrA4VBrdOejmGinkuo5Pi-C6S1T3dhQ6rhsvH6PZOwK_iq-ScFq3mE5PGDoo8ZiFkVmKCfxeWQU1maAAheQccoI-Mr5YciAO49eJMvhLLXU3A7GBGpmdZe9WahOQJhMwCa3vuUbfM4b4kRKzzi8EogSuvA6ytooZT-eaA9h8ZREnsdpgoWIoPcpk6oxau6ebqgy-QhXo7q9QO42CaL7Wtc-PMF5bJBrDnZiv3FFTBZli0HnW7vd86hKf8WL7h6o5stvxt7AvGb8rsaDMKcRzef6lWQemKB_xLMMhaJ_pc5aHRRiWmom5LzuoDT0gN5euzlWk8JCT6AdOEBhvLSVhxaBp1lFbP7Hnjwd2QsoPGLawQePfFD5h9BWYou963yEYjHg9E3njq3wSEV1DZoU2UraifDqSc2Oln5CD92YS7MHDdzq9t2WMAvihk0iM_MgaBM2DjIH594jAGgOhKbTu_cbtqTvmngLbbqo1twrEM-RngeVmxE_DLr-1Em6DCssIAo' // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
             }
         });
         return fetchData.json();
@@ -4186,6 +4186,30 @@ export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPri
         }
         testResults = true;
         //Here if apply rule for all products, not able to see the SPA logs view and item list view
+        const orgsResponse = await api_responses(page, `https://staging-buzzworld-api.iidm.com//v1/Organizations?page=1&perPage=25&sort=asc&sort_key=name&grid_name=Repairs&serverFilterOptions=%5Bobject+Object%5D&selectedCustomFilters=%5Bobject+Object%5D&search=${customer}`);
+        let orgsLength = orgsResponse.result.data.list;
+        for (let index = 0; index < orgsLength.length; index++) {
+            let orgsName = orgsResponse.result.data.list[index].accountnumber;
+            if (orgsName == customer) {
+                let actType = orgsResponse.result.data.list[index].account_type;
+                const actTypeResponse = await api_responses(page, `https://staging-buzzworld-api.iidm.com//v1/AccountTypes?page=1&perPage=25&sort=asc&sort_key=name&grid_name=Repairs&serverFilterOptions=%5Bobject+Object%5D&selectedCustomFilters=%5Bobject+Object%5D&search=${actType}`);
+                let account_type = actTypeResponse.result.data.list[0].account_type_mapped_with;
+                console.log(`account type is ${account_type}`);
+                let territoryCode = orgsResponse.result.data.list[index].territory_name;
+                const territoryCodeResponse = await api_responses(page, `https://staging-buzzworld-api.iidm.com//v1/Territory?page=1&perPage=25&sort=asc&sort_key=territory_code&grid_name=Repairs&serverFilterOptions=%5Bobject+Object%5D&selectedCustomFilters=%5Bobject+Object%5D&search=${territoryCode}`);
+                let terLenght = territoryCodeResponse.result.data.list;
+                for (let index = 0; index < terLenght.length; index++) {
+                    let territory_code = territoryCodeResponse.result.data.list[index].territory_code;
+                    if (territory_code == territoryCode) {
+                        branchId = territoryCodeResponse.result.data.list[index].branch_id;
+                        branchName = territoryCodeResponse.result.data.list[index].branch_name;
+                        console.log(`branch id is ${branchName}`); break;
+                    }
+                }
+                break;
+            }  else { console.log('customer not found in api response'); }
+        }
+        await pause(2000);
         //reading the data from pricing grid at pricing for 
         item = '05P00640-0030';
         let stock_pricing, icp, startDate, endDate, lp, lBP, listPrice,
@@ -4358,12 +4382,12 @@ export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPri
                     testResults = false;
                 }
             } else {
-                console.log('calculated sell price ', sellPriceInListViewCalc);
+                console.log(`calculated sell price  ${sellPriceInListViewCalc}`);
                 console.log('sell price calculation failed, at preview items page and type is ', discountType);
                 testResults = false;
             }
         } else {
-            console.log('calculated buy price ', buyPriceInListViewCalc);
+            console.log(`calculated buy price ${buyPriceInListViewCalc}`);
             console.log('buyprice calculation failed, at preview items page');
             testResults = false;
         }
