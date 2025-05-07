@@ -3835,7 +3835,7 @@ export async function api_responses(page, api_url) {
     const response = await page.evaluate(async (url) => {
         const fetchData = await fetch(url, {
             headers: {
-                'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiNjFiOTAzNjI2ZjFmZTE4NjZlYmU4NzNmYzBiNzBlMjAzNWZhMzQ3MWU0YjFlNzI2YTA5MWU5ZWFhYWYwZTc2YjEwOGUxNmFjNmI2YzI5MjMiLCJpYXQiOjE3NDY1NDk3NTQuNTQ0MDE2LCJuYmYiOjE3NDY1NDk3NTQuNTQ0MDIsImV4cCI6MTc0Nzg0NTc1NC41MjQ2NzgsInN1YiI6IjY3MTRhOTI0LTdiZmEtNDk2OS04NTM4LWJmODQxOTViNTQxYSIsInNjb3BlcyI6W119.cUHS9wnRU2emwP-M7Mh-_uozrL2t4g5AN5Nd0bd-UjYJAtKra9xD_raEi1GksfBDuUpzjbY1bCxidgx7FnUpRVYUgpK_gcczruOf7hEscclSThDRi-zLUnEPWP3BuRG4Vv-_fcYDJgoQ-LjilSpIZBQIW6SdMLoxkIG1m70zETrA4VBrdOejmGinkuo5Pi-C6S1T3dhQ6rhsvH6PZOwK_iq-ScFq3mE5PGDoo8ZiFkVmKCfxeWQU1maAAheQccoI-Mr5YciAO49eJMvhLLXU3A7GBGpmdZe9WahOQJhMwCa3vuUbfM4b4kRKzzi8EogSuvA6ytooZT-eaA9h8ZREnsdpgoWIoPcpk6oxau6ebqgy-QhXo7q9QO42CaL7Wtc-PMF5bJBrDnZiv3FFTBZli0HnW7vd86hKf8WL7h6o5stvxt7AvGb8rsaDMKcRzef6lWQemKB_xLMMhaJ_pc5aHRRiWmom5LzuoDT0gN5euzlWk8JCT6AdOEBhvLSVhxaBp1lFbP7Hnjwd2QsoPGLawQePfFD5h9BWYou963yEYjHg9E3njq3wSEV1DZoU2UraifDqSc2Oln5CD92YS7MHDdzq9t2WMAvihk0iM_MgaBM2DjIH594jAGgOhKbTu_cbtqTvmngLbbqo1twrEM-RngeVmxE_DLr-1Em6DCssIAo' // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
+                'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiYTI2MjI3NjZiNmNjMjZkMDg4NTlhM2M2YTgzNTgxYWEzNWM0NWQ5NjNlZmYxMjllZDUzYWFiYmEzNjBjNjc5MTBmOGJkYzg0ZWZhZTUwMzIiLCJpYXQiOjE3NDY2Mjc1NjcuMDcyODM4LCJuYmYiOjE3NDY2Mjc1NjcuMDcyODQyLCJleHAiOjE3NDc5MjM1NjcuMDU0NzMyLCJzdWIiOiI2NzE0YTkyNC03YmZhLTQ5NjktODUzOC1iZjg0MTk1YjU0MWEiLCJzY29wZXMiOltdfQ.Y2h5XAr7_mWDr13IBvHcHQAbfAvfTFJxTHD20s_Hkeu1NuuaodAfO7JK_zgbaDwDvq2QI5T33lGTJBMn832ux4rd00SF4yNuZ5s7SHEV2CblIP4rIF7j4SP28SzxSdGw6OZMd-s-WNpJnDhEqMzkvZ71KlysIX-sqohiVasYFBGy-2qebmSuDpw9k2PWo2jxzsu3H4rwt1u6oi3hXgj_U7MNNII1K5gb3AcxR-XCHvPs4wKaE2v4wn4Ax5aCIkJGRi1JK9hh-ADUebj8XYFRdj9BJDOdaxXY2NPCJDVMWoCpXDGgD6eBqA23eArOnfTP9IalfPSKzB7EAMrMvRdWeJ-KurQjb-TmUGjzzTB8rb3bam6boa3mWy_ZgwDQV4XdIGkDouhfcQnBUeoZWoGp055RZ7cunQABelvy_f6tDrU9RN02uGXEQDOm6gEdXJrQv1CiMRBILirbfJ52O3oCuebqJaOUGJ1vM8XHToELO2U7rJQjDAQr88IwJRUCg274xF0aA2x77x5a_xTU0nxmzMlVTPS-tU3_Hbe3ghNj5zWStf2-pZQhKlex24c7q_OWv3l1YIVVpUIBvLiEm6C7rIT7Vf0hNtfAcDScptnDtqA5tatfJBLqEN81iqv4rZxYh9qBsiyygDwwMXMDmgXTElpnfuGfY1B9SNIEPFBfvKo' // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
             }
         });
         return fetchData.json();
@@ -4159,6 +4159,33 @@ export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPri
     await page.locator('div').filter({ hasText: /^Supplier\*Search$/ }).getByLabel('open').click();
     await page.keyboard.insertText(vendor);
     await page.locator("(//*[text() = '" + vendor + "'])[2]").click();
+    //
+    let branchId, branchName, account_type;
+    const orgsResponse = await api_responses(page, `https://staging-buzzworld-api.iidm.com//v1/Organizations?page=1&perPage=25&sort=asc&sort_key=name&grid_name=Repairs&serverFilterOptions=%5Bobject+Object%5D&selectedCustomFilters=%5Bobject+Object%5D&search=${customer}`);
+    let orgsLength = orgsResponse.result.data.list;
+    for (let index = 0; index < orgsLength.length; index++) {
+        let orgsName = orgsResponse.result.data.list[index].accountnumber;
+        console.log(`api customer name is ${orgsName}`);
+        if (orgsName == customer) {
+            let actType = orgsResponse.result.data.list[index].account_type;
+            const actTypeResponse = await api_responses(page, `https://staging-buzzworld-api.iidm.com//v1/AccountTypes?page=1&perPage=25&sort=asc&sort_key=name&grid_name=Repairs&serverFilterOptions=%5Bobject+Object%5D&selectedCustomFilters=%5Bobject+Object%5D&search=${actType}`);
+            account_type = actTypeResponse.result.data.list[0].account_type_mapped_with;
+            console.log(`account type is ${account_type}`);
+            let territoryCode = orgsResponse.result.data.list[index].territory_name;
+            const territoryCodeResponse = await api_responses(page, `https://staging-buzzworld-api.iidm.com//v1/Territory?page=1&perPage=25&sort=asc&sort_key=territory_code&grid_name=Repairs&serverFilterOptions=%5Bobject+Object%5D&selectedCustomFilters=%5Bobject+Object%5D&search=${territoryCode}`);
+            let terLenght = territoryCodeResponse.result.data.list;
+            for (let index = 0; index < terLenght.length; index++) {
+                let territory_code = territoryCodeResponse.result.data.list[index].territory_code;
+                if (territory_code == territoryCode) {
+                    branchId = territoryCodeResponse.result.data.list[index].branch_id;
+                    branchName = territoryCodeResponse.result.data.list[index].branch_name;
+                    console.log(`branch name is ${branchName}`); break;
+                }
+            }
+            break;
+        } else { console.log('customer not found in api response'); }
+    } let accountTypePrice;
+    //
     if (item == '') {
         //entering purchase discount
         await page.locator('[id="pricing_rules\\.0\\.buy_side_discount"]').fill(purchaseDiscount);
@@ -4186,42 +4213,30 @@ export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPri
         }
         testResults = true;
         //Here if apply rule for all products, not able to see the SPA logs view and item list view
-        const orgsResponse = await api_responses(page, `https://staging-buzzworld-api.iidm.com//v1/Organizations?page=1&perPage=25&sort=asc&sort_key=name&grid_name=Repairs&serverFilterOptions=%5Bobject+Object%5D&selectedCustomFilters=%5Bobject+Object%5D&search=${customer}`);
-        let orgsLength = orgsResponse.result.data.list;
-        for (let index = 0; index < orgsLength.length; index++) {
-            let orgsName = orgsResponse.result.data.list[index].accountnumber;
-            if (orgsName == customer) {
-                let actType = orgsResponse.result.data.list[index].account_type;
-                const actTypeResponse = await api_responses(page, `https://staging-buzzworld-api.iidm.com//v1/AccountTypes?page=1&perPage=25&sort=asc&sort_key=name&grid_name=Repairs&serverFilterOptions=%5Bobject+Object%5D&selectedCustomFilters=%5Bobject+Object%5D&search=${actType}`);
-                let account_type = actTypeResponse.result.data.list[0].account_type_mapped_with;
-                console.log(`account type is ${account_type}`);
-                let territoryCode = orgsResponse.result.data.list[index].territory_name;
-                const territoryCodeResponse = await api_responses(page, `https://staging-buzzworld-api.iidm.com//v1/Territory?page=1&perPage=25&sort=asc&sort_key=territory_code&grid_name=Repairs&serverFilterOptions=%5Bobject+Object%5D&selectedCustomFilters=%5Bobject+Object%5D&search=${territoryCode}`);
-                let terLenght = territoryCodeResponse.result.data.list;
-                for (let index = 0; index < terLenght.length; index++) {
-                    let territory_code = territoryCodeResponse.result.data.list[index].territory_code;
-                    if (territory_code == territoryCode) {
-                        branchId = territoryCodeResponse.result.data.list[index].branch_id;
-                        branchName = territoryCodeResponse.result.data.list[index].branch_name;
-                        console.log(`branch id is ${branchName}`); break;
-                    }
-                }
-                break;
-            }  else { console.log('customer not found in api response'); }
-        }
-        await pause(2000);
         //reading the data from pricing grid at pricing for 
         item = '05P00640-0030';
         let stock_pricing, icp, startDate, endDate, lp, lBP, listPrice,
             venId = '759a4e48-cd67-4e2e-8a5a-f703466bb3b4',
-            venName = 'YASKAWA',
-            branchId = '385411d3-ddc8-4029-9719-e89698446c24';
+            venName = 'YASKAWA';
+        const branchResponse = await api_responses(page, `https://buzzworldqa-iidm.enterpi.com:8446/v1/Pricing-Branches?vendor_id=${venId}&vendor_name=${venName}`);
+        for (let index = 0; index < branchResponse.result.data.list.length; index++) {
+            if (branchResponse.result.data.list[index].name == branchName) {
+                console.log(`customer branch exist in pricing`);
+                break;
+            } else {
+                console.log(`customer branch doesn't exist in pricing, we take Default branch pricing`);
+                branchId = '385411d3-ddc8-4029-9719-e89698446c24';
+            }
+        }
         const response = await api_responses(page, `https://staging-buzzworld-api.iidm.com//v1/Products?page=1&perPage=25&sort=asc&sort_key=stock_code&branch_id=${branchId}&vendor_id=${venId}&vendor_name=${venName}&serverFilterOptions=%5Bobject+Object%5D&search=${item}`);
         let apiLength = response.result.data.list;
         for (let index = 0; index < apiLength.length; index++) {
             stock_pricing = response.result.data.list[index].stock_code;
             if (stock_pricing == item) {
                 lp = response.result.data.list[index].list_price;
+                let actPrice = response.result.data.list[index].account_type;
+                accountTypePrice = actPrice.replaceAll(/[$,]/g, "");
+                console.log(`account type price is ${accountTypePrice}`);
                 lp = parseFloat(lp.replaceAll(/[$,]/g, ""));
                 if (purchaseDiscount != '') {
                     lBP = lp - ((lp) * parseInt(purchaseDiscount) / 100).toFixed("2");
@@ -4342,7 +4357,10 @@ export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPri
                 if (discountType != '') {
                     sellPriceInListViewCalc = ((parseFloat(listPrice)) - ((parseFloat(listPrice)) * parseInt(discountValue) / 100)).toFixed("2");
                     console.log('Sell price is calculated on list price');
-                } else { console.log('discount type is empty, so sell price is empty'); sellPriceInListViewCalc = ''; }
+                } else {
+                    console.log('discount type is empty, so sell price is empty');
+                    sellPriceInListViewCalc = '';
+                }
             }
             if (sellPriceInListViewCalc == listSellPrice) {
                 console.log(`Sell price applied on ${discountType} and value is ${discountValue}`)
@@ -4395,7 +4413,7 @@ export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPri
     await page.goBack();
     if (testResults) {
         //Create quote for these items
-        quoteURL = await addSPAItemsToQuote(page, customer, 'Parts Quote', item, testCount, qurl, fp, sellPriceInListViewCalc, purchaseDiscount, buyPrice, listIIDMCost, discountType);
+        quoteURL = await addSPAItemsToQuote(page, customer, 'Parts Quote', item, testCount, qurl, fp, sellPriceInListViewCalc, purchaseDiscount, buyPrice, listIIDMCost, discountType, accountTypePrice);
         console.log('status at quotes is ', quoteURL[1]);
         if (quoteURL[1]) {
             testResults = true;
@@ -4670,7 +4688,7 @@ export async function verifySPAExpiryMails(page) {
     }
     return testResults;
 }
-export async function addSPAItemsToQuote(page, customer, quoteType, items, testCount, qurl, fixedSalesPrice, sellPrice, purchaseDiscount, buyPrice, listIIDMCost, discountType) {
+export async function addSPAItemsToQuote(page, customer, quoteType, items, testCount, qurl, fixedSalesPrice, sellPrice, purchaseDiscount, buyPrice, listIIDMCost, discountType, accountTypePrice) {
     let quoteURL, testResults, quotePrice;
     try {
         await page.getByText('Quotes', { exact: true }).first().click();
@@ -4744,7 +4762,13 @@ export async function addSPAItemsToQuote(page, customer, quoteType, items, testC
                 if (discountType != '') {
                     console.log('displaying sell price as quote price in quote detailed view, is failed');
                 } else {
-                    console.log('displaying customer branch account type price as quote price in quote detailed view, is Passed');
+                    if (quotePrice == accountTypePrice) {
+                        console.log('displaying customer branch account type price as quote price in quote detailed view, is passed');
+                        console.log(`Quote price is ${quotePrice}`);
+                        console.log(`account type price is ${accountTypePrice}`);
+                    } else {
+                        
+                    }
                 }
                 if (purchaseDiscount == '' && buyPrice == '') {
                     if (iidmCost.includes(listIIDMCost)) {

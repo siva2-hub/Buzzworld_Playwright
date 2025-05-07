@@ -84,7 +84,7 @@ test.describe("Pricing Test Suite", () => {
     //Special Pricing Test Cases ===================================================================================
     let items = ['05P00620-0042', 'A151506', 'A151804', 'A121606', 'A121204NK'],
         customer = 'MULTI00',
-        quoteURL = 'https://www.staging-buzzworld.iidm.com/all_quotes/b3d593b0-04fb-4792-a706-bdc4b03a067a';
+        quoteURL = 'https://www.staging-buzzworld.iidm.com/all_quotes/70d130d5-0b90-4caa-bac7-9a60b1e47564';
 
     test('Test 12: Verifying Non SPA rule for all products at Configure with Markup and Purchase Discount', async ({ }, testInfo) => {
         // Verifying Non SPA rule for all products at Configure
@@ -143,7 +143,7 @@ test.describe("Pricing Test Suite", () => {
     })
     test('Test 23: Verifying Non SPA rule for specific item at Configure with only Markup on Buy Price', async ({ }, testInfo) => {
         //Buy price value getting from purchase discount on list price
-        results = await nonSPAPrice(page, customer, items[0], '32', '', 'Markup', '27', 1, quoteURL, '', true, browser);
+        results = await nonSPAPrice(page, customer, items[0], '32', '', 'Markup', '27', 2, quoteURL, '', true, browser);
         await getTestResults(results, testInfo);
     })
 });
