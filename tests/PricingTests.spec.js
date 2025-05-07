@@ -141,4 +141,9 @@ test.describe("Pricing Test Suite", () => {
         results = await nonSPAPrice(page, customer, items[0], '', '', 'Discount', '51', 2, quoteURL, '', true, browser);
         await getTestResults(results, testInfo);
     })
+    test('Test 23: Verifying Non SPA rule for specific item at Configure with only Markup on Buy Price', async ({ }, testInfo) => {
+        //Buy price value getting from purchase discount on list price
+        results = await nonSPAPrice(page, customer, items[0], '32', '', 'Markup', '27', 1, quoteURL, '', true, browser);
+        await getTestResults(results, testInfo);
+    })
 });
