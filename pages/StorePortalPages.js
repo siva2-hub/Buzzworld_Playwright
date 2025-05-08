@@ -49,8 +49,8 @@ export async function storeLogin(page) {
     if (url.includes('dev')) {
         logEmail = 'cathy@bigmanwashes.com', logPword = 'Enter@4321', userName = 'Cathy'
     } else {
-        logEmail = storeTestData.storeLogin.multicam.email, logPword = storeTestData.storeLogin.multicam.pword,
-            userName = storeTestData.storeLogin.multicam.user_name
+        logEmail = storeTestData.storeLogin.chump.email, logPword = storeTestData.storeLogin.chump.pword,
+            userName = storeTestData.storeLogin.chump.user_name
     }
     await emailInput(page).fill(logEmail);
     await passwordInput(page).fill(logPword);
