@@ -33,14 +33,12 @@ module.exports = defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     launchOptions: {
-      
-      slowMo: 900,
+      slowMo: 200,
       headless: false,
       // Maximize the window (specific to Chromium)
-      args: ["--start-maximized"],
+      args: ['--start-maximized'],
     },
     video: 'on',
-    videoQuality: 90,
     /* Base URL to use in actions like `await page.goto('/')`. */
     // baseURL: 'http://127.0.0.1:3000',
 
@@ -53,10 +51,10 @@ module.exports = defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { 
+      use: {
         // ...devices['Desktop Chrome']
-        viewport:null
-       },
+        viewport: null
+      },
     },
 
     // {
@@ -87,7 +85,7 @@ module.exports = defineConfig({
     // {
     //   name: 'Google Chrome',
     //   use: {
-        // ...devices['Desktop Chrome'], channel: 'chrome',
+    // ...devices['Desktop Chrome'], channel: 'chrome',
     //     viewport: null,
     //   },
     // },

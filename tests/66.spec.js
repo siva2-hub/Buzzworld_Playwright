@@ -65,8 +65,10 @@ test.skip('sysproID, branch and email fields are editable at edit user page', as
   let userFullName = testData.userDetails.user_full_name, sys_pro_id = testData.userDetails.sys_pro_id;
   await checkEmailSysProEditStatus(page, userFullName, sys_pro_id);
 });
-test.skip('Verifying the vendor part number not accepting the space', async () => {
-  await checkVendorPartNumberAcceptingSpacesOrNot(page, testData.parts_buy_detls.ven_part_num);
+test('Verifying the vendor part number not accepting the space from Parts buy module', async () => {
+  await checkVendorPartNumberAcceptingSpacesOrNot(
+    page, testData.parts_buy_detls.ven_part_num, testData.parts_buy_detls.is_from_repair
+  );
 });
 test.skip('Verifying the warehouse for new part at Inventory', async () => {
   await checkWarehouseInfoAtAddNewPart(page, testData.inventory.new_part)

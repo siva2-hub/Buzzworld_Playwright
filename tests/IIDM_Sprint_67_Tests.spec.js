@@ -1,8 +1,10 @@
 import test, { expect } from "@playwright/test";
+const ExcelJS = require('exceljs');
 import { addItemsToQuote, addItesms, approve, assignToQC, createRMA, createSO, delay, getRMAItemStatus, itemsAddToEvaluation, login, login_buzz, loginAsClientFromBuzzworld, markAsInProgress, repSummary, selectReactDropdowns, submitForCustomerApprovals, updateQCStatus, wonQuote } from "./helper";
 import AllPages from "./PageObjects";
 import { allowedNodeEnvironmentFlags } from "process";
 import { checkDueLabelChangeToPromisedDate } from "../pages/RepairPages";
+import { testData } from "../pages/TestData";
 
 let page, pob;
 const stage_url = process.env.BASE_URL_BUZZ;
@@ -23,7 +25,7 @@ test.beforeAll(async ({ browser }) => {
     await login_buzz(page, stage_url);
 });
 test('Verify the Due Date label to be Promised Date and Prefill the same', async () => {
-    const expText = 'Due Date:'; //'Date Promised'
+    const expText = 'Date Promised:'; //'Date Promised:'
     await checkDueLabelChangeToPromisedDate(page, expText)
 });
 test('Verifying Show Line Ship Date in Customer Portal', async () => {
@@ -37,7 +39,8 @@ test('Verifying Show Line Ship Date in Customer Portal', async () => {
     // Verify order details
     await expect(page1.locator("//*[text()='Customer Request Date : ']")).toBeVisible();
     try {
-        await expect(page1.locator("//*[text()='Line Ship Date : ']").first()).toBeVisible({ timeout: 2400 });
+        await expect(page1.locator("//*[text()='Line Ship Date :']").first()).toBeVisible({ timeout: 2400 });
+        console.log('Line Ship Date is visible in customer portal');
     } catch (error) {
         console.log('Error during the Order verification' + error);
         throw error;
@@ -57,7 +60,7 @@ test('QC Checklist Internal Used Parts', async () => {
     // Step 6: Mark the quote as won
     await wonQuote(page);
     // Step 7: Create a Sales Order (SO)
-    await createSO(page, test_data.vendorName, true);
+    await createSO(page, test_data.vendorName, true, testData.repairs.quote_type);
     // Step 8: Mark as In Progress
     await markAsInProgress(page);
     // Step 9: Generate Repair Summary
