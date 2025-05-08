@@ -1,6 +1,6 @@
 import { expect } from "@playwright/test";
 import { testData } from "./TestData";
-import { ANSI_GREEN, ANSI_RED, ANSI_RESET, currentDateTime, delay, end_date, selectReactDropdowns } from "../tests/helper";
+import { ANSI_GREEN, ANSI_RED, ANSI_RESET, currentDateTime, delay, end_date, getAccountTypePrice, selectReactDropdowns } from "../tests/helper";
 import { closeAtSubCustAprvl, proceedButton, reactFirstDropdown } from "./QuotesPage";
 import { arrowDownKey, arrowUpKey, confPopUp, enterKey, insertKeys, leftArrowKey, promisedDateField, rightArrowKey, updateSuccMsg } from "./RepairPages";
 import { timeout } from "../playwright.config";
@@ -438,4 +438,23 @@ export async function getTestResults(testResult, testInfo) {
     } else {
         throw new Error(`${ANSI_RED}Test Failed: ${testInfo.title} ${ANSI_RESET}`);
     }
+}
+export async function getAccountTypePriceValue(account_type, actPrice, response, index, accountTypePrice) {
+    switch (account_type) {
+        case 'PO':
+            actPrice = response.result.data.list[index].PO;
+            break;
+        case 'MRO':
+            actPrice = response.result.data.list[index].MRO;
+            break;
+        case 'OEM':
+            actPrice = response.result.data.list[index].OEM;
+            break;
+        case 'RS':
+            actPrice = response.result.data.list[index].RS;
+            break;
+    }
+    accountTypePrice = actPrice.replaceAll(/[$,]/g, "");
+    console.log(`account type price is ${accountTypePrice}`);
+    return accountTypePrice;
 }

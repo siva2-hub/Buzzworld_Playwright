@@ -16,7 +16,7 @@ const { count, log, error } = require('console');
 const { rTickIcon, gridColumnData, iidmCostLabel, quotePrice } = require('../pages/QuotesPage');
 const { loadingText, reactFirstDropdown } = require('../pages/PartsBuyingPages');
 import { enterKey, checkDatesAtCreateSO, rightArrowKey, leftArrowKey, insertKeys, horzScrollToRight, horzScrollView, arrowDownKey, arrowUpKey } from "../pages/RepairPages";
-import { checkStartEndDatesAreExipred, dcAtPricing, getEleByText, pricingDropDown } from '../pages/PricingPages';
+import { checkStartEndDatesAreExipred, dcAtPricing, getAccountTypePriceValue, getEleByText, pricingDropDown } from '../pages/PricingPages';
 import { addToCartBtn, apiReqResponses, storeLogin, viewCartBtn } from '../pages/StorePortalPages';
 import { platform } from 'os';
 const currentDate = new Date().toDateString();
@@ -4137,9 +4137,9 @@ export async function verifyTwoExcelData(page) {
     // Write the workbook to a file
     // await workbook.xlsx.writeFile('test_pricing.xlsx');
 }
-export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPrice, discountType, discountValue, testCount, qurl, fp, isVerifyStore, browser) {
+export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPrice, discountType, discountValue, testCount, qurl, fp, isVerifyStore, browser, venId, venName, venCode) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
-    let vendor = testdata.vendor, testResults, quoteURL, listIIDMCost, sellPriceInListViewCalc;
+    let vendor = venCode, testResults, quoteURL, listIIDMCost, sellPriceInListViewCalc;
     await pricingDropDown(page).click();
     await page.getByRole('menuitem', { name: 'Non Standard Pricing' }).click();
     await page.getByRole('button', { name: 'Configure' }).click();
@@ -4214,11 +4214,9 @@ export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPri
         testResults = true;
         //Here if apply rule for all products, not able to see the SPA logs view and item list view
         //reading the data from pricing grid at pricing for 
-        item = '05P00640-0030';
-        let stock_pricing, icp, startDate, endDate, lp, lBP, listPrice,
-            venId = '759a4e48-cd67-4e2e-8a5a-f703466bb3b4',
-            venName = 'YASKAWA';
-        const branchResponse = await api_responses(page, `https://buzzworldqa-iidm.enterpi.com:8446/v1/Pricing-Branches?vendor_id=${venId}&vendor_name=${venName}`);
+        item = '2000-1405';
+        let stock_pricing, icp, startDate, endDate, lp, lBP, listPrice;
+        const branchResponse = await api_responses(page, `https://staging-buzzworld-api.iidm.com//v1/Pricing-Branches?vendor_id=${venId}&vendor_name=${venName}`);
         for (let index = 0; index < branchResponse.result.data.list.length; index++) {
             if (branchResponse.result.data.list[index].name == branchName) {
                 console.log(`customer branch exist in pricing`);
@@ -4229,14 +4227,12 @@ export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPri
             }
         }
         const response = await api_responses(page, `https://staging-buzzworld-api.iidm.com//v1/Products?page=1&perPage=25&sort=asc&sort_key=stock_code&branch_id=${branchId}&vendor_id=${venId}&vendor_name=${venName}&serverFilterOptions=%5Bobject+Object%5D&search=${item}`);
-        let apiLength = response.result.data.list;
+        let apiLength = response.result.data.list; let actPrice;
         for (let index = 0; index < apiLength.length; index++) {
             stock_pricing = response.result.data.list[index].stock_code;
             if (stock_pricing == item) {
                 lp = response.result.data.list[index].list_price;
-                let actPrice = response.result.data.list[index].account_type;
-                accountTypePrice = actPrice.replaceAll(/[$,]/g, "");
-                console.log(`account type price is ${accountTypePrice}`);
+                accountTypePrice = await getAccountTypePriceValue(account_type, actPrice, response, index, accountTypePrice);
                 lp = parseFloat(lp.replaceAll(/[$,]/g, ""));
                 if (purchaseDiscount != '') {
                     lBP = lp - ((lp) * parseInt(purchaseDiscount) / 100).toFixed("2");
@@ -4291,6 +4287,25 @@ export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPri
             }
         }
     } else {
+        //reading account type price from pricing grid at pricing for specific item
+        const branchResponse = await api_responses(page, `https://staging-buzzworld-api.iidm.com//v1/Pricing-Branches?vendor_id=${venId}&vendor_name=${venName}`);
+        for (let index = 0; index < branchResponse.result.data.list.length; index++) {
+            if (branchResponse.result.data.list[index].name == branchName) {
+                console.log(`customer branch exist in pricing`);
+                break;
+            } else {
+                console.log(`customer branch doesn't exist in pricing, we take Default branch pricing`);
+                branchId = '385411d3-ddc8-4029-9719-e89698446c24';
+            }
+        }
+        const response = await api_responses(page, `https://staging-buzzworld-api.iidm.com//v1/Products?page=1&perPage=25&sort=asc&sort_key=stock_code&branch_id=${branchId}&vendor_id=${venId}&vendor_name=${venName}&serverFilterOptions=%5Bobject+Object%5D&search=${item}`);
+        let apiLength = response.result.data.list; let actPrice;
+        for (let index = 0; index < apiLength.length; index++) {
+            let stock_pricing = response.result.data.list[index].stock_code;
+            if (stock_pricing == item) {
+                accountTypePrice = await getAccountTypePriceValue(account_type, actPrice, response, index, accountTypePrice);
+            }
+        }//ending the reading account type price from pricing grid at pricing for specific item
         await page.locator("(//*[text() = 'Select '])[1]").click();
         await page.keyboard.insertText('Specific Item');
         await page.keyboard.press('Enter');
@@ -4746,7 +4761,7 @@ export async function addSPAItemsToQuote(page, customer, quoteType, items, testC
                         console.log('displaying SPA iidm cost as a IIDM cost in quote detailed view, is failed.');
                     }
                 } else {
-                    if (iidmCost.includes(buyPrice)) {
+                    if (parseFloat(iidmCost).toFixed("2").includes(buyPrice)) {
                         console.log(`iidm cost in quotes is ${iidmCost}`);
                         console.log(`buy price is ${buyPrice}`);
                         console.log('displaying buy price as a IIDM cost in quote detailed view, is passed.');
@@ -4767,7 +4782,7 @@ export async function addSPAItemsToQuote(page, customer, quoteType, items, testC
                         console.log(`Quote price is ${quotePrice}`);
                         console.log(`account type price is ${accountTypePrice}`);
                     } else {
-                        
+
                     }
                 }
                 if (purchaseDiscount == '' && buyPrice == '') {
@@ -4781,7 +4796,7 @@ export async function addSPAItemsToQuote(page, customer, quoteType, items, testC
                         console.log('displaying SPA iidm cost as a IIDM cost in quote detailed view, is failed.');
                     }
                 } else {
-                    if (iidmCost.includes(buyPrice)) {
+                    if (parseFloat(iidmCost).toFixed("2").includes(buyPrice)) {
                         console.log(`iidm cost in quotes is ${iidmCost}`);
                         console.log(`buy price is ${buyPrice}`);
                         console.log('displaying buy price as a IIDM cost in quote detailed view, is passed.');
@@ -4807,7 +4822,7 @@ export async function addSPAItemsToQuote(page, customer, quoteType, items, testC
                         console.log('displaying SPA iidm cost as a IIDM cost in quote detailed view, is failed.');
                     }
                 } else {
-                    if (iidmCost.includes(buyPrice)) {
+                    if (parseFloat(iidmCost).toFixed("2").includes(buyPrice)) {
                         console.log(`iidm cost in quotes is ${iidmCost}`);
                         console.log(`buy price is ${buyPrice}`);
                         console.log('displaying buy price as a IIDM cost in quote detailed view, is passed.');
