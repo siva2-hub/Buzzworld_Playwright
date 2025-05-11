@@ -13,7 +13,7 @@ const { url } = require('inspector');
 const { default: AllPages } = require('./PageObjects');
 const { threadId } = require('worker_threads');
 const { count, log, error } = require('console');
-const { rTickIcon, gridColumnData, iidmCostLabel, quotePrice } = require('../pages/QuotesPage');
+const { rTickIcon, gridColumnData, iidmCostLabel, quotePrice, quoteCloneBtn, proceedButton, companyField } = require('../pages/QuotesPage');
 const { loadingText, reactFirstDropdown } = require('../pages/PartsBuyingPages');
 import { enterKey, checkDatesAtCreateSO, rightArrowKey, leftArrowKey, insertKeys, horzScrollToRight, horzScrollView, arrowDownKey, arrowUpKey } from "../pages/RepairPages";
 import { checkStartEndDatesAreExipred, dcAtPricing, getAccountTypePriceValue, getEleByText, pricingDropDown } from '../pages/PricingPages';
@@ -3835,7 +3835,7 @@ export async function api_responses(page, api_url) {
     const response = await page.evaluate(async (url) => {
         const fetchData = await fetch(url, {
             headers: {
-                'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiYTI2MjI3NjZiNmNjMjZkMDg4NTlhM2M2YTgzNTgxYWEzNWM0NWQ5NjNlZmYxMjllZDUzYWFiYmEzNjBjNjc5MTBmOGJkYzg0ZWZhZTUwMzIiLCJpYXQiOjE3NDY2Mjc1NjcuMDcyODM4LCJuYmYiOjE3NDY2Mjc1NjcuMDcyODQyLCJleHAiOjE3NDc5MjM1NjcuMDU0NzMyLCJzdWIiOiI2NzE0YTkyNC03YmZhLTQ5NjktODUzOC1iZjg0MTk1YjU0MWEiLCJzY29wZXMiOltdfQ.Y2h5XAr7_mWDr13IBvHcHQAbfAvfTFJxTHD20s_Hkeu1NuuaodAfO7JK_zgbaDwDvq2QI5T33lGTJBMn832ux4rd00SF4yNuZ5s7SHEV2CblIP4rIF7j4SP28SzxSdGw6OZMd-s-WNpJnDhEqMzkvZ71KlysIX-sqohiVasYFBGy-2qebmSuDpw9k2PWo2jxzsu3H4rwt1u6oi3hXgj_U7MNNII1K5gb3AcxR-XCHvPs4wKaE2v4wn4Ax5aCIkJGRi1JK9hh-ADUebj8XYFRdj9BJDOdaxXY2NPCJDVMWoCpXDGgD6eBqA23eArOnfTP9IalfPSKzB7EAMrMvRdWeJ-KurQjb-TmUGjzzTB8rb3bam6boa3mWy_ZgwDQV4XdIGkDouhfcQnBUeoZWoGp055RZ7cunQABelvy_f6tDrU9RN02uGXEQDOm6gEdXJrQv1CiMRBILirbfJ52O3oCuebqJaOUGJ1vM8XHToELO2U7rJQjDAQr88IwJRUCg274xF0aA2x77x5a_xTU0nxmzMlVTPS-tU3_Hbe3ghNj5zWStf2-pZQhKlex24c7q_OWv3l1YIVVpUIBvLiEm6C7rIT7Vf0hNtfAcDScptnDtqA5tatfJBLqEN81iqv4rZxYh9qBsiyygDwwMXMDmgXTElpnfuGfY1B9SNIEPFBfvKo' // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
+                'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiMTA0NjMyNTMyODQwY2E5MjYzZmVlNGQxZjA5NGQwYjgxMGVlNjY0MTRlNDg4NGU0MTNiZTE4OWJlZDliOWMwZTkwZjIyMDMzNmFiNTk2N2IiLCJpYXQiOjE3NDY3NzM1NDAuNTY5MTMyLCJuYmYiOjE3NDY3NzM1NDAuNTY5MTM2LCJleHAiOjE3NDgwNjk1NDAuNTU2MTE4LCJzdWIiOiI2NzE0YTkyNC03YmZhLTQ5NjktODUzOC1iZjg0MTk1YjU0MWEiLCJzY29wZXMiOltdfQ.X32naJonCZhJzdntXYV9-SUbS-E2T568ZoIxkrH7C63zYndhIPv1ZLdnDV-YQS3YMVhqb5614Es3JkOm6eJLrcNqy52rb9e4nivBACHYMbV6oqWdBztsnK8N5bPBpLdd6v7vbontHSunyRATl0QTWnlPIEvgK1EjXCYawBeXY33pe12UKMrnG3IquZfIX_XJK4wX6cDMLCNYWW7VnHu9QuTHL5HtUcoUwWxS37hOte3NnGHNuhY3tfMAFaPn5UhK2hex2cg2f5J6yPc04rcFnUqaWLBn8NZO-fTV_JS5UYo5x7el4xQe2NHp1YBeFnNVMNRJ1OWEKX979kX1ypg4svPwp4mUfacZA0oMcO2si4BkC9ll1nLLis3r3yQeXjktuyc3g3ou3Dow3sQ2oljVZmDQF57AHLNiwRy_2TDc6bEi68U79qJYYO3LY-BViTMmNcpAi0XH-66C-hF2hNM-1ROY5PkK190g8P7ngcokRL-559Zrg0AYJcmCnhgtYb8l_mHLpR9hhLrce8jAWqvq5NDxTtESGQ6ERCD2lsUrzycSiYH7unUc8coHrMCdoxQ6Gb-p1tD2UO50eiE3mfS-KmTUNHbQugUUXMfrZxakPokVwgNSR_3Dfs_oOf9o4JNu6uSjfOP7JrNliTKz0hvqBMXmf1myclfZxv0YARKpA5k' // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
             }
         });
         return fetchData.json();
@@ -4137,7 +4137,7 @@ export async function verifyTwoExcelData(page) {
     // Write the workbook to a file
     // await workbook.xlsx.writeFile('test_pricing.xlsx');
 }
-export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPrice, discountType, discountValue, testCount, qurl, fp, isVerifyStore, browser, venId, venName, venCode) {
+export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPrice, discountType, discountValue, testCount, qurl, fp, isVerifyStore, browser, venId, venName, venCode, isQuoteClone) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     let vendor = venCode, testResults, quoteURL, listIIDMCost, sellPriceInListViewCalc;
     await pricingDropDown(page).click();
@@ -4203,18 +4203,18 @@ export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPri
         await expect(page.getByText('Applied Successfully')).toBeVisible();
         //verifying All products text at SPA logs
         await expect(getEleByText(page, 'All Products')).toBeVisible();
-        if (purchaseDiscount != '') {
-            await expect(getEleByText(page, 'Purchse Discount - ' + purchaseDiscount + '%')).toBeVisible();
-        } else if (purchaseDiscount != '' && discountValue != '') {
+        if (purchaseDiscount != '' && discountValue != '') {
             await expect(getEleByText(page, 'Purchse Discount - ' + purchaseDiscount + '%')).toBeVisible();
             await expect(getEleByText(page, discountType + ' - ' + discountValue + '%')).toBeVisible();
-        } else if (discountValue != '') {
+        } else if (purchaseDiscount != '' && discountValue == '') {
+            await expect(getEleByText(page, 'Purchse Discount - ' + purchaseDiscount + '%')).toBeVisible();
+        } else if (discountValue != '' && purchaseDiscount == '') {
             await expect(getEleByText(page, discountType + ' - ' + discountValue + '%')).toBeVisible();
         }
         testResults = true;
         //Here if apply rule for all products, not able to see the SPA logs view and item list view
         //reading the data from pricing grid at pricing for 
-        item = '2000-1405';
+        item = 'CMT3162X';
         let stock_pricing, icp, startDate, endDate, lp, lBP, listPrice;
         const branchResponse = await api_responses(page, `https://staging-buzzworld-api.iidm.com//v1/Pricing-Branches?vendor_id=${venId}&vendor_name=${venName}`);
         for (let index = 0; index < branchResponse.result.data.list.length; index++) {
@@ -4427,9 +4427,123 @@ export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPri
     }
     await page.goBack();
     if (testResults) {
-        //Create quote for these items
-        quoteURL = await addSPAItemsToQuote(page, customer, 'Parts Quote', item, testCount, qurl, fp, sellPriceInListViewCalc, purchaseDiscount, buyPrice, listIIDMCost, discountType, accountTypePrice);
-        console.log('status at quotes is ', quoteURL[1]);
+        // console.log('status at quotes is ', quoteURL[1]);
+        if (isQuoteClone == true) {
+            quoteURL = ['', false]
+            //quote clone for these items
+            await page.goto(qurl);
+            await expect(iidmCostLabel(page).nth(0)).toBeVisible();
+            await quoteCloneBtn(page).nth(0).click();
+            await reactFirstDropdown(page).nth(0).click();
+            await page.keyboard.insertText(customer);
+            await expect(loadingText(page)).toBeVisible(); await expect(loadingText(page)).toBeHidden();
+            await expect(page.getByText(customer, { exact: true }).nth(1)).toBeVisible();
+            await page.getByText(customer, { exact: true }).nth(1).click(); await page.waitForTimeout(1200);
+            await proceedButton(page).nth(3).click(); await proceedButton(page).nth(0).click(); await page.waitForTimeout(4000);
+            await expect(iidmCostLabel(page).nth(0)).toBeVisible();
+            let qp = await page.locator('//*[@id="repair-items"]/div[2]/div[1]/div[1]/div/div[2]/div[3]/div[1]/h4').textContent();
+            let quotePrice = qp.replaceAll(/[$,]/g, "");
+            console.log('quote price at quote detailed view: ' + quotePrice);
+            // let ic = await page.locator('//*[@id="repair-items"]/div[2]/div[1]/div[' + testCount + ']/div/div[2]/div[3]/div[3]/h4').textContent();
+            let ic = await page.locator('//*[@id="repair-items"]/div[2]/div[1]/div[1]/div/div[2]/div[3]/div[3]/h4').textContent();
+            let iidmCost = ic.replaceAll(/[$,]/g, "");
+            console.log('IIDM cost at quote detailed view: ' + iidmCost);
+            if (fp == '') {
+                if (quotePrice == sellPriceInListViewCalc) {
+                    console.log(`Quote price is ${quotePrice}`);
+                    console.log(`sell price is ${sellPriceInListViewCalc}`);
+                    console.log('displaying sell price as quote price in quote detailed view, is passed.');
+                    if (purchaseDiscount == '' && buyPrice == '') {
+                        if (iidmCost.includes(listIIDMCost)) {
+                            console.log(`iidm cost in quotes is ${iidmCost}`);
+                            console.log(`iidm cost in SPA is ${listIIDMCost}`);
+                            console.log('displaying SPA iidm cost as a IIDM cost in quote detailed view, is passed.'); quoteURL = ['', true]
+                        } else {
+                            console.log(`iidm cost in quotes is ${iidmCost}`);
+                            console.log(`iidm cost in SPA is ${listIIDMCost}`);
+                            console.log('displaying SPA iidm cost as a IIDM cost in quote detailed view, is failed.');
+                        }
+                    } else {
+                        if (parseFloat(iidmCost).toFixed("2").includes(buyPrice)) {
+                            console.log(`iidm cost in quotes is ${iidmCost}`);
+                            console.log(`buy price is ${buyPrice}`);
+                            console.log('displaying buy price as a IIDM cost in quote detailed view, is passed.'); quoteURL = ['', true]
+                        } else {
+                            console.log(`iidm cost in quotes is ${iidmCost}`);
+                            console.log(`buy price is ${buyPrice}`);
+                            console.log('displaying buy price as a IIDM cost in quote detailed view, is failed.');
+                        }
+                    }
+                } else {
+                    console.log(`Quote price is ${quotePrice}`);
+                    console.log(`sell price is ${sellPriceInListViewCalc}`);
+                    if (discountType != '') {
+                        console.log('displaying sell price as quote price in quote detailed view, is failed');
+                    } else {
+                        if (quotePrice == accountTypePrice) {
+                            console.log('displaying customer branch account type price as quote price in quote detailed view, is passed'); quoteURL = ['', true]
+                            console.log(`Quote price is ${quotePrice}`);
+                            console.log(`account type price is ${accountTypePrice}`);
+                        } else {
+
+                        }
+                    }
+                    if (purchaseDiscount == '' && buyPrice == '') {
+                        if (iidmCost.includes(listIIDMCost)) {
+                            console.log(`iidm cost in quotes is ${iidmCost}`);
+                            console.log(`iidm cost in SPA is ${listIIDMCost}`);
+                            console.log('displaying SPA iidm cost as a IIDM cost in quote detailed view, is passed.'); quoteURL = ['', true]
+                        } else {
+                            console.log(`iidm cost in quotes is ${iidmCost}`);
+                            console.log(`iidm cost in SPA is ${listIIDMCost}`);
+                            console.log('displaying SPA iidm cost as a IIDM cost in quote detailed view, is failed.');
+                        }
+                    } else {
+                        if (parseFloat(iidmCost).toFixed("2").includes(buyPrice)) {
+                            console.log(`iidm cost in quotes is ${iidmCost}`);
+                            console.log(`buy price is ${buyPrice}`);
+                            console.log('displaying buy price as a IIDM cost in quote detailed view, is passed.'); quoteURL = ['', true]
+                        } else {
+                            console.log(`iidm cost in quotes is ${iidmCost}`);
+                            console.log(`buy price is ${buyPrice}`);
+                            console.log('displaying buy price as a IIDM cost in quote detailed view, is failed.');
+                        }
+                    }
+                }
+            } else {
+                if (quotePrice == fp) {
+                    console.log(`Quote price is ${quotePrice}\nFixed sales price is ${fp}`);
+                    console.log('displaying fixed sales price as a quote price in quote detailed view, is passed.');
+                    if (purchaseDiscount == '' && buyPrice == '') {
+                        if (iidmCost.includes(listIIDMCost)) {
+                            console.log(`iidm cost in quotes is ${iidmCost}`);
+                            console.log(`iidm cost in SPA is ${listIIDMCost}`);
+                            console.log('displaying SPA iidm cost as a IIDM cost in quote detailed view, is passed.'); quoteURL = ['', true]
+                        } else {
+                            console.log(`iidm cost in quotes is ${iidmCost}`);
+                            console.log(`iidm cost in SPA is ${listIIDMCost}`);
+                            console.log('displaying SPA iidm cost as a IIDM cost in quote detailed view, is failed.');
+                        }
+                    } else {
+                        if (parseFloat(iidmCost).toFixed("2").includes(buyPrice)) {
+                            console.log(`iidm cost in quotes is ${iidmCost}`);
+                            console.log(`buy price is ${buyPrice}`);
+                            console.log('displaying buy price as a IIDM cost in quote detailed view, is passed.'); quoteURL = ['', true]
+                        } else {
+                            console.log(`iidm cost in quotes is ${iidmCost}`);
+                            console.log(`buy price is ${buyPrice}`);
+                            console.log('displaying buy price as a IIDM cost in quote detailed view, is failed.');
+                        }
+                    }
+                } else {
+                    console.log(`Quote price is ${quotePrice}\nFixed sales price is ${fp}`);
+                    console.log('displaying fixed sales price as a quote price in quote detailed view, is failed');
+                }
+            }
+        } else {
+            //Create quote for these items
+            quoteURL = await addSPAItemsToQuote(page, customer, 'Parts Quote', item, testCount, qurl, fp, sellPriceInListViewCalc, purchaseDiscount, buyPrice, listIIDMCost, discountType, accountTypePrice)
+        }
         if (quoteURL[1]) {
             testResults = true;
             if (isVerifyStore == true) {
@@ -4463,7 +4577,7 @@ export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPri
                 } else { console.log('prices are not matched at Items list page') }
                 await newPage.close(); await page.close();
             } else {
-
+                console.log('not verifying store prices');
             }
         } else {
             testResults = false;

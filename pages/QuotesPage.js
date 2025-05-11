@@ -1,5 +1,5 @@
 const { expect } = require("@playwright/test");
-import { selectReactDropdowns, spinner, delay} from '../tests/helper';
+import { selectReactDropdowns, spinner, delay } from '../tests/helper';
 import { loadingText, rTickIcon } from './PartsBuyingPages';
 const { testData } = require("./TestData");
 const { timeout } = require("../playwright.config");
@@ -74,6 +74,8 @@ export const toolTipText = (page) => { return page.locator("//*[contains(@class,
 export const createSOBtn = (page) => { return page.getByText('Create Sales Order') }
 export const gridColumnData = (page, columnCount) => { return page.locator("//*[@class='ag-center-cols-container']/div/div[" + columnCount + "]"); }
 export const loadSpin = (page) => { return page.locator("//*[contains(@style, 'stroke:')]") }
+export const deleteBtnQuotes = (page, index) => { return page.locator("//*[contains(@src,'delete')]").nth(index) }
+export const quoteCloneBtn = (page) => { return page.locator("//*[contains(@src,'clone')]") }
 
 
 export async function navigateToQuotesPage(page) {
