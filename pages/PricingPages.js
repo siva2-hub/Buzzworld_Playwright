@@ -1,9 +1,11 @@
 import { expect } from "@playwright/test";
 import { testData } from "./TestData";
-import { ANSI_GREEN, ANSI_RED, ANSI_RESET, currentDateTime, delay, end_date, getAccountTypePrice, selectReactDropdowns } from "../tests/helper";
-import { closeAtSubCustAprvl, proceedButton, reactFirstDropdown } from "./QuotesPage";
+import { ANSI_GREEN, ANSI_RED, ANSI_RESET, approve, currentDateTime, delay, end_date, getAccountTypePrice, nonSPAPrice, selectReactDropdowns } from "../tests/helper";
+import { addItemsToQuote, closeAtSubCustAprvl, createQuote, deleteBtnQuotes, iidmCost, proceedButton, quotePrice, reactFirstDropdown, selectRFQDateRequestedBy, selectSource, sendForCustomerApprovals } from "./QuotesPage";
 import { arrowDownKey, arrowUpKey, confPopUp, enterKey, insertKeys, leftArrowKey, promisedDateField, rightArrowKey, updateSuccMsg } from "./RepairPages";
 import { timeout } from "../playwright.config";
+import { create } from "domain";
+import { get } from "http";
 
 
 
@@ -457,4 +459,39 @@ export async function getAccountTypePriceValue(account_type, actPrice, response,
     accountTypePrice = actPrice.replaceAll(/[$,]/g, "");
     console.log(`account type price is ${accountTypePrice}`);
     return accountTypePrice;
+}
+export async function deleteQuoteOptSPAFirstLog(page) {
+    await page.waitForTimeout(2000);
+    await deleteBtnQuotes(page, 0).click();
+    await getEleByText(page, 'Are you sure you want to delete this option ?').click();
+    await getEleByText(page, 'Yes').nth(1).click();
+    await expect(getEleByText(page, 'Option deleted Successfully')).toBeVisible();
+    await pricingDropDown(page).click();
+    await getEleByText(page, 'Non Standard Pricing').nth(0).click();
+    await page.locator("//*[contains(@class,'spa-delete')]").nth(0).click();
+    await getEleByText(page, 'Are you sure you want to delete this item ?').click();
+    await proceedButton(page).click();
+    await expect(getEleByText(page, 'Deleted Successfully')).toBeVisible();
+}
+export async function checkSPAPriceAfterQuoteClone(page, quoteData, SPA_Data) {
+    let [actNumber, quoteType, item, venName, venCode, sourceText, contactName] = quoteData;
+    await page.goto('https://www.staging-buzzworld.iidm.com/all_quotes/e55ccacf-4885-444c-9cad-358f18e849ed');
+    if (item = '') { item = 'CMT3162X'; }
+    // await createQuote(page, actNumber, quoteType, 'FORTESTING_SPA_AFTER_CLONE');
+    // await addItemsToQuote(page, [item], quoteType, venName, venCode, sourceText, '', '');
+    // await selectRFQDateRequestedBy(page, contactName);
+    // await selectSource(page, [item], sourceText, 'Manually Added Notes for testing');
+    // await approve(page, contactName);
+    // await sendForCustomerApprovals(page);
+    let quotePriceBefApplySPA = await quotePrice(page).nth(0).textContent();
+    quotePriceBefApplySPA = quotePriceBefApplySPA.replaceAll(/[$,]/g, "");
+    let iidmCostBefApplySPA = await iidmCost(page).nth(0).textContent();;
+    iidmCostBefApplySPA = iidmCostBefApplySPA.replaceAll(/[$,]/g, "");
+    console.log('Quote Price before applying SPA is ' + quotePriceBefApplySPA);
+    console.log('Iidm Cost before applying SPA is ' + iidmCostBefApplySPA);
+    let quoteURL = await page.url();
+    let [customer, purchaseDiscount, buyPrice, discountType, discountValue, testCount, fp, browser, venId] = SPA_Data;
+    if (item == '') { item = ''; }
+    let testResults = await nonSPAPrice(page, customer, item, purchaseDiscount, buyPrice, discountType, discountValue, testCount, quoteURL, fp, false, browser, venId, venName, venCode, true);
+    return testResults;
 }

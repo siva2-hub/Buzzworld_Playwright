@@ -1,6 +1,6 @@
 const { test, chromium } = require("@playwright/test");
 import { login_buzz, nonSPAPrice, returnResult, update_sc } from "../tests/helper";
-import { addDCValidations, addDiscountCode, addStockCode, getTestResults, multiEditDiscountCode, updateDiscountCode, updateProduct, updateProductValiadtions } from '../pages/PricingPages';
+import { addDCValidations, addDiscountCode, addStockCode, checkSPAPriceAfterQuoteClone, deleteQuoteOptSPAFirstLog, getTestResults, multiEditDiscountCode, updateDiscountCode, updateProduct, updateProductValiadtions } from '../pages/PricingPages';
 import { testData } from '../pages/TestData';
 import { title } from "process";
 
@@ -86,67 +86,106 @@ test.describe("Pricing Test Suite", () => {
         venName = 'WEINTEK USA INC',
         venCode = 'WEIN001',
         items = ['CMT3162X', 'A151506', 'A151804', 'A121606', 'A121204NK'],
-        customer = 'MULTI00',
-        quoteURL = 'https://www.staging-buzzworld.iidm.com/quote_for_parts/9f59939b-2506-43e0-bf3d-3014bc2c020a';
+        customer = 'CHUMP03', contactName = 'Chump ChangeEspi',
+        quoteURL = 'https://www.staging-buzzworld.iidm.com/all_quotes/316790cb-6666-4038-8f88-9e5b907389ad';
 
-    test('Test 12: Verifying Non SPA rule for all products at Configure with Markup and Purchase Discount', async ({ }, testInfo) => {
-        // Verifying Non SPA rule for all products at Configure
-        results = await nonSPAPrice(page, customer, '', '19', '', 'Markup', '38', 2, quoteURL, '', true, browser, venId, venName, venCode);
-        await getTestResults(results, testInfo);
-    });
-    test('Test 13: Verifying Non SPA rule for all products at Configure with Discount and Purchase Discount', async ({ }, testInfo) => {
-        // Verifying Non SPA rule for all products at Configure
-        results = await nonSPAPrice(page, customer, '', '19', '', 'Discount', '38', 2, quoteURL, '', true, browser, venId, venName, venCode);
-        await getTestResults(results, testInfo);
-    });
-    test('Test 14: Verifying Non SPA rule for all products at Configure with only Markup', async ({ }, testInfo) => {
-        //Buy price value getting from purchase discount on list price
-        results = await nonSPAPrice(page, customer, '', '', '', 'Markup', '78', 2, quoteURL, '', true, browser, venId, venName, venCode);
-        await getTestResults(results, testInfo);
-    })
-    test('Test 15: Verifying Non SPA rule for all products at Configure with only Discount', async ({ }, testInfo) => {
-        //Buy price value getting from purchase discount on list price
-        results = await nonSPAPrice(page, customer, '', '', '', 'Discount', '38', 2, quoteURL, '', true, browser, venId, venName, venCode);
-        await getTestResults(results, testInfo);
-    })
-    test('Test 16: Verifying Non SPA rule for all products at Configure with only Purchase Discount', async ({ }, testInfo) => {
-        //Buy price value getting from purchase discount on list price
-        results = await nonSPAPrice(page, customer, '', '9', '', '', '', 2, quoteURL, '', false, browser, venId, venName, venCode);
-        await getTestResults(results, testInfo);
-    })
-    test('Test 17: Verifying Non SPA rule for specific item at Configure with Fixed Sale Price', async ({ }, testInfo) => {
-        //Buy price value getting from purchase discount on list price
-        results = await nonSPAPrice(page, customer, items[0], '26', '193.34', 'Markup', '65', 2, quoteURL, '99.89', true, browser, venId, venName, venCode);
-        await getTestResults(results, testInfo);
-    })
-    test('Test 18: Verifying Non SPA rule for specific item at Configure with Sell Price in Type Discount', async ({ }, testInfo) => {
-        //Buy price value getting from purchase discount on list price
-        results = await nonSPAPrice(page, customer, items[0], '26', '193.34', 'Discount', '65', 2, quoteURL, '199.89', true, browser, venId, venName, venCode);
-        await getTestResults(results, testInfo);
-    })
-    test('Test 19: Verifying Non SPA rule for specific item at Configure with only Purchase Discount', async ({ }, testInfo) => {
-        //Buy price value getting from purchase discount on list price
-        results = await nonSPAPrice(page, customer, items[0], '16', '', '', '', 2, quoteURL, '', true, browser, venId, venName, venCode);
-        await getTestResults(results, testInfo);
-    })
-    test('Test 20: Verifying Non SPA rule for specific item at Configure with only Markup on IIDM Cost', async ({ }, testInfo) => {
-        //Buy price value getting from purchase discount on list price
-        results = await nonSPAPrice(page, customer, items[0], '', '', 'Markup', '37', 2, quoteURL, '', true, browser, venId, venName, venCode);
-        await getTestResults(results, testInfo);
-    })
-    test('Test 21: Verifying Non SPA rule for specific item at Configure with only Markup on List Price', async ({ }, testInfo) => {
-        //Buy price value getting from purchase discount on list price
-        results = await nonSPAPrice(page, customer, '007-0AA00', '', '', 'Markup', '37', 2, quoteURL, '', false, browser, venId, venName, venCode);
-        await getTestResults(results, testInfo);
-    })
-    test('Test 22: Verifying Non SPA rule for specific item at Configure with only Discount', async ({ }, testInfo) => {
-        //Buy price value getting from purchase discount on list price
-        results = await nonSPAPrice(page, customer, items[0], '', '', 'Discount', '51', 2, quoteURL, '', true, browser, venId, venName, venCode);
-        await getTestResults(results, testInfo);
-    })
-    test('Test 23: Verifying Non SPA rule for specific item at Configure with only Markup on Buy Price', async ({ }, testInfo) => {
-        //Buy price value getting from purchase discount on list price
-        results = await nonSPAPrice(page, customer, items[0], '32', '', 'Markup', '27', 2, quoteURL, '', true, browser, venId, venName, venCode);
-        await getTestResults(results, testInfo);
+    test.describe('All SPA Tests', () => {
+        test('Test 12: Verifying Non SPA rule for all products at Configure with Markup and Purchase Discount', async ({ }, testInfo) => {
+            // Verifying Non SPA rule for all products at Configure
+            results = await nonSPAPrice(page, customer, '', '19', '', 'Markup', '38', 2, quoteURL, '', false, browser, venId, venName, venCode, false);
+            await getTestResults(results, testInfo);
+            await deleteQuoteOptSPAFirstLog(page);
+        });
+        test('Test 13: Verifying Non SPA rule for all products at Configure with Discount and Purchase Discount', async ({ }, testInfo) => {
+            // Verifying Non SPA rule for all products at Configure
+            results = await nonSPAPrice(page, customer, '', '19', '', 'Discount', '38', 2, quoteURL, '', false, browser, venId, venName, venCode, false);
+            await getTestResults(results, testInfo);
+            await deleteQuoteOptSPAFirstLog(page);
+        });
+        test('Test 14: Verifying Non SPA rule for all products at Configure with only Markup', async ({ }, testInfo) => {
+            //Buy price value getting from purchase discount on list price
+            results = await nonSPAPrice(page, customer, '', '', '', 'Markup', '78', 2, quoteURL, '', false, browser, venId, venName, venCode, false);
+            await getTestResults(results, testInfo);
+            await deleteQuoteOptSPAFirstLog(page);
+        })
+        test('Test 15: Verifying Non SPA rule for all products at Configure with only Discount', async ({ }, testInfo) => {
+            //Buy price value getting from purchase discount on list price
+            results = await nonSPAPrice(page, customer, '', '', '', 'Discount', '38', 2, quoteURL, '', false, browser, venId, venName, venCode, false);
+            await getTestResults(results, testInfo);
+            await deleteQuoteOptSPAFirstLog(page);
+        })
+        test('Test 16: Verifying Non SPA rule for all products at Configure with only Purchase Discount', async ({ }, testInfo) => {
+            //Buy price value getting from purchase discount on list price
+            results = await nonSPAPrice(page, customer, '', '9', '', '', '', 2, quoteURL, '', false, browser, venId, venName, venCode, false);
+            await getTestResults(results, testInfo);
+            await deleteQuoteOptSPAFirstLog(page);
+        })
+        test('Test 17: Verifying Non SPA rule for specific item at Configure with Fixed Sale Price', async ({ }, testInfo) => {
+            //Buy price value getting from purchase discount on list price
+            results = await nonSPAPrice(page, customer, items[0], '26', '193.34', 'Markup', '65', 2, quoteURL, '99.89', false, browser, venId, venName, venCode, false);
+            await getTestResults(results, testInfo);
+            await deleteQuoteOptSPAFirstLog(page);
+        })
+        test('Test 18: Verifying Non SPA rule for specific item at Configure with Sell Price in Type Discount', async ({ }, testInfo) => {
+            //Buy price value getting from purchase discount on list price
+            results = await nonSPAPrice(page, customer, items[0], '26', '193.34', 'Discount', '65', 2, quoteURL, '199.89', false, browser, venId, venName, venCode, false);
+            await getTestResults(results, testInfo);
+            await deleteQuoteOptSPAFirstLog(page);
+        })
+        test('Test 19: Verifying Non SPA rule for specific item at Configure with only Purchase Discount', async ({ }, testInfo) => {
+            //Buy price value getting from purchase discount on list price
+            results = await nonSPAPrice(page, customer, items[0], '16', '', '', '', 2, quoteURL, '', false, browser, venId, venName, venCode, false);
+            await getTestResults(results, testInfo);
+            await deleteQuoteOptSPAFirstLog(page);
+        })
+        test('Test 20: Verifying Non SPA rule for specific item at Configure with only Markup on IIDM Cost', async ({ }, testInfo) => {
+            //Buy price value getting from purchase discount on list price
+            results = await nonSPAPrice(page, customer, items[0], '', '', 'Markup', '37', 2, quoteURL, '', false, browser, venId, venName, venCode, false);
+            await getTestResults(results, testInfo);
+            await deleteQuoteOptSPAFirstLog(page);
+        })
+        test('Test 21: Verifying Non SPA rule for specific item at Configure with only Markup on List Price', async ({ }, testInfo) => {
+            //Buy price value getting from purchase discount on list price
+            venId = '759a4e48-cd67-4e2e-8a5a-f703466bb3b4', venName = 'YASKAWA', venCode = 'YASK001';
+            results = await nonSPAPrice(page, customer, '007-0AA00', '', '', 'Markup', '37', 2, quoteURL, '', false, browser, venId, venName, venCode, false);
+            await getTestResults(results, testInfo);
+            await deleteQuoteOptSPAFirstLog(page);
+        })
+        test('Test 22: Verifying Non SPA rule for specific item at Configure with only Discount', async ({ }, testInfo) => {
+            //Buy price value getting from purchase discount on list price
+            results = await nonSPAPrice(page, customer, items[0], '', '', 'Discount', '51', 2, quoteURL, '', false, browser, venId, venName, venCode, false);
+            await getTestResults(results, testInfo);
+            await deleteQuoteOptSPAFirstLog(page);
+        })
+        test('Test 23: Verifying Non SPA rule for specific item at Configure with only Markup on Buy Price', async ({ }, testInfo) => {
+            //Buy price value getting from purchase discount on list price
+            results = await nonSPAPrice(page, customer, items[0], '32', '', 'Markup', '27', 2, quoteURL, '', false, browser, venId, venName, venCode, false);
+            await getTestResults(results, testInfo);
+            await deleteQuoteOptSPAFirstLog(page);
+        })
+        test('Test 24: Verifying Non SPA rule for specific item at Configure with only markup on buy price after the quote clone', async ({ }, testInfo) => {
+            //Buy price value getting from purchase discount on list price
+            const quoteData = [customer, 'Parts Quote', items[0], venName, venCode, testData.quotes.source_text, contactName];
+            const SPA_Data = [customer, '32', '', 'Markup', '27', 2, '', browser, venId];
+            results = await checkSPAPriceAfterQuoteClone(page, quoteData, SPA_Data);
+            await getTestResults(results, testInfo);
+            await deleteQuoteOptSPAFirstLog(page);
+        })
+        test('Test 25: Verifying Non SPA rule for specific item at Configure with only discount the quote clone', async ({ }, testInfo) => {
+            //Buy price value getting from purchase discount on list price
+            const quoteData = [customer, 'Parts Quote', items[0], venName, venCode, testData.quotes.source_text, contactName];
+            const SPA_Data = [customer, '32', '', 'Discount', '27', 2, '', browser, venId];
+            results = await checkSPAPriceAfterQuoteClone(page, quoteData, SPA_Data);
+            await getTestResults(results, testInfo);
+            await deleteQuoteOptSPAFirstLog(page);
+        })
+        test('Test 26: Verifying Non SPA rule for all producst at Configure with only markup on the buy price the quote clone', async ({ }, testInfo) => {
+            //Buy price value getting from purchase discount on list price
+            const quoteData = [customer, 'Parts Quote', '', venName, venCode, testData.quotes.source_text, contactName];
+            const SPA_Data = [customer, '62', '', 'Markup', '17', 2, '', browser, venId];
+            results = await checkSPAPriceAfterQuoteClone(page, quoteData, SPA_Data);
+            await getTestResults(results, testInfo);
+            await deleteQuoteOptSPAFirstLog(page);
+        })
     })
 });
