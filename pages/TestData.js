@@ -1,6 +1,6 @@
 const { userInfo } = require("os")
 
-const testData = {
+export const testData = {
     app_url: process.env.BASE_URL_BUZZ,
     totalGP: {
         quote_id: '586d717d-a89a-49bb-a32b-f39e1aec5e55',
@@ -102,7 +102,8 @@ const testData = {
         empty_sc_valns: ['Please enter Stock Code', 'Please select  Discount Code', 'Please enter List Price', 'Please select Product Class'],
         inValid_sc_valns: ['The name format is invalid.', 'Please enter valid number'],
         duplicate_sc_valns: 'The Stock Code already exists.'
-    }
+    },
+    token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiY2FjNzVkMjBlYTBjNmEwOTZjMzMyYTIyNzQ5ZDc1NzFiODhiZGUwOTEyZWI0NDZjZDRiMTE2NmMzYjE5MzFhZmY0YmE5MjFkODFlYjk4Y2MiLCJpYXQiOjE3NDU4MjEyNDEuOTk0MDY0LCJuYmYiOjE3NDU4MjEyNDEuOTk0MDcyLCJleHAiOjE3NDcxMTcyNDEuOTYyMDU4LCJzdWIiOiI5MWEzNWI0ZC0wMGZhLTQ5NGYtOTNjYS02NDZkYjJmY2I2MWMiLCJzY29wZXMiOltdfQ.X0OXTopPI6LnjPpVJwu7QO-43dAVgyCxiBQDslnYmO7yPAI60PsoKN4i8wJaInjojwZ8a9PHIoo5DUy3Rg_BUsLDTUkY5Ezko1YcaoMKrMqP3h7yfypCTEcajtuVmpIOXEenTRSOqoDZ2yLu6KaAJ_0jj8BzIv0zBgOHicQrgtGVUUqei_CUhupfw4qw8JCvk0Wl-51TqxkXZXIxbVeSOcxm5tByUhX_OOZSirQ4uANJeZeGCQgA0vTI-ZTsAvisKphILox5sf58X5GgTYSEZqHaOMLJxzB6MOKyhoMEz1O_Ie_t2ZHu5l1R8QN_-G6mcpkWUDAt3eMm5tM2SBA2cCndiRIDwfDX62pByTjENh9kTvqqthBlJH1fxuUpINiiXzRpA_HB6iKuXcB5uGI44UtaSQtBjZLIoWZT3SLx81bnIdqm8bM0aQa6dwSze8i_0Nm9qubWRqg6n4eBT5isavuGd8Q6TmMXpgi7V1Y1qhFNB58U4I3vKbFH2QRQ-1HCErQbStJACFHPwdwdEozggbu25DOJ-sSsynNIwx0iW9aNlAXUK8r89yhyNR8-nn14v7YjFxe13M2bPCFcy6nmoNjP7Jyn8bijB8DggX0btM08Q7Cfm7EtBugNVex9xgVqtV6JfFvG0Sn4WmUxrctsi9X3DWP1UVNCDmo8OHlnnq0"
 }
 module.exports = {
     testData
