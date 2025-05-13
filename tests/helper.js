@@ -24,7 +24,7 @@ let date = currentDate.split(" ")[2];
 let vendor = testdata.vendor;
 let apiKey = testdata.api_key;
 const stage_url = process.env.BASE_URL_BUZZ;
-const stage_api_url = process.env.BASE_API_BUZZ;
+export const stage_api_url = process.env.BASE_API_BUZZ;
 const date1 = new Date().toDateString(); let results = false;
 const currentDate1 = new Date(date1);
 let day = currentDate1.getDate();
@@ -194,7 +194,7 @@ export async function logout(page) {
     await expect(page.locator('#loginform')).toContainText('Sign In');
 }
 export async function search_user(page, user_email) {
-    await allPages.clickAdmin;
+    await getEleByText(page, 'Admin').nth(0).click();
     await expect(page.getByText('Users')).toBeVisible();
     await page.locator('#root').getByText('Users').click();
     await expect(page.locator('div').filter({ hasText: /^Edit$/ }).nth(1)).toBeVisible();
