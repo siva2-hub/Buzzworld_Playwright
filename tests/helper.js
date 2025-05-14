@@ -19,6 +19,7 @@ import { enterKey, checkDatesAtCreateSO, rightArrowKey, leftArrowKey, insertKeys
 import { checkStartEndDatesAreExipred, dcAtPricing, getAccountTypePriceValue, getEleByText, pricingDropDown } from '../pages/PricingPages';
 import { addToCartBtn, apiReqResponses, storeLogin, viewCartBtn } from '../pages/StorePortalPages';
 import { platform } from 'os';
+import { token } from '../pages/APIs';
 const currentDate = new Date().toDateString();
 let date = currentDate.split(" ")[2];
 let vendor = testdata.vendor;
@@ -40,7 +41,6 @@ export const ANSI_ORANGE = "\x1b[38;2;255;165;0m";
 // Outputs "Mon Aug 31 2020"
 //store the logs 
 // const logFilePath = path.join(__dirname, 'logs.log');
-const token = process.env.API_TOKEN;
 export const profile = (page) => { return page.locator("//*[@class='user_image']") }
 
 
@@ -3835,7 +3835,7 @@ export async function api_responses(page, api_url) {
     const response = await page.evaluate(async (url) => {
         const fetchData = await fetch(url, {
             headers: {
-                'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiMTA0NjMyNTMyODQwY2E5MjYzZmVlNGQxZjA5NGQwYjgxMGVlNjY0MTRlNDg4NGU0MTNiZTE4OWJlZDliOWMwZTkwZjIyMDMzNmFiNTk2N2IiLCJpYXQiOjE3NDY3NzM1NDAuNTY5MTMyLCJuYmYiOjE3NDY3NzM1NDAuNTY5MTM2LCJleHAiOjE3NDgwNjk1NDAuNTU2MTE4LCJzdWIiOiI2NzE0YTkyNC03YmZhLTQ5NjktODUzOC1iZjg0MTk1YjU0MWEiLCJzY29wZXMiOltdfQ.X32naJonCZhJzdntXYV9-SUbS-E2T568ZoIxkrH7C63zYndhIPv1ZLdnDV-YQS3YMVhqb5614Es3JkOm6eJLrcNqy52rb9e4nivBACHYMbV6oqWdBztsnK8N5bPBpLdd6v7vbontHSunyRATl0QTWnlPIEvgK1EjXCYawBeXY33pe12UKMrnG3IquZfIX_XJK4wX6cDMLCNYWW7VnHu9QuTHL5HtUcoUwWxS37hOte3NnGHNuhY3tfMAFaPn5UhK2hex2cg2f5J6yPc04rcFnUqaWLBn8NZO-fTV_JS5UYo5x7el4xQe2NHp1YBeFnNVMNRJ1OWEKX979kX1ypg4svPwp4mUfacZA0oMcO2si4BkC9ll1nLLis3r3yQeXjktuyc3g3ou3Dow3sQ2oljVZmDQF57AHLNiwRy_2TDc6bEi68U79qJYYO3LY-BViTMmNcpAi0XH-66C-hF2hNM-1ROY5PkK190g8P7ngcokRL-559Zrg0AYJcmCnhgtYb8l_mHLpR9hhLrce8jAWqvq5NDxTtESGQ6ERCD2lsUrzycSiYH7unUc8coHrMCdoxQ6Gb-p1tD2UO50eiE3mfS-KmTUNHbQugUUXMfrZxakPokVwgNSR_3Dfs_oOf9o4JNu6uSjfOP7JrNliTKz0hvqBMXmf1myclfZxv0YARKpA5k' // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
+                'Authorization': `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiNzFlZTVlMmZiNjk4ZGYyZGMzOGUzZGI5MzNiZDBjYTdhNTlmYWFiNzkwZmUxNTVjYzJmOTllYTcxNDExMzFhNTQ3Zjk3MWYwMTNkMjU2YjAiLCJpYXQiOjE3NDcyMjMzOTAuNzI0NDIxLCJuYmYiOjE3NDcyMjMzOTAuNzI0NDI1LCJleHAiOjE3NDg1MTkzOTAuNzEwNzMzLCJzdWIiOiI2NzE0YTkyNC03YmZhLTQ5NjktODUzOC1iZjg0MTk1YjU0MWEiLCJzY29wZXMiOltdfQ.VzHacgzjzjN2-r6ctK0uuIF5eqVBTaSV8RgSlc_9eOqKbs1ndLOYPtnkclzM-nCQZHXD1b-f3Ce0zc8i3fvKh9rf1_o82oALoyo_tBG5Ao8jzoBueHTZdK6yKUXdR3fj7AfBNB30UITZEOIPnPmEH6UZChZUqWk_mIzv1FzCLVOx5LR0aCVCID5na3WWBqaG-5m0_NpCJx1u2uDdXVXbPkyGj6-kXBMyKtIc32fePnIPfWZ3Gq4KVdPKmdYxb39DwMeBmWl0LgR1ieDugC51oGi0Hn7NmlJCXDIbjz22tOt0AtwzU7tn6GgiRdYGHf9bn-fcjqcswFZoQnNXdGTE52gJIGnCvq2NmNSMaTio9vmxR3pN8y2GJVi5Dd44XErT4JNykY1O7K14YODA-4sYHz7fMBopXcn7SWDhXtWv9tz1Qw1J1AJjWE55clE4CXROKcPzRqBHfWn1-TANpOlVBFiwUkYYjh1JjqZWuFqTviKsbvVOBSnW7BP-8c2qwHSZyMrXWgSbx_Udiv-vya4_qS7vgaxd4bNgqcHbcVAg_q3EPGLyuFXu8oAGNTilXR8eii18UTXdxiP7CcqOnfvk-2c7NlFj9qnrAG-I8JhlxlWDGWmSMUpGnu7P5VlA1DE3yq7SB_9olaW7EgNgTtqu7Oli4l7cayz6lQetb3HzaUA` // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
             }
         });
         return fetchData.json();

@@ -2,6 +2,7 @@ import test, { chromium } from "@playwright/test";
 import { login_buzz } from "./helper";
 import { testData } from "../pages/TestData";
 import { checkYTDSalesTarget } from "../pages/SalesdashboardPage";
+import { getTestResults } from "../pages/PricingPages";
 
 let page, results, browser;
 test.beforeAll(async () => {
@@ -10,8 +11,9 @@ test.beforeAll(async () => {
     page = await context.newPage();
     await login_buzz(page, testData.app_url)
 })
-const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-test('check YTD Sales Target', async () => {
-    let salesPerson = ['Ed Hyer', 'Brandt King'];
-    await checkYTDSalesTarget(page, months, salesPerson);
+const months = testData.months;
+test('check YTD Sales Target', async ({ }, testInfo) => {
+    let salesPerson = ['Brandon Ormuz', 'Michael Smith', 'Braden Morris'];
+    results = await checkYTDSalesTarget(page, months, salesPerson, 102222.561);
+    await getTestResults(results, testInfo);
 })

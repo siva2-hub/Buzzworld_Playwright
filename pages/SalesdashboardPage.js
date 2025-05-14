@@ -39,8 +39,18 @@ export async function getYTDTargets(page, salesPerson) {
     let tarSales = await ytdSalesTarget(page).nth(1).textContent();
     return tarSales.replaceAll(/[$,]/g, '');
 }
-export async function checkYTDSalesTarget(page, months, salesPerson) {
+export async function readingUserGoals(page, months) {
     let valOfmonths = 0;
+    for (let index = 0; index < months.length; index++) {
+        let valOfmonth = await page.getByPlaceholder(`Enter value for ${months[index]}`).getAttribute('value');
+        valOfmonths = parseFloat((valOfmonths + parseFloat(valOfmonth)).toFixed("2"));
+    }
+    if (count == 0) { valOfmonths = 0; }
+    console.log(`before add values, values of all months ${valOfmonths}`);
+    return valOfmonths;
+}
+export async function checkYTDSalesTarget(page, months, salesPerson, appendValue) {
+    let valOfmonths = 0, testResult = false;
     let tarSales = await getYTDTargets(page, salesPerson);
     console.log(`before add goals sales targets is: ${tarSales.replace('/', '')}`);
     for (let count = 0; count < salesPerson.length; count++) {
@@ -49,25 +59,27 @@ export async function checkYTDSalesTarget(page, months, salesPerson) {
         await getEleByText(page, 'Goal').click();
         await expect(getEleByText(page, 'Appointments (Per Week)')).toBeVisible();
         //Reading the all months values
-        for (let index = 0; index < months.length; index++) {
-            let valOfmonth = await page.getByPlaceholder(`Enter value for ${months[index]}`).getAttribute('value');
-            valOfmonths = valOfmonths + parseInt(valOfmonth);
-        }
-        console.log(`before add values, values of all months ${valOfmonths}`);
+        if (count == 0) { valOfmonths = 0; }
+        await readingUserGoals(page, months, count);
         //Writing values into all months
         for (let index = 0; index < months.length; index++) {
-            await page.getByPlaceholder(`Enter value for ${months[index]}`).fill((index + 10).toString());
+            await page.getByPlaceholder(`Enter value for ${months[index]}`).fill((index + appendValue).toString());
         }
-        //Reading the all months values
-        for (let index = 0; index < months.length; index++) {
-            let valOfmonth = await page.getByPlaceholder(`Enter value for ${months[index]}`).getAttribute('value');
-            valOfmonths = valOfmonths + parseInt(valOfmonth);
-        }
+        await delay(page, 1200);
+        valOfmonths += await readingUserGoals(page, months);
+        await expect(saveButton(page)).toBeEnabled();
+        await saveButton(page).click();
+        await expect(getEleByText(page, 'User goals Updated.')).toBeVisible();
     }
-    console.log(`values of all months ${valOfmonths}`)
-    await expect(saveButton(page)).toBeEnabled();
-    // await saveButton(page).click();
+    valOfmonths = Math.round(valOfmonths);
     tarSales = await getYTDTargets(page, salesPerson);
-    console.log(`after add goals sales targets is: ${tarSales.replace('/', '')}`);
-    await page.pause();
+    console.log(`user total goals after changes save ${valOfmonths}\nafter add goals sales targets is ${tarSales.replaceAll(/[/]/g, '')}`);
+    if (tarSales.includes(`${valOfmonths}`)) {
+        console.log(`Sales target is updated successfully`);
+        testResult = true;
+    } else {
+        console.log(`Sales target is not updated successfully`);
+        testResult = false;
+    }
+    return testResult;
 }
