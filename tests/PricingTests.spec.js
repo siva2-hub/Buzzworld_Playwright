@@ -146,8 +146,8 @@ test.describe("Pricing Test Suite", () => {
         })
         test('Test 21: Verifying Non SPA rule for specific item at Configure with only Markup on List Price', async ({ }, testInfo) => {
             //Buy price value getting from purchase discount on list price
-            let ven_Id = '759a4e48-cd67-4e2e-8a5a-f703466bb3b4', ven_Name = 'YASKAWA', ven_Code = 'YASK001';
-            results = await nonSPAPrice(page, customer, '007-0AA00', '', '', 'Markup', '37', 2, quoteURL, '', false, browser, ven_Id, ven_Name, ven_Code, false);
+            venId = '759a4e48-cd67-4e2e-8a5a-f703466bb3b4', venName = 'YASKAWA', venCode = 'YASK001';
+            results = await nonSPAPrice(page, customer, '007-0AA00', '', '', 'Markup', '37', 2, quoteURL, '', false, browser, venId, venName, venCode, false);
             await getTestResults(results, testInfo);
             await deleteQuoteOptSPAFirstLog(page);
         })
