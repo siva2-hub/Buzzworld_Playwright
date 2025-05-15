@@ -24,6 +24,7 @@ export async function postAPIResponse(request, api_path, postData) {
             Authorization: `Bearer ${token}`
         }
     });
+    console.log(`url is ${apiURL}`);
     const response = await context.post(`${apiURL}${api_path}`, {
         data: JSON.stringify(postData),
         headers: {
