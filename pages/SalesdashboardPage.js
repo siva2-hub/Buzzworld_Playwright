@@ -8,6 +8,7 @@ export const applyButton = (page) => { return page.getByRole('button', { name: '
 export const selectSalesPerson = (page, salesPerson) => { return page.getByRole('button', { name: salesPerson }) }
 export const saveButton = (page) => { return page.getByRole('button', { name: 'Save' }) }
 export const salesButton = (page) => { return page.locator("//*[text()='Sales' and @class='link-icon-text']") }
+export const avgGoalsSalesDashB = (page) => { return page.locator("(//*[contains(@class,'recharts-reference-line')])[2]") }
 
 export async function getYTDTargets(page, salesPerson) {
     await getEleByText(page, 'Dashboard').nth(0).click();
@@ -39,18 +40,36 @@ export async function getYTDTargets(page, salesPerson) {
     let tarSales = await ytdSalesTarget(page).nth(1).textContent();
     return tarSales.replaceAll(/[$,]/g, '');
 }
-export async function readingUserGoals(page, months) {
-    let valOfmonths = 0;
+export async function readingUserGoals(page, months, count) {
+    let valOfmonths = 0, firstFiveMonths = 0; let avgCount = 0;
+    //reading all months goals
     for (let index = 0; index < months.length; index++) {
-        let valOfmonth = await page.getByPlaceholder(`Enter value for ${months[index]}`).getAttribute('value');
+        // let valOfmonth = await page.getByPlaceholder(`Enter value for ${months[index]}`).getAttribute('value');
+        let valOfmonth = await page.getByRole('textbox', { name: months[index].toLowerCase() }).getAttribute('value');
         valOfmonths = parseFloat((valOfmonths + parseFloat(valOfmonth)).toFixed("2"));
+        //reading first five months goals
+        if (index < 5) {
+            firstFiveMonths = parseFloat((firstFiveMonths + parseFloat(valOfmonth)).toFixed("2"));
+            avgCount = avgCount + 1;
+        }
     }
-    if (count == 0) { valOfmonths = 0; }
+    if (count == 0) { valOfmonths = 0; firstFiveMonths = 0 }
     console.log(`before add values, values of all months ${valOfmonths}`);
-    return valOfmonths;
+    console.log(`before add values, values of first five months ${firstFiveMonths}`);
+    return [valOfmonths, firstFiveMonths, avgCount];
+}
+export async function checkGoalsAtGraph(page) {
+    let avgGoalsLine;
+    try {
+        await expect(getEleByText(page, 'No data available for selected sales person').nth(0)).toBeHidden({ timeout: 3000 })
+        avgGoalsLine = await avgGoalsSalesDashB(page).getAttribute('y');
+    } catch (error) {
+        console.log('No data available for selected sales person');
+    }
+    return avgGoalsLine;
 }
 export async function checkYTDSalesTarget(page, months, salesPerson, appendValue) {
-    let valOfmonths = 0, testResult = false;
+    let valOfmonths = 0, testResult = false; let firstFiveGoals = 0, avgCount = 5;
     let tarSales = await getYTDTargets(page, salesPerson);
     console.log(`before add goals sales targets is: ${tarSales.replace('/', '')}`);
     for (let count = 0; count < salesPerson.length; count++) {
@@ -66,7 +85,9 @@ export async function checkYTDSalesTarget(page, months, salesPerson, appendValue
             await page.getByPlaceholder(`Enter value for ${months[index]}`).fill((index + appendValue).toString());
         }
         await delay(page, 1200);
-        valOfmonths += await readingUserGoals(page, months);
+        let goals = await readingUserGoals(page, months, 1);
+        valOfmonths += goals[0]; firstFiveGoals += goals[1];
+        // avgCount += goals[2]
         await expect(saveButton(page)).toBeEnabled();
         await saveButton(page).click();
         await expect(getEleByText(page, 'User goals Updated.')).toBeVisible();
@@ -76,7 +97,14 @@ export async function checkYTDSalesTarget(page, months, salesPerson, appendValue
     console.log(`user total goals after changes save ${valOfmonths}\nafter add goals sales targets is ${tarSales.replaceAll(/[/]/g, '')}`);
     if (tarSales.includes(`${valOfmonths}`)) {
         console.log(`Sales target is updated successfully`);
-        testResult = true;
+        let avgGoalsGraph = await checkGoalsAtGraph(page);
+        let firstFiveGoalsAvg = (firstFiveGoals / avgCount);
+        // console.log('first five months values ', firstFiveGoals)
+        // console.log('first five months count is ', avgCount);
+        console.log(`avg goals values after save, in the user goals is ${firstFiveGoalsAvg}\nafter adding goals to user avg goals in the Sales grapgh is ${avgGoalsGraph}`)
+        if (firstFiveGoalsAvg == avgGoalsGraph) {
+            testResult = true;
+        }
     } else {
         console.log(`Sales target is not updated successfully`);
         testResult = false;

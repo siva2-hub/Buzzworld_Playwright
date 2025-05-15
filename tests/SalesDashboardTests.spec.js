@@ -13,7 +13,8 @@ test.beforeAll(async () => {
 })
 const months = testData.months;
 test('check YTD Sales Target', async ({ }, testInfo) => {
-    let salesPerson = ['Brandon Ormuz', 'Michael Smith', 'Braden Morris'];
-    results = await checkYTDSalesTarget(page, months, salesPerson, 102222.561);
+    // /, 'Michael Smith', 'Braden Morris'
+    let salesPerson = ['Michael Smith', 'Will Gray'];
+    results = await checkYTDSalesTarget(page, months, salesPerson, 200001.17);
     await getTestResults(results, testInfo);
 })
