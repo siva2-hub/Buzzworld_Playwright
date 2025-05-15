@@ -3,7 +3,7 @@ import { stage_api_url } from "../tests/helper";
 import { testData } from "./TestData";
 
 export const token = testData.token;
-export const apiURL = stage_api_url;
+export const apiURL = process.env.BASE_API_BUZZ;
 
 export async function getAPIResponse(request, api_path) {
     const context = await request.newContext({
@@ -20,6 +20,7 @@ export async function getAPIResponse(request, api_path) {
 }
 export async function postAPIResponse(request, api_path, postData) {
     const context = await request.newContext({
+        ignoreHTTPSErrors: true,
         extraHTTPHeaders: {
             Authorization: `Bearer ${token}`
         }
