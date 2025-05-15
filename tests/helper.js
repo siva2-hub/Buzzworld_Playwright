@@ -19,6 +19,7 @@ import { enterKey, checkDatesAtCreateSO, rightArrowKey, leftArrowKey, insertKeys
 import { checkStartEndDatesAreExipred, dcAtPricing, getAccountTypePriceValue, getEleByText, pricingDropDown } from '../pages/PricingPages';
 import { addToCartBtn, apiReqResponses, storeLogin, viewCartBtn } from '../pages/StorePortalPages';
 import { platform } from 'os';
+import { getAPIResponse, token } from '../pages/APIs';
 const currentDate = new Date().toDateString();
 let date = currentDate.split(" ")[2];
 let vendor = testdata.vendor;
@@ -40,7 +41,6 @@ export const ANSI_ORANGE = "\x1b[38;2;255;165;0m";
 // Outputs "Mon Aug 31 2020"
 //store the logs 
 // const logFilePath = path.join(__dirname, 'logs.log');
-const token = process.env.API_TOKEN;
 export const profile = (page) => { return page.locator("//*[@class='user_image']") }
 
 
@@ -3835,7 +3835,7 @@ export async function api_responses(page, api_url) {
     const response = await page.evaluate(async (url) => {
         const fetchData = await fetch(url, {
             headers: {
-                'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiMTA0NjMyNTMyODQwY2E5MjYzZmVlNGQxZjA5NGQwYjgxMGVlNjY0MTRlNDg4NGU0MTNiZTE4OWJlZDliOWMwZTkwZjIyMDMzNmFiNTk2N2IiLCJpYXQiOjE3NDY3NzM1NDAuNTY5MTMyLCJuYmYiOjE3NDY3NzM1NDAuNTY5MTM2LCJleHAiOjE3NDgwNjk1NDAuNTU2MTE4LCJzdWIiOiI2NzE0YTkyNC03YmZhLTQ5NjktODUzOC1iZjg0MTk1YjU0MWEiLCJzY29wZXMiOltdfQ.X32naJonCZhJzdntXYV9-SUbS-E2T568ZoIxkrH7C63zYndhIPv1ZLdnDV-YQS3YMVhqb5614Es3JkOm6eJLrcNqy52rb9e4nivBACHYMbV6oqWdBztsnK8N5bPBpLdd6v7vbontHSunyRATl0QTWnlPIEvgK1EjXCYawBeXY33pe12UKMrnG3IquZfIX_XJK4wX6cDMLCNYWW7VnHu9QuTHL5HtUcoUwWxS37hOte3NnGHNuhY3tfMAFaPn5UhK2hex2cg2f5J6yPc04rcFnUqaWLBn8NZO-fTV_JS5UYo5x7el4xQe2NHp1YBeFnNVMNRJ1OWEKX979kX1ypg4svPwp4mUfacZA0oMcO2si4BkC9ll1nLLis3r3yQeXjktuyc3g3ou3Dow3sQ2oljVZmDQF57AHLNiwRy_2TDc6bEi68U79qJYYO3LY-BViTMmNcpAi0XH-66C-hF2hNM-1ROY5PkK190g8P7ngcokRL-559Zrg0AYJcmCnhgtYb8l_mHLpR9hhLrce8jAWqvq5NDxTtESGQ6ERCD2lsUrzycSiYH7unUc8coHrMCdoxQ6Gb-p1tD2UO50eiE3mfS-KmTUNHbQugUUXMfrZxakPokVwgNSR_3Dfs_oOf9o4JNu6uSjfOP7JrNliTKz0hvqBMXmf1myclfZxv0YARKpA5k' // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
+                'Authorization': `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiNDE3ZWFjNWU3MGIxZjE2NjE4ODM0MTNmMDc4Nzk5NDE2YzEzNTgzYTZlZjBmZDg4NjI1OGZhOWQ3ZGMzYjhiOTFkNWZmMjI0NWNhMGMxNjkiLCJpYXQiOjE3NDcyMzE0MDYuODU4MTIzLCJuYmYiOjE3NDcyMzE0MDYuODU4MTI3LCJleHAiOjE3NDg1Mjc0MDYuODQ0ODU3LCJzdWIiOiI2NzE0YTkyNC03YmZhLTQ5NjktODUzOC1iZjg0MTk1YjU0MWEiLCJzY29wZXMiOltdfQ.bMD5i3NuTUdHikwos9YiHBvYhU2VMHd86YxxrYIlSFGk0VWVLkRaKi6GzxaqF-w6AvuQQx13P9prnuCxjQp8X_oH0dvtpYMRw783y89-NBIGqrn6sXpWFfio3hUBR3ZPZYeafppsN4PX3xB9YwBsGtfEnkKeqAwORNAlfPWk67flePUenG9Lv4AEtxHZz-e6mgphgNMDhtcXqzkTYwIZEjqN8EygJzQZegoLeiPgWVcsvrM3G78SpSQLaZ4H2oLsY3baZQOYC2ghOsTQ5rzO9-enJqNDoIS3Yx_xEvL_ZcMsb8unT0-eJubWYyFYbnqJTlhmfMfrp9WilQuSqgDezs80qM12D6ST55J8ufFdzYl7kw89b1D6NVFsJr7C5cM-MyExcEI32Z1Flq7I7LQj-V6jg6s7ThnOZemM0K6YeVJk1-ZxFiElZJBVKG9rGDzuPSZp5T9AwT5WcDj_BQJbzVgBgkq8dD5COAxQ-C1u11jbHW4qgrzO4qF2ve3oqnX89cPjNybQpEHdoK7J6I9IxTNiAQX-AdJKEyXq3pC5fVcl7zJmzEfNzcwdv8kX9-wrWTLO8jJjFUFF1Tq-COsMC5Bo0VHZ6Fm9XORxytK7fXhVDegzRtQPufLlvK0X64ZldZ48yZbnm3Y3j6Y7r5v1ICXCnMw5--_4w8oSIKVe3Nk` // Replace 'Bearer' with the appropriate authentication scheme (e.g., 'Bearer', 'Basic')
             }
         });
         return fetchData.json();
@@ -4161,18 +4161,21 @@ export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPri
     await page.locator("(//*[text() = '" + vendor + "'])[2]").click();
     //
     let branchId, branchName, account_type;
-    const orgsResponse = await api_responses(page, `https://staging-buzzworld-api.iidm.com//v1/Organizations?page=1&perPage=25&sort=asc&sort_key=name&grid_name=Repairs&serverFilterOptions=%5Bobject+Object%5D&selectedCustomFilters=%5Bobject+Object%5D&search=${customer}`);
+    // const orgsResponse = await api_responses(page, `https://staging-buzzworld-api.iidm.com//v1/Organizations?page=1&perPage=25&sort=asc&sort_key=name&grid_name=Repairs&serverFilterOptions=%5Bobject+Object%5D&selectedCustomFilters=%5Bobject+Object%5D&search=${customer}`);
+    const orgsResponse = await getAPIResponse(request, `Organizations?page=1&perPage=25&sort=asc&sort_key=name&grid_name=Repairs&serverFilterOptions=%5Bobject+Object%5D&selectedCustomFilters=%5Bobject+Object%5D&search=${customer}`)
     let orgsLength = orgsResponse.result.data.list;
     for (let index = 0; index < orgsLength.length; index++) {
         let orgsName = orgsResponse.result.data.list[index].accountnumber;
         console.log(`api customer name is ${orgsName}`);
         if (orgsName == customer) {
             let actType = orgsResponse.result.data.list[index].account_type;
-            const actTypeResponse = await api_responses(page, `https://staging-buzzworld-api.iidm.com//v1/AccountTypes?page=1&perPage=25&sort=asc&sort_key=name&grid_name=Repairs&serverFilterOptions=%5Bobject+Object%5D&selectedCustomFilters=%5Bobject+Object%5D&search=${actType}`);
+            // const actTypeResponse = await api_responses(page, `https://staging-buzzworld-api.iidm.com//v1/AccountTypes?page=1&perPage=25&sort=asc&sort_key=name&grid_name=Repairs&serverFilterOptions=%5Bobject+Object%5D&selectedCustomFilters=%5Bobject+Object%5D&search=${actType}`);
+            const actTypeResponse = await getAPIResponse(request, `AccountTypes?page=1&perPage=25&sort=asc&sort_key=name&grid_name=Repairs&serverFilterOptions=%5Bobject+Object%5D&selectedCustomFilters=%5Bobject+Object%5D&search=${actType}`);
             account_type = actTypeResponse.result.data.list[0].account_type_mapped_with;
             console.log(`account type is ${account_type}`);
             let territoryCode = orgsResponse.result.data.list[index].territory_name;
-            const territoryCodeResponse = await api_responses(page, `https://staging-buzzworld-api.iidm.com//v1/Territory?page=1&perPage=25&sort=asc&sort_key=territory_code&grid_name=Repairs&serverFilterOptions=%5Bobject+Object%5D&selectedCustomFilters=%5Bobject+Object%5D&search=${territoryCode}`);
+            // const territoryCodeResponse = await api_responses(page, `https://staging-buzzworld-api.iidm.com//v1/Territory?page=1&perPage=25&sort=asc&sort_key=territory_code&grid_name=Repairs&serverFilterOptions=%5Bobject+Object%5D&selectedCustomFilters=%5Bobject+Object%5D&search=${territoryCode}`);
+            const territoryCodeResponse = await getAPIResponse(request, `Territory?page=1&perPage=25&sort=asc&sort_key=territory_code&grid_name=Repairs&serverFilterOptions=%5Bobject+Object%5D&selectedCustomFilters=%5Bobject+Object%5D&search=${territoryCode}`);
             let terLenght = territoryCodeResponse.result.data.list;
             for (let index = 0; index < terLenght.length; index++) {
                 let territory_code = territoryCodeResponse.result.data.list[index].territory_code;
@@ -4216,7 +4219,8 @@ export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPri
         //reading the data from pricing grid at pricing for 
         item = 'CMT3162X';
         let stock_pricing, icp, startDate, endDate, lp, lBP, listPrice;
-        const branchResponse = await api_responses(page, `https://staging-buzzworld-api.iidm.com//v1/Pricing-Branches?vendor_id=${venId}&vendor_name=${venName}`);
+        // const branchResponse = await api_responses(page, `https://staging-buzzworld-api.iidm.com//v1/Pricing-Branches?vendor_id=${venId}&vendor_name=${venName}`);
+        const branchResponse = await getAPIResponse(request, `Pricing-Branches?vendor_id=${venId}&vendor_name=${venName}`);
         for (let index = 0; index < branchResponse.result.data.list.length; index++) {
             if (branchResponse.result.data.list[index].name == branchName) {
                 console.log(`customer branch exist in pricing`);
@@ -4226,7 +4230,8 @@ export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPri
                 branchId = '385411d3-ddc8-4029-9719-e89698446c24';
             }
         }
-        const response = await api_responses(page, `https://staging-buzzworld-api.iidm.com//v1/Products?page=1&perPage=25&sort=asc&sort_key=stock_code&branch_id=${branchId}&vendor_id=${venId}&vendor_name=${venName}&serverFilterOptions=%5Bobject+Object%5D&search=${item}`);
+        // const response = await api_responses(page, `https://staging-buzzworld-api.iidm.com//v1/Products?page=1&perPage=25&sort=asc&sort_key=stock_code&branch_id=${branchId}&vendor_id=${venId}&vendor_name=${venName}&serverFilterOptions=%5Bobject+Object%5D&search=${item}`);
+        const response = await getAPIResponse(request, `Products?page=1&perPage=25&sort=asc&sort_key=stock_code&branch_id=${branchId}&vendor_id=${venId}&vendor_name=${venName}&serverFilterOptions=%5Bobject+Object%5D&search=${item}`);
         let apiLength = response.result.data.list; let actPrice;
         for (let index = 0; index < apiLength.length; index++) {
             stock_pricing = response.result.data.list[index].stock_code;
@@ -4288,7 +4293,8 @@ export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPri
         }
     } else {
         //reading account type price from pricing grid at pricing for specific item
-        const branchResponse = await api_responses(page, `https://staging-buzzworld-api.iidm.com//v1/Pricing-Branches?vendor_id=${venId}&vendor_name=${venName}`);
+        // const branchResponse = await api_responses(page, `https://staging-buzzworld-api.iidm.com//v1/Pricing-Branches?vendor_id=${venId}&vendor_name=${venName}`);
+        const branchResponse = await getAPIResponse(request, `Pricing-Branches?vendor_id=${venId}&vendor_name=${venName}`);
         for (let index = 0; index < branchResponse.result.data.list.length; index++) {
             if (branchResponse.result.data.list[index].name == branchName) {
                 console.log(`customer branch exist in pricing`);
@@ -4298,7 +4304,8 @@ export async function nonSPAPrice(page, customer, item, purchaseDiscount, buyPri
                 branchId = '385411d3-ddc8-4029-9719-e89698446c24';
             }
         }
-        const response = await api_responses(page, `https://staging-buzzworld-api.iidm.com//v1/Products?page=1&perPage=25&sort=asc&sort_key=stock_code&branch_id=${branchId}&vendor_id=${venId}&vendor_name=${venName}&serverFilterOptions=%5Bobject+Object%5D&search=${item}`);
+        // const response = await api_responses(page, `https://staging-buzzworld-api.iidm.com//v1/Products?page=1&perPage=25&sort=asc&sort_key=stock_code&branch_id=${branchId}&vendor_id=${venId}&vendor_name=${venName}&serverFilterOptions=%5Bobject+Object%5D&search=${item}`);
+        const response = await getAPIResponse(request, `Products?page=1&perPage=25&sort=asc&sort_key=stock_code&branch_id=${branchId}&vendor_id=${venId}&vendor_name=${venName}&serverFilterOptions=%5Bobject+Object%5D&search=${item}`);
         let apiLength = response.result.data.list; let actPrice;
         for (let index = 0; index < apiLength.length; index++) {
             let stock_pricing = response.result.data.list[index].stock_code;
