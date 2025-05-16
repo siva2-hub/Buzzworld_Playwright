@@ -72,6 +72,21 @@ export async function login_buzz(page, stage_url) {
     await expect(allPages.profileIconListView).toBeVisible({ timeout: 50000 });
     await page.waitForTimeout(1600);
 }
+export async function login_buzz_newUser(page, stage_url, userName, password) {
+    allPages = new AllPages(page);
+    await page.goto(stage_url + "all_quotes");
+    try {
+        await expect(allPages.userNameInput).toBeVisible({ timeout: 5000 });
+        await allPages.userNameInput.fill(userName);
+        await allPages.passwordInput.fill(password);
+        await allPages.signInButton.click();
+    } catch (error) {
+
+    }
+    await expect(allPages.profileIconListView).toBeVisible({ timeout: 50000 });
+    await page.waitForTimeout(1600);
+}
+
 export async function login(page) {
     console.log('--------------------------------------------------', ANSI_RED + currentDateTime + ANSI_RESET, '--------------------------------------------------------');
     //positive scenario
