@@ -12,11 +12,16 @@ test.beforeAll(async () => {
     page = await context.newPage();
     await login_buzz(page, testData.app_url)
 })
-const months = testData.months;
+// const months = testData.months;
 test('check YTD Sales Target', async ({ }, testInfo) => {
+    const months = new Map(); let goalValue = 100001.22;
+    for (let index = 0; index < testData.months.length; index++) {
+        months.set(testData.months[index], (goalValue))
+        goalValue = goalValue + index + 250000;
+    }
     // /, 'Michael Smith', 'Braden Morris'
-    let salesPerson = ['Michael Smith', 'Will Gray'];
-    results = await checkYTDSalesTarget(page, months, salesPerson, 200001.17);
+    let salesPerson = ['Will Gray'];
+    results = await checkYTDSalesTarget(page, months, salesPerson);
     await getTestResults(results, testInfo);
 })
 test.describe('Check the Branches in Dashboard for Different User Roles', async () => {

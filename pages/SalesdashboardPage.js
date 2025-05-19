@@ -2,6 +2,7 @@ import { expect } from "@playwright/test";
 import { getEleByText } from "./PricingPages";
 import { ANSI_ORANGE, ANSI_RESET, delay, login_buzz, login_buzz_newUser, search_user, selectReactDropdowns } from "../tests/helper";
 import { reactFirstDropdown } from "./PartsBuyingPages";
+import { testData } from "./TestData";
 export const ytdSalesTarget = (page) => { return page.locator("//*[@class='appointments-target']") }
 export const filterArrow = (page) => { return page.locator("//*[@class='arrow']") }
 export const selectBranch = (page, branchName) => { return page.getByRole('button', { name: `${branchName} Expand node` }) }
@@ -14,6 +15,7 @@ export const userEdit = (page) => { return page.locator("(//*[contains(@src,'the
 export const userUpdateBtn = (page) => { return page.getByRole('button', { name: 'Update' }) }
 export const userProfileIcon = (page) => { return page.locator("//*[@class='user_image']") }
 export const branchesListSD = (page) => { return page.locator("//*[@class='tree-select-dropdown']/div/div") }
+export const monthGoalInPut = (page, monthName) => { return page.getByPlaceholder(`Enter value for ${monthName}`) }
 
 export async function getYTDTargets(page, salesPerson) {
     await getEleByText(page, 'Dashboard').nth(0).click();
@@ -38,6 +40,7 @@ export async function getYTDTargets(page, salesPerson) {
                 } else { }
             } if (status) { break; }
         }
+
     }
     await applyButton(page).click();
     await expect(page.getByText('Filter Applied')).toBeVisible();
@@ -46,34 +49,41 @@ export async function getYTDTargets(page, salesPerson) {
     return tarSales.replaceAll(/[$,]/g, '');
 }
 export async function readingUserGoals(page, months, count) {
-    let valOfmonths = 0, firstFiveMonths = 0; let avgCount = 0;
+    let valOfmonths = 0, firstFiveMonths = 0; let avgCount = 0, index = 0;
     //reading all months goals
-    for (let index = 0; index < months.length; index++) {
-        // let valOfmonth = await page.getByPlaceholder(`Enter value for ${months[index]}`).getAttribute('value');
-        let valOfmonth = await page.getByRole('textbox', { name: months[index].toLowerCase() }).getAttribute('value');
+    for (let month of months.keys()) {
+        let valOfmonth = await monthGoalInPut(page, month).getAttribute('value');
         valOfmonths = parseFloat((valOfmonths + parseFloat(valOfmonth)).toFixed("2"));
         //reading first five months goals
         if (index < 5) {
             firstFiveMonths = parseFloat((firstFiveMonths + parseFloat(valOfmonth)).toFixed("2"));
             avgCount = avgCount + 1;
-        }
+        } await delay(page, 500);
+        console.log(`${month}: ${valOfmonth}`);
+        index = index + 1;
     }
-    if (count == 0) { valOfmonths = 0; firstFiveMonths = 0 }
-    console.log(`before add values, values of all months ${valOfmonths}`);
-    console.log(`before add values, values of first five months ${firstFiveMonths}`);
     return [valOfmonths, firstFiveMonths, avgCount];
 }
-export async function checkGoalsAtGraph(page) {
-    let avgGoalsLine;
+export async function checkGoalsAtGraph(page, months) {
+    let testStatus = false;
     try {
-        await expect(getEleByText(page, 'No data available for selected sales person').nth(0)).toBeHidden({ timeout: 3000 })
-        avgGoalsLine = await avgGoalsSalesDashB(page).getAttribute('y');
+        await expect(getEleByText(page, 'Shipments').nth(0)).toBeVisible();
+        for (let index = 0; index <= 5; index++) {
+            await page.locator(`g:nth-child(${index + 1}) > .recharts-rectangle`).first().hover(); await delay(page, 1000);
+            let goalAtGraph = await getEleByText(page, 'Goals: $').textContent();
+            let expectedGoalGraph = months.get(testData.months[index]);
+            console.log(`goal at map is $${expectedGoalGraph.toString().replaceAll(/[,]/g, "")}`)
+            console.log(`goal at graph is ${goalAtGraph}`);
+            if (goalAtGraph.replaceAll(/[,]/g, "") == expectedGoalGraph) {
+                testStatus = true;
+            } else { testStatus = false; break; }
+        }
     } catch (error) {
-        console.log('No data available for selected sales person');
+        console.log(`${error}No data available for selected sales person`);
     }
-    return avgGoalsLine;
+    return testStatus;
 }
-export async function checkYTDSalesTarget(page, months, salesPerson, appendValue) {
+export async function checkYTDSalesTarget(page, months, salesPerson) {
     let valOfmonths = 0, testResult = false; let firstFiveGoals = 0, avgCount = 5;
     let tarSales = await getYTDTargets(page, salesPerson);
     console.log(`before add goals sales targets is: ${tarSales.replace('/', '')}`);
@@ -84,30 +94,29 @@ export async function checkYTDSalesTarget(page, months, salesPerson, appendValue
         await expect(getEleByText(page, 'Appointments (Per Week)')).toBeVisible();
         //Reading the all months values
         if (count == 0) { valOfmonths = 0; }
-        await readingUserGoals(page, months, count);
         //Writing values into all months
-        for (let index = 0; index < months.length; index++) {
-            await page.getByPlaceholder(`Enter value for ${months[index]}`).fill((index + appendValue).toString());
+        for (let [month, goal] of months) {
+            await await monthGoalInPut(page, month).fill('');
+            await await monthGoalInPut(page, month).fill((goal).toString());
         }
-        await delay(page, 1200);
-        let goals = await readingUserGoals(page, months, 1);
-        valOfmonths += goals[0]; firstFiveGoals += goals[1];
         // avgCount += goals[2]
         await expect(saveButton(page)).toBeEnabled();
         await saveButton(page).click();
         await expect(getEleByText(page, 'User goals Updated.')).toBeVisible();
+        await delay(page, 1200);
+        let goals = await readingUserGoals(page, months, 1);
+        console.log(`${salesPerson[count]}: ${goals}`)
+        valOfmonths += goals[0]; firstFiveGoals += goals[1];
     }
     valOfmonths = Math.round(valOfmonths);
     tarSales = await getYTDTargets(page, salesPerson);
     console.log(`user total goals after changes save ${valOfmonths}\nafter add goals sales targets is ${tarSales.replaceAll(/[/]/g, '')}`);
     if (tarSales.includes(`${valOfmonths}`)) {
         console.log(`Sales target is updated successfully`);
-        let avgGoalsGraph = await checkGoalsAtGraph(page);
-        let firstFiveGoalsAvg = (firstFiveGoals / avgCount);
-        // console.log('first five months values ', firstFiveGoals)
-        // console.log('first five months count is ', avgCount);
-        console.log(`avg goals values after save, in the user goals is ${firstFiveGoalsAvg}\nafter adding goals to user avg goals in the Sales grapgh is ${avgGoalsGraph}`)
-        if (firstFiveGoalsAvg == avgGoalsGraph) {
+        let avgGoalsGraph = await checkGoalsAtGraph(page, months);
+        // let firstFiveGoalsAvg = (firstFiveGoals / avgCount);
+        // console.log(`avg goals values after save, in the user goals is ${firstFiveGoalsAvg}\nafter adding goals to user avg goals in the Sales grapgh is ${avgGoalsGraph}`)
+        if (avgGoalsGraph) {
             testResult = true;
         }
     } else {
