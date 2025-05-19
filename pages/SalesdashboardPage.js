@@ -64,22 +64,25 @@ export async function readingUserGoals(page, months, count) {
     }
     return [valOfmonths, firstFiveMonths, avgCount];
 }
-export async function checkGoalsAtGraph(page, months) {
+export async function checkGoalsAtGraph(page, months, salesPerson) {
     let testStatus = false;
     try {
         await expect(getEleByText(page, 'Shipments').nth(0)).toBeVisible();
-        for (let index = 0; index <= 5; index++) {
+        for (let index = 0; index < 5; index++) {
             await page.locator(`g:nth-child(${index + 1}) > .recharts-rectangle`).first().hover(); await delay(page, 1000);
             let goalAtGraph = await getEleByText(page, 'Goals: $').textContent();
+            goalAtGraph = goalAtGraph.replaceAll(/[Goals :,]/g, "")
             let expectedGoalGraph = months.get(testData.months[index]);
-            console.log(`goal at map is $${expectedGoalGraph.toString().replaceAll(/[,]/g, "")}`)
-            console.log(`goal at graph is ${goalAtGraph}`);
-            if (goalAtGraph.replaceAll(/[,]/g, "") == expectedGoalGraph) {
-                testStatus = true;
-            } else { testStatus = false; break; }
+            if (salesPerson.length > 1) {
+                expectedGoalGraph = expectedGoalGraph* salesPerson.length;  
+            }
+            expectedGoalGraph = '$' + expectedGoalGraph.toString().replaceAll(/[,]/g, "");
+            console.log(`goal at map is ${expectedGoalGraph}\ngoal at gra is ${goalAtGraph}`)
+            if (goalAtGraph === expectedGoalGraph) { testStatus = true; }
+            else { testStatus = false; break; }
         }
     } catch (error) {
-        console.log(`${error}No data available for selected sales person`);
+        console.log(`${error}: No data available for selected sales person`);
     }
     return testStatus;
 }
@@ -96,10 +99,9 @@ export async function checkYTDSalesTarget(page, months, salesPerson) {
         if (count == 0) { valOfmonths = 0; }
         //Writing values into all months
         for (let [month, goal] of months) {
-            await await monthGoalInPut(page, month).fill('');
+            await await monthGoalInPut(page, month).fill("");
             await await monthGoalInPut(page, month).fill((goal).toString());
         }
-        // avgCount += goals[2]
         await expect(saveButton(page)).toBeEnabled();
         await saveButton(page).click();
         await expect(getEleByText(page, 'User goals Updated.')).toBeVisible();
@@ -113,12 +115,8 @@ export async function checkYTDSalesTarget(page, months, salesPerson) {
     console.log(`user total goals after changes save ${valOfmonths}\nafter add goals sales targets is ${tarSales.replaceAll(/[/]/g, '')}`);
     if (tarSales.includes(`${valOfmonths}`)) {
         console.log(`Sales target is updated successfully`);
-        let avgGoalsGraph = await checkGoalsAtGraph(page, months);
-        // let firstFiveGoalsAvg = (firstFiveGoals / avgCount);
-        // console.log(`avg goals values after save, in the user goals is ${firstFiveGoalsAvg}\nafter adding goals to user avg goals in the Sales grapgh is ${avgGoalsGraph}`)
-        if (avgGoalsGraph) {
-            testResult = true;
-        }
+        let avgGoalsGraph = await checkGoalsAtGraph(page, months, salesPerson);
+        if (avgGoalsGraph) { testResult = true; }
     } else {
         console.log(`Sales target is not updated successfully`);
         testResult = false;
