@@ -13,14 +13,14 @@ test.beforeAll(async () => {
     await login_buzz(page, testData.app_url)
 })
 // const months = testData.months;
-test('check YTD Sales Target', async ({ }, testInfo) => {
-    const months = new Map(); let goalValue = 100001.22;
+test('Check YTD Sales Target', async ({ }, testInfo) => {
+    const months = new Map(); let goalValue = 200003.12;
     for (let index = 0; index < testData.months.length; index++) {
         months.set(testData.months[index], (goalValue))
         goalValue = goalValue + index + 250000;
     }
     // /, 'Michael Smith', 'Braden Morris'
-    let salesPerson = ['Will Gray'];
+    let salesPerson = ['Will Gray', 'Michael Smith'];
     results = await checkYTDSalesTarget(page, months, salesPerson);
     await getTestResults(results, testInfo);
 })
