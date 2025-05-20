@@ -24,6 +24,7 @@ export const descPricing = (page) => { return page.locator("//textarea[@name='de
 export const mmddyyField = (page) => { return page.getByText('MM/DD/YYYY') }
 export const searchSC_DC = (page) => { return page.locator("//input[contains(@placeholder,'Stock') or contains(@placeholder,'Discount')]") }
 export const getEleByText = (page, text) => { return page.locator("//*[text() = '" + text + "']") }
+export const getEleContText = (page, text) => { return page.locator("//*[contains(text(),'" + text + "')]") }
 export const dcField = (page) => { return page.getByPlaceholder('Discount Code', { exact: true }) }
 export const clearDdField = (page) => { return page.locator("//*[@aria-label='clear']") }
 export const updateDCButton = (page) => { return page.getByRole('button', { name: 'Update Discount Code' }) }
