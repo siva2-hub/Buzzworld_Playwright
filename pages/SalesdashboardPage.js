@@ -1,6 +1,6 @@
 import { expect } from "@playwright/test";
-import { getEleByText } from "./PricingPages";
-import { ANSI_ORANGE, ANSI_RESET, delay, login_buzz, login_buzz_newUser, search_user, selectReactDropdowns } from "../tests/helper";
+import { getEleByText, getEleContText } from "./PricingPages";
+import { ANSI_ORANGE, ANSI_RESET, delay, login_buzz, login_buzz_newUser, search_user, selectReactDropdowns, spinner } from "../tests/helper";
 import { reactFirstDropdown } from "./PartsBuyingPages";
 import { testData } from "./TestData";
 export const ytdSalesTarget = (page) => { return page.locator("//*[@class='appointments-target']") }
@@ -16,18 +16,19 @@ export const userUpdateBtn = (page) => { return page.getByRole('button', { name:
 export const userProfileIcon = (page) => { return page.locator("//*[@class='user_image']") }
 export const branchesListSD = (page) => { return page.locator("//*[@class='tree-select-dropdown']/div/div") }
 export const monthGoalInPut = (page, monthName) => { return page.getByPlaceholder(`Enter value for ${monthName}`) }
+export const salesValue = (page) => { return page.locator("//*[@class='sales-value']") }
 
 export async function getYTDTargets(page, salesPerson) {
     await getEleByText(page, 'Dashboard').nth(0).click();
     await salesButton(page).click();
     await filterArrow(page).nth(0).click(); await delay(page, 4000);
     //*[@class='tree-select-dropdown']/div/div[1]/div[2]/div
+    let status = false;
     for (let s = 0; s < salesPerson.length; s++) {
         let branches = await branchesListSD(page);
         console.log('branches count is ', await branches.count())
         for (let index = 0; index < await branches.count(); index++) {
             let sPerson = await branches.nth(index).locator("//div[2]/div");
-            let status = false;
             for (let sp = 0; sp < await sPerson.count(); sp++) {
                 let sPerName = await sPerson.nth(sp).textContent();
                 // console.log('saleperson name ', sPerName);
@@ -42,11 +43,15 @@ export async function getYTDTargets(page, salesPerson) {
         }
 
     }
-    await applyButton(page).click();
-    await expect(page.getByText('Filter Applied')).toBeVisible();
-    await expect(ytdSalesTarget(page).nth(1)).toBeVisible();
-    let tarSales = await ytdSalesTarget(page).nth(1).textContent();
-    return tarSales.replaceAll(/[$,]/g, '');
+    if (status) {
+        await applyButton(page).click();
+        await expect(page.getByText('Filter Applied')).toBeVisible();
+        await expect(ytdSalesTarget(page).nth(1)).toBeVisible();
+        let tarSales = await ytdSalesTarget(page).nth(1).textContent();
+        return tarSales.replaceAll(/[$,]/g, '');
+    } else {
+        throw new Error(`${salesPerson} is not found in any branch.`);
+    }
 }
 export async function readingUserGoals(page, months, count) {
     let valOfmonths = 0, firstFiveMonths = 0; let avgCount = 0, index = 0;
@@ -74,7 +79,7 @@ export async function checkGoalsAtGraph(page, months, salesPerson) {
             goalAtGraph = goalAtGraph.replaceAll(/[Goals :,]/g, "")
             let expectedGoalGraph = months.get(testData.months[index]);
             if (salesPerson.length > 1) {
-                expectedGoalGraph = expectedGoalGraph* salesPerson.length;  
+                expectedGoalGraph = expectedGoalGraph * salesPerson.length;
             }
             expectedGoalGraph = '$' + expectedGoalGraph.toString().replaceAll(/[,]/g, "");
             console.log(`goal at map is ${expectedGoalGraph}\ngoal at gra is ${goalAtGraph}`)
@@ -179,4 +184,20 @@ export async function checkBranchesForSuperUserInSalesDashboard(page, browser, u
             break;
     }
     return [testResult, newPage];
+}
+export async function checkAcctsOutSideFrequency(page, salesPerson) {
+    await getYTDTargets(page, salesPerson); let count = 0;
+    try {
+        await expect(salesValue(page)).toBeVisible();
+        if (await getEleByText(page, 'View all').count() > 1) { count = 1; }
+        await getEleByText(page, 'View all').nth(count).click()
+        await expect(getEleContText(page, 'Last met on').nth(0)).toBeVisible();
+        let totalGridRows = await page.locator("(//*[contains(@id,'row-count')])[2]").textContent();
+        let expectedRows = await salesValue(page).textContent();
+        console.log(`expected rows ${expectedRows} for ${salesPerson}\nactual rows ${totalGridRows} for ${salesPerson}`);
+        if (totalGridRows == expectedRows) { await page.getByTitle("Close").click(); return true; }
+        else { return false; }
+    } catch (error) {
+        console.log(error); return false;
+    }
 }
