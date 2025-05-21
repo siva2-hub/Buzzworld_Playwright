@@ -3,6 +3,7 @@ import { getEleByText, getEleContText } from "./PricingPages";
 import { ANSI_ORANGE, ANSI_RESET, delay, login_buzz, login_buzz_newUser, search_user, selectReactDropdowns, spinner } from "../tests/helper";
 import { reactFirstDropdown } from "./PartsBuyingPages";
 import { testData } from "./TestData";
+import { time } from "console";
 export const ytdSalesTarget = (page) => { return page.locator("//*[@class='appointments-target']") }
 export const filterArrow = (page) => { return page.locator("//*[@class='arrow']") }
 export const selectBranch = (page, branchName) => { return page.getByRole('button', { name: `${branchName} Expand node` }) }
@@ -41,7 +42,6 @@ export async function getYTDTargets(page, salesPerson) {
                 } else { }
             } if (status) { break; }
         }
-
     }
     if (status) {
         await applyButton(page).click();
@@ -130,7 +130,7 @@ export async function checkYTDSalesTarget(page, months, salesPerson) {
 }
 export async function changeUserRole_Branch(page, userEmail, userRole, branchName) {
     await search_user(page, userEmail); let count1 = 1, count2 = 3;
-    if (userRole == 'Sales VP') { count1 = 0, count2 = 2; }
+    // if (userRole == 'Sales VP') { count1 = 0, count2 = 2; }
     await getEleByText(page, 'User Profile').nth(0).click();
     await userEdit(page).click();
     //change user role
@@ -157,6 +157,8 @@ export async function checkBranchesForSuperUserInSalesDashboard(page, browser, u
     if (userRole != 'Sales') { await expect(getEleByText(newPage, userEmail)).toBeVisible(); } await delay(newPage, 1500);
     await getEleByText(newPage, 'Dashboard').nth(0).click();
     await salesButton(newPage).click(); await delay(newPage, 1200);
+    try { await expect(filterArrow(page).nth(0)).toBeVisible({ timeout: 2000 }); }
+    catch (error) { }
     if (await filterArrow(newPage).count() > 0) {
         await filterArrow(newPage).nth(0).click(); await delay(newPage, 4000);
     } else { console.log(`branches filter arrow not displaying for user role ${ANSI_ORANGE}${userRole}${ANSI_RESET}`) }
