@@ -2,7 +2,7 @@ import test, { chromium } from "@playwright/test";
 import xlsx from "xlsx";
 import { login_buzz } from "./helper";
 import { testData } from "../pages/TestData";
-import { checkAcctsOutSideFrequency, checkBranchesForSuperUserInSalesDashboard, checkYTDSalesTarget } from "../pages/SalesdashboardPage";
+import { changeUserRole_Branch, checkAcctsOutSideFrequency, checkBranchesForSuperUserInSalesDashboard, checkYTDSalesTarget } from "../pages/SalesdashboardPage";
 import { getTestResults } from "../pages/PricingPages";
 import { stage_url } from "../pages/QuotesPage";
 
@@ -45,6 +45,14 @@ test.describe('Check the Branches in Dashboard for Different User Roles', async 
         //in userData array, deleted the 3rd,4th index value and add new value to the 3rd,4th positions
         userData.splice(3, 1, 'Sales'); userData.splice(4, 1, 'Chicago');
         results = await checkBranchesForSuperUserInSalesDashboard(page, browser, userData, results[1]);
+        await getTestResults(results[0], testInfo)
+    })
+    test('Check the Branches in Dashboard for Sales VP', async ({ }, testInfo) => {
+        //in userData array, deleted the 3rd,4th index value and add new value to the 3rd,4th positions
+        userData.splice(3, 1, 'Sales VP'); userData.splice(4, 1, 'Dallas');
+        results = await checkBranchesForSuperUserInSalesDashboard(page, browser, userData, results[1]);
+        //After testcase done, change user role to Super User
+        await changeUserRole_Branch(page, userData[1], 'Super User', 'Default');
         await getTestResults(results[0], testInfo)
     })
 })

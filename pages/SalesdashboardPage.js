@@ -128,19 +128,23 @@ export async function checkYTDSalesTarget(page, months, salesPerson) {
     }
     return testResult;
 }
-export async function checkBranchesForSuperUserInSalesDashboard(page, browser, userData, newPage) {
-    let [url, userEmail, pWord, userRole, branchName, count] = userData, testResult = false;
-    await search_user(page, userEmail);
+export async function changeUserRole_Branch(page, userEmail, userRole, branchName) {
+    await search_user(page, userEmail); let count1 = 1, count2 = 3;
+    if (userRole == 'Sales VP') { count1 = 0, count2 = 2; }
     await getEleByText(page, 'User Profile').nth(0).click();
     await userEdit(page).click();
     //change user role
-    await reactFirstDropdown(page).nth(1).click();
+    await reactFirstDropdown(page).nth(count1).click();
     await selectReactDropdowns(page, userRole);
     //change branch
-    await reactFirstDropdown(page).nth(3).click();
+    await reactFirstDropdown(page).nth(count2).click();
     await selectReactDropdowns(page, branchName);
     await userUpdateBtn(page).nth(0).click();
     await expect(page.locator('div').filter({ hasText: /^Updated Successfully$/ }).nth(2)).toBeVisible();
+}
+export async function checkBranchesForSuperUserInSalesDashboard(page, browser, userData, newPage) {
+    let [url, userEmail, pWord, userRole, branchName, count] = userData, testResult = false;
+    await changeUserRole_Branch(page, userEmail, userRole, branchName);
     await delay(page, 2300);
     let context;
     if (count == 0) {
@@ -173,14 +177,18 @@ export async function checkBranchesForSuperUserInSalesDashboard(page, browser, u
         case 'Sales Manager':
             if (branchesCount == 1) {
                 if (branchName == branchNameSD) { console.log(`set branch for user is ${branchName}\ndisplaying branch at sals dashboard is ${branchNameSD}`); testResult = true; }
-            } else { testResult = false; }
+            } else { console.log(`${userRole} not checking`); testResult = false; }
             break;
         case 'Sales':
             if (branchesCount == 0) { testResult = true; }
-            else { testResult = false; }
+            else { console.log(`${userRole} not checking`); testResult = false; }
+            break;
+        case 'Sales VP':
+            if (branchesCount == 7) { testResult = true; }
+            else { console.log(`${userRole} not checking`); testResult = false; }
             break;
         default:
-            console.log(`${userRole} not checking`)
+            console.log(`roles are not checking`)
             break;
     }
     return [testResult, newPage];
