@@ -18,6 +18,7 @@ export const userProfileIcon = (page) => { return page.locator("//*[@class='user
 export const branchesListSD = (page) => { return page.locator("//*[@class='tree-select-dropdown']/div/div") }
 export const monthGoalInPut = (page, monthName) => { return page.getByPlaceholder(`Enter value for ${monthName}`) }
 export const salesValue = (page) => { return page.locator("//*[@class='sales-value']") }
+export const userRoleText = (page) => { return page.locator("//*[@class='user-field-details user-details']/div[1]/div/div[2]") }
 
 export async function getYTDTargets(page, salesPerson) {
     await getEleByText(page, 'Dashboard').nth(0).click();
@@ -130,7 +131,8 @@ export async function checkYTDSalesTarget(page, months, salesPerson) {
 }
 export async function changeUserRole_Branch(page, userEmail, userRole, branchName) {
     await search_user(page, userEmail); let count1 = 1, count2 = 3;
-    // if (userRole == 'Sales VP') { count1 = 0, count2 = 2; }
+    let userRoleTxtUserProfile = await userRoleText(page).textContent();
+    if (userRoleTxtUserProfile == 'Sales VP') { count1 = 0, count2 = 2; }
     await getEleByText(page, 'User Profile').nth(0).click();
     await userEdit(page).click();
     //change user role
