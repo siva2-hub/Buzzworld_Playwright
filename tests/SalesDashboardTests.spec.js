@@ -2,15 +2,15 @@ import test, { chromium, expect } from "@playwright/test";
 import xlsx from "xlsx";
 import { login_buzz } from "./helper";
 import { testData } from "../pages/TestData";
-import { changeUserRole_Branch, checkAcctsOutSideFrequency, checkBranchesForSuperUserInSalesDashboard, checkYTDSalesTarget } from "../pages/SalesdashboardPage";
+import { changeUserRole_Branch, checkAcctsOutSideFrequency, checkBranchesForSuperUserInSalesDashboard, checkSalesManagersViewingInTheirOwnBranch, checkYTDSalesTarget, openNewWebPage } from "../pages/SalesdashboardPage";
 import { getTestResults } from "../pages/PricingPages";
 import { stage_url } from "../pages/QuotesPage";
 import { addStockCode, checkLongDescriptonField, naviageToInventory } from "../pages/InventoryPage";
 
-let page, results, browser;
+let page, results, browser, context;
 test.beforeAll(async () => {
     browser = await chromium.launch({ headless: false, args: ['--start-maximized'] });
-    const context = await browser.newContext();
+    context = await browser.newContext();
     page = await context.newPage();
     await login_buzz(page, testData.app_url)
 })
@@ -26,6 +26,7 @@ test('Check YTD Sales Target', async ({ }, testInfo) => {
     results = await checkYTDSalesTarget(page, months, salesPerson);
     await getTestResults(results, testInfo);
 })
+//-------------------------------Branches List for Different User Roles--------------------------
 test.describe('Check the Branches in Dashboard for Different User Roles', async () => {
     let userData = [
         process.env.BASE_URL_BUZZ, 'testdefault@epi.com', 'Enter@4321', 'Super User', 'Dallas', 1
@@ -57,10 +58,17 @@ test.describe('Check the Branches in Dashboard for Different User Roles', async 
         await getTestResults(results[0], testInfo)
     })
 })
+//----------------------------Accounts Outside Appointment Frequency-----------------------------------------------------
 test('Check Accounts Outside Appointment Frequency', async ({ }, testInfo) => {
     results = await checkAcctsOutSideFrequency(page, ['Gene Gray']);
     await getTestResults(results, testInfo);
 })
+//----------------------------check the manager exist in branch users list or not------------------------------
+test('Check the Sales Manager exist in own branch or not', async ({ }, testInfo) => {
+    const userData = [process.env.BASE_URL_BUZZ, 'testdefault@epi.com', 'Enter@4321', 'Sales Manager', 'Dallas', 0];
+    results = await checkSalesManagersViewingInTheirOwnBranch(page, browser, userData)
+})
+//----------------------------Long Description Field-----------------------------------------------------
 test('Check the Long Description At Inventory and Creates SO Screen', async ({ }, testInfo) => {
     const testDataLD = ['create_so', '080CP-V', 'Won'];
     test.setTimeout(120 * 1000);

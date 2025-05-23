@@ -132,7 +132,7 @@ export async function checkYTDSalesTarget(page, months, salesPerson) {
 export async function changeUserRole_Branch(page, userEmail, userRole, branchName) {
     await search_user(page, userEmail); let count1 = 1, count2 = 3;
     let userRoleTxtUserProfile = await userRoleText(page).textContent();
-    if (userRoleTxtUserProfile == 'Sales VP') { count1 = 0, count2 = 2; }
+    // if (userRoleTxtUserProfile == 'Sales VP') { count1 = 0, count2 = 2; }
     await getEleByText(page, 'User Profile').nth(0).click();
     await userEdit(page).click();
     //change user role
@@ -143,6 +143,7 @@ export async function changeUserRole_Branch(page, userEmail, userRole, branchNam
     await selectReactDropdowns(page, branchName);
     await userUpdateBtn(page).nth(0).click();
     await expect(page.locator('div').filter({ hasText: /^Updated Successfully$/ }).nth(2)).toBeVisible();
+    await expect(getEleByText(page, 'Edit User').nth(0)).toBeHidden(); await delay(page, 1400);
 }
 export async function checkBranchesForSuperUserInSalesDashboard(page, browser, userData, newPage) {
     let [url, userEmail, pWord, userRole, branchName, count] = userData, testResult = false;
@@ -156,10 +157,10 @@ export async function checkBranchesForSuperUserInSalesDashboard(page, browser, u
     }
     await userProfileIcon(newPage).click()
     await getEleByText(newPage, 'User Profile').nth(0).click();
-    if (userRole != 'Sales') { await expect(getEleByText(newPage, userEmail)).toBeVisible(); } await delay(newPage, 1500);
+    await expect(getEleByText(newPage, userEmail)).toBeVisible(); await delay(newPage, 1500);
     await getEleByText(newPage, 'Dashboard').nth(0).click();
     await salesButton(newPage).click(); await delay(newPage, 1200);
-    try { await expect(filterArrow(page).nth(0)).toBeVisible({ timeout: 2000 }); }
+    try { await expect(filterArrow(newPage).nth(0)).toBeVisible({ timeout: 2000 }); }
     catch (error) { }
     if (await filterArrow(newPage).count() > 0) {
         await filterArrow(newPage).nth(0).click(); await delay(newPage, 4000);
@@ -211,5 +212,64 @@ export async function checkAcctsOutSideFrequency(page, salesPerson) {
         else { return false; }
     } catch (error) {
         console.log(error); return false;
+    }
+}
+export async function navigateToDashBoard(browser, url, userEmail, pWord, count) {
+    let newPage, context;
+    if (count == 0) {
+        context = await browser.newContext();
+        newPage = await context.newPage();
+        await login_buzz_newUser(newPage, url, userEmail, pWord);
+    }
+    await login_buzz_newUser(newPage, url, userEmail, pWord);
+    await userProfileIcon(newPage).click()
+    await getEleByText(newPage, 'User Profile').nth(0).click();
+    await expect(getEleByText(newPage, userEmail)).toBeVisible(); await delay(newPage, 1500);
+    await getEleByText(newPage, 'Dashboard').nth(0).click();
+    await salesButton(newPage).click(); await delay(newPage, 1200);
+    try { await expect(filterArrow(page).nth(0)).toBeVisible({ timeout: 2000 }); }
+    catch (error) { }
+    return newPage;
+}
+export async function checkSalesManagersViewingInTheirOwnBranch(page, browser, requiredData) {
+    const [url, userEmail, pWord, userRole, branchName, count] = requiredData; let checkingStatus = false;
+    await changeUserRole_Branch(page, userEmail, userRole, branchName);
+    await delay(page, 2300);
+    let newPage = await navigateToDashBoard(browser, url, userEmail, pWord, count); await delay(page, 2300);
+    try { await expect(filterArrow(newPage).nth(0)).toBeVisible({ timeout: 2000 }); }
+    catch (error) { }
+    if (await filterArrow(newPage).count() > 0) {
+        await filterArrow(newPage).nth(0).click(); await delay(newPage, 4000);
+    } else { console.log(`branches filter arrow not displaying for user role ${ANSI_ORANGE}${userRole}${ANSI_RESET}`) }
+    let branches = await branchesListSD(newPage);
+    console.log('branches count is ', await branches.count())
+    for (let index = 0; index < await branches.count(); index++) {
+        let dropBranchName = await branches.nth(index).textContent();
+        console.log(`${userRole} branch is ${branchName}\nDropdown branch is ${dropBranchName}`)
+        if (dropBranchName == branchName) {
+            for (let index = 0; index < await branches.count(); index++) {
+                let sPerson = await branches.nth(index).locator("//div[2]/div");
+                for (let sp = 0; sp < await sPerson.count(); sp++) {
+                    let sPerName = await sPerson.nth(sp).textContent();
+                    console.log('saleperson name ', sPerName);
+                    if (salesPerson[s] == sPerName) {
+                        console.log(`${userRole} is found in ${branchName}`)
+                        let viewLink = await salesValue(page).nth(0).locator("//span/a");
+                        if (await viewLink.count() > 0) {
+                            console.log(`view link is enabled for ${userRole} at Accounts Outside Appointment Frequency`)
+                            console.log(`link is ${await viewLink.nth(0).getAttribute('href')}`)
+                        } else {
+                            console.log(`view link is disbled for ${userRole} at Accounts Outside Appointment Frequency`)
+                        }
+                        console.log(`${sPerName} found in ${await branches.nth(index).locator("//div[1]").nth(0).textContent()} branch`);
+                        checkingStatus = true; break;
+                    } else { console.log(`${userRole} is not found in ${branchName}`); checkingStatus = false; }
+                }
+            }
+            break;
+        } else {
+
+        }
+        let sPerson = await branches.nth(index).locator("//div[2]/div");
     }
 }
