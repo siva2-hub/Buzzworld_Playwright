@@ -2,7 +2,7 @@ import test, { chromium, expect } from "@playwright/test";
 import xlsx from "xlsx";
 import { login_buzz } from "./helper";
 import { testData } from "../pages/TestData";
-import { changeUserRole_Branch, checkAcctsOutSideFrequency, checkBranchesForSuperUserInSalesDashboard, checkSalesManagersViewingInTheirOwnBranch, checkYTDSalesTarget, openNewWebPage } from "../pages/SalesdashboardPage";
+import { changeUserRole_Branch, checkAcctsOutSideFrequency, checkBranchesForSuperUserInSalesDashboard, checkSalesManagersViewingInTheirOwnBranch, checkYTDSalesTarget, linkForAccountsOFrq, linkForAccountsOSFrq, openNewWebPage } from "../pages/SalesdashboardPage";
 import { getTestResults } from "../pages/PricingPages";
 import { stage_url } from "../pages/QuotesPage";
 import { addStockCode, checkLongDescriptonField, naviageToInventory } from "../pages/InventoryPage";
@@ -65,8 +65,15 @@ test('Check Accounts Outside Appointment Frequency', async ({ }, testInfo) => {
 })
 //----------------------------check the manager exist in branch users list or not------------------------------
 test('Check the Sales Manager exist in own branch or not', async ({ }, testInfo) => {
-    const userData = [process.env.BASE_URL_BUZZ, 'testdefault@epi.com', 'Enter@4321', 'Sales Manager', 'Dallas', 0];
-    results = await checkSalesManagersViewingInTheirOwnBranch(page, browser, userData)
+    // testdefault@epi.com [Test Default], klent.prewitt@iidm.com [Klent Prewitt]
+    const userData = [process.env.BASE_URL_BUZZ, 'Test Default', 'testdefault@epi.com', 'Enter@4321', 'Sales Manager', 'Dallas', 0, false, true];
+    let data = await checkSalesManagersViewingInTheirOwnBranch(page, browser, userData);
+    await getTestResults(data[0], testInfo);
+})
+//-------------------------- check the Link for Accounts Outside Appointment Frequency-----------------
+test('Check the Link for Accounts Outside Appointment Frequency for Different User Roles', async ({ }, testInfo) => {
+    const userData = [process.env.BASE_URL_BUZZ, 'Test Default', 'testdefault@epi.com', 'Enter@4321', 'Sales Manager', 'Dallas', 0, true, false];
+    results = await linkForAccountsOSFrq(page, browser, userData);
 })
 //----------------------------Long Description Field-----------------------------------------------------
 test('Check the Long Description At Inventory and Creates SO Screen', async ({ }, testInfo) => {

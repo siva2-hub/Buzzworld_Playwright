@@ -1,5 +1,5 @@
 import { expect } from "@playwright/test";
-import { getEleByText, getEleContText } from "./PricingPages";
+import { getEleByClass, getEleByText, getEleContText } from "./PricingPages";
 import { ANSI_ORANGE, ANSI_RESET, delay, login_buzz, login_buzz_newUser, search_user, selectReactDropdowns, spinner } from "../tests/helper";
 import { reactFirstDropdown } from "./PartsBuyingPages";
 import { testData } from "./TestData";
@@ -16,6 +16,7 @@ export const userEdit = (page) => { return page.locator("(//*[contains(@src,'the
 export const userUpdateBtn = (page) => { return page.getByRole('button', { name: 'Update' }) }
 export const userProfileIcon = (page) => { return page.locator("//*[@class='user_image']") }
 export const branchesListSD = (page) => { return page.locator("//*[@class='tree-select-dropdown']/div/div") }
+export const sales_person = (page) => { return page.locator("//*[@class='tree-select-dropdown']/div/div/div[2]/div") }
 export const monthGoalInPut = (page, monthName) => { return page.getByPlaceholder(`Enter value for ${monthName}`) }
 export const salesValue = (page) => { return page.locator("//*[@class='sales-value']") }
 export const userRoleText = (page) => { return page.locator("//*[@class='user-field-details user-details']/div[1]/div/div[2]") }
@@ -232,44 +233,126 @@ export async function navigateToDashBoard(browser, url, userEmail, pWord, count)
     return newPage;
 }
 export async function checkSalesManagersViewingInTheirOwnBranch(page, browser, requiredData) {
-    const [url, userEmail, pWord, userRole, branchName, count] = requiredData; let checkingStatus = false;
+    const [url, userName, userEmail, pWord, userRole, branchName, count, checkOnlyBranch, checkOnlyUser] = requiredData;
     await changeUserRole_Branch(page, userEmail, userRole, branchName);
-    await delay(page, 2300);
+    await delay(page, 2300); let checkSales = false;
     let newPage = await navigateToDashBoard(browser, url, userEmail, pWord, count); await delay(page, 2300);
     try { await expect(filterArrow(newPage).nth(0)).toBeVisible({ timeout: 2000 }); }
     catch (error) { }
     if (await filterArrow(newPage).count() > 0) {
         await filterArrow(newPage).nth(0).click(); await delay(newPage, 4000);
     } else { console.log(`branches filter arrow not displaying for user role ${ANSI_ORANGE}${userRole}${ANSI_RESET}`) }
-    let branches = await branchesListSD(newPage);
-    console.log('branches count is ', await branches.count())
-    for (let index = 0; index < await branches.count(); index++) {
-        let dropBranchName = await branches.nth(index).textContent();
-        console.log(`${userRole} branch is ${branchName}\nDropdown branch is ${dropBranchName}`)
-        if (dropBranchName == branchName) {
-            for (let index = 0; index < await branches.count(); index++) {
-                let sPerson = await branches.nth(index).locator("//div[2]/div");
-                for (let sp = 0; sp < await sPerson.count(); sp++) {
-                    let sPerName = await sPerson.nth(sp).textContent();
-                    console.log('saleperson name ', sPerName);
-                    if (salesPerson[s] == sPerName) {
-                        console.log(`${userRole} is found in ${branchName}`)
-                        let viewLink = await salesValue(page).nth(0).locator("//span/a");
-                        if (await viewLink.count() > 0) {
-                            console.log(`view link is enabled for ${userRole} at Accounts Outside Appointment Frequency`)
-                            console.log(`link is ${await viewLink.nth(0).getAttribute('href')}`)
-                        } else {
-                            console.log(`view link is disbled for ${userRole} at Accounts Outside Appointment Frequency`)
-                        }
-                        console.log(`${sPerName} found in ${await branches.nth(index).locator("//div[1]").nth(0).textContent()} branch`);
-                        checkingStatus = true; break;
-                    } else { console.log(`${userRole} is not found in ${branchName}`); checkingStatus = false; }
+    if (userRole == 'Sales Manager') {
+        checkSales = await checkBranchesUsersCount(newPage, branchName, userName, checkOnlyBranch, checkOnlyUser);
+        if (checkSales) { console.log(`${userRole} is displayed in their own(${branchName}) branch`); }
+        else { console.log(`${userRole} isn't displayed in their  own(${branchName}) branch`); }
+    } else {
+        console.log('--------------------------sales manager not found')
+        for (let index = 0; index < branchesCount; index++) {
+            let dropBranchName = await branches.nth(index).textContent();
+            console.log(`${userRole} branch is ${branchName}\nDropdown branch is ${dropBranchName}`)
+            if (dropBranchName == branchName) {
+                for (let index = 0; index < branchesCount; index++) {
+                    let sPerson = await branches.nth(index).locator("//div[2]/div");
+                    for (let sp = 0; sp < await sPerson.count(); sp++) {
+                        let sPerName = await sPerson.nth(sp).textContent();
+                        console.log('saleperson name ', sPerName);
+                        if (salesPerson[s] == sPerName) {
+                            console.log(`${userRole} is found in ${branchName}`)
+                            let viewLink = await salesValue(page).nth(0).locator("//span/a");
+                            if (await viewLink.count() > 0) {
+                                console.log(`view link is enabled for ${userRole} at Accounts Outside Appointment Frequency`)
+                                console.log(`link is ${await viewLink.nth(0).getAttribute('href')}`)
+                            } else {
+                                console.log(`view link is disbled for ${userRole} at Accounts Outside Appointment Frequency`)
+                            }
+                            console.log(`${sPerName} found in ${await branches.nth(index).locator("//div[1]").nth(0).textContent()} branch`);
+                            checkingStatus = true; break;
+                        } else { console.log(`${userRole} is not found in ${branchName}`); checkingStatus = false; }
+                    }
                 }
-            }
-            break;
-        } else {
+                break;
+            } else {
 
+            }
         }
-        let sPerson = await branches.nth(index).locator("//div[2]/div");
+    }
+    return [checkSales, newPage];
+}
+export async function checkBranchesUsersCount(page, expectBranchName, expectUserName, checkOnlyBranch, checkOnlyUser) {
+    let branch = await branchesListSD(page);
+    let branchCount = await branch.count(), branchList = [], checkSales = false, usersList = [];
+    for (let index = 0; index < branchCount; index++) { branchList.push(await branch.locator("//div[1]").nth(index).textContent()) }
+    console.log(`Branch(${branchCount}) list is ${branchList}`)
+    for (let index = 0; index < branchCount; index++) {
+        let branchName = await branch.locator("//div[1]").nth(index).textContent();
+        if (checkOnlyBranch) {
+            if (branchName == expectBranchName) {
+                console.log(`${expectBranchName} found in branches dropdown`)
+                await branch.nth(index).click();
+                await page.getByRole('button', { name: `${expectBranchName} Expand node` }).getByRole('checkbox').click();
+            } else { console.log(`${expectBranchName} not found in branches dropdown`) }
+        } else {
+            if (branchName == expectBranchName) {
+                console.log(`${expectBranchName} found in branches dropdown`)
+                await branch.nth(index).click(); await delay(page, 1500);
+                // const salesPerson = await branch.locator("//div[2]/div");
+                const salesPerson = await sales_person(page);
+                let salesCount = await salesPerson.count();
+                console.log(`branches users count ${salesCount}`);
+                const salesList = await salesPerson.all();
+                for (let salesName of salesList) { usersList.push(await salesName.textContent()) }
+                console.log(`Users List: [${ANSI_ORANGE}${usersList}${ANSI_RESET}]`)
+                for (let salesNames of salesList) {
+                    let salesName = await salesNames.textContent();
+                    if (checkOnlyUser) {
+                        if (salesName == expectUserName) {
+                            await salesNames.click();
+                            checkSales = true;
+                            break;
+                        } else { checkSales = false; }
+                    } else {
+                        if (salesName == expectUserName) {
+                            checkSales = true;
+                            break;
+                        } else { checkSales = false; }
+                    }
+                } if (checkSales) { } else { console.log(`${expectUserName} not found in users list`) }
+                // for (let val = 0; val < salesCount; val++) { usersList.push(await salesPerson.nth(val).textContent()) }
+                // console.log(`Users List :${usersList}`)
+                // for (let index = 0; index < salesCount; index++) {
+                //     let salesName = await salesPerson.nth(index).textContent();
+                //     if (checkOnlyUser) {
+                //         if (salesName == expectUserName) {
+                //             await salesPerson.nth(index).click();
+                //             checkSales = true;
+                //             break;
+                //         } else { checkSales = false; }
+                //     } else {
+                //         if (salesName == expectUserName) {
+                //             checkSales = true;
+                //             break;
+                //         } else { checkSales = false; }
+                //     }
+                // } if (checkSales) { } else { console.log(`${expectUserName} not found in users list`) }
+            } else { console.log(`${expectBranchName} not found in branches dropdown`) };
+        }
+    }
+    return checkSales;
+}
+export async function linkForAccountsOSFrq(page, browser, userData) {
+    const [url, userName, userEmail, pWord, userRole, branchName, count, checkOnlyBranch, checkOnlyUser] = userData;
+    let data = await checkSalesManagersViewingInTheirOwnBranch(page, browser, userData), newPage = data[1];
+    await applyButton(newPage).nth(0).click(); await delay(page, 3000);
+    const salesValue = await getEleByClass(newPage, 'sales-value');
+    await expect(salesValue.nth(0)).toBeVisible();
+    await salesValue.nth(0).scrollIntoViewIfNeeded();
+    let viewLink = await salesValue.nth(0).locator("//span/a");
+    let viewLinkCount = await viewLink.count();
+    if (viewLinkCount > 0) {
+        console.log(`View link is displayed for ${branchName} for ${userRole}\nLink is: ${await viewLink.getAttribute('href')}`)
+        await viewLink.click();
+    } else {
+        console.log(`View link isn't displayed for ${branchName} for ${userRole}`);
     }
 }

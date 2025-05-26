@@ -36,7 +36,7 @@ export const testData = {
         quote_type: 'System Quote',// System Quote , Parts Quote
         cont_name: 'Garret Luppino', //chump userOne --> CHUMP03, Garret Luppino --> multioo , Amanda Medel --> HEMIN00
         project_name: 'TEST_1234SS',
-        stock_code: ['A1C4B590'], // 2000-1203, A1C4B590, 2000-1206
+        stock_code: ['022-1BD50'], // 2000-1203, A1C4B590, 2000-1206
         quote_price: '25000',
         part_desc: 'Manually Added From Quotes',
         suppl_name: 'BACO CONTROLS INC',
