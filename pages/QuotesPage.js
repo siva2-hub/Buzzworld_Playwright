@@ -1,6 +1,7 @@
 const { expect } = require("@playwright/test");
 import { selectReactDropdowns, spinner, delay } from '../tests/helper';
 import { loadingText, rTickIcon } from './PartsBuyingPages';
+import { enterKey } from './RepairPages';
 const { testData } = require("./TestData");
 const { timeout } = require("../playwright.config");
 
@@ -76,6 +77,7 @@ export const gridColumnData = (page, columnCount) => { return page.locator("//*[
 export const loadSpin = (page) => { return page.locator("//*[contains(@style, 'stroke:')]") }
 export const deleteBtnQuotes = (page, index) => { return page.locator("//*[contains(@src,'delete')]").nth(index) }
 export const quoteCloneBtn = (page) => { return page.locator("//*[contains(@src,'clone')]") }
+export const paginationForAddItems = (page) => { return page.locator("//*[@aria-label='pagination']") }
 
 
 export async function navigateToQuotesPage(page) {
@@ -85,7 +87,7 @@ export async function navigateToQuotesPage(page) {
 export async function createQuote(page, acc_num, quote_type, project_name) {
     let quote_number;
     try {
-        // await page.goto('https://www.staging-buzzworld.iidm.com/all_quotes/a251e1dd-1cc8-432c-8535-ab5dc6fa2c61')
+        // await page.goto('https://www.staging-buzzworld.iidm.com/system_quotes/4e3d09ad-7c54-4025-bbce-aa78927b6bcd')
         await createQuoteBtn(page).click();
         await expect(companyField(page)).toBeVisible();
         await companyField(page).fill(acc_num);
@@ -110,13 +112,12 @@ export async function addItemsToQuote(page, stock_code, quote_type, suppl_name, 
         await partsSeach(page).fill(stock_code[index]);
         let res = false;
         try {
-            await expect(itemNotAvailText(page)).toBeHidden();
-            await expect(loadSpin(page)).toBeHidden();
-            await expect(itemNotAvailText(page)).toBeVisible({ timeout: 2300 });
-            res = true;
+            await spinner(page);
+            await expect(paginationForAddItems(page)).toBeVisible({ timeout: 6000 })
+            res = false;
         } catch (error) {
             // console.log(error);
-            res = false;
+            res = true;
         }
         if (res) {
             await addNewItemBtn(page).click();
@@ -125,18 +126,27 @@ export async function addItemsToQuote(page, stock_code, quote_type, suppl_name, 
                 await page.keyboard.insertText(suppl_code);
                 await expect(loadingText(page)).toBeVisible(); await expect(loadingText(page)).toBeHidden();
                 await selectReactDropdowns(page, (suppl_name + suppl_code))
-            } else { }
-            await partNumberField(page).fill(stock_code[index]);
-            await partQty(page).fill('1');
+                await partNumberField(page).fill(stock_code[index]);
+            } else {
+                await delay(page, 3000);
+                await partNumberField(page).fill(stock_code[index]);
+            }
+            await partQty(page).fill('1'); await delay(page, 2000);
             await quotePriceFiled(page).fill(qp);
             await listPriceFiled(page).fill('256.36');
             await iidmCostFiled(page).fill('2549.256984');
             await sourceField(page, sourceText).click();
-            await page.getByText('Select', { exact: true }).click();
+            await page.getByText('Select', { exact: true }).nth(0).click();
             await page.getByText('Day(s)', { exact: true }).click();
-            await page.getByPlaceholder('Day(s)').click();
+            // await page.getByPlaceholder('Day(s)').click();
             await page.getByPlaceholder('Day(s)').fill('12-16');
-            await partDescription(page).fill(part_desc); //await page.pause();
+            if (await partDescription(page).textContent() == '') {
+                await partDescription(page).fill(part_desc); //await page.pause();
+            } else { }
+            if (quote_type == 'System Quote') {
+                await page.getByText('Select', { exact: true }).nth(0).click();
+                await enterKey(page);
+            }
             await addBtnAddNewItem(page).click();
         } else {
             await fisrtSeachCheckBox(page).first().click(); //await page.pause();
@@ -148,7 +158,7 @@ export async function addItemsToQuote(page, stock_code, quote_type, suppl_name, 
 export async function selectRFQDateRequestedBy(page, cont_name) {
     await rqfRecDateEditIcon(page).click();
     await nowButton(page).click();
-    await rTickIcon(page).click();
+    await rTickIcon(page).click(); await delay(page, 2500);
     await quoteReqByEditIcon(page).click();
     await reactFirstDropdown(page).click();
     try {

@@ -1,9 +1,10 @@
 import { expect } from "@playwright/test";
-import { getEleByClass, getEleByText, getEleContText } from "./PricingPages";
+import { getEleByAny, getEleByClass, getEleByText, getEleContText } from "./PricingPages";
 import { ANSI_ORANGE, ANSI_RESET, delay, login_buzz, login_buzz_newUser, search_user, selectReactDropdowns, spinner } from "../tests/helper";
 import { reactFirstDropdown } from "./PartsBuyingPages";
 import { testData } from "./TestData";
 import { time } from "console";
+import { timeout } from "../playwright.config";
 export const ytdSalesTarget = (page) => { return page.locator("//*[@class='appointments-target']") }
 export const filterArrow = (page) => { return page.locator("//*[@class='arrow']") }
 export const selectBranch = (page, branchName) => { return page.getByRole('button', { name: `${branchName} Expand node` }) }
@@ -132,19 +133,23 @@ export async function checkYTDSalesTarget(page, months, salesPerson) {
 }
 export async function changeUserRole_Branch(page, userEmail, userRole, branchName) {
     await search_user(page, userEmail); let count1 = 1, count2 = 3;
-    let userRoleTxtUserProfile = await userRoleText(page).textContent();
     // if (userRoleTxtUserProfile == 'Sales VP') { count1 = 0, count2 = 2; }
     await getEleByText(page, 'User Profile').nth(0).click();
-    await userEdit(page).click();
-    //change user role
-    await reactFirstDropdown(page).nth(count1).click();
-    await selectReactDropdowns(page, userRole);
-    //change branch
-    await reactFirstDropdown(page).nth(count2).click();
-    await selectReactDropdowns(page, branchName);
-    await userUpdateBtn(page).nth(0).click();
-    await expect(page.locator('div').filter({ hasText: /^Updated Successfully$/ }).nth(2)).toBeVisible();
-    await expect(getEleByText(page, 'Edit User').nth(0)).toBeHidden(); await delay(page, 1400);
+    let userRoleTxtUserProfile = await userRoleText(page).textContent();
+    await userRoleText(page).isVisible();
+    if (userRoleTxtUserProfile == userRole) { }
+    else {
+        await userEdit(page).click();
+        //change user role
+        await reactFirstDropdown(page).nth(count1).click();
+        await selectReactDropdowns(page, userRole);
+        //change branch
+        await reactFirstDropdown(page).nth(count2).click();
+        await selectReactDropdowns(page, branchName);
+        await userUpdateBtn(page).nth(0).click();
+        await expect(page.locator('div').filter({ hasText: /^Updated Successfully$/ }).nth(2)).toBeVisible();
+        await expect(getEleByText(page, 'Edit User').nth(0)).toBeHidden(); await delay(page, 1400);
+    }
 }
 export async function checkBranchesForSuperUserInSalesDashboard(page, browser, userData, newPage) {
     let [url, userEmail, pWord, userRole, branchName, count] = userData, testResult = false;
@@ -355,4 +360,51 @@ export async function linkForAccountsOSFrq(page, browser, userData) {
     } else {
         console.log(`View link isn't displayed for ${branchName} for ${userRole}`);
     }
+}
+export async function checkUserGoalsVisibilityForSalesUsers(page, browser, userData, count) {
+    let month;
+    let [url, userEmail, pWord, userRole, branchName, newPage] = userData;
+    await changeUserRole_Branch(page, userEmail, userRole, branchName);
+    await delay(page, 2300);
+    let context, isVisibleStatus, isEnableStatus;
+    month = await checkGoalTab(page);
+    isVisibleStatus = await month.isVisible({ timeout: 2300 }), isEnableStatus = await month.isEnabled({ timeout: 2300 });
+    if (isVisibleStatus && isEnableStatus) {
+        await month.fill('123.123');
+        console.log(`Goal tab is visible for ${userRole} at Users`);
+        if (count == 0) {
+            context = await browser.newContext();
+            newPage = await context.newPage();
+            await login_buzz_newUser(newPage, url, userEmail, pWord);
+        } else {
+            await userProfileIcon(newPage).click();
+            await getEleByText(newPage, 'Logout').click();
+            await login_buzz_newUser(newPage, url, userEmail, pWord);
+        }
+        // await newPage.pause();
+        await userProfileIcon(newPage).click()
+        await getEleByText(newPage, 'User Profile').nth(0).click();
+        // await newPage.reload();
+         await delay(newPage, 2300);
+        month = await checkGoalTab(newPage);
+        isVisibleStatus = await month.isVisible({ timeout: 2300 }), isEnableStatus = await month.isEnabled({ timeout: 2300 });
+        if (isVisibleStatus && isEnableStatus) {
+            await month.fill('123.123');
+            console.log(`Goal tab is visible for ${userRole} at user profile`);
+        } else {
+            console.log(`Goal tab isn't visible for ${userRole} at user profile`);
+        }
+    } else {
+        console.log(`Goal tab isn't visible for ${userRole} at Users`);
+    }
+    return [isEnableStatus, newPage];
+}
+async function checkGoalTab(page) {
+    let month;
+    let goalTab = await getEleByText(page, 'Goal');
+    if (await goalTab.isVisible({ timeout: 2300 })) {
+        await goalTab.click(); await delay(page, 1500);
+        month = await getEleByAny(page, 'name', 'february');
+    } else { throw new Error(`Goal Tab isn't displaying`); }
+    return month;
 }
