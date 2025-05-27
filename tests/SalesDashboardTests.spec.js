@@ -1,15 +1,17 @@
-import test, { chromium } from "@playwright/test";
+import test, { chromium, expect } from "@playwright/test";
 import xlsx from "xlsx";
 import { login_buzz } from "./helper";
 import { testData } from "../pages/TestData";
-import { checkAcctsOutSideFrequency, checkBranchesForSuperUserInSalesDashboard, checkYTDSalesTarget } from "../pages/SalesdashboardPage";
+import { changeUserRole_Branch, checkAcctsOutSideFrequency, checkBranchesForSuperUserInSalesDashboard, checkSalesManagersViewingInTheirOwnBranch, checkUserGoalsVisibilityForSalesUsers, checkYTDSalesTarget, linkForAccountsOFrq, linkForAccountsOSFrq, openNewWebPage } from "../pages/SalesdashboardPage";
 import { getTestResults } from "../pages/PricingPages";
 import { stage_url } from "../pages/QuotesPage";
+import { addStockCode, checkLongDescriptonField, naviageToInventory } from "../pages/InventoryPage";
+import { count } from "console";
 
-let page, results, browser;
+let page, results, browser, context, pageUrl = process.env.BASE_URL_BUZZ;
 test.beforeAll(async () => {
     browser = await chromium.launch({ headless: false, args: ['--start-maximized'] });
-    const context = await browser.newContext();
+    context = await browser.newContext();
     page = await context.newPage();
     await login_buzz(page, testData.app_url)
 })
@@ -25,9 +27,10 @@ test('Check YTD Sales Target', async ({ }, testInfo) => {
     results = await checkYTDSalesTarget(page, months, salesPerson);
     await getTestResults(results, testInfo);
 })
+//-------------------------------Branches List for Different User Roles--------------------------
 test.describe('Check the Branches in Dashboard for Different User Roles', async () => {
     let userData = [
-        process.env.BASE_URL_BUZZ, 'testdefault@epi.com', 'Enter@4321', 'Super User', 'Dallas', 1
+        pageUrl, 'testdefault@epi.com', 'Enter@4321', 'Super User', 'Dallas', 1
     ];
     test('Check the Branches in Dashboard for Super User', async ({ }, testInfo) => {
         //in userData array, deleted the 5th index value and add 0 to the 5th position
@@ -47,8 +50,48 @@ test.describe('Check the Branches in Dashboard for Different User Roles', async 
         results = await checkBranchesForSuperUserInSalesDashboard(page, browser, userData, results[1]);
         await getTestResults(results[0], testInfo)
     })
+    test('Check the Branches in Dashboard for Sales VP', async ({ }, testInfo) => {
+        //in userData array, deleted the 3rd,4th index value and add new value to the 3rd,4th positions
+        userData.splice(3, 1, 'Sales VP'); userData.splice(4, 1, 'Dallas');
+        results = await checkBranchesForSuperUserInSalesDashboard(page, browser, userData, results[1]);
+        //After testcase done, change user role to Super User
+        await changeUserRole_Branch(page, userData[1], 'Super User', 'Default');
+        await getTestResults(results[0], testInfo)
+    })
 })
+//----------------------------Accounts Outside Appointment Frequency-----------------------------------------------------
 test('Check Accounts Outside Appointment Frequency', async ({ }, testInfo) => {
     results = await checkAcctsOutSideFrequency(page, ['Gene Gray']);
+    await getTestResults(results, testInfo);
+})
+//----------------------------check the manager exist in branch users list or not------------------------------
+test('Check the Sales Manager exist in own branch or not', async ({ }, testInfo) => {
+    // testdefault@epi.com [Test Default], klent.prewitt@iidm.com [Klent Prewitt]
+    const userData = [pageUrl, 'Test Default', 'testdefault@epi.com', 'Enter@4321', 'Sales Manager', 'Dallas', 0, false, true];
+    let data = await checkSalesManagersViewingInTheirOwnBranch(page, browser, userData);
+    await getTestResults(data[0], testInfo);
+})
+//-------------------------- check the Link for Accounts Outside Appointment Frequency-----------------
+test('Check the Link for Accounts Outside Appointment Frequency for Different User Roles', async ({ }, testInfo) => {
+    const userData = [pageUrl, 'Test Default', 'testdefault@epi.com', 'Enter@4321', 'Sales Manager', 'Dallas', 0, true, false];
+    results = await linkForAccountsOSFrq(page, browser, userData);
+    await getTestResults(results, testInfo);
+})
+//---------------------------check user goals is visible for sales, sales manager and sales vp------------------------
+test('Check user goals is visible for Sales Users', async ({ }, testInfo) => {
+    let roles = ['Sales', 'Sales Manager', 'Sales VP'], isEnable, count = 0, newPage; //, 'Sales Manager', 'Sales VP'
+    for (let user_role of roles) {
+        let userData = [pageUrl, 'testdefault@epi.com', 'Enter@4321', user_role, 'Dallas', newPage];
+        isEnable = await checkUserGoalsVisibilityForSalesUsers(page, browser, userData, count);
+        newPage = isEnable[1];
+        count = count + 1;
+    }
+    await getTestResults(isEnable[0], testInfo);
+})
+//----------------------------Long Description Field-----------------------------------------------------
+test('Check the Long Description At Inventory and Creates SO Screen', async ({ }, testInfo) => {
+    const testDataLD = ['create_so', '080CP-V', 'Won'];
+    test.setTimeout(120 * 1000);
+    results = await checkLongDescriptonField(page, testDataLD);
     await getTestResults(results, testInfo);
 })

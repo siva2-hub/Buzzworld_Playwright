@@ -2143,7 +2143,7 @@ export async function createSO(page, vendor_name, isJobCreate, quote_type) {
     await expect(page.getByRole('heading', { name: 'Sales Order Information' })).toBeVisible();
     let soid = await allPages.quoteOrRMANumber.textContent();
     let order_id = soid.replace("#", "");
-    console.log('order created: ', order_id); await page.pause();
+    console.log('order created: ', order_id);// await page.pause();
     if (isSelectJob) {//isJobCreate 
         let jobCreatedStstus = false;
         if (quote_type === 'System Quote') {

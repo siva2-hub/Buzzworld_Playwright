@@ -24,6 +24,10 @@ export const descPricing = (page) => { return page.locator("//textarea[@name='de
 export const mmddyyField = (page) => { return page.getByText('MM/DD/YYYY') }
 export const searchSC_DC = (page) => { return page.locator("//input[contains(@placeholder,'Stock') or contains(@placeholder,'Discount')]") }
 export const getEleByText = (page, text) => { return page.locator("//*[text() = '" + text + "']") }
+export const getEleByClass = (page, text) => { return page.locator("//*[@class = '" + text + "']") }
+export const getEleByAny = (page, attributeName, text) => { return page.locator(`//*[@${attributeName}='${text}']`) }
+export const getEleByContAny = (page, attributeName, text) => { return page.locator(`//*contains([@${attributeName},'${text}'])`) }
+export const getEleContClass = (page, text) => { return page.locator("//*[contains(@class,'" + text + "')]") }
 export const getEleContText = (page, text) => { return page.locator("//*[contains(text(),'" + text + "')]") }
 export const dcField = (page) => { return page.getByPlaceholder('Discount Code', { exact: true }) }
 export const clearDdField = (page) => { return page.locator("//*[@aria-label='clear']") }

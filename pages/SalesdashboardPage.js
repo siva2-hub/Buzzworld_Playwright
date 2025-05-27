@@ -1,8 +1,10 @@
 import { expect } from "@playwright/test";
-import { getEleByText, getEleContText } from "./PricingPages";
+import { getEleByAny, getEleByClass, getEleByText, getEleContText } from "./PricingPages";
 import { ANSI_ORANGE, ANSI_RESET, delay, login_buzz, login_buzz_newUser, search_user, selectReactDropdowns, spinner } from "../tests/helper";
 import { reactFirstDropdown } from "./PartsBuyingPages";
 import { testData } from "./TestData";
+import { time } from "console";
+import { timeout } from "../playwright.config";
 export const ytdSalesTarget = (page) => { return page.locator("//*[@class='appointments-target']") }
 export const filterArrow = (page) => { return page.locator("//*[@class='arrow']") }
 export const selectBranch = (page, branchName) => { return page.getByRole('button', { name: `${branchName} Expand node` }) }
@@ -15,8 +17,10 @@ export const userEdit = (page) => { return page.locator("(//*[contains(@src,'the
 export const userUpdateBtn = (page) => { return page.getByRole('button', { name: 'Update' }) }
 export const userProfileIcon = (page) => { return page.locator("//*[@class='user_image']") }
 export const branchesListSD = (page) => { return page.locator("//*[@class='tree-select-dropdown']/div/div") }
+export const sales_person = (page) => { return page.locator("//*[@class='tree-select-dropdown']/div/div/div[2]/div") }
 export const monthGoalInPut = (page, monthName) => { return page.getByPlaceholder(`Enter value for ${monthName}`) }
 export const salesValue = (page) => { return page.locator("//*[@class='sales-value']") }
+export const userRoleText = (page) => { return page.locator("//*[@class='user-field-details user-details']/div[1]/div/div[2]") }
 
 export async function getYTDTargets(page, salesPerson) {
     await getEleByText(page, 'Dashboard').nth(0).click();
@@ -41,7 +45,6 @@ export async function getYTDTargets(page, salesPerson) {
                 } else { }
             } if (status) { break; }
         }
-
     }
     if (status) {
         await applyButton(page).click();
@@ -128,19 +131,29 @@ export async function checkYTDSalesTarget(page, months, salesPerson) {
     }
     return testResult;
 }
+export async function changeUserRole_Branch(page, userEmail, userRole, branchName) {
+    await search_user(page, userEmail); let count1 = 1, count2 = 3;
+    // if (userRoleTxtUserProfile == 'Sales VP') { count1 = 0, count2 = 2; }
+    await getEleByText(page, 'User Profile').nth(0).click();
+    let userRoleTxtUserProfile = await userRoleText(page).textContent();
+    await userRoleText(page).isVisible();
+    if (userRoleTxtUserProfile == userRole) { }
+    else {
+        await userEdit(page).click();
+        //change user role
+        await reactFirstDropdown(page).nth(count1).click();
+        await selectReactDropdowns(page, userRole);
+        //change branch
+        await reactFirstDropdown(page).nth(count2).click();
+        await selectReactDropdowns(page, branchName);
+        await userUpdateBtn(page).nth(0).click();
+        await expect(page.locator('div').filter({ hasText: /^Updated Successfully$/ }).nth(2)).toBeVisible();
+        await expect(getEleByText(page, 'Edit User').nth(0)).toBeHidden(); await delay(page, 1400);
+    }
+}
 export async function checkBranchesForSuperUserInSalesDashboard(page, browser, userData, newPage) {
     let [url, userEmail, pWord, userRole, branchName, count] = userData, testResult = false;
-    await search_user(page, userEmail);
-    await getEleByText(page, 'User Profile').nth(0).click();
-    await userEdit(page).click();
-    //change user role
-    await reactFirstDropdown(page).nth(1).click();
-    await selectReactDropdowns(page, userRole);
-    //change branch
-    await reactFirstDropdown(page).nth(3).click();
-    await selectReactDropdowns(page, branchName);
-    await userUpdateBtn(page).nth(0).click();
-    await expect(page.locator('div').filter({ hasText: /^Updated Successfully$/ }).nth(2)).toBeVisible();
+    await changeUserRole_Branch(page, userEmail, userRole, branchName);
     await delay(page, 2300);
     let context;
     if (count == 0) {
@@ -150,9 +163,11 @@ export async function checkBranchesForSuperUserInSalesDashboard(page, browser, u
     }
     await userProfileIcon(newPage).click()
     await getEleByText(newPage, 'User Profile').nth(0).click();
-    if (userRole != 'Sales') { await expect(getEleByText(newPage, userEmail)).toBeVisible(); } await delay(newPage, 1500);
+    await expect(getEleByText(newPage, userEmail)).toBeVisible(); await delay(newPage, 1500);
     await getEleByText(newPage, 'Dashboard').nth(0).click();
     await salesButton(newPage).click(); await delay(newPage, 1200);
+    try { await expect(filterArrow(newPage).nth(0)).toBeVisible({ timeout: 2000 }); }
+    catch (error) { }
     if (await filterArrow(newPage).count() > 0) {
         await filterArrow(newPage).nth(0).click(); await delay(newPage, 4000);
     } else { console.log(`branches filter arrow not displaying for user role ${ANSI_ORANGE}${userRole}${ANSI_RESET}`) }
@@ -173,14 +188,18 @@ export async function checkBranchesForSuperUserInSalesDashboard(page, browser, u
         case 'Sales Manager':
             if (branchesCount == 1) {
                 if (branchName == branchNameSD) { console.log(`set branch for user is ${branchName}\ndisplaying branch at sals dashboard is ${branchNameSD}`); testResult = true; }
-            } else { testResult = false; }
+            } else { console.log(`${userRole} not checking`); testResult = false; }
             break;
         case 'Sales':
             if (branchesCount == 0) { testResult = true; }
-            else { testResult = false; }
+            else { console.log(`${userRole} not checking`); testResult = false; }
+            break;
+        case 'Sales VP':
+            if (branchesCount == 7) { testResult = true; }
+            else { console.log(`${userRole} not checking`); testResult = false; }
             break;
         default:
-            console.log(`${userRole} not checking`)
+            console.log(`roles are not checking`)
             break;
     }
     return [testResult, newPage];
@@ -200,4 +219,192 @@ export async function checkAcctsOutSideFrequency(page, salesPerson) {
     } catch (error) {
         console.log(error); return false;
     }
+}
+export async function navigateToDashBoard(browser, url, userEmail, pWord, count) {
+    let newPage, context;
+    if (count == 0) {
+        context = await browser.newContext();
+        newPage = await context.newPage();
+        await login_buzz_newUser(newPage, url, userEmail, pWord);
+    }
+    await login_buzz_newUser(newPage, url, userEmail, pWord);
+    await userProfileIcon(newPage).click()
+    await getEleByText(newPage, 'User Profile').nth(0).click();
+    await expect(getEleByText(newPage, userEmail)).toBeVisible(); await delay(newPage, 1500);
+    await getEleByText(newPage, 'Dashboard').nth(0).click();
+    await salesButton(newPage).click(); await delay(newPage, 1200);
+    try { await expect(filterArrow(page).nth(0)).toBeVisible({ timeout: 2000 }); }
+    catch (error) { }
+    return newPage;
+}
+export async function checkSalesManagersViewingInTheirOwnBranch(page, browser, requiredData) {
+    const [url, userName, userEmail, pWord, userRole, branchName, count, checkOnlyBranch, checkOnlyUser] = requiredData;
+    await changeUserRole_Branch(page, userEmail, userRole, branchName);
+    await delay(page, 2300); let checkSales = false;
+    let newPage = await navigateToDashBoard(browser, url, userEmail, pWord, count); await delay(page, 2300);
+    try { await expect(filterArrow(newPage).nth(0)).toBeVisible({ timeout: 2000 }); }
+    catch (error) { }
+    if (await filterArrow(newPage).count() > 0) {
+        await filterArrow(newPage).nth(0).click(); await delay(newPage, 4000);
+    } else { console.log(`branches filter arrow not displaying for user role ${ANSI_ORANGE}${userRole}${ANSI_RESET}`) }
+    if (userRole == 'Sales Manager') {
+        checkSales = await checkBranchesUsersCount(newPage, branchName, userName, checkOnlyBranch, checkOnlyUser);
+        if (checkSales) { console.log(`${userRole} is displayed in their own(${branchName}) branch`); }
+        else { console.log(`${userRole} isn't displayed in their  own(${branchName}) branch`); }
+    } else {
+        console.log('--------------------------sales manager not found')
+        for (let index = 0; index < branchesCount; index++) {
+            let dropBranchName = await branches.nth(index).textContent();
+            console.log(`${userRole} branch is ${branchName}\nDropdown branch is ${dropBranchName}`)
+            if (dropBranchName == branchName) {
+                for (let index = 0; index < branchesCount; index++) {
+                    let sPerson = await branches.nth(index).locator("//div[2]/div");
+                    for (let sp = 0; sp < await sPerson.count(); sp++) {
+                        let sPerName = await sPerson.nth(sp).textContent();
+                        console.log('saleperson name ', sPerName);
+                        if (salesPerson[s] == sPerName) {
+                            console.log(`${userRole} is found in ${branchName}`)
+                            let viewLink = await salesValue(page).nth(0).locator("//span/a");
+                            if (await viewLink.count() > 0) {
+                                console.log(`view link is enabled for ${userRole} at Accounts Outside Appointment Frequency`)
+                                console.log(`link is ${await viewLink.nth(0).getAttribute('href')}`)
+                            } else {
+                                console.log(`view link is disbled for ${userRole} at Accounts Outside Appointment Frequency`)
+                            }
+                            console.log(`${sPerName} found in ${await branches.nth(index).locator("//div[1]").nth(0).textContent()} branch`);
+                            checkingStatus = true; break;
+                        } else { console.log(`${userRole} is not found in ${branchName}`); checkingStatus = false; }
+                    }
+                }
+                break;
+            } else {
+
+            }
+        }
+    }
+    return [checkSales, newPage];
+}
+export async function checkBranchesUsersCount(page, expectBranchName, expectUserName, checkOnlyBranch, checkOnlyUser) {
+    let branch = await branchesListSD(page);
+    let branchCount = await branch.count(), branchList = [], checkSales = false, usersList = [];
+    for (let index = 0; index < branchCount; index++) { branchList.push(await branch.locator("//div[1]").nth(index).textContent()) }
+    console.log(`Branch(${branchCount}) list is ${branchList}`)
+    for (let index = 0; index < branchCount; index++) {
+        let branchName = await branch.locator("//div[1]").nth(index).textContent();
+        if (checkOnlyBranch) {
+            if (branchName == expectBranchName) {
+                console.log(`${expectBranchName} found in branches dropdown`)
+                await branch.nth(index).click();
+                await page.getByRole('button', { name: `${expectBranchName} Expand node` }).getByRole('checkbox').click();
+            } else { console.log(`${expectBranchName} not found in branches dropdown`) }
+        } else {
+            if (branchName == expectBranchName) {
+                console.log(`${expectBranchName} found in branches dropdown`)
+                await branch.nth(index).click(); await delay(page, 1500);
+                // const salesPerson = await branch.locator("//div[2]/div");
+                const salesPerson = await sales_person(page);
+                let salesCount = await salesPerson.count();
+                console.log(`branches users count ${salesCount}`);
+                const salesList = await salesPerson.all();
+                for (let salesName of salesList) { usersList.push(await salesName.textContent()) }
+                console.log(`Users List: [${ANSI_ORANGE}${usersList}${ANSI_RESET}]`)
+                for (let salesNames of salesList) {
+                    let salesName = await salesNames.textContent();
+                    if (checkOnlyUser) {
+                        if (salesName == expectUserName) {
+                            await salesNames.click();
+                            checkSales = true;
+                            break;
+                        } else { checkSales = false; }
+                    } else {
+                        if (salesName == expectUserName) {
+                            checkSales = true;
+                            break;
+                        } else { checkSales = false; }
+                    }
+                } if (checkSales) { } else { console.log(`${expectUserName} not found in users list`) }
+                // for (let val = 0; val < salesCount; val++) { usersList.push(await salesPerson.nth(val).textContent()) }
+                // console.log(`Users List :${usersList}`)
+                // for (let index = 0; index < salesCount; index++) {
+                //     let salesName = await salesPerson.nth(index).textContent();
+                //     if (checkOnlyUser) {
+                //         if (salesName == expectUserName) {
+                //             await salesPerson.nth(index).click();
+                //             checkSales = true;
+                //             break;
+                //         } else { checkSales = false; }
+                //     } else {
+                //         if (salesName == expectUserName) {
+                //             checkSales = true;
+                //             break;
+                //         } else { checkSales = false; }
+                //     }
+                // } if (checkSales) { } else { console.log(`${expectUserName} not found in users list`) }
+            } else { console.log(`${expectBranchName} not found in branches dropdown`) };
+        }
+    }
+    return checkSales;
+}
+export async function linkForAccountsOSFrq(page, browser, userData) {
+    const [url, userName, userEmail, pWord, userRole, branchName, count, checkOnlyBranch, checkOnlyUser] = userData;
+    let data = await checkSalesManagersViewingInTheirOwnBranch(page, browser, userData), newPage = data[1];
+    await applyButton(newPage).nth(0).click(); await delay(page, 3000);
+    const salesValue = await getEleByClass(newPage, 'sales-value');
+    await expect(salesValue.nth(0)).toBeVisible();
+    await salesValue.nth(0).scrollIntoViewIfNeeded();
+    let viewLink = await salesValue.nth(0).locator("//span/a");
+    let viewLinkCount = await viewLink.count();
+    if (viewLinkCount > 0) {
+        console.log(`View link is displayed for ${branchName} for ${userRole}\nLink is: ${await viewLink.getAttribute('href')}`)
+        await viewLink.click();
+    } else {
+        console.log(`View link isn't displayed for ${branchName} for ${userRole}`);
+    }
+}
+export async function checkUserGoalsVisibilityForSalesUsers(page, browser, userData, count) {
+    let month;
+    let [url, userEmail, pWord, userRole, branchName, newPage] = userData;
+    await changeUserRole_Branch(page, userEmail, userRole, branchName);
+    await delay(page, 2300);
+    let context, isVisibleStatus, isEnableStatus;
+    month = await checkGoalTab(page);
+    isVisibleStatus = await month.isVisible({ timeout: 2300 }), isEnableStatus = await month.isEnabled({ timeout: 2300 });
+    if (isVisibleStatus && isEnableStatus) {
+        await month.fill('123.123');
+        console.log(`Goal tab is visible for ${userRole} at Users`);
+        if (count == 0) {
+            context = await browser.newContext();
+            newPage = await context.newPage();
+            await login_buzz_newUser(newPage, url, userEmail, pWord);
+        } else {
+            await userProfileIcon(newPage).click();
+            await getEleByText(newPage, 'Logout').click();
+            await login_buzz_newUser(newPage, url, userEmail, pWord);
+        }
+        // await newPage.pause();
+        await userProfileIcon(newPage).click()
+        await getEleByText(newPage, 'User Profile').nth(0).click();
+        // await newPage.reload();
+         await delay(newPage, 2300);
+        month = await checkGoalTab(newPage);
+        isVisibleStatus = await month.isVisible({ timeout: 2300 }), isEnableStatus = await month.isEnabled({ timeout: 2300 });
+        if (isVisibleStatus && isEnableStatus) {
+            await month.fill('123.123');
+            console.log(`Goal tab is visible for ${userRole} at user profile`);
+        } else {
+            console.log(`Goal tab isn't visible for ${userRole} at user profile`);
+        }
+    } else {
+        console.log(`Goal tab isn't visible for ${userRole} at Users`);
+    }
+    return [isEnableStatus, newPage];
+}
+async function checkGoalTab(page) {
+    let month;
+    let goalTab = await getEleByText(page, 'Goal');
+    if (await goalTab.isVisible({ timeout: 2300 })) {
+        await goalTab.click(); await delay(page, 1500);
+        month = await getEleByAny(page, 'name', 'february');
+    } else { throw new Error(`Goal Tab isn't displaying`); }
+    return month;
 }
