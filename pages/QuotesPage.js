@@ -1,6 +1,7 @@
 const { expect } = require("@playwright/test");
 import { selectReactDropdowns, spinner, delay } from '../tests/helper';
 import { loadingText, rTickIcon } from './PartsBuyingPages';
+import { getEleByAny } from './PricingPages';
 import { enterKey } from './RepairPages';
 const { testData } = require("./TestData");
 const { timeout } = require("../playwright.config");
@@ -31,7 +32,7 @@ export const subject = (page) => { return page.locator("//*[@name='quote_mail_su
 export const companyField = (page) => { return page.getByLabel('Company Name*') }
 export const quoteTypeField = (page) => { return page.getByText('Quote Type').nth(1) }
 export const projectName = (page) => { return page.getByPlaceholder('Enter Project Name') }
-export const addItemsBtn = (page) => { return page.getByText('Add Items') }
+export const addItemsBtn = (page) => { return page.locator("//*[@class='button-icon-text ' and text()='Add Items']") }
 export const partsSeach = (page) => { return page.getByPlaceholder('Search By Part Number') }
 export const itemNotAvailText = (page) => { return page.locator("(//*[text() = 'Items Not Available'])[1]") }
 export const addNewItemBtn = (page) => { return page.getByRole('tab', { name: 'Add New Items' }) }
@@ -78,6 +79,8 @@ export const loadSpin = (page) => { return page.locator("//*[contains(@style, 's
 export const deleteBtnQuotes = (page, index) => { return page.locator("//*[contains(@src,'delete')]").nth(index) }
 export const quoteCloneBtn = (page) => { return page.locator("//*[contains(@src,'clone')]") }
 export const paginationForAddItems = (page) => { return page.locator("//*[@aria-label='pagination']") }
+export const itemLevelCheckbox = (page) => { return page.locator("//*[@id='repair-items']/div[2]/div/div/div/div/div/div/label") }
+export const bulkEditIcon = (page) => { return page.locator("//*[@alt='Edit-icon' and contains(@src,'themecolorEdit')]") }
 
 
 export async function navigateToQuotesPage(page) {
@@ -87,7 +90,7 @@ export async function navigateToQuotesPage(page) {
 export async function createQuote(page, acc_num, quote_type, project_name) {
     let quote_number;
     try {
-        // await page.goto('https://www.staging-buzzworld.iidm.com/system_quotes/4e3d09ad-7c54-4025-bbce-aa78927b6bcd')
+        // await page.goto('https://www.staging-buzzworld.iidm.com/all_quotes/56cd714c-72bb-4530-9c48-e316faa6cd33')
         await createQuoteBtn(page).click();
         await expect(companyField(page)).toBeVisible();
         await companyField(page).fill(acc_num);
@@ -107,7 +110,10 @@ export async function createQuote(page, acc_num, quote_type, project_name) {
     }
 }
 export async function addItemsToQuote(page, stock_code, quote_type, suppl_name, suppl_code, sourceText, part_desc, qp) {
+    console.log(`items count is ${stock_code.length}`)
     for (let index = 0; index < stock_code.length; index++) {
+        if (index != 0) { await expect(iidmCostLabel(page)).toBeVisible(); }
+        await expect(addItemsBtn(page)).toBeVisible(); await delay(page, 3000);
         await addItemsBtn(page).click();
         await partsSeach(page).fill(stock_code[index]);
         let res = false;
@@ -169,23 +175,37 @@ export async function selectRFQDateRequestedBy(page, cont_name) {
     await page.waitForTimeout(2000);
 }
 export async function selectSource(page, stock_code, sourceText, item_notes_text) {
+    // for (let index = 0; index < stock_code.length; index++) {
+    //     //item edit icon
+    //     await expect(gpLabel(page, index)).toBeVisible();
+    //     await firstItemEdit(page, index).click();
+    //     await expect(partNumFieldEdit(page)).toBeVisible();
+    //     await reactFirstDropdown(page).nth(1).click();
+    //     await selectReactDropdowns(page, sourceText);
+    //     await itemNotesAtEditItem(page).fill(item_notes_text);
+    //     await saveButton(page).click();
+    //     try {
+    //         await expect(iidmCostReqValdn(page)).toBeVisible({ timeout: 2000 });
+    //         await iidmCostFiled(page).fill('0.1');
+    //         await saveButton(page).click();
+    //     } catch (error) {
+    //     }
+    //     await page.waitForTimeout(2000); await expect(addOptionsBtn(page)).toBeVisible();
+    // }
     for (let index = 0; index < stock_code.length; index++) {
-        //item edit icon
-        await expect(gpLabel(page, index)).toBeVisible();
-        await firstItemEdit(page, index).click();
-        await expect(partNumFieldEdit(page)).toBeVisible();
-        await reactFirstDropdown(page).nth(1).click();
-        await selectReactDropdowns(page, sourceText);
-        await itemNotesAtEditItem(page).fill(item_notes_text);
-        await saveButton(page).click();
-        try {
-            await expect(iidmCostReqValdn(page)).toBeVisible({ timeout: 2000 });
-            await iidmCostFiled(page).fill('0.1');
-            await saveButton(page).click();
-        } catch (error) {
-        }
-        await page.waitForTimeout(2000); await expect(addOptionsBtn(page)).toBeVisible();
+        let checkBox = await itemLevelCheckbox(page).nth(index);
+        if (await checkBox.isChecked()) { } else { await checkBox.click(); }
     }
+    //click on bulk item edit icon after selecting all items
+    await bulkEditIcon(page).click();
+    //wait until discount field is enale
+    await expect(getEleByAny(page, 'id', 'discount')).toBeVisible();
+    //selecting the source for all checked items
+    await reactFirstDropdown(page).nth(0).click();
+    await selectReactDropdowns(page, sourceText);
+    //click on save button to save the changes
+    await saveButton(page).click();
+    await delay(page, 2000); await expect(addOptionsBtn(page)).toBeVisible();
 }
 export async function reviseQuote(page) {
     const reviseQuoteBtn = reviseQuoteButton(page);
