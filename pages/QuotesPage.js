@@ -158,7 +158,7 @@ export async function addItemsToQuote(page, stock_code, quote_type, suppl_name, 
             await fisrtSeachCheckBox(page).first().click(); //await page.pause();
             await selectedItemAtSeach(page).click();
         }
-        await expect(addOptionsBtn(page)).toBeVisible();
+        await expect(iidmCostLabel(page)).toBeVisible();
     }
 }
 export async function selectRFQDateRequestedBy(page, cont_name) {
@@ -192,6 +192,7 @@ export async function selectSource(page, stock_code, sourceText, item_notes_text
     //     }
     //     await page.waitForTimeout(2000); await expect(addOptionsBtn(page)).toBeVisible();
     // }
+    await delay(page, 1200);
     for (let index = 0; index < stock_code.length; index++) {
         let checkBox = await itemLevelCheckbox(page).nth(index);
         if (await checkBox.isChecked()) { } else { await checkBox.click(); }
