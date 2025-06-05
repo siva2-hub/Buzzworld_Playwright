@@ -12,7 +12,7 @@ let url = process.env.BASE_URL_STORE;
 test('Net 30 Payment from Store logged-In User with file attachment', async ({ page }) => {
   let modelNumber = [storeTestData.price_product_1],
     poNumber = storeTestData.po_number;
-  await net30Payment(page, modelNumber, poNumber, storeTestData.loggedIn_api_path)
+  await net30Payment(page, modelNumber, poNumber, storeTestData.loggedIn_api_path, true)
 });
 test('As Logged In Credit Card Payment', async ({ page }) => {
   let card_type = storeTestData.card_details.visa,//defining the card type here

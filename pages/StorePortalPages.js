@@ -1,6 +1,6 @@
 const { expect } = require("@playwright/test");
 import { delay, login_buzz, approve, redirectConsoleToFile, logFilePath, api_responses, loginAsClient, selectReactDropdowns, profile, spinner, i_icon_for_verifying_warehouses } from '../tests/helper';
-import { getEleByText } from './PricingPages';
+import { getEleByAny, getEleByText } from './PricingPages';
 import { approveWonTheRepairQuote } from './RepairPages';
 const { loadingText, nextButton } = require("./PartsBuyingPages");
 const { createQuote, addItemsToQuote, selectRFQDateRequestedBy, selectSource, sendForCustomerApprovals, gridColumnData, quoteOrRMANumber } = require("./QuotesPage");
@@ -49,8 +49,8 @@ export async function storeLogin(page) {
     if (url.includes('dev')) {
         logEmail = 'cathy@bigmanwashes.com', logPword = 'Enter@4321', userName = 'Cathy'
     } else {
-        logEmail = storeTestData.storeLogin.chump.email, logPword = storeTestData.storeLogin.chump.pword,
-            userName = storeTestData.storeLogin.chump.user_name
+        logEmail = storeTestData.storeLogin.multicam.email, logPword = storeTestData.storeLogin.multicam.pword,
+            userName = storeTestData.storeLogin.multicam.user_name
     }
     await emailInput(page).fill(logEmail);
     await passwordInput(page).fill(logPword);
@@ -116,12 +116,21 @@ export async function grandTotalForCreditCard(page, taxable) {
     else { getResults = false; }
     return getResults;
 }
-export async function grandTotalForNet30_RPayterms(page, taxable) {
+export async function grandTotalForNet30_RPayterms(page, taxable, isIncludeTax) {
     let st = await page.locator("(//*[contains(@class,'Total_container')])[1]/div/div[2]").textContent();
     const subTotal = Number(Number(st.replace("$", "").replace(",", "")).toFixed(2));
     let exp_tax;
     if (taxable === 'Exempt') {
-        exp_tax = 0.00;
+
+        if (isIncludeTax) {
+            exp_tax = Number((subTotal * 0.085).toFixed(2));
+            await getEleByAny(page, 'name', 'taxExempt_checkbox').nth(0).click();
+            await spinner(page);await delay(page, 2000);
+            console.log(`customer selected the inlcude tax checkbox`);
+        } else {
+            console.log(`customer not selected the inlcude tax checkbox`);
+            exp_tax = 0.00;
+        }
     } else {
         exp_tax = Number((subTotal * 0.085).toFixed(2));
     }
@@ -162,8 +171,8 @@ export async function creditCardPayment(page, userName, cardDetails, taxable) {
         throw new Error("prices not matched");
     }
 }
-export async function net30PaymentAtCheckout(page, poNum, taxable) {
-    let grandTotalRes = await grandTotalForNet30_RPayterms(page, taxable);
+export async function net30PaymentAtCheckout(page, poNum, taxable, isIncludeTax) {
+    let grandTotalRes = await grandTotalForNet30_RPayterms(page, taxable, isIncludeTax);
     if (grandTotalRes) {
         await proceedBtn(page).click();
         await poNumber(page).fill(poNum);
@@ -243,14 +252,14 @@ export async function selectBillingDetails(page) {
     if (await shipToName.getAttribute('value') == '') { await shipToName.fill('Test Ship To Name'); }
     else { } await nextButton(page).click();
 }
-export async function net30Payment(page, modelNumber, poNum, api_path) {
+export async function net30Payment(page, modelNumber, poNum, api_path, isIncludeTax) {
     await storeLogin(page);
     let taxable = await cartCheckout(page, false, modelNumber);
     // await proceedBtn(page).click();
     // await poNumber(page).fill(poNum);
     // await fileUpload(page).setInputFiles('/home/enterpi/Downloads/Qc_Report_315020.pdf');
     // await page.pause();
-    await net30PaymentAtCheckout(page, poNum, taxable);
+    await net30PaymentAtCheckout(page, poNum, taxable, isIncludeTax);
     // await approveBtn(page).click();
     await orderConfirmationPage(page, api_path);
 }
