@@ -27,7 +27,7 @@ export const stockItemsAtCreateSO = (page) => { return page.locator('//*[@id="ro
 export const itemsCountAtQuotes = (page) => { return page.locator('//*[@id="repair-items"]/div[1]') }
 
 export async function naviageToInventory(page) {
-    await inventoryLink(page).click()
+    if (!await page.url().includes('inventory')) { await inventoryLink(page).click() }
     await expect(addStockCode(page)).toBeVisible()
 }
 export async function checkWarehouseInfoAtAddNewPart(page, newPart) {
@@ -71,7 +71,7 @@ export async function checkLongDescriptonField(page, testDataLD) {
         case 'stock_line_items_page':
             await expect(addStockCode(page)).toBeVisible();
             await addStockCode(page).click();
-            await addStockCode(page).click();
+            await singleStockCode(page).nth(0).click();
             await searchStockField(page).click();
             await expect(page.getByRole('heading', { name: 'Add Stock Line Items' })).toBeVisible();
             await expect(longDescLabelName(page)).toBeVisible();

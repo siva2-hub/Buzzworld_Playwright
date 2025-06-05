@@ -31,18 +31,19 @@ export const testData = {
         new_part: '002-2123-01'
     },
     quotes: {
-        cust_name: 'Multicam Inc', // Chump Change Automation , Multicam Inc , HE&M INC
-        acc_num: 'MULTI00', // CHUMP03 , MULTI00 , HEMIN00
-        quote_type: 'System Quote',// System Quote , Parts Quote
-        cont_name: 'Garret Luppino', //chump userOne --> CHUMP03, Garret Luppino --> multioo , Amanda Medel --> HEMIN00
-        project_name: 'TEST_1234SS',
-        stock_code: ['022-1BD50'], // 2000-1203, A1C4B590, 2000-1206
+        cust_name: 'Halliburton Mfg & Leasing Company', // Chump Change Automation , Multicam Inc , HE&M INC
+        acc_num: 'HALLI11', // CHUMP03 , MULTI00 , HEMIN00
+        quote_type: 'Parts Quote',// System Quote , Parts Quote
+        cont_name: 'Kurt Leveille', //chump userOne --> CHUMP03, Garret Luppino --> multioo , Amanda Medel --> HEMIN00
+        project_name: 'Mafran Remote E-kill Enclosure upgrade',
+        // stock_code: ['NX-ECC201','NX-OD5256','NX-OD3268','NX-ID5442','NX-SID800','A22NZ-BNM-NGA','A22NZ-BNM-NRA','A22NZ-H-01','A22NZ-S-G1A','SU201M-K1','210-112','F1X3LG6','C1LG6','281-907','281-422','281-901','281-402','281-329','249-116'], // 2000-1203, A1C4B590, 2000-1206
+        stock_code: ['NX-ECC201'], // 2000-1203, A1C4B590, 2000-1206
         quote_price: '25000',
         part_desc: 'Manually Added From Quotes',
         suppl_name: 'BACO CONTROLS INC',
         suppl_code: 'BACO001',
-        source_text: 'I-IDM-Stocked',
-        item_notes: 'Test Item Notes 1\nTest Item Notes 2\nTest Item Notes 3\nTest Item Notes 4',
+        source_text: 'Field Service',
+        item_notes: '',
         is_create_job: true, // true, false
         quote_id: 'e2727487-5fb9-4289-ad45-2fe7604b8ad0',
         send_email_to_cust: true,

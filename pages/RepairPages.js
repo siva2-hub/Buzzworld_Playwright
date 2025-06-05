@@ -141,7 +141,7 @@ export async function addItemsToRepairs(page, vendorName, vendorCode, stock_code
             await addSelectedPartBtn(page).click();
         }
         // Assign Location
-        await expect(assignLocation(page).first()).toBeVisible();
+        await expect(assignLocation(page).nth(index)).toBeVisible();
     }
 }
 export async function addNewPart(page, stock_code, vendorCode, vendorName, partDesc, serialNum) {
