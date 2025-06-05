@@ -9,21 +9,37 @@ const { testData } = require('../pages/TestData');
 const testdata = JSON.parse(JSON.stringify(require("../testdata.json")))
 let url = process.env.BASE_URL_STORE;
 
-test('Net 30 Payment from Store logged-In User with file attachment', async ({ page }) => {
+test('Net 30 Payment from Store logged-In User with file attachment is Include Tax', async ({ page }) => {
   let modelNumber = [storeTestData.price_product_1],
-    poNumber = storeTestData.po_number;
-  await net30Payment(page, modelNumber, poNumber, storeTestData.loggedIn_api_path)
+    poNumber = storeTestData.po_number, isIncludeTax = true;
+  await net30Payment(page, modelNumber, poNumber, storeTestData.loggedIn_api_path, isIncludeTax)
 });
-test('As Logged In Credit Card Payment', async ({ page }) => {
+test('Net 30 Payment from Store logged-In User with file attachment is not Include Tax', async ({ page }) => {
+  let modelNumber = [storeTestData.price_product_1],
+    poNumber = storeTestData.po_number, isIncludeTax = false;
+  await net30Payment(page, modelNumber, poNumber, storeTestData.loggedIn_api_path, isIncludeTax)
+});
+test('As Logged In Credit Card Payment with Include Tax', async ({ page }) => {
   let card_type = storeTestData.card_details.visa,//defining the card type here
     modelNumber = [storeTestData.price_product_1],
     cardDetails = [
       card_type.card_number,
       card_type.exp_date,
       card_type.cvv
-    ];
+    ], isIncludeTax = true;
   //Make the credit card payment
-  await ccPaymentLoggedIn(page, modelNumber, cardDetails, storeTestData.loggedIn_api_path);
+  await ccPaymentLoggedIn(page, modelNumber, cardDetails, storeTestData.loggedIn_api_path, isIncludeTax);
+});
+test('As Logged In Credit Card Payment with Out Tax', async ({ page }) => {
+  let card_type = storeTestData.card_details.visa,//defining the card type here
+    modelNumber = [storeTestData.price_product_1],
+    cardDetails = [
+      card_type.card_number,
+      card_type.exp_date,
+      card_type.cvv
+    ], isIncludeTax = false;
+  //Make the credit card payment
+  await ccPaymentLoggedIn(page, modelNumber, cardDetails, storeTestData.loggedIn_api_path, isIncludeTax);
 });
 test('As a Guest Credit Card Payment with Exist Customer New Email', async ({ page }) => {
   let customerName = storeTestData.exist_cust_detls.customer_name, fName = storeTestData.new_cust_detls.f_name,

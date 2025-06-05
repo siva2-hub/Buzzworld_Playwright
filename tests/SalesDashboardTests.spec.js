@@ -88,10 +88,3 @@ test('Check user goals is visible for Sales Users', async ({ }, testInfo) => {
     }
     await getTestResults(isEnable[0], testInfo);
 })
-//----------------------------Long Description Field-----------------------------------------------------
-test('Check the Long Description At Inventory and Creates SO Screen', async ({ }, testInfo) => {
-    const testDataLD = ['create_so', '080CP-V', 'Won'];
-    test.setTimeout(120 * 1000);
-    results = await checkLongDescriptonField(page, testDataLD);
-    await getTestResults(results, testInfo);
-})

@@ -1327,7 +1327,7 @@ export async function warranty_repair_parts_purchase(page, is_manually) {
 export async function spinner(page) {
     try {
         await expect(await page.locator("//*[contains(@style, 'stroke:')]")).toBeVisible();
-        await page.waitForTimeout(1200)
+        await delay(page, 1000);
         await expect(await page.locator("//*[contains(@style, 'stroke:')]")).toBeHidden();
     } catch (error) { }
 }
