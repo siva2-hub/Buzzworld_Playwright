@@ -1,7 +1,7 @@
 const { expect } = require("@playwright/test");
-import { delay, login_buzz, approve, redirectConsoleToFile, logFilePath, api_responses, loginAsClient, selectReactDropdowns, profile, spinner, i_icon_for_verifying_warehouses } from '../tests/helper';
+import { delay, login_buzz, approve, redirectConsoleToFile, logFilePath, api_responses, loginAsClient, selectReactDropdowns, profile, spinner, i_icon_for_verifying_warehouses, clearFilters_TopSearch } from '../tests/helper';
 import { getEleByAny, getEleByText } from './PricingPages';
-import { approveWonTheRepairQuote } from './RepairPages';
+import { approveWonTheRepairQuote, enterKey } from './RepairPages';
 const { loadingText, nextButton } = require("./PartsBuyingPages");
 const { createQuote, addItemsToQuote, selectRFQDateRequestedBy, selectSource, sendForCustomerApprovals, gridColumnData, quoteOrRMANumber } = require("./QuotesPage");
 const { testData } = require("./TestData");
@@ -49,8 +49,8 @@ export async function storeLogin(page) {
     if (url.includes('dev')) {
         logEmail = 'cathy@bigmanwashes.com', logPword = 'Enter@4321', userName = 'Cathy'
     } else {
-        logEmail = storeTestData.storeLogin.multicam.email, logPword = storeTestData.storeLogin.multicam.pword,
-            userName = storeTestData.storeLogin.multicam.user_name
+        logEmail = storeTestData.storeLogin.chump.email, logPword = storeTestData.storeLogin.chump.pword,
+            userName = storeTestData.storeLogin.chump.user_name
     }
     await emailInput(page).fill(logEmail);
     await passwordInput(page).fill(logPword);
@@ -94,9 +94,9 @@ export async function grandTotalForCreditCard(page, taxable, isIncludeTax) {
     const subTotal = Number(Number(st.replaceAll(/[$,]/g, "")).toFixed(2));
     let exp_tax;
     if (taxable == 'Exempt') {
-         if (isIncludeTax) {
+        if (isIncludeTax) {
             await getEleByAny(page, 'name', 'taxExempt_checkbox').nth(0).click();
-            await delay(page, 2000); await spinner(page); 
+            await delay(page, 2000); await spinner(page);
             console.log(`customer selected the include tax checkbox`);
             exp_tax = Number((subTotal * 0.085).toFixed(2));
         } else {
@@ -158,7 +158,7 @@ export async function grandTotalForNet30_RPayterms(page, taxable, isIncludeTax) 
     else { getResults = false; }
     return getResults;
 }
-export async function creditCardPayment(page, userName, cardDetails, taxable, isIncludeTax) {   
+export async function creditCardPayment(page, userName, cardDetails, taxable, isIncludeTax) {
     // await creditCardRadioBtn(page).click({ timeout: 10000 });
     // console.log(taxable); await page.pause();
     const status = await grandTotalForCreditCard(page, taxable, isIncludeTax);
@@ -812,4 +812,37 @@ export async function checkStatusIcon(page) {
             console.log('statuc code at grid ' + status_code + ' status code at data file ' + storeTestData.status_data.quotes.status_code[index])
         }
     }
+}
+export async function projectNameSearchInCustPortal(page1, projName, quoteNumber) {
+    let testResult = false;
+    await expect(page1.getByText('Quotes').first()).toBeVisible(); await delay(page1, 2300);
+    await page1.getByText('Quotes').first().click();
+    try {
+        await expect(page1.locator('.ag-cell > .ag-react-container').first()).toBeVisible({ timeout: 4000 });
+        await clearFilters_TopSearch(page1);
+    } catch (error) { await clearFilters_TopSearch(page1); }
+    const topSearch = page1.getByPlaceholder('Search by Quote ID');
+    await expect(topSearch).toBeVisible();
+    if (await topSearch.getAttribute('value') == projName) { }
+    else {
+        await topSearch.fill(projName);
+        await enterKey(page1);
+        await delay(page1, 1200); await spinner(page1);
+    }
+    let gridQuoteNumber = getEleByText(page1, quoteNumber.replace('#', ''));
+    if (await gridQuoteNumber.first().isVisible()) {
+        await expect(await gridQuoteNumber).toBeVisible();
+        await await gridQuoteNumber.click();
+        await expect(getEleByText(page1, 'Unit Price:').first()).toBeVisible();
+        let actQuoteNumber = await page1.locator("(//*[@class='id-num'])[1]").textContent();
+        if (actQuoteNumber == quoteNumber) {
+            console.log(`Project name search is working in portal`); testResult = true;
+        } else {
+            console.log(`Project name search is't working in portal`);
+        }
+        console.log(`Expect search results ${quoteNumber}\nActual search results ${actQuoteNumber}`)
+    } else {
+        console.log(`at portal searched project name not found in any quotes\nor\nproject name search not working`)
+    }
+    return testResult;
 }

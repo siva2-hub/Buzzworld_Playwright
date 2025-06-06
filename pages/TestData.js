@@ -31,11 +31,11 @@ export const testData = {
         new_part: '002-2123-01'
     },
     quotes: {
-        cust_name: 'Halliburton Mfg & Leasing Company', // Chump Change Automation , Multicam Inc , HE&M INC
-        acc_num: 'HALLI11', // CHUMP03 , MULTI00 , HEMIN00
+        cust_name: 'Chump Change Automation', // Chump Change Automation , Multicam Inc , HE&M INC ,Halliburton Mfg & Leasing Company
+        acc_num: 'CHUMP03', // CHUMP03 , MULTI00 , HEMIN00
         quote_type: 'Parts Quote',// System Quote , Parts Quote
-        cont_name: 'Kurt Leveille', //chump userOne --> CHUMP03, Garret Luppino --> multioo , Amanda Medel --> HEMIN00
-        project_name: 'Mafran Remote E-kill Enclosure upgrade',
+        cont_name: 'chump userOne', //chump userOne --> CHUMP03, Garret Luppino --> multioo , Amanda Medel --> HEMIN00
+        project_name: 'for checking tex include',
         // stock_code: ['NX-ECC201','NX-OD5256','NX-OD3268','NX-ID5442','NX-SID800','A22NZ-BNM-NGA','A22NZ-BNM-NRA','A22NZ-H-01','A22NZ-S-G1A','SU201M-K1','210-112','F1X3LG6','C1LG6','281-907','281-422','281-901','281-402','281-329','249-116'], // 2000-1203, A1C4B590, 2000-1206
         stock_code: ['NX-ECC201'], // 2000-1203, A1C4B590, 2000-1206
         quote_price: '25000',

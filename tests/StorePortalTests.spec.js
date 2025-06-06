@@ -1,10 +1,11 @@
 const { test, expect } = require('@playwright/test');
 import { api_responses, delay, getGridColumn } from './helper';
 const { returnResult, approve, login_buzz } = require('./helper');
-import { storeLogin, cartCheckout, grandTotalForCreditCard, creditCardPayment, searchProdCheckout, selectCustomerWithoutLogin, selectBillingDetails, selectShippingDetails, request_payterms, createQuoteSendToCustFromBuzzworld, net30Payment, ccPayment, ccPaymentLoggedIn, ccPaymentAsGuest, exemptNonExemptAtCheckout, grandTotalForNet30_RPayterms, checkTwoPercentForRSAccounts, getPendingApprovalsGT, checkShippingInstructionsAtOrders, ordersGridSorting, checkTotalDueAtDashboard, checkStatusIcon } from '../pages/StorePortalPages';
+import { storeLogin, cartCheckout, grandTotalForCreditCard, creditCardPayment, searchProdCheckout, selectCustomerWithoutLogin, selectBillingDetails, selectShippingDetails, request_payterms, createQuoteSendToCustFromBuzzworld, net30Payment, ccPayment, ccPaymentLoggedIn, ccPaymentAsGuest, exemptNonExemptAtCheckout, grandTotalForNet30_RPayterms, checkTwoPercentForRSAccounts, getPendingApprovalsGT, checkShippingInstructionsAtOrders, ordersGridSorting, checkTotalDueAtDashboard, checkStatusIcon, projectNameSearchInCustPortal } from '../pages/StorePortalPages';
 const { loadingText } = require('../pages/PartsBuyingPages');
 const { storeTestData } = require('../pages/TestData_Store');
 import { reactFirstDropdown, createQuote, addItemsToQuote, selectRFQDateRequestedBy, selectSource, sendForCustomerApprovals, quoteOrRMANumber } from '../pages/QuotesPage';
+import { getEleByText, getTestResults } from '../pages/PricingPages';
 const { testData } = require('../pages/TestData');
 const testdata = JSON.parse(JSON.stringify(require("../testdata.json")))
 let url = process.env.BASE_URL_STORE;
@@ -252,6 +253,15 @@ test('Checking Total Due at Dashboard', async ({ browser }, testInfo) => {
 })
 test('Check Status Legend', async ({ page }) => {
   await checkStatusIcon(page);
+});
+test('Check the Project Name search is working or not in Store Quotes', async ({ page }, testInfo) => {
+  let projName = 'for checking tex include', // Siva_test_auto_12344 , for checking tex include
+    quoteNumber = '#2025060600004'; //Halliburton Mfg & Leasing Company / 
+  await storeLogin(page);
+  await page.locator("//*[contains(@class,'fa-user')]").click();
+  await getEleByText(page, 'Dashboard').click();
+  let testResult = await projectNameSearchInCustPortal(page, projName, quoteNumber);
+  await getTestResults(testResult, testInfo);
 })
 
 

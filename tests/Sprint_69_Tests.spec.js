@@ -1,15 +1,15 @@
-import test, { browser, BrowserContext, chromium, expect, Page, TestInfo } from "@playwright/test";
+import test, { expect } from "@playwright/test";
 import { delay, login_buzz, selectReactDropdowns } from "./helper";
 import { checkLongDescriptonField } from "../pages/InventoryPage";
 import { getEleByText, getTestResults } from "../pages/PricingPages";
 import { reactFirstDropdown } from "../pages/PartsBuyingPages";
-import { iidmCostLabel } from "../pages/QuotesPage";
+import { iidmCostLabel, navigateToQuotesPage, projectNameSearchInPortal, projectNameSearchInQuotes } from "../pages/QuotesPage";
 import { storeLogin } from "../pages/StorePortalPages";
 let context,
     page,
     results;
 
-test.beforeAll(async () => {
+test.beforeAll(async ({ browser }) => {
     context = await browser.newContext();
     page = await context.newPage();
     await login_buzz(page, process.env.BASE_URL_BUZZ);
@@ -58,4 +58,13 @@ test('Check Re-Order button', async ({ }, testInfo) => {
     await newPage.getByRole('link', { name: 'Dashboard' }).click();
     await expect(newPage.getByText('Need Your Attention')).toBeVisible(); await delay(page, 2000);
     await newPage.goto(await newPage.url().replace('dashboard', order_id));
+})
+test('Check the Project Name search is working or not in Quotes buzz and store', async ({ }, testInfo) => {
+    let projName = 'Mafran Remote E-kill Enclosure upgrade', // Siva_test_auto_12344 , Mafran Remote E-kill Enclosure upgrade
+        custName = 'Halliburton Mfg & Leasing Company'; //Halliburton Mfg & Leasing Company / 
+    let testStautus = await projectNameSearchInQuotes(page, projName); let testResult = false;
+    if (testStautus[0]) {
+        testResult = await projectNameSearchInPortal(page, projName, custName, testStautus[1]);
+    }
+    await getTestResults(testResult, testInfo)
 })

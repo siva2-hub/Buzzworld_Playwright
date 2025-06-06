@@ -1,8 +1,9 @@
 const { expect } = require("@playwright/test");
-import { selectReactDropdowns, spinner, delay } from '../tests/helper';
+import { selectReactDropdowns, spinner, delay, clearFilters_TopSearch } from '../tests/helper';
 import { loadingText, rTickIcon } from './PartsBuyingPages';
-import { getEleByAny } from './PricingPages';
+import { getEleByAny, getEleByText } from './PricingPages';
 import { enterKey } from './RepairPages';
+import { projectNameSearchInCustPortal } from './StorePortalPages';
 const { testData } = require("./TestData");
 const { timeout } = require("../playwright.config");
 
@@ -84,7 +85,7 @@ export const bulkEditIcon = (page) => { return page.locator("//*[@alt='Edit-icon
 
 
 export async function navigateToQuotesPage(page) {
-    await quotesLink(page).click()
+    await quotesLink(page).nth(0).click()
     await expect(customerIconAtGrid(page)).toBeVisible();
 }
 export async function createQuote(page, acc_num, quote_type, project_name) {
@@ -354,32 +355,49 @@ export async function clickOnRelatedIds(page, macthedText) {
         }
     }
 }
-// module.exports = {
-//     navigateToQuotesPage,
-//     createQuote,
-//     addItemsToQuote,
-//     selectRFQDateRequestedBy,
-//     selectSource,
-//     sendForCustomerApprovals,
-//     submitForCustAproval,
-//     quoteWon,
-//     printQuotePDF,
-//     checkGPGrandTotalAtQuoteDetails,
-//     checkReviseForOldVersions,
-//     displayProjectNameAtSendToCustomerApprovals,
-//     clickOnRelatedIds,
-//     // selectReactDropdowns,
-//     //exporting locators
-//     companyField,
-//     customerIconAtGrid,
-//     reactFirstDropdown,
-//     addItemsBtn,
-//     partsSeach,
-//     partNumberField,
-//     partDescription,
-//     // rTickIcon,
-//     saveButton,
-//     createSOBtn,
-//     gridColumnData,
-//     gpLabel
-// }
+export async function projectNameSearchInQuotes(page, projName) {
+    let res, quoteNumber;
+    //navigate to the quote module
+    await navigateToQuotesPage(page);
+    //check and clear top search, and Filter if any filter is applied
+    //enter the project name into top search
+    const topSearch = getEleByAny(page, 'placeholder', 'Quote ID / Company Name / Sales Person Name / Email');
+    if (await topSearch.getAttribute('value') == projName) { }
+    else {
+        await clearFilters_TopSearch(page);
+        await topSearch.fill(projName);
+        //click on enter button, then only search will working
+        await enterKey(page);
+        //wait for loader visible and hide
+        await spinner(page);
+    }
+    //checking filter data found or not, if found go to quote detailed view,
+    console.log(`is visible ${await customerIconAtGrid(page).nth(0).isVisible()}`)
+    if (await customerIconAtGrid(page).nth(0).isVisible()) {
+        await expect(customerIconAtGrid(page).nth(0)).toBeVisible();
+        await customerIconAtGrid(page).nth(0).click();
+        await expect(iidmCostLabel(page).nth(0)).toBeVisible();
+        let actualSearchResults = await page.locator('//*[@id="repair-info-id"]/div[2]/div[5]/div/div[2]/p').first().textContent();
+        if (actualSearchResults == projName) {
+            console.log(`Project name search is working in buzzworld`)
+            quoteNumber = await quoteOrRMANumber(page).textContent();
+            res = true;
+        } else { console.log(`Project name search not working in buzzworld`); res = false; }
+        console.log(`Expect search results ${projName}\nActual search results ${actualSearchResults}`)
+    } else {
+        console.log(`at buzzworld searched project name not found in any quotes\nor\nproject name search not working`); res = false;
+    }
+    return [res, quoteNumber];
+}
+export async function projectNameSearchInPortal(page, projName, customerName, quoteNumber) {
+    let testResult = false;
+    await page.getByRole('button', { name: 'loading' }).first().click();
+    await page.getByRole('menuitem', { name: 'Login as Client' }).click();
+    await page.getByLabel('Organization*').fill(customerName);
+    await page.locator('#react-select-2-option-0').getByText(customerName).click();
+    const page1Promise = page.waitForEvent('popup');
+    await page.getByText('Login', { exact: true }).click();
+    const page1 = await page1Promise;
+    testResult = await projectNameSearchInCustPortal(page1, projName, quoteNumber);
+    return testResult;
+}
