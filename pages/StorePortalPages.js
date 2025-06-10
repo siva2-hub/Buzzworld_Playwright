@@ -3,7 +3,8 @@ import { delay, login_buzz, approve, redirectConsoleToFile, logFilePath, api_res
 import { getEleByAny, getEleByText } from './PricingPages';
 import { approveWonTheRepairQuote, enterKey } from './RepairPages';
 const { loadingText, nextButton } = require("./PartsBuyingPages");
-const { createQuote, addItemsToQuote, selectRFQDateRequestedBy, selectSource, sendForCustomerApprovals, gridColumnData, quoteOrRMANumber } = require("./QuotesPage");
+import { createQuote, gridColumnData, quoteOrRMANumber } from './QuotesPage';
+// const { createQuote, addItemsToQuote, selectRFQDateRequestedBy, selectSource, sendForCustomerApprovals, quoteOrRMANumber } = require("./QuotesPage");
 const { testData } = require("./TestData");
 const { storeTestData } = require("./TestData_Store");
 const path = require("path");
@@ -49,8 +50,8 @@ export async function storeLogin(page) {
     if (url.includes('dev')) {
         logEmail = 'cathy@bigmanwashes.com', logPword = 'Enter@4321', userName = 'Cathy'
     } else {
-        logEmail = storeTestData.storeLogin.chump.email, logPword = storeTestData.storeLogin.chump.pword,
-            userName = storeTestData.storeLogin.chump.user_name
+        logEmail = storeTestData.storeLogin.multicam.email, logPword = storeTestData.storeLogin.multicam.pword,
+            userName = storeTestData.storeLogin.multicam.user_name
     }
     await emailInput(page).fill(logEmail);
     await passwordInput(page).fill(logPword);
@@ -289,7 +290,7 @@ export async function ccPaymentLoggedIn(page, modelNumber, cardDetails, api_url_
     await orderConfirmationPage(page, api_url_path);
 }
 export async function ccPaymentAsGuest(
-    page, url, modelNumber, customerName, fName, lName, email, cardDetails, isExist, api_url_path
+    page, url, modelNumber, customerName, fName, lName, email, cardDetails, isExist, api_url_path, isIncludeTax
 ) {
     await page.goto(url);
     await searchProdCheckout(page, modelNumber);
@@ -301,7 +302,7 @@ export async function ccPaymentAsGuest(
     await notes(page).fill(storeTestData.notes);
     // await creditCardRadioBtn(page).click();
     // await proceedBtn(page).click();
-    await creditCardPayment(page, (fName + lName), cardDetails, taxable)
+    await creditCardPayment(page, (fName + lName), cardDetails, taxable, isIncludeTax)
     //checking order confirmation page
     await orderConfirmationPage(page, api_url_path);
 }
@@ -399,7 +400,7 @@ export async function createQuoteSendToCustFromBuzzworld(page, browser, cardDeta
     //Selecting the Source
     await selectSource(page, testData.quotes.stock_code, testData.quotes.source_text, testData.quotes.item_notes);
     //Approve the Quote
-    await approve(page, testData.quotes.cont_name); await page.pause()
+    await approve(page, testData.quotes.cont_name); 
     // Send to Customer 
     await sendForCustomerApprovals(page);
     // Creating one more page for Portal
@@ -416,12 +417,12 @@ export async function createQuoteSendToCustFromBuzzworld(page, browser, cardDeta
         await expect(newPage.locator("//*[text()='Unit Price:']").first()).toBeVisible();
         let portalQuoteNum = await quoteOrRMANumber(newPage).textContent();
         if (quoteNumber == portalQuoteNum.replace('#', '')) {
-            await newPage.getByRole('button', { name: 'Approve' }).first().click();
+            await newPage.getByRole('button', { name: 'Place Order' }).first().click();
             try {
                 await expect(getEleByText(newPage, 'Please select atleast one item')).toBeVisible({ timeout: 2000 });
                 await getEleByText(newPage, 'Cancel').nth(1).click();
                 await selectItemToAprCB(newPage).click();
-                await newPage.getByRole('button', { name: 'Approve' }).first().click();
+                await newPage.getByRole('button', { name: 'Place Order' }).first().click();
             } catch (error) {
             }
             //get customer data
