@@ -11,18 +11,18 @@ const testdata = JSON.parse(JSON.stringify(require("../testdata.json")))
 let url = process.env.BASE_URL_STORE;
 
 test('Net 30 Payment from Store logged-In User with file attachment is Include Tax', async ({ page }) => {
-  let modelNumber = [storeTestData.price_product_1],
+  let modelNumber = ['231-642', '231-2706/026-000'],
     poNumber = storeTestData.po_number, isIncludeTax = true;
   await net30Payment(page, modelNumber, poNumber, storeTestData.loggedIn_api_path, isIncludeTax)
 });
 test('Net 30 Payment from Store logged-In User with file attachment is not Include Tax', async ({ page }) => {
-  let modelNumber = [storeTestData.price_product_1],
+  let modelNumber = ['231-642', '231-2706/026-000'],
     poNumber = storeTestData.po_number, isIncludeTax = false;
   await net30Payment(page, modelNumber, poNumber, storeTestData.loggedIn_api_path, isIncludeTax)
 });
 test('As Logged In Credit Card Payment with Include Tax', async ({ page }) => {
   let card_type = storeTestData.card_details.visa,//defining the card type here
-    modelNumber = [storeTestData.price_product_1],
+    modelNumber = ['05P00017-0214', '2000-1302', '3-4112AAU-210-B00000'], // 05P00017-0214 , 2000-1302 , 3-4112AAU-210-B00000
     cardDetails = [
       card_type.card_number,
       card_type.exp_date,
@@ -33,7 +33,7 @@ test('As Logged In Credit Card Payment with Include Tax', async ({ page }) => {
 });
 test('As Logged In Credit Card Payment with Out Tax', async ({ page }) => {
   let card_type = storeTestData.card_details.visa,//defining the card type here
-    modelNumber = [storeTestData.price_product_1],
+    modelNumber = ['05P00017-0214', '2000-1302', '3-4112AAU-210-B00000'], // 05P00017-0214 , 2000-1302 , 3-4112AAU-210-B00000
     cardDetails = [
       card_type.card_number,
       card_type.exp_date,
@@ -42,10 +42,12 @@ test('As Logged In Credit Card Payment with Out Tax', async ({ page }) => {
   //Make the credit card payment
   await ccPaymentLoggedIn(page, modelNumber, cardDetails, storeTestData.loggedIn_api_path, isIncludeTax);
 });
-test('As a Guest Credit Card Payment with Exist Customer New Email', async ({ page }) => {
-  let customerName = storeTestData.exist_cust_detls.customer_name, fName = storeTestData.new_cust_detls.f_name,
-    lName = storeTestData.new_cust_detls.l_name, email = storeTestData.new_cust_detls.email,
-    modelNumber = [storeTestData.price_product_1], card_type = storeTestData.card_details.visa
+test('As a Guest Credit Card Payment with Exist Customer New Email include tax', async ({ page }) => {
+  let customerName = 'Multicam Inc', // Chump Change Automation
+    fName = "multi", // chump
+    lName = 'test3', // test
+    email = 'multitest3@espi.co', //chumptest@espi.co
+    modelNumber = [storeTestData.price_product_1], card_type = storeTestData.card_details.visa, isIncludeTax = true;
   // let card_type = testdata.card_details.visa;
   let cardDetails = [
     card_type.card_number,
@@ -53,13 +55,15 @@ test('As a Guest Credit Card Payment with Exist Customer New Email', async ({ pa
     card_type.cvv
   ];
   await ccPaymentAsGuest(
-    page, url, modelNumber, customerName, fName, lName, email, cardDetails, true, storeTestData.guest_api_path
+    page, url, modelNumber, customerName, fName, lName, email, cardDetails, true, storeTestData.guest_api_path, isIncludeTax
   );
 });
 test('As a Guest Credit Card Payment with New Customer New Email', async ({ page }) => {
-  let customerName = storeTestData.new_cust_detls.customer_name, fName = storeTestData.new_cust_detls.f_name,
-    lName = storeTestData.new_cust_detls.l_name, email = storeTestData.new_cust_detls.email,
-    modelNumber = [storeTestData.price_product], card_type = storeTestData.card_details.visa;
+  let customerName = 'Chump Change Test Automation', // Chump Change Automation
+    fName = "Chump", // chump
+    lName = 'ChangeTest', // test
+    email = 'chumpchangetest@espi.co', //chumptest@espi.co
+    modelNumber = [storeTestData.price_product], card_type = storeTestData.card_details.visa, isIncludeTax = true;
   // let card_type = testdata.card_details.visa;
   let cardDetails = [
     card_type.card_number,
@@ -67,7 +71,7 @@ test('As a Guest Credit Card Payment with New Customer New Email', async ({ page
     card_type.cvv
   ];
   await ccPaymentAsGuest(
-    page, url, modelNumber, customerName, fName, lName, email, cardDetails, false, storeTestData.guest_api_path
+    page, url, modelNumber, customerName, fName, lName, email, cardDetails, false, storeTestData.guest_api_path, isIncludeTax
   );
 });
 test('Single Price-less Item Request Quote For Price Exist Customer New Email', async ({ page }) => {
