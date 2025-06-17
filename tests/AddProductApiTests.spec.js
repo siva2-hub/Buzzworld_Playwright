@@ -1,7 +1,39 @@
 const { test, request, expect } = require("@playwright/test");
 const { testData } = require("../pages/TestData");
-const { stage_api_url } = require("./helper");
+const { stage_api_url, read_excel_data, redirectConsoleToFile } = require("./helper");
 const { getAPIResponse, postAPIResponse } = require("../pages/APIs");
+
+redirectConsoleToFile();
+test('verify sell price in cards and items', async () => {
+
+    let yask_data = await read_excel_data('OMRON-SPA-STAGE-ITEMS.csv', 0);// our db name
+    let cardsData = await read_excel_data('OMRON_SPA_CARDS_STAGE.csv', 0);
+    console.log('OMRON rows count is ', yask_data.length); let nullCount = 0;
+    for (let index = 0; index < 1000; index++) {
+        let code = yask_data[index]['stock_code'];
+        let sellPrice = yask_data[index]['sell_price'];
+        let dc = yask_data[index]['discount_code'];
+        for (let cards = 0; cards < 10; cards++) {
+            let name = cardsData[cards]['name'];
+            let dcCards = cardsData[cards]['discount_code'];
+            let sellPriceCard = yask_data[cards]['sell_price'];
+            if (code == name && dc == dcCards) {
+                if (sellPrice == sellPriceCard) {
+                    console.log(`sell price matched for ${code}\nsell price in cards ${sellPriceCard}\nsell price in items ${sellPrice}`);
+                } else {
+                    console.log(`sell price is not matched for ${code}\nsell price in cards ${sellPriceCard}\nsell price in items ${sellPrice}`);
+                }
+                break;
+            }
+        }
+        // if (sellPrice == 'NULL') {
+        //     nullCount = nullCount + 1;
+        // }
+        // console.log(`${code}, sell price is: ${sellPrice}`)
+    }
+    console.log(`null count is ${nullCount}`);
+    //
+})
 
 test('Add Product API with duplicate stock code', async () => {
     //Add Product API Test
