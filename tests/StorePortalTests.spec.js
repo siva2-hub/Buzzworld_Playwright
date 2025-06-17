@@ -86,10 +86,13 @@ test('Single Price-less Item Request Quote For Price Exist Customer New Email', 
   //select billing address
   await selectBillingDetails(page);
   //select shipping address
-  await selectShippingDetails(page);
+  await selectShippingDetails(page, 'UPS - Ground');
   //enter item notes
-  await page.getByRole('textbox').fill('Test\nNotes'); await page.pause();
-  // await page.getByRole('button', { name: 'Request Quote For Price' });.click();
+  await page.getByRole('textbox').fill(`checking ${testInfo.title}`);
+  await page.getByRole('button', { name: 'Request Quote For Price' }).click();
+  await expect(page.getByText('Order SummaryThanks for your')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Continue Shopping' })).toBeVisible();
+  await page.pause();
 });
 test('Single Price-less Item Request Quote For Price New Customer New Email', async ({ page }) => {
   let customerName = storeTestData.new_cust_detls.customer_name, fName = storeTestData.new_cust_detls.f_name,
@@ -103,12 +106,15 @@ test('Single Price-less Item Request Quote For Price New Customer New Email', as
   //select billing address
   await selectBillingDetails(page);
   //select shipping address
-  await selectShippingDetails(page);
+  await selectShippingDetails(page, 'UPS - Ground');
   //enter item notes
-  await page.getByRole('textbox').fill('Test\nNotes'); await page.pause();
-  // await page.getByRole('button', { name: 'Request Quote For Price' });.click();
+  await page.getByRole('textbox').fill(`checking ${testInfo.title}`);
+  await page.getByRole('button', { name: 'Request Quote For Price' }).click();
+  await expect(page.getByText('Order SummaryThanks for your')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Continue Shopping' })).toBeVisible();
+  await page.pause();
 });
-test('For Two Price-less Items Request Quote For Price Exist Customer New Email', async ({ page }) => {
+test('For Two Price-less Items Request Quote For Price Exist Customer New Email', async ({ page }, testInfo) => {
   let customerName = storeTestData.exist_cust_detls.customer_name, fName = storeTestData.exist_cust_detls.f_name,
     lName = storeTestData.exist_cust_detls.l_name, email = storeTestData.new_cust_detls.email,
     modelNumber = [storeTestData.non_price_product, storeTestData.non_price_product_1],
@@ -123,14 +129,17 @@ test('For Two Price-less Items Request Quote For Price Exist Customer New Email'
   //select billing address
   await selectBillingDetails(page);
   //select shipping address
-  await selectShippingDetails(page);
+  await selectShippingDetails(page, 'UPS - Ground');
   //enter item notes
-  await page.getByRole('textbox').fill('Test\nNotes'); await page.pause();
+  await page.getByRole('textbox').fill(`checking ${testInfo.title}`);
   await page.getByRole('button', { name: 'Request Quote For Price' }).click();
+  await expect(page.getByText('Order SummaryThanks for your')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Continue Shopping' })).toBeVisible();
+  await page.pause();
 });
-test('For Two Items Price and Price-less Request Quote For Price Exist Customer New Email', async ({ page }) => {
+test('For Two Items Price and Price-less Request Quote For Price Exist Customer New Email', async ({ page }, testInfo) => {
   let customerName = storeTestData.exist_cust_detls.customer_name, fName = storeTestData.exist_cust_detls.f_name,
-    lName = storeTestData.exist_cust_detls.l_name, email = storeTestData.new_cust_detls.email,
+    lName = storeTestData.exist_cust_detls.l_name, email = storeTestData.exist_cust_detls.email,
     modelNumber = [storeTestData.non_price_product, storeTestData.price_product_1]
     , isCustomerAlreadyExist = true;
   // modelNumber2 = storeTestData.price_product_1;// 376834-1D --> No Price , 231-2706/026-000 --> Have Price;
@@ -143,10 +152,13 @@ test('For Two Items Price and Price-less Request Quote For Price Exist Customer 
   //select billing address
   await selectBillingDetails(page);
   //select shipping address
-  await selectShippingDetails(page);
+  await selectShippingDetails(page, 'UPS - Ground');
   //enter item notes
-  await page.getByRole('textbox').fill('Test\nNotes'); await page.pause();
+  await page.getByRole('textbox').fill(`checking ${testInfo.title}`);
   await page.getByRole('button', { name: 'Request Quote For Price' }).click();
+  await expect(page.getByText('Order SummaryThanks for your')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Continue Shopping' })).toBeVisible();
+  await page.pause();
 });
 test('For Two Price-less Items Request Quote For Price New Customer New Email', async ({ page }) => {
   let customerName = storeTestData.new_cust_detls.customer_name, fName = storeTestData.new_cust_detls.f_name,
@@ -163,10 +175,13 @@ test('For Two Price-less Items Request Quote For Price New Customer New Email', 
   //select billing address
   await selectBillingDetails(page);
   //select shipping address
-  await selectShippingDetails(page);
+  await selectShippingDetails(page, 'UPS - Ground');
   //enter item notes
-  await page.getByRole('textbox').fill('Test\nNotes'); await page.pause();
+  await page.getByRole('textbox').fill(`checking ${testInfo.title}`);
   await page.getByRole('button', { name: 'Request Quote For Price' }).click();
+  await expect(page.getByText('Order SummaryThanks for your')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Continue Shopping' })).toBeVisible();
+  await page.pause();
 });
 test('For Two Items Price and Price-less Request Quote For Price New Customer New Email', async ({ page }) => {
   let customerName = storeTestData.new_cust_detls.customer_name, fName = storeTestData.new_cust_detls.f_name,
@@ -183,10 +198,13 @@ test('For Two Items Price and Price-less Request Quote For Price New Customer Ne
   //select billing address
   await selectBillingDetails(page);
   //select shipping address
-  await selectShippingDetails(page);
+  await selectShippingDetails(page, 'UPS - Ground');
   //enter item notes
-  await page.getByRole('textbox').fill('Test\nNotes'); await page.pause();
+  await page.getByRole('textbox').fill(`checking ${testInfo.title}`);
   await page.getByRole('button', { name: 'Request Quote For Price' }).click();
+  await expect(page.getByText('Order SummaryThanks for your')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Continue Shopping' })).toBeVisible();
+  await page.pause();
 });
 test('Request For Pay Terms', async ({ page }) => {
   const pay_type = 'Request for Pay Terms';
