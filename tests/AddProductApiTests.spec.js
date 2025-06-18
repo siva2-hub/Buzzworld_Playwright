@@ -36,9 +36,14 @@ test('verify sell price in cards and items', async () => {
     //
 })
 test('Write Data into the excel file', async () => {
-    const readData = read_excel_data('duplicate_parts.xlsx', 0);
-    console.log(JSON.stringify(readData));
-    const data = [{ name: 'test', code: '102' }, { name: 'test1', code: '103' }]
+    const readData = await read_excel_data('duplicate_parts.xlsx', 0);
+    //remove the List Price from the single object in the array
+    // const [{'List Price':_, ...newData}] = readData;
+    //remove the List Price, Unit Cost and Supplier from the multiple objects in the array
+    // const newData = readData.map(({ 'List Price': _, 'Unit Cost': __, 'Supplier': ___, ...data }) => data);
+    // console.log(newData);
+    // console.log(readData);
+    // const data = [{ name: 'test', code: '102' }, { name: 'test1', code: '103' }]
     const worksheet = XLSX.utils.json_to_sheet(readData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
