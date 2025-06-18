@@ -1,10 +1,10 @@
-const { test } = require("@playwright/test");
+const { test, browser } = require("@playwright/test");
 const { itemNotesLineBreaks, verifySPAExpiryMails, returnResult, setScreenSize, login_buzz, addTerritoryToZipcodes, defaultTurnAroundTime, getImages, orgSearchLoginAsClient, loginAsClient } = require("./helper");
 const testdata = JSON.parse(JSON.stringify(require("../testdata.json")));
 // const stage_url = testdata.urls.buzz_dev_url;
 const stage_url = process.env.BASE_URL_BUZZ;
 let page, results, context;
-test.beforeAll(async ({ browser }) => {
+test.beforeAll(async () => {
   context = await browser.newContext()
   page = await context.newPage()
   await login_buzz(page, stage_url);
