@@ -1,11 +1,12 @@
 const { test, request, expect } = require("@playwright/test");
 const { testData } = require("../pages/TestData");
+const XLSX = require('xlsx');
+const FS = require('fs');
 const { stage_api_url, read_excel_data, redirectConsoleToFile } = require("./helper");
 const { getAPIResponse, postAPIResponse } = require("../pages/APIs");
 
 redirectConsoleToFile();
 test('verify sell price in cards and items', async () => {
-
     let yask_data = await read_excel_data('OMRON-SPA-STAGE-ITEMS.csv', 0);// our db name
     let cardsData = await read_excel_data('OMRON_SPA_CARDS_STAGE.csv', 0);
     console.log('OMRON rows count is ', yask_data.length); let nullCount = 0;
@@ -33,6 +34,16 @@ test('verify sell price in cards and items', async () => {
     }
     console.log(`null count is ${nullCount}`);
     //
+})
+test('Write Data into the excel file', async () => {
+    const readData = read_excel_data('duplicate_parts.xlsx', 0);
+    console.log(JSON.stringify(readData));
+    const data = [{ name: 'test', code: '102' }, { name: 'test1', code: '103' }]
+    const worksheet = XLSX.utils.json_to_sheet(readData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
+    XLSX.writeFile(workbook, 'Users.xlsx');
+    console.log('new excel file was created');
 })
 
 test('Add Product API with duplicate stock code', async () => {
