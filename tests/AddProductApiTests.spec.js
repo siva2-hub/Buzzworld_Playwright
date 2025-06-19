@@ -48,7 +48,7 @@ test('Write Data into the excel file', async () => {
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
     XLSX.writeFile(workbook, 'Users.xlsx');
-    console.log('new excel file was created');
+    // console.log('new excel file was created');
 })
 
 test('Add Product API with duplicate stock code', async () => {
